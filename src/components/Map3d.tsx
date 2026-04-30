@@ -187,8 +187,8 @@ const getOverlayPosition = (layout: OverlayLayout): React.CSSProperties => {
         };
     }
 
-    const sideSpreadStart = 28;
-    const sideSpreadEnd = 72;
+    const sideSpreadStart = 30;
+    const sideSpreadEnd = 70;
     const sideTopPercent = layout.sideTotal <= 1
         ? 50
         : sideSpreadStart + (layout.sideIndex * (sideSpreadEnd - sideSpreadStart)) / (layout.sideTotal - 1);
@@ -242,7 +242,7 @@ const FactoryLabelCard = ({
                 border: isHighlighted
                     ? '2px solid #00f5ff'
                     : '1px solid rgba(0,245,255,0.2)',
-                height: '20%',
+                height: '17%',
                 boxSizing: 'border-box',
                 overflow: 'hidden',
                 boxShadow: isHighlighted
