@@ -53,7 +53,7 @@ const Map3D = ({
 
         map.current = new maplibregl.Map({
             container: mapContainer.current,
-            style: 'https://api.maptiler.com/maps/019de314-aca9-7a9c-b341-37636688bb6a/style.json?key=YqciQrrpszIp23MCz2am',
+            style: 'https://api.maptiler.com/maps/019de3c3-07e7-7c2d-b57e-391a066a8b1f/style.json?key=YqciQrrpszIp23MCz2am',
             // center: [longitude, latitude] - Xarita yuklanganda ko'rinadigan markaziy nuqta
             // O'zbekiston markazi uchun taxminan: [66.9, 40.0]
             center: [66.9, 40.0], 
@@ -81,7 +81,7 @@ const Map3D = ({
                     // MUHIM: MapLibre-gl markerlarni o'zi absolute position bilan boshqaradi,
                     // shuning uchun transition faqat transform va filterga berilgan.
                     // Agar drag paytida qotish bo'lsa, transitionni butunlay olib tashlash tavsiya etiladi.
-                    el.style.transition = 'transform 0.3s ease, filter 0.3s ease';
+                    // el.style.transition = 'transform 0.3s ease, filter 0.3s ease';
                     el.style.willChange = 'transform'; // GPU renderlash uchun
 
                     // Toifaga qarab rasm tanlash
