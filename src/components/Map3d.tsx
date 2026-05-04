@@ -6,9 +6,125 @@ import { OrbitControls, useGLTF, Environment, ContactShadows, Html } from '@reac
 import * as THREE from 'three';
 import { factoryData } from '../data/factorys';
 import StreamGrid from "./VideoStream";
-import KpiCard from "./KpiCard";
-import {EnergyChart, RealtimeChart} from "./Charts";
 import ProjectDashboard from "./ProjectDashboard";
+import { uzbekistanBorder, loadUzbekistanBorder } from './uzbekistanBorder';
+
+const MARKER_STYLES = `
+    .custom-html-marker {
+        display: flex;
+        align-items: flex-end;
+        cursor: pointer;
+        filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+    }
+    .custom-html-marker:hover {
+        transform: scale(1.1);
+        z-index: 100;
+    }
+    .marker-pin-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .marker-pin {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 15px rgba(255, 20, 147, 0.4);
+        border: 2px solid #ff1493;
+    }
+    .marker-icon-inner {
+        transform: rotate(45deg);
+        width: 24px;
+        height: 24px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    .marker-line {
+        width: 3px;
+        height: 80px;
+        background: #ff1493;
+        margin-left: 0px;
+        margin-top: -2px;
+    }
+    .marker-content-box {
+        position: absolute;
+        left: 20px;
+        bottom: 25px;
+        display: flex;
+        flex-direction: column;
+        min-width: 180px;
+    }
+    .marker-title-tag {
+        background: #ff1493;
+        color: white;
+        padding: 4px 12px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 4px 15px 4px 4px;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .marker-info-small {
+        font-size: 10px;
+        opacity: 0.8;
+        font-weight: normal;
+        margin-left: 10px;
+    }
+    .marker-info-box {
+        background: rgba(10, 10, 10, 0.85);
+        color: white;
+        padding: 6px 12px;
+        margin-left: 5%;
+        font-size: 13px;
+        border-radius: 4px;
+        border-left: 4px solid #ff1493;
+        backdrop-filter: blur(4px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        white-space: nowrap;
+    }
+    .marker-info-value {
+        color: #ffd700;
+        margin-left: 10px;
+    }
+
+    /* Toifalar ranglari */
+    .toifa-1 .marker-pin { border-color: #ff1493; }
+    .toifa-1 .marker-line { background: #ff1493; }
+    .toifa-1 .marker-title-tag { background: #ff1493; }
+    .toifa-1 .marker-info-box { border-left-color: #ff1493; }
+
+    .toifa-2 .marker-pin { border-color: #00f5ff; }
+    .toifa-2 .marker-line { background: #00f5ff; }
+    .toifa-2 .marker-title-tag { background: #00f5ff; }
+    .toifa-2 .marker-info-box { border-left-color: #00f5ff; }
+
+    .toifa-3 .marker-pin { border-color: #32cd32; }
+    .toifa-3 .marker-line { background: #32cd32; }
+    .toifa-3 .marker-title-tag { background: #32cd32; }
+    .toifa-3 .marker-info-box { border-left-color: #32cd32; }
+
+    .toifa-4 .marker-pin { border-color: #ffa500; }
+    .toifa-4 .marker-line { background: #ffa500; }
+    .toifa-4 .marker-title-tag { background: #ffa500; }
+    .toifa-4 .marker-info-box { border-left-color: #ffa500; }
+
+    .toifa-5 .marker-pin { border-color: #9370db; }
+    .toifa-5 .marker-line { background: #9370db; }
+    .toifa-5 .marker-title-tag { background: #9370db; }
+    .toifa-5 .marker-info-box { border-left-color: #9370db; }
+`;
 
 // 1. RIGHTPANEL VIEW MODEL (Modal uchun 3D model)
 export const FactoryViewer = ({
@@ -48,54 +164,147 @@ const Map3D = ({
 
     const factorys = factoryData;
 
+    // O'zbekiston chegara neon animatsiyasi uchun state yoki ref
+    const animationFrameRef = useRef<number>();
+
     useEffect(() => {
         if (!mapContainer.current) return;
 
+        // CSS uslublarni qo'shish
+        const style = document.createElement('style');
+        style.textContent = MARKER_STYLES;
+        document.head.appendChild(style);
+
         map.current = new maplibregl.Map({
             container: mapContainer.current,
-            style: 'https://api.maptiler.com/maps/019de3c3-07e7-7c2d-b57e-391a066a8b1f/style.json?key=YqciQrrpszIp23MCz2am',
-            // center: [longitude, latitude] - Xarita yuklanganda ko'rinadigan markaziy nuqta
-            // O'zbekiston markazi uchun taxminan: [66.9, 40.0]
-            center: [66.9, 40.0], 
-            // zoom: Xarita yaqinligi. 0-22 gacha. 
-            // 6 - mamlakat darajasi, 10 - viloyat, 15 - shahar/tuman
-            zoom: 6
+            style: 'https://api.maptiler.com/maps/019de83b-bc0c-7558-9ffe-1761aa83c410/style.json?key=YqciQrrpszIp23MCz2am',
+            center: [66.9, 40.0],
+            zoom: 5.5,
+            fadeDuration: 0
         });
 
-        map.current.on('load', () => {
+        map.current.on('load', async () => {
+            if (!map.current) return;
+
+            // 1. O'ZBEKISTON CHEGARASINI YUKLASH
+            const uzbekistanData = await loadUzbekistanBorder();
+
+            if (uzbekistanData) {
+                map.current.addSource('uzbekistan-border', {
+                    type: 'geojson',
+                    data: uzbekistanData as any
+                });
+
+                // Ichki to'ldirish
+                map.current.addLayer({
+                    id: 'uzbekistan-fill',
+                    type: 'fill',
+                    source: 'uzbekistan-border',
+                    paint: {
+                        'fill-color': '#00f5ff',
+                        'fill-opacity': 0.05
+                    }
+                });
+
+                // Tashqi neon glow (katta)
+                map.current.addLayer({
+                    id: 'uzbekistan-outline-glow',
+                    type: 'line',
+                    source: 'uzbekistan-border',
+                    paint: {
+                        'line-color': '#00f5ff',
+                        'line-width': 8,
+                        'line-blur': 12,
+                        'line-opacity': 0.4
+                    }
+                });
+
+                // O'rta neon layer
+                map.current.addLayer({
+                    id: 'uzbekistan-outline-mid',
+                    type: 'line',
+                    source: 'uzbekistan-border',
+                    paint: {
+                        'line-color': '#00f5ff',
+                        'line-width': 4,
+                        'line-blur': 6,
+                        'line-opacity': 0.7
+                    }
+                });
+
+                // Asosiy o'tkir chiziq
+                map.current.addLayer({
+                    id: 'uzbekistan-outline',
+                    type: 'line',
+                    source: 'uzbekistan-border',
+                    paint: {
+                        'line-color': '#00ffff',
+                        'line-width': 1.5,
+                        'line-opacity': 0.8
+                    }
+                });
+
+                // Neon animatsiyasi
+                let step = 0;
+                const animateNeon = () => {
+                    step += 0.03;
+                    const opacity = 0.2 + Math.abs(Math.sin(step)) * 0.4;
+                    const glowWidth = 4 + Math.abs(Math.sin(step)) * 8;
+
+                    if (map.current && map.current.getLayer('uzbekistan-outline-glow')) {
+                        map.current.setPaintProperty('uzbekistan-outline-glow', 'line-opacity', opacity);
+                        map.current.setPaintProperty('uzbekistan-outline-glow', 'line-width', glowWidth);
+                        
+                        // O'rta qatlamni ham ozgina o'zgartirish
+                        const midOpacity = 0.4 + Math.abs(Math.sin(step)) * 0.3;
+                        map.current.setPaintProperty('uzbekistan-outline-mid', 'line-opacity', midOpacity);
+                        
+                        animationFrameRef.current = requestAnimationFrame(animateNeon);
+                    }
+                };
+                animateNeon();
+            }
+
+            // 2. FABRIKA MARKERLARINI QO'SHISH
             factorys.forEach((f, index) => {
                 if (f.coords) {
-                    // Marker elementini yaratish
                     const el = document.createElement('div');
-                    el.className = 'custom-marker';
-                    el.style.width = '64px';
-                    el.style.height = '64px';
-                    el.style.cursor = 'pointer';
-                    el.style.display = 'flex';
-                    el.style.alignItems = 'center';
-                    el.style.justifyContent = 'center';
-                    el.style.backgroundSize = 'contain';
-                    el.style.backgroundRepeat = 'no-repeat';
-                    el.style.backgroundPosition = 'center';
-                    // Transition markerning silliq o'zgarishi (scale/filter) uchun.
-                    // MUHIM: MapLibre-gl markerlarni o'zi absolute position bilan boshqaradi,
-                    // shuning uchun transition faqat transform va filterga berilgan.
-                    // Agar drag paytida qotish bo'lsa, transitionni butunlay olib tashlash tavsiya etiladi.
-                    // el.style.transition = 'transform 0.3s ease, filter 0.3s ease';
-                    el.style.willChange = 'transform'; // GPU renderlash uchun
+                    const toifaNum = f.marker_icon?.split('_')[1] || '1';
+                    el.className = `custom-html-marker toifa-${toifaNum}`;
 
-                    // Toifaga qarab rasm tanlash
                     let iconPath = '/icons/factory1.png';
                     if (f.marker_icon === 'toifa_2') iconPath = '/icons/factory2.png';
                     else if (f.marker_icon === 'toifa_3') iconPath = '/icons/factory3.png';
-                    
-                    el.style.backgroundImage = `url(${iconPath})`;
+                    else if (f.marker_icon === 'toifa_4') iconPath = '/icons/factory1.png';
+                    else if (f.marker_icon === 'toifa_5') iconPath = '/icons/factory2.png';
+
+                    el.innerHTML = `
+                        <div class="marker-pin-wrapper">
+                            <div class="marker-content-box">
+                                <div class="marker-title-tag">
+                                    ${f.title}
+                                    <span class="marker-info-small">${(f as any).info || ''}</span>
+                                </div>
+                                <div class="marker-info-box">
+                                    <span>${(f as any).description?.split(' ')[0] || 'Ma\'lumot'}</span>
+                                    <span class="marker-info-value">${(f as any).description?.split(' ').slice(1).join(' ') || ''}</span>
+                                </div>
+                            </div>
+                            <div class="marker-pin">
+                                <div class="marker-icon-inner" style="background-image: url(${iconPath})"></div>
+                            </div>
+                            <div class="marker-line"></div>
+                        </div>
+                    `;
 
                     el.onclick = () => {
                         handleOpenDetails(index);
                     };
 
-                    const marker = new maplibregl.Marker({ element: el })
+                    const marker = new maplibregl.Marker({
+                        element: el,
+                        anchor: 'bottom-left'
+                    })
                         .setLngLat(f.coords as [number, number])
                         .addTo(map.current!);
                     
@@ -105,44 +314,10 @@ const Map3D = ({
         });
 
         return () => {
+            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
             map.current?.remove();
         };
     }, []);
-
-    useEffect(() => {
-        if (!isManual) {
-            const interval = setInterval(() => {
-                setHighlightIndex(prev => (prev >= factorys.length - 1 ? 0 : prev + 1));
-            }, 10000);
-            return () => clearInterval(interval);
-        }
-    }, [isManual, factorys.length]);
-
-    // Highlight o'zgarganda xaritani markerga yo'naltirish
-    useEffect(() => {
-        const currentFactory = factorys[highlightIndex];
-        if (currentFactory?.coords && map.current) {
-            map.current.flyTo({
-                center: currentFactory.coords as [number, number],
-                zoom: 10,
-                speed: 1.2
-            });
-
-            // Markerni vizual ajratish (highlight effect)
-            Object.values(markersRef.current).forEach(m => {
-                const el = m.getElement();
-                el.style.transform = 'scale(1)';
-                el.style.filter = 'none';
-            });
-
-            const activeMarker = markersRef.current[currentFactory.id];
-            if (activeMarker) {
-                const activeEl = activeMarker.getElement();
-                activeEl.style.transform = 'scale(1.4)';
-                activeEl.style.filter = 'drop-shadow(0 0 10px #00f5ff)';
-            }
-        }
-    }, [highlightIndex, factorys]);
 
     const handleManualOpen = (index: number) => {
         setHighlightIndex(index);
@@ -159,6 +334,7 @@ const Map3D = ({
     const handleCloseDetails = () => {
         setOpenDetailIndex(null);
     };
+
 
     return (
         <div style={{
@@ -234,12 +410,6 @@ const Map3D = ({
                             }}
                         >
                             <img src="./imgs/scada12.png" alt="..." style={{ width: '100%', height: '100%' }} />
-                            {/*<div style={{ marginTop: '20px', width: '100%', textAlign: 'left' }}>*/}
-                            {/*    <div style={{ fontSize: '18px', marginBottom: '10px' }}>Korxona: {factorys[openDetailIndex]?.enterprise_name || 'Noma\'lum'}</div>*/}
-                            {/*    <div style={{ fontSize: '16px', opacity: 0.8 }}>Maqsad: {factorys[openDetailIndex]?.projectGoal || 'Noma\'lum'}</div>*/}
-                            {/*    <div style={{ fontSize: '16px', opacity: 0.8 }}>Holat: {factorys[openDetailIndex]?.status || 'Noma\'lum'}</div>*/}
-                            {/*    <div style={{ fontSize: '14px', marginTop: '10px', color: '#fff', opacity: 0.6 }}>{factorys[openDetailIndex]?.content}</div>*/}
-                            {/*</div>*/}
                         </div>
                         <div
                             style={{
@@ -292,28 +462,6 @@ const Map3D = ({
                                 fontSize: '22px',
                             }}
                         >
-                            {/*<div style={{*/}
-                            {/*    width: '100%',*/}
-                            {/*    display: 'grid',*/}
-                            {/*    padding: '10px',*/}
-                            {/*    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',*/}
-                            {/*    gap: '10px',*/}
-                            {/*}}>*/}
-                            {/*    <KpiCard icon="🏭" target={2847193} decimals={0} unit="tonnes" label="Total Output YTD" trend="▲ 12.4%" trendUp={true} />*/}
-                            {/*    <KpiCard icon="⚙️" target={18} decimals={0} unit="active" label="Operating Facilities" trend="▲ 2" trendUp={true} />*/}
-                            {/*    <KpiCard icon="📊" target={94.7} decimals={1} unit="%" label="Avg. Efficiency" trend="▼ 0.3%" trendUp={false} />*/}
-                            {/*    <KpiCard icon="👷" target={34219} decimals={0} unit="personnel" label="Active Workforce" trend="▲ 847" trendUp={true} />*/}
-                            {/*</div>*/}
-
-                            {/*<div style={{*/}
-                            {/*    width: '100%',*/}
-                            {/*    padding: '10px',*/}
-                            {/*    boxSizing: 'border-box',*/}
-                            {/*}}>*/}
-                            {/*    <EnergyChart />*/}
-                            {/*    <RealtimeChart />*/}
-                            {/*</div>*/}
-
                             <ProjectDashboard />
                         </div>
 
