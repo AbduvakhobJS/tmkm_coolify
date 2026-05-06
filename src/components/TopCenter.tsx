@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface WidgetData {
     name: string;
@@ -10,6 +10,8 @@ interface WidgetData {
 }
 
 const TopCenter = () => {
+    const [activeTab, setActiveTab] = useState(1);
+
     // Har bir qavat uchun widgetlar (piramida ko'rinishida)
     const layers: WidgetData[][] = [
         // Eng yuqori qavat (4-qavat, 3 ta)
@@ -48,39 +50,59 @@ const TopCenter = () => {
     ];
 
     return (
-        <div className="top-center-bg">
-            <div className="logo-title-piro">
-                <img src="./imgs/logo2.png" alt="" />
+        <div className="top-center-wrapper">
+            <div className="top-center-tabs">
+                <button
+                    className={`top-center-tab${activeTab === 1 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(1)}
+                >
+                    Tab 1
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 2 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(2)}
+                >
+                    Tab 2
+                </button>
+            </div>
 
-            </div>
-            <div className="top-center-content">
-                {layers.flat().map((widget, idx) => {
-                    const rotationY = widget.side === 'left' ? -(widget.angle || 0) : (widget.angle || 0);
-                    return (
-                        <div 
-                            key={idx}
-                            className="top-center-widget"
-                            style={{ 
-                                left: `${widget.position.x}%`, 
-                                top: `${widget.position.y}%`,
-                                '--rotY': `${rotationY}deg`,
-                                '--shine-delay': `${(idx % 9) * 0.28}s`,
-                                opacity: widget.opacity
-                            } as React.CSSProperties}
-                        >
-                            <div className="widget-inner">
-                                {
-                                    widget.image ?
-                                        <img className="widget-icon" src={widget.image} alt={widget.name} />
-                                        :
-                                        ""
-                                }
-                                <span className="widget-text">{widget.name}</span>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+            {activeTab === 1 && (
+                <div className="top-center-bg">
+                    <div className="logo-title-piro">
+                        <img src="./imgs/logo2.png" alt="" />
+                    </div>
+                    <div className="top-center-content">
+                        {layers.flat().map((widget, idx) => {
+                            const rotationY = widget.side === 'left' ? -(widget.angle || 0) : (widget.angle || 0);
+                            return (
+                                <div
+                                    key={idx}
+                                    className="top-center-widget"
+                                    style={{
+                                        left: `${widget.position.x}%`,
+                                        top: `${widget.position.y}%`,
+                                        '--rotY': `${rotationY}deg`,
+                                        '--shine-delay': `${(idx % 9) * 0.28}s`,
+                                        opacity: widget.opacity
+                                    } as React.CSSProperties}
+                                >
+                                    <div className="widget-inner">
+                                        {widget.image ? (
+                                            <img className="widget-icon" src={widget.image} alt={widget.name} />
+                                        ) : ''}
+                                        <span className="widget-text">{widget.name}</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 2 && (
+                <div className="top-center-second">
+                </div>
+            )}
         </div>
     );
 };

@@ -35,7 +35,6 @@ const MARKER_STYLES = `
         align-items: center;
         justify-content: center;
         border: 2px solid #ff1493;
-        margin-bottom: 5px;
     }
     .marker-icon-inner {
         transform: rotate(45deg);
@@ -354,94 +353,81 @@ const Map3D = ({
     const updateVehicleMarkers = () => {
         if (!map.current) return;
 
+        // Toifa 6 yoki avtomobillar o'chirilgan bo'lsa barcha mashina markerlarini olib tashlash
         const showActive = visibleToifas.includes('active_car');
         const showInactive = visibleToifas.includes('inactive_car');
 
-        // Hozirgi ma'lumotlardagi mashinalar ID lari
-        const currentDataIds = new Set(vehicles.map(v => v.id.toString()));
+        if (!showActive && !showInactive) {
+            Object.values(vehicleMarkersRef.current).forEach(m => m.remove());
+            vehicleMarkersRef.current = {};
+            return;
+        }
 
-        // 1. O'chirilishi kerak bo'lgan markerlarni aniqlash va o'chirish
-        Object.keys(vehicleMarkersRef.current).forEach((id: any) => {
-            const v = vehicles.find(veh => veh.id.toString() === id);
+        // Yangi ma'lumotlar bo'yicha yangilash
+        vehicles.forEach((v) => {
+            const isOnline = v.status?.isOnline;
             
-            // Agar mashina umuman kelmasa yoki filtr o'chirilgan bo'lsa
-            const isMissing = !currentDataIds.has(id);
-            const noCarsVisible = !showActive && !showInactive;
-            
-            let statusMismatch = false;
-            if (v) {
-                const isOnline = v.status?.isOnline;
-                statusMismatch = (isOnline && !showActive) || (!isOnline && !showInactive);
+            // Filtrni tekshirish
+            if ((isOnline && !showActive) || (!isOnline && !showInactive)) {
+                if (vehicleMarkersRef.current[v.id]) {
+                    vehicleMarkersRef.current[v.id].remove();
+                    delete vehicleMarkersRef.current[v.id];
+                }
+                return;
             }
 
-            if (isMissing || noCarsVisible || statusMismatch) {
-                vehicleMarkersRef.current[id].remove();
-                delete vehicleMarkersRef.current[id];
+            const iconUrl = isOnline ? '/icons/activeCar.png' : '/icons/inActiveCar.png';
+            const lngLat: [number, number] = [v.position.longitude, v.position.latitude];
+
+            if (vehicleMarkersRef.current[v.id]) {
+                // Marker allaqachon bor, faqat pozitsiya va iconni yangilash
+                const marker = vehicleMarkersRef.current[v.id];
+                marker.setLngLat(lngLat);
+                
+                const el = marker.getElement();
+                const iconInner = el.querySelector('.marker-icon-inner') as HTMLElement;
+                if (iconInner) {
+                    iconInner.style.backgroundImage = `url(${iconUrl})`;
+                }
+            } else {
+                // Yangi marker yaratish - faqat icon
+                const el = document.createElement('div');
+                el.className = `custom-html-marker toifa-6 ${isOnline ? 'active' : 'inactive'}`;
+                
+                el.innerHTML = `
+                    <div class="marker-pin-wrapper">
+                        <div class="marker-pin" style="border: none; background: transparent; width: 34px; height: 34px; transform: none; border-radius: 50%;">
+                            <div class="marker-icon-inner" style="background-image: url(${iconUrl}); background-size: contain; width: 30px; height: 30px; transform: none; background-repeat: no-repeat; background-position: center;"></div>
+                        </div>
+                    </div>
+                `;
+
+                el.onclick = (e) => {
+                    e.stopPropagation();
+                    setSelectedVehicle(v);
+                };
+
+                const marker = new maplibregl.Marker({
+                    element: el,
+                    anchor: 'center'
+                })
+                    .setLngLat(lngLat)
+                    .addTo(map.current!);
+
+                vehicleMarkersRef.current[v.id] = marker;
             }
         });
 
-        if (!showActive && !showInactive) return;
+        // Ro'yxatda yo'q yoki filtrdan o'tmagan markerlarni o'chirish
+        const currentVehicleIds = vehicles
+            .filter(v => (v.status?.isOnline && showActive) || (!v.status?.isOnline && showInactive))
+            .map(v => v.id);
 
-        // 2. Yangi marker qo'shish yoki borini yangilash
-        vehicles.forEach((v) => {
-            const isOnline = v.status?.isOnline;
-            const vid = v.id.toString();
-            
-            // Filtrga mos kelsa
-            if ((isOnline && showActive) || (!isOnline && showInactive)) {
-                const iconUrl = isOnline ? '/icons/activeCar.png' : '/icons/inActiveCar.png';
-                const lngLat: [number, number] = [v.position.longitude, v.position.latitude];
-
-                if (vehicleMarkersRef.current[vid]) {
-                    const marker = vehicleMarkersRef.current[vid];
-                    marker.setLngLat(lngLat);
-                    
-                    const el = marker.getElement();
-                    
-                    // Status o'zgargan bo'lsa klasni yangilash
-                    el.className = `custom-html-marker toifa-6 ${isOnline ? 'active' : 'inactive'}`;
-                    
-                    const iconInner = el.querySelector('.marker-icon-inner') as HTMLElement;
-                    if (iconInner) {
-                        const currentBg = iconInner.style.backgroundImage;
-                        const newBg = `url("${iconUrl}")`;
-                        // Faqat rasm o'zgarganda yangilash (flicker oldini olish uchun)
-                        if (currentBg.indexOf(iconUrl) === -1) {
-                            iconInner.style.backgroundImage = newBg;
-                        }
-                    }
-                    
-                    // Click handler har doim yangi ma'lumot bilan bo'lishi kerak
-                    el.onclick = (e) => {
-                        e.stopPropagation();
-                        setSelectedVehicle(v);
-                    };
-                } else {
-                    const el = document.createElement('div');
-                    el.className = `custom-html-marker toifa-6 ${isOnline ? 'active' : 'inactive'}`;
-                    
-                    el.innerHTML = `
-                        <div class="marker-pin-wrapper">
-                            <div class="marker-pin" style="border: none; background: transparent; width: 34px; height: 34px; transform: none; border-radius: 50%; margin-bottom: 0;">
-                                <div class="marker-icon-inner" style="background-image: url(${iconUrl}); background-size: contain; width: 30px; height: 30px; background-repeat: no-repeat; background-position: center; transform: none;"></div>
-                            </div>
-                        </div>
-                    `;
-
-                    el.onclick = (e) => {
-                        e.stopPropagation();
-                        setSelectedVehicle(v);
-                    };
-
-                    const marker = new maplibregl.Marker({
-                        element: el,
-                        anchor: 'center'
-                    })
-                        .setLngLat(lngLat)
-                        .addTo(map.current!);
-
-                    vehicleMarkersRef.current[vid] = marker;
-                }
+        Object.keys(vehicleMarkersRef.current).forEach(idStr => {
+            const id = parseInt(idStr);
+            if (!currentVehicleIds.includes(id)) {
+                vehicleMarkersRef.current[id].remove();
+                delete vehicleMarkersRef.current[id];
             }
         });
     };
