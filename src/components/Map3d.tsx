@@ -1,9 +1,10 @@
-import React, { Suspense, useRef, useEffect, useMemo } from 'react';
+import React, { Suspense, useRef, useEffect, useMemo, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment, ContactShadows, Html } from '@react-three/drei';
 import * as THREE from 'three';
+import { io, Socket } from 'socket.io-client';
 import { factoryData } from '../data/factorys';
 import StreamGrid from "./VideoStream";
 import ProjectDashboard from "./ProjectDashboard";
@@ -155,6 +156,7 @@ const Map3D = ({
 }) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<maplibregl.Map | null>(null);
+    const socketRef = useRef<Socket | null>(null);
     const [isManual, setIsManual] = React.useState(false);
     const [openDetailIndex, setOpenDetailIndex] = React.useState<number | null>(null);
     const timerRef = useRef<any>(null);
@@ -163,6 +165,7 @@ const Map3D = ({
     const [visibleToifas, setVisibleToifas] = React.useState<string[]>(['toifa_1', 'toifa_2', 'toifa_3', 'toifa_4', 'toifa_5']);
     const [vehicles, setVehicles] = React.useState<any[]>([]);
     const [selectedVehicle, setSelectedVehicle] = React.useState<any | null>(null);
+    const [wsConnected, setWsConnected] = React.useState(false);
 
     const factorys = factoryData;
 
@@ -432,11 +435,147 @@ const Map3D = ({
         });
     };
 
-    // Real-time polling
+    // Optimized vehicle marker update - only updates positions, doesn't recreate markers
+    const updateVehicleMarkersOptimized = useCallback((newVehicles: any[]) => {
+        if (!map.current) return;
+
+        const showActive = visibleToifas.includes('active_car');
+        const showInactive = visibleToifas.includes('inactive_car');
+
+        // If both are disabled, remove all vehicle markers
+        if (!showActive && !showInactive) {
+            Object.values(vehicleMarkersRef.current).forEach(m => m.remove());
+            vehicleMarkersRef.current = {};
+            return;
+        }
+
+        // Filter vehicles based on visibility
+        const visibleVehicles = newVehicles.filter(v => {
+            const isOnline = v.status?.isOnline;
+            return (isOnline && showActive) || (!isOnline && showInactive);
+        });
+
+        const visibleVehicleIds = new Set(visibleVehicles.map(v => v.id));
+
+        // Remove markers for vehicles that are no longer visible or in the list
+        Object.keys(vehicleMarkersRef.current).forEach(idStr => {
+            const id = parseInt(idStr);
+            if (!visibleVehicleIds.has(id)) {
+                vehicleMarkersRef.current[id].remove();
+                delete vehicleMarkersRef.current[id];
+            }
+        });
+
+        // Update or create markers for visible vehicles
+        visibleVehicles.forEach((v) => {
+            const isOnline = v.status?.isOnline;
+            const iconUrl = isOnline ? '/icons/activeCar.png' : '/icons/inActiveCar.png';
+            const lngLat: [number, number] = [v.position.longitude, v.position.latitude];
+
+            if (vehicleMarkersRef.current[v.id]) {
+                // Marker exists - just update position (this keeps markers stable during zoom)
+                const marker = vehicleMarkersRef.current[v.id];
+                marker.setLngLat(lngLat);
+                
+                // Update icon if online status changed
+                const el = marker.getElement();
+                const iconInner = el.querySelector('.marker-icon-inner') as HTMLElement;
+                if (iconInner && iconInner.style.backgroundImage !== `url(${iconUrl})`) {
+                    iconInner.style.backgroundImage = `url(${iconUrl})`;
+                }
+            } else {
+                // Create new marker
+                const el = document.createElement('div');
+                el.className = `custom-html-marker toifa-6 ${isOnline ? 'active' : 'inactive'}`;
+                
+                el.innerHTML = `
+                    <div class="marker-pin-wrapper">
+                        <div class="marker-pin" style="border: none; background: transparent; width: 34px; height: 34px; transform: none; border-radius: 50%;">
+                            <div class="marker-icon-inner" style="background-image: url(${iconUrl}); background-size: contain; width: 30px; height: 30px; transform: none; background-repeat: no-repeat; background-position: center;"></div>
+                        </div>
+                    </div>
+                `;
+
+                el.onclick = (e) => {
+                    e.stopPropagation();
+                    setSelectedVehicle(v);
+                };
+
+                const marker = new maplibregl.Marker({
+                    element: el,
+                    anchor: 'center'
+                })
+                    .setLngLat(lngLat)
+                    .addTo(map.current!);
+
+                vehicleMarkersRef.current[v.id] = marker;
+            }
+        });
+    }, [visibleToifas]);
+
+    // WebSocket connection for real-time vehicle tracking
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        const wsUrl = 'wss://tmk.bgs.uz/tracking';
+        
+        // Initialize WebSocket connection
+        socketRef.current = io(wsUrl, {
+            transports: ['websocket', 'polling'],
+            timeout: 20000,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
+            auth: {
+                token: token || ''
+            }
+        });
+
+        socketRef.current.on('connect', () => {
+            console.log('WebSocket connected');
+            setWsConnected(true);
+            
+            // Enable real-time tracking with 1 second interval
+            setTimeout(() => {
+                socketRef.current?.emit('enableRealTimeTracking', {
+                    interval: 1000,
+                    includePosition: true,
+                    includeStatus: true,
+                    realTime: true,
+                });
+            }, 1000);
+        });
+
+        socketRef.current.on('disconnect', (reason: string) => {
+            console.log('WebSocket disconnected:', reason);
+            setWsConnected(false);
+        });
+
+        socketRef.current.on('connect_error', (error: Error) => {
+            console.error('WebSocket connection error:', error);
+            setWsConnected(false);
+        });
+
+        // Handle real-time vehicle updates
+        socketRef.current.on('realTimeVehicleUpdate', (data: { vehicles: any[]; totalCount: number }) => {
+            if (data?.vehicles) {
+                setVehicles(data.vehicles);
+                updateVehicleMarkersOptimized(data.vehicles);
+            }
+        });
+
+        // Handle regular vehicle updates
+        socketRef.current.on('vehicleUpdates', (data: { status: string; vehicles?: any[] }) => {
+            if (data.status === 'success' && data.vehicles) {
+                setVehicles(data.vehicles);
+                updateVehicleMarkersOptimized(data.vehicles);
+            }
+        });
+
+        // Fallback to REST polling if WebSocket fails
         const fetchVehicles = async () => {
+            if (wsConnected) return; // Skip if WebSocket is connected
+            
             try {
-                const token = localStorage.getItem("token");
                 const response = await fetch('https://tmk.bgs.uz/api/api/vehicles/realtime', {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -446,20 +585,26 @@ const Map3D = ({
                 const list = result.success ? result.data : result;
                 if (Array.isArray(list)) {
                     setVehicles(list);
+                    updateVehicleMarkersOptimized(list);
                 }
             } catch (err) {
                 console.error("Vehicle fetch error:", err);
             }
         };
 
+        // Initial fetch
         fetchVehicles();
+        
+        // Polling interval for fallback
         const interval = setInterval(fetchVehicles, 5000);
-        return () => clearInterval(interval);
-    }, []);
 
-    useEffect(() => {
-        updateVehicleMarkers();
-    }, [vehicles, visibleToifas]);
+        return () => {
+            clearInterval(interval);
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+        };
+    }, [wsConnected, updateVehicleMarkersOptimized]);
 
     const toggleToifa = (toifa: string) => {
         setVisibleToifas(prev => {

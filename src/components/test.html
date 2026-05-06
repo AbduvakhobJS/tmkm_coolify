@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metallurgiya Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #e0e6ed;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            width: 30%;
+            min-width: 420px;
+            height: 100vh;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f1529 100%);
+            padding: 20px;
+            border-right: 2px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-header p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .widget-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .widget {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        .widget:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .widget-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e6ed;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .widget-icon {
+            font-size: 18px;
+        }
+
+        .widget-status {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .status-up {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-down {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin: 8px 0;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .trend-mini {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .chart-container {
+            margin-top: 12px;
+            height: 100px;
+            position: relative;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 80px;
+            gap: 4px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(180deg, #3b82f6, #1e40af);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .bar:hover {
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .pie-chart {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .pie-visual {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(
+                    #3b82f6 0% 45%,
+                    #8b5cf6 45% 75%,
+                    #10b981 75% 85%,
+                    #f59e0b 85% 100%
+            );
+        }
+
+        .pie-legend {
+            flex: 1;
+        }
+
+        .legend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .legend-label {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .gauge {
+            position: relative;
+            width: 120px;
+            height: 60px;
+            margin: 16px auto;
+        }
+
+        .gauge-arc {
+            width: 120px;
+            height: 60px;
+            border-radius: 120px 120px 0 0;
+            border: 12px solid rgba(59, 130, 246, 0.2);
+            border-bottom: none;
+            position: relative;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            width: 120px;
+            height: 60px;
+            border-radius: 120px 120px 0 0;
+            border: 12px solid #3b82f6;
+            border-bottom: none;
+            clip-path: inset(0 30% 0 0);
+        }
+
+        .gauge-value {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .table-widget {
+            font-size: 12px;
+        }
+
+        .table-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .alert-item {
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-critical {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: #f59e0b;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: width 1s ease;
+        }
+
+        .line-chart {
+            height: 80px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .line-point {
+            flex: 1;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.1));
+            border-top: 2px solid #3b82f6;
+            position: relative;
+        }
+
+        .comparison-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .comparison-col {
+            flex: 1;
+            background: rgba(59, 130, 246, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .comparison-month {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .comparison-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            margin-top: 12px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .heat-low {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .heat-medium {
+            background: rgba(245, 158, 11, 0.4);
+        }
+
+        .heat-high {
+            background: rgba(239, 68, 68, 0.6);
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+
+        .rank-1 { border-color: #fbbf24; }
+        .rank-2 { border-color: #94a3b8; }
+        .rank-3 { border-color: #d97706; }
+        .rank-other { border-color: rgba(59, 130, 246, 0.3); }
+
+        .rank-number {
+            font-size: 20px;
+            font-weight: 700;
+            width: 32px;
+            text-align: center;
+        }
+
+        .rank-name {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .rank-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+
+        .timeline {
+            margin-top: 12px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .timeline-time {
+            font-size: 11px;
+            color: #94a3b8;
+            min-width: 60px;
+        }
+
+        .timeline-bar {
+            flex: 1;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .status-idle {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 16px auto;
+        }
+
+        .donut-chart svg {
+            transform: rotate(-90deg);
+        }
+
+        .donut-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-label-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .donut-label-text {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .forecast-line {
+            height: 80px;
+            position: relative;
+            margin-top: 12px;
+        }
+
+        .forecast-actual {
+            position: absolute;
+            left: 0;
+            right: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2));
+            border-top: 2px solid #3b82f6;
+        }
+
+        .forecast-predicted {
+            position: absolute;
+            left: 50%;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), transparent);
+            border-top: 2px dashed #8b5cf6;
+        }
+
+        .forecast-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .forecast-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-line {
+            width: 20px;
+            height: 2px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 3px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container scrollbar-hide">
+    <div class="dashboard-header">
+        <h1>⚙️ Metallurgiya Monitoring</h1>
+        <p>10 ta zavod | Real-time data</p>
+    </div>
+
+    <div class="widget-grid">
+        <!-- 1. Umumiy energiya sarfi -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🔥</span>
+                    Umumiy energiya sarfi
+                </div>
+                <span class="widget-status status-up">+9%</span>
+            </div>
+            <div class="kpi-value">1.2 GWh</div>
+            <div class="kpi-label">Bugungi kunlik iste'mol</div>
+            <div class="trend-mini">
+                <span style="color: #10b981;">↗</span>
+                <span>Kecha: 1.1 GWh</span>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">Aprel</div>
+                    <div class="comparison-value">34.2 GWh</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Mart</div>
+                    <div class="comparison-value">31.8 GWh</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Fevral</div>
+                    <div class="comparison-value">29.5 GWh</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Elektr energiya taqsimoti -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">⚡</span>
+                    Elektr energiya taqsimoti
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="bar-chart">
+                    <div class="bar" style="height: 100%;">
+                        <div class="bar-label">Zavod A<br>35%</div>
+                    </div>
+                    <div class="bar" style="height: 70%;">
+                        <div class="bar-label">Zavod B<br>22%</div>
+                    </div>
+                    <div class="bar" style="height: 55%;">
+                        <div class="bar-label">Zavod C<br>18%</div>
+                    </div>
+                    <div class="bar" style="height: 45%;">
+                        <div class="bar-label">Zavod D<br>13%</div>
+                    </div>
+                    <div class="bar" style="height: 35%;">
+                        <div class="bar-label">Qolgan<br>12%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Suv sarfi monitoringi -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">💧</span>
+                    Suv sarfi monitoringi
+                </div>
+                <span class="widget-status status-warning">⚠️ Yuqori</span>
+            </div>
+            <div class="kpi-value">720 m³/h</div>
+            <div class="kpi-label">Norma: 500 m³/soat</div>
+            <div class="chart-container">
+                <div class="line-chart">
+                    <div class="line-point" style="height: 60%;"></div>
+                    <div class="line-point" style="height: 65%;"></div>
+                    <div class="line-point" style="height: 70%;"></div>
+                    <div class="line-point" style="height: 75%;"></div>
+                    <div class="line-point" style="height: 85%;"></div>
+                    <div class="line-point" style="height: 100%;"></div>
+                </div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">Bugun</div>
+                    <div class="comparison-value">17,280 m³</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">O'rtacha</div>
+                    <div class="comparison-value">12,000 m³</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Gaz sarfi -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🔥</span>
+                    Gaz sarfi
+                </div>
+            </div>
+            <div class="kpi-value">85 m³</div>
+            <div class="kpi-label">1 tonna po'lat uchun</div>
+            <div class="chart-container">
+                <div class="line-chart">
+                    <div class="line-point" style="height: 50%;"></div>
+                    <div class="line-point" style="height: 60%;"></div>
+                    <div class="line-point" style="height: 55%;"></div>
+                    <div class="line-point" style="height: 70%;"></div>
+                    <div class="line-point" style="height: 80%;"></div>
+                    <div class="line-point" style="height: 75%;"></div>
+                </div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">May</div>
+                    <div class="comparison-value">85 m³</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Aprel</div>
+                    <div class="comparison-value">88 m³</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Mart</div>
+                    <div class="comparison-value">91 m³</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Quyosh paneli -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">☀️</span>
+                    Quyosh paneli ishlab chiqarish
+                </div>
+                <span class="widget-status status-up">+12%</span>
+            </div>
+            <div class="gauge">
+                <div class="gauge-arc">
+                    <div class="gauge-fill"></div>
+                </div>
+                <div class="gauge-value">320 kWh</div>
+            </div>
+            <div class="kpi-label" style="text-align: center;">Umumiy ehtiyojga nisbatan: 12%</div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">Bugun</div>
+                    <div class="comparison-value">320 kWh</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Kecha</div>
+                    <div class="comparison-value">285 kWh</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Resurslar bo'yicha xarajatlar -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">💰</span>
+                    Resurslar bo'yicha xarajatlar
+                </div>
+            </div>
+            <div class="pie-chart">
+                <div class="pie-visual"></div>
+                <div class="pie-legend">
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-color" style="background: #3b82f6;"></div>
+                            Elektr
+                        </div>
+                        <span>45%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-color" style="background: #8b5cf6;"></div>
+                            Gaz
+                        </div>
+                        <span>30%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-color" style="background: #10b981;"></div>
+                            Suv
+                        </div>
+                        <span>10%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-color" style="background: #f59e0b;"></div>
+                            Kimyo
+                        </div>
+                        <span>15%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Kimyoviy reagentlar -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🧪</span>
+                    Kimyoviy reagentlar sarfi
+                </div>
+            </div>
+            <div class="table-widget">
+                <div class="table-row">
+                    <span>CaO (Ohaktosh)</span>
+                    <span style="color: #3b82f6; font-weight: 600;">120 t</span>
+                </div>
+                <div class="table-row">
+                    <span>FeSi (Ferrosilitsiy)</span>
+                    <span style="color: #3b82f6; font-weight: 600;">45 t</span>
+                </div>
+                <div class="table-row">
+                    <span>Al (Alyuminiy)</span>
+                    <span style="color: #3b82f6; font-weight: 600;">28 t</span>
+                </div>
+                <div class="table-row">
+                    <span>Mn (Marganets)</span>
+                    <span style="color: #3b82f6; font-weight: 600;">35 t</span>
+                </div>
+            </div>
+            <div class="comparison-row" style="margin-top: 16px;">
+                <div class="comparison-col">
+                    <div class="comparison-month">Aprel</div>
+                    <div class="comparison-value">228 t</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Mart</div>
+                    <div class="comparison-value">245 t</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. 1 tonna mahsulotga energiya -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🏭</span>
+                    1 tonna mahsulotga energiya
+                </div>
+                <span class="widget-status status-up">Yaxshi</span>
+            </div>
+            <div class="kpi-value">620 kWh</div>
+            <div class="kpi-label">Oldingi davr: 700 kWh</div>
+            <div class="trend-mini">
+                <span style="color: #10b981;">↓ -11.4%</span>
+                <span>Yaxshilanish</span>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">May 2026</div>
+                    <div class="comparison-value">620 kWh</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Aprel</div>
+                    <div class="comparison-value">680 kWh</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Mart</div>
+                    <div class="comparison-value">700 kWh</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Normadan og'ish -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">📉</span>
+                    Normadan og'ish
+                </div>
+                <span class="widget-status status-warning">+20%</span>
+            </div>
+            <div class="chart-container">
+                <div class="bar-chart">
+                    <div class="bar" style="height: 80%; background: linear-gradient(180deg, #10b981, #059669);">
+                        <div class="bar-label">Reja<br>1000</div>
+                    </div>
+                    <div class="bar" style="height: 100%; background: linear-gradient(180deg, #ef4444, #dc2626);">
+                        <div class="bar-label">Fakt<br>1200</div>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-label" style="text-align: center; margin-top: 24px;">
+                Ortiqcha sarflangan: 200 m³
+            </div>
+        </div>
+
+        <!-- 10. Real-time alert panel -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🚨</span>
+                    Real-time ogohlantirishlar
+                </div>
+            </div>
+            <div class="alert-list">
+                <div class="alert-item alert-critical">
+                    <span>⛽</span>
+                    <span>Gaz bosimi tushdi - Zavod B</span>
+                </div>
+                <div class="alert-item alert-warning">
+                    <span>💧</span>
+                    <span>Suv oqimi oshdi - Zavod A</span>
+                </div>
+                <div class="alert-item alert-warning">
+                    <span>🌡️</span>
+                    <span>Pech #3 harorati yuqori</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. Peak load (cho'qqi yuklama) -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🕒</span>
+                    Cho'qqi yuklama vaqti
+                </div>
+            </div>
+            <div class="heatmap">
+                <div class="heatmap-cell heat-low">00:00</div>
+                <div class="heatmap-cell heat-low">04:00</div>
+                <div class="heatmap-cell heat-medium">08:00</div>
+                <div class="heatmap-cell heat-medium">12:00</div>
+                <div class="heatmap-cell heat-medium">16:00</div>
+                <div class="heatmap-cell heat-high">18:00</div>
+                <div class="heatmap-cell heat-high">19:00</div>
+                <div class="heatmap-cell heat-high">20:00</div>
+                <div class="heatmap-cell heat-high">21:00</div>
+                <div class="heatmap-cell heat-medium">22:00</div>
+                <div class="heatmap-cell heat-low">23:00</div>
+                <div class="heatmap-cell heat-low">24:00</div>
+            </div>
+            <div class="kpi-label" style="margin-top: 16px; text-align: center;">
+                Eng qimmat vaqt: 18:00-21:00
+            </div>
+        </div>
+
+        <!-- 12. Energiya samaradorligi -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🔄</span>
+                    Energiya samaradorligi indeksi
+                </div>
+                <span class="widget-status status-up">Yaxshi</span>
+            </div>
+            <div class="donut-chart">
+                <svg width="100" height="100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(59, 130, 246, 0.2)" stroke-width="10"></circle>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" stroke-width="10"
+                            stroke-dasharray="196" stroke-dashoffset="49"></circle>
+                </svg>
+                <div class="donut-label">
+                    <div class="donut-label-value">78%</div>
+                    <div class="donut-label-text">Samara</div>
+                </div>
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">Aprel</div>
+                    <div class="comparison-value">75%</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Mart</div>
+                    <div class="comparison-value">72%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 13. Uskunalar bo'yicha sarf -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🔧</span>
+                    Uskunalar bo'yicha energiya sarfi
+                </div>
+            </div>
+            <div class="table-widget">
+                <div class="table-row">
+                    <span>Furnace #3</span>
+                    <span style="color: #ef4444; font-weight: 600;">40%</span>
+                </div>
+                <div class="table-row">
+                    <span>Furnace #1</span>
+                    <span style="color: #3b82f6; font-weight: 600;">25%</span>
+                </div>
+                <div class="table-row">
+                    <span>Furnace #2</span>
+                    <span style="color: #3b82f6; font-weight: 600;">20%</span>
+                </div>
+                <div class="table-row">
+                    <span>Boshqa uskunalar</span>
+                    <span style="color: #10b981; font-weight: 600;">15%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 14. Kunlik/haftalik trendlar -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">📅</span>
+                    Haftalik trend
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="bar-chart">
+                    <div class="bar" style="height: 70%;">
+                        <div class="bar-label">Dush</div>
+                    </div>
+                    <div class="bar" style="height: 75%;">
+                        <div class="bar-label">Sesh</div>
+                    </div>
+                    <div class="bar" style="height: 80%;">
+                        <div class="bar-label">Chor</div>
+                    </div>
+                    <div class="bar" style="height: 85%;">
+                        <div class="bar-label">Pay</div>
+                    </div>
+                    <div class="bar" style="height: 90%;">
+                        <div class="bar-label">Jum</div>
+                    </div>
+                    <div class="bar" style="height: 50%;">
+                        <div class="bar-label">Shan</div>
+                    </div>
+                    <div class="bar" style="height: 45%;">
+                        <div class="bar-label">Yak</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 15. Zavodlar bo'yicha ranking -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🏗</span>
+                    Zavodlar reytingi (samaradorlik)
+                </div>
+            </div>
+            <div class="ranking-list">
+                <div class="ranking-item rank-1">
+                    <div class="rank-number">🥇</div>
+                    <div class="rank-name">Zavod A</div>
+                    <div class="rank-value">95%</div>
+                </div>
+                <div class="ranking-item rank-2">
+                    <div class="rank-number">🥈</div>
+                    <div class="rank-name">Zavod C</div>
+                    <div class="rank-value">88%</div>
+                </div>
+                <div class="ranking-item rank-3">
+                    <div class="rank-number">🥉</div>
+                    <div class="rank-name">Zavod E</div>
+                    <div class="rank-value">82%</div>
+                </div>
+                <div class="ranking-item rank-other">
+                    <div class="rank-number">4</div>
+                    <div class="rank-name">Zavod B</div>
+                    <div class="rank-value">78%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 16. CO2 chiqindilar -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🌍</span>
+                    CO₂ chiqindilar
+                </div>
+                <span class="widget-status status-warning">+8%</span>
+            </div>
+            <div class="kpi-value">1,200 t</div>
+            <div class="kpi-label">Kunlik emissiya</div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">May</div>
+                    <div class="comparison-value">36,000 t</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Aprel</div>
+                    <div class="comparison-value">33,600 t</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Mart</div>
+                    <div class="comparison-value">31,200 t</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 17. Energiya manbalari ulushi -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🔋</span>
+                    Energiya manbalari
+                </div>
+            </div>
+            <div class="pie-chart">
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(
+                        #3b82f6 0% 70%,
+                        #10b981 70% 90%,
+                        #f59e0b 90% 100%
+                    );"></div>
+                <div class="pie-legend">
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-color" style="background: #3b82f6;"></div>
+                            Grid
+                        </div>
+                        <span>70%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-color" style="background: #10b981;"></div>
+                            Solar
+                        </div>
+                        <span>20%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <div class="legend-color" style="background: #f59e0b;"></div>
+                            Generator
+                        </div>
+                        <span>10%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 18. Ishlash va downtime -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">⏱</span>
+                    Pech ishlash vaqti (Furnace #3)
+                </div>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-time">00:00-06:00</div>
+                    <div class="timeline-bar status-active">Ishlayapti</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">06:00-08:00</div>
+                    <div class="timeline-bar status-idle">To'xtash</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">08:00-18:00</div>
+                    <div class="timeline-bar status-active">Ishlayapti</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">18:00-24:00</div>
+                    <div class="timeline-bar status-active">Ishlayapti</div>
+                </div>
+            </div>
+            <div class="kpi-label" style="margin-top: 16px;">
+                Downtime: 2 soat (8.3%)
+            </div>
+        </div>
+
+        <!-- 19. Prognoz (AI forecast) -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">📊</span>
+                    Gaz sarfi prognozi
+                </div>
+                <span class="widget-status status-up">+15%</span>
+            </div>
+            <div class="forecast-line">
+                <div class="forecast-actual"></div>
+                <div class="forecast-predicted"></div>
+            </div>
+            <div class="forecast-legend">
+                <div class="forecast-legend-item">
+                    <div class="legend-line" style="background: #3b82f6;"></div>
+                    <span>Hozirgi</span>
+                </div>
+                <div class="forecast-legend-item">
+                    <div class="legend-line" style="background: #8b5cf6; border-top: 2px dashed #8b5cf6;"></div>
+                    <span>Prognoz</span>
+                </div>
+            </div>
+            <div class="kpi-label" style="margin-top: 16px; text-align: center;">
+                Ertaga: +15% ko'payish kutilmoqda
+            </div>
+        </div>
+
+        <!-- 20. Limit va budjet nazorati -->
+        <div class="widget">
+            <div class="widget-header">
+                <div class="widget-title">
+                    <span class="widget-icon">🔐</span>
+                    Oylik budjet nazorati
+                </div>
+                <span class="widget-status status-warning">80%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 80%;">80%</div>
+            </div>
+            <div class="kpi-label" style="margin-top: 12px;">
+                Ishlatilgan: $4,800,000 / $6,000,000
+            </div>
+            <div class="comparison-row">
+                <div class="comparison-col">
+                    <div class="comparison-month">Qolgan</div>
+                    <div class="comparison-value">$1.2M</div>
+                </div>
+                <div class="comparison-col">
+                    <div class="comparison-month">Kunlar</div>
+                    <div class="comparison-value">6 kun</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
