@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import WebRTCPlayer from "./WebRTCPlayer";
+import PTZControls from "./PTZControls";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -7,6 +8,7 @@ export interface StreamCell {
     id: string;
     label: string;
     streamUrl?: string;
+    type?: string;
 }
 
 export interface StreamGridProps {
@@ -44,23 +46,30 @@ const defaultCells: StreamCell[] = [
 
     {
         id: "t2",
-        label: "Angren PTZ 84.54.112.21",
+        label: "Angren PTZ",
         streamUrl: "https://tmkstream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1",
+        type: "ptz",
     },
     {
         id: "t1",
-        label: "Navoi 1 10.85.0.201",
+        label: "Navoi 1",
         streamUrl: "https://tmkstream.bgs.uz/stream/5705c987-46c6-4144-af4e-9ff878309c83/channel/1/webrtc?uuid=5705c987-46c6-4144-af4e-9ff878309c83=1",
+        type: "oddiy",
+
     },
     {
         id: "t3",
-        label: "Angren PTZ Panorama 84.54.112.21",
+        label: "Angren PTZ Panorama ",
         streamUrl: "https://tmkstream.bgs.uz/stream/46c74c01-a0bd-4e42-ade1-0a5dc734ce09/channel/1/webrtc?uuid=46c74c01-a0bd-4e42-ade1-0a5dc734ce09&channel=1",
+        type: "ptz",
+
     },
     {
         id: "t4",
-        label: "Navoi 2 PTZ Panoraman 10.85.0.202",
+        label: "Navoi 2 PTZ Panoraman ",
         streamUrl: "https://tmkstream.bgs.uz/stream/85d5d297-7d73-43c6-a589-d175d78eb771/channel/1/webrtc?uuid=85d5d297-7d73-43c6-a589-d175d78eb771&channel=1",
+        type: "ptz",
+
     },
 
 
@@ -165,92 +174,179 @@ const StreamGrid: React.FC<StreamGridProps> = ({
                                                    cells = defaultCells,
                                                    gap = 3,
                                                }) => {
-    const c = cells.length >= 13 ? cells : defaultCells;
-    const [t1, t2, t3, t4, l1, l2, mainCell, r1, r2, b1, b2, b3, b4] = c;
+    const c = cells.length >= 4 ? cells : defaultCells;
+    const [t1, t2, t3, t4] = c;
 
-    const [focusedId, setFocusedId] = useState<any>(mainCell?.id);
-    const focused = c.find((x) => x.id === focusedId) ?? mainCell;
+    const [focusedId, setFocusedId] = useState<any>(t1?.id);
+    const [selectedCell, setSelectedCell] = useState<StreamCell | null>(null);
 
-    const click = (id: string) => setFocusedId(id);
+    const click = (cell: StreamCell) => {
+        setFocusedId(cell.id);
+        setSelectedCell(cell);
+    };
 
     return (
-        // <div
-        //     style={{
-        //         width: "100%",
-        //         height: "100%",
-        //         display: "grid",
-        //         gridTemplateColumns: "repeat(4, 1fr)",
-        //         gridTemplateRows: "repeat(4, 1fr)",
-        //         gap,
-        //         background: "#0a0a0a",
-        //         padding: gap,
-        //         boxSizing: "border-box",
-        //     }}
-        // >
-        //     {/* ── TEPA — row 1 ── */}
-        //     <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1.id)} gridArea="1 / 1 / 2 / 2" />
-        //     <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2.id)} gridArea="1 / 2 / 2 / 3" />
-        //     <Cell cell={t3} isActive={focusedId === t3.id} onClick={() => click(t3.id)} gridArea="1 / 3 / 2 / 4" />
-        //     <Cell cell={t4} isActive={focusedId === t4.id} onClick={() => click(t4.id)} gridArea="1 / 4 / 2 / 5" />
-        //
-        //     {/* ── CHAP — col 1, row 2-3 ── */}
-        //     <Cell cell={l1} isActive={focusedId === l1.id} onClick={() => click(l1.id)} gridArea="2 / 1 / 3 / 2" />
-        //     <Cell cell={l2} isActive={focusedId === l2.id} onClick={() => click(l2.id)} gridArea="3 / 1 / 4 / 2" />
-        //
-        //     {/* ── MARKAZ — col 2-3, row 2-3 (rowspan+colspan 2) ── */}
-        //     <div
-        //         style={{
-        //             gridArea: "2 / 2 / 4 / 4",
-        //             position: "relative",
-        //             overflow: "hidden",
-        //             borderRadius: 2,
-        //             background: "#0d0d0d",
-        //             outline: "1px solid rgba(68,170,255,0.2)",
-        //             outlineOffset: -1,
-        //         }}
-        //     >
-        //         <Player cell={focused} videoKey={focusedId} />
-        //
-        //         {!focused.streamUrl && (
-        //             <div style={noStream}>
-        //                 <TvIcon size={36} />
-        //                 <span style={{ fontSize: 11, color: "#2a2a2a", marginTop: 6 }}>{focused.label}</span>
-        //             </div>
-        //         )}
-        //
-        //         <div style={mainLabel}>{focused.label}</div>
-        //     </div>
-        //
-        //     {/* ── O'NG — col 4, row 2-3 ── */}
-        //     <Cell cell={r1} isActive={focusedId === r1.id} onClick={() => click(r1.id)} gridArea="2 / 4 / 3 / 5" />
-        //     <Cell cell={r2} isActive={focusedId === r2.id} onClick={() => click(r2.id)} gridArea="3 / 4 / 4 / 5" />
-        //
-        //     {/* ── PAST — row 4 ── */}
-        //     <Cell cell={b1} isActive={focusedId === b1.id} onClick={() => click(b1.id)} gridArea="4 / 1 / 5 / 2" />
-        //     <Cell cell={b2} isActive={focusedId === b2.id} onClick={() => click(b2.id)} gridArea="4 / 2 / 5 / 3" />
-        //     <Cell cell={b3} isActive={focusedId === b3.id} onClick={() => click(b3.id)} gridArea="4 / 3 / 5 / 4" />
-        //     <Cell cell={b4} isActive={focusedId === b4.id} onClick={() => click(b4.id)} gridArea="4 / 4 / 5 / 5" />
-        // </div>
-        <div
-            style={{
-                width: "100%",
-                height: "100%",
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gridTemplateRows: "repeat(2, 1fr)",
-                gap,
-                background: "#0a0a0a",
-                padding: gap,
-                boxSizing: "border-box",
-            }}
-        >
-            <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1.id)} gridArea="2 / 2" />
-            <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2.id)} gridArea="1 / 1" />
-            <Cell cell={t3} isActive={focusedId === t3.id} onClick={() => click(t3.id)} gridArea="1 / 2" />
-            <Cell cell={t4} isActive={focusedId === t4.id} onClick={() => click(t4.id)} gridArea="2 / 1" />
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", overflow: "hidden" }}>
+            <div
+                style={{
+                    flex: 1,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gridTemplateRows: "repeat(2, 1fr)",
+                    gap,
+                    background: "#0a0a0a",
+                    padding: gap,
+                    boxSizing: "border-box",
+                    minHeight: 0 // Grid containerning qisqarishiga imkon beradi
+                }}
+            >
+                <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1)} gridArea="1 / 1" />
+                <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2)} gridArea="1 / 2" />
+                <Cell cell={t3} isActive={focusedId === t3.id} onClick={() => click(t3)} gridArea="2 / 1" />
+                <Cell cell={t4} isActive={focusedId === t4.id} onClick={() => click(t4)} gridArea="2 / 2" />
+            </div>
+
+            {/* ── Events Section ────────────────────────────────────────────────── */}
+            <div style={{
+                height: "120px",
+                background: "#030d22",
+                borderTop: "1px solid #0EA8C733",
+                padding: "8px 12px",
+                overflowY: "auto",
+                color: "#ccc",
+                fontSize: "11px",
+                flexShrink: 0
+            }}>
+                <div style={{ fontWeight: "bold", marginBottom: "6px", color: "#0EA8C7", display: "flex", justifyContent: "space-between", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    <span>So'nggi hodisalar (Events)</span>
+                    <span style={{ fontSize: "10px", opacity: 0.7 }}>JAMI: 4</span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    {[
+                        { time: "19:45:12", type: "Motion", camera: "Navoi 1", desc: "Harakat aniqlandi" },
+                        { time: "19:42:05", type: "System", camera: "Angren PTZ", desc: "Kamera ulandi" },
+                        { time: "19:40:55", type: "PTZ", camera: "Angren PTZ", desc: "Pozitsiya o'zgardi" },
+                        { time: "19:38:20", type: "Storage", camera: "Navoi 2", desc: "Arxiv yozilmoqda" },
+                    ].map((ev, i) => (
+                        <div key={i} style={{ display: "flex", gap: "8px", borderBottom: "1px solid rgba(14,168,199,0.1)", paddingBottom: "3px" }}>
+                            <span style={{ color: "#555", whiteSpace: "nowrap" }}>{ev.time}</span>
+                            <span style={{ color: "#4af", minWidth: "50px", whiteSpace: "nowrap" }}>[{ev.type}]</span>
+                            <span style={{ color: "#888", whiteSpace: "nowrap" }}>{ev.camera}:</span>
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.desc}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* ── Modal Overlay ─────────────────────────────────────────────────── */}
+            {selectedCell && (
+                <div style={{
+                    position: "fixed",
+                    inset: 0,
+                    zIndex: 1000,
+                    background: "rgba(0,0,0,0.9)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "40px"
+                }}>
+                    <div style={{
+                        position: "relative",
+                        width: "90%",
+                        height: "90%",
+                        background: "#000",
+                        borderRadius: "8px",
+                        overflow: "hidden",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid #333"
+                    }}>
+                        {/* Modal Header */}
+                        <div style={{
+                            padding: "10px 20px",
+                            background: "#1a1a1a",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            borderBottom: "1px solid #333"
+                        }}>
+                            <span style={{ color: "#fff", fontWeight: 500 }}>{selectedCell.label}</span>
+                            <button
+                                onClick={() => setSelectedCell(null)}
+                                style={{
+                                    background: "transparent",
+                                    border: "none",
+                                    color: "#fff",
+                                    fontSize: "24px",
+                                    cursor: "pointer",
+                                    lineHeight: "1"
+                                }}
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+                            <div style={{ flex: 1, background: "#000" }}>
+                                <WebRTCPlayer url={selectedCell.streamUrl!} />
+                            </div>
+
+                            {/* PTZ Controls Side Panel */}
+                            {selectedCell.type === "ptz" && (
+                                <div style={{
+                                    width: "240px",
+                                    background: "#1a1a1a",
+                                    borderLeft: "1px solid #333",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    padding: "10px",
+                                    overflowY: "auto"
+                                }}>
+                                    <PTZControls 
+                                        camera={selectedCell} 
+                                        onSendCommand={(cmd: any) => {
+                                            console.log("PTZ Command Sent:", cmd);
+                                        }} 
+                                    />
+                                    
+                                    <div style={{ marginTop: "auto", padding: "10px", fontSize: "10px", color: "#555", textAlign: "center" }}>
+                                        Kamera ID: {selectedCell.id}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
+
+const PTZButton = ({ label, onClick, style }: { label: string, onClick: () => void, style?: React.CSSProperties }) => (
+    <button
+        onClick={onClick}
+        style={{
+            background: "#333",
+            border: "none",
+            borderRadius: "4px",
+            color: "#fff",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "14px",
+            transition: "background 0.2s",
+            padding: "5px",
+            ...style
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = "#444")}
+        onMouseLeave={(e) => (e.currentTarget.style.background = "#333")}
+    >
+        {label}
+    </button>
+);
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 

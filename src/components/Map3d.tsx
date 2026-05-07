@@ -955,36 +955,37 @@ const Map3D = ({
                     onClick={handleCloseDetails}
                     style={{
                         position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 100,
+                        top: '55px',
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(2, 11, 24, 0.98)',
+                        zIndex: 900000000,
                         pointerEvents: 'auto',
+                        display: 'flex',
+                        flexDirection: 'column',
                     }}
                 >
+                    {/* Modal Navbar */}
                     <div
-                        onClick={(e) => e.stopPropagation()}
                         style={{
-                            width: '80vw',
-                            height: '80vh',
-                            background: 'rgba(2, 11, 24, 0.98)',
-                            border: '1px solid rgba(0,245,255,0.3)',
-                            borderRadius: '12px',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            display: 'grid',
-                            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-                            gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)',
+                            height: '50px',
+                            width: '100%',
+                            background: 'rgba(2, 11, 24, 0.9)',
+                            borderBottom: '1px solid rgba(0,245,255,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0 20px',
+                            boxSizing: 'border-box',
                         }}
                     >
+                        <div style={{ color: '#0EA8C7', fontSize: '18px', fontWeight: 'bold' }}>
+                            {factorys[openDetailIndex]?.title} - Batafsil ma'lumot
+                        </div>
                         <button
                             onClick={handleCloseDetails}
                             style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
                                 width: '32px',
                                 height: '32px',
                                 border: '1px solid rgba(255,255,255,0.35)',
@@ -992,11 +993,26 @@ const Map3D = ({
                                 color: 'white',
                                 borderRadius: '8px',
                                 cursor: 'pointer',
-                                zIndex: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                             }}
                         >
                             X
                         </button>
+                    </div>
+
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            flex: 1,
+                            width: '100%',
+                            display: 'grid',
+                            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                            gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)',
+                            overflow: 'hidden',
+                        }}
+                    >
                         <div
                             style={{
                                 width: '100%',
