@@ -56,12 +56,7 @@ const GeoModelCard: React.FC<{ title: string, factoryTitle: string, index: numbe
             <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={15} />
           </Canvas>
           
-          <div style={{ position: 'absolute', left: '15px', bottom: '45px', color: '#0EA8C766', fontSize: '9px', lineHeight: '1.2' }}>
-            Z (м)<br/>1 400
-          </div>
-          <div style={{ position: 'absolute', left: '15px', bottom: '15px', color: '#0EA8C766', fontSize: '9px' }}>
-            X (м)
-          </div>
+
         </div>
 
         {/* Right side: Info Panels */}

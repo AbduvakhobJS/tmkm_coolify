@@ -489,9 +489,6 @@ const ResourceDashboard: React.FC = () => {
 
                 <ResourceDashboardPart2/>
             </div>
-
-
-
         </div>
     );
 };
