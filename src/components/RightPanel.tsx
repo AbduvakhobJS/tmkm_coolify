@@ -100,7 +100,6 @@ const RightPanel: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) =>
 
   return (
     <div className="right-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '10px' }}>
-      
       <div style={{ 
         flex: 1, 
         display: 'grid',
@@ -109,10 +108,12 @@ const RightPanel: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) =>
         gap: '10px',
         minHeight: 0
       }}>
+
         <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={0} />
         <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={1} />
         <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={2} />
         <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={3} />
+
       </div>
 
       <div className="view-model-right-model" style={{ height: '40%' }}>

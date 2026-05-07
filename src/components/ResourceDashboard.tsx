@@ -450,22 +450,48 @@ const ResourceDashboard: React.FC = () => {
     useEffect(() => { const id = setInterval(()=>setClock(new Date()),1000); return ()=>clearInterval(id); }, []);
     return (
         <div style={panelStyle}>
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                <div style={{fontSize:'13px', fontWeight:700, letterSpacing:'2px', color:C.electric}}>
-                    RESURSLAR SARFI MONITORINGI
+            <div style={{
+                width: "100%",
+                height: "100%",
+                padding: "10px",
+                background: "rgb(3, 13, 34)",
+                borderRadius: "12px",
+                overflowY: "scroll",
+                position: "relative",
+                overflowX: "hidden",
+                border: "1px solid rgba(14, 168, 199, 0.2)",
+            }}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                    <div style={{fontSize:'13px', fontWeight:700, letterSpacing:'2px', color:C.electric}}>
+                        RESURSLAR SARFI MONITORINGI
+                    </div>
+                    <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
+                        {badge(C.ok,'10 zavod online')}
+                        {badge(C.crit,'3 ta kritik')}
+                        <div style={{fontSize:'11px', color:C.muted}}>{clock.toLocaleTimeString('uz-UZ')}</div>
+                    </div>
                 </div>
-                <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
-                    {badge(C.ok,'10 zavod online')}
-                    {badge(C.crit,'3 ta kritik')}
-                    <div style={{fontSize:'11px', color:C.muted}}>{clock.toLocaleTimeString('uz-UZ')}</div>
-                </div>
+                <div style={twoCol}><Row1Elektr/><Row1Quyosh/></div>
+                <Div color={C.electric}/>
+                <div style={twoCol}><Row2Gaz/><Row2Suv/></div>
+            </div>
+            <div style={{
+                width: "100%",
+                height: "100%",
+                padding: "10px",
+                background: "rgb(3, 13, 34)",
+                borderRadius: "12px",
+                overflowY: "scroll",
+                position: "relative",
+                overflowX: "hidden",
+                border: "1px solid rgba(14, 168, 199, 0.2)",
+            }}>
+
+                <ResourceDashboardPart2/>
             </div>
 
-            <div style={twoCol}><Row1Elektr/><Row1Quyosh/></div>
-            <Div color={C.electric}/>
-            <div style={twoCol}><Row2Gaz/><Row2Suv/></div>
 
-            <ResourceDashboardPart2/>
+
         </div>
     );
 };
