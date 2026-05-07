@@ -22,11 +22,11 @@ export const ProductionLineChart: React.FC = () => {
     datasets: [{
       label: 'Production',
       data: [...PRODUCTION_DATA],
-      borderColor: '#00f5ff',
+      borderColor: '#0EA8C7',
       backgroundColor: 'rgba(0,245,255,0.15)',
       borderWidth: 2,
       pointRadius: 3,
-      pointBackgroundColor: '#00f5ff',
+      pointBackgroundColor: '#0EA8C7',
       pointBorderColor: '#020b18',
       tension: 0.4,
       fill: true,
@@ -61,7 +61,7 @@ export const MetalPieChart: React.FC = () => {
     labels: ['Steel', 'Copper', 'Aluminum', 'Gold', 'Zinc', 'Other'],
     datasets: [{
       data: [38, 22, 18, 8, 9, 5],
-      backgroundColor: ['#00f5ff','#ff6b35','#7fff00','#ffa500','#bf5fff','#3a5f85'],
+      backgroundColor: ['#0EA8C7','#ff6b35','#7fff00','#ffa500','#bf5fff','#3a5f85'],
       borderColor: '#020b18',
       borderWidth: 2,
       hoverOffset: 6,
@@ -153,7 +153,7 @@ export const RealtimeChart: React.FC = () => {
     labels: dataRef.current.map(() => ''),
     datasets: [{
       data: [...dataRef.current],
-      borderColor: '#00f5ff',
+      borderColor: '#0EA8C7',
       backgroundColor: 'rgba(0,245,255,0.15)',
       borderWidth: 1.5,
       pointRadius: 0,

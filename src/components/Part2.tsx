@@ -21,7 +21,6 @@ const Part2 = () => {
 
                     <div className="kpi-grid">
                         <KpiCard
-                            icon="🏭"
                             target={2847193}
                             decimals={0}
                             unit="tonnes"
@@ -30,7 +29,6 @@ const Part2 = () => {
                             trendUp={true}
                         />
                         <KpiCard
-                            icon="⚙️"
                             target={18}
                             decimals={0}
                             unit="active"
@@ -39,7 +37,6 @@ const Part2 = () => {
                             trendUp={true}
                         />
                         <KpiCard
-                            icon="📊"
                             target={94.7}
                             decimals={1}
                             unit="%"
@@ -48,7 +45,6 @@ const Part2 = () => {
                             trendUp={false}
                         />
                         <KpiCard
-                            icon="👷"
                             target={34219}
                             decimals={0}
                             unit="personnel"
@@ -70,7 +66,6 @@ const Part2 = () => {
                     <div className="panel-label">SYSTEM MONITORING</div>
                     <div className="kpi-grid">
                         <KpiCard
-                            icon="🏭"
                             target={2847193}
                             decimals={0}
                             unit="tonnes"
@@ -79,7 +74,6 @@ const Part2 = () => {
                             trendUp={true}
                         />
                         <KpiCard
-                            icon="⚙️"
                             target={18}
                             decimals={0}
                             unit="active"
@@ -88,7 +82,6 @@ const Part2 = () => {
                             trendUp={true}
                         />
                         <KpiCard
-                            icon="📊"
                             target={94.7}
                             decimals={1}
                             unit="%"
@@ -97,7 +90,6 @@ const Part2 = () => {
                             trendUp={false}
                         />
                         <KpiCard
-                            icon="👷"
                             target={34219}
                             decimals={0}
                             unit="personnel"

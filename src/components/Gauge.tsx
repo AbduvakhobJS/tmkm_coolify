@@ -76,7 +76,7 @@ export const GaugeRow: React.FC = () => {
 
   return (
     <div className="gauge-row">
-      <Gauge value={vals.uptime} color="#00f5ff" label="UPTIME" />
+      <Gauge value={vals.uptime} color="#0EA8C7" label="UPTIME" />
       <Gauge value={vals.load}   color="#ff6b35" label="LOAD" />
       <Gauge value={vals.safety} color="#7fff00" label="SAFETY" />
     </div>

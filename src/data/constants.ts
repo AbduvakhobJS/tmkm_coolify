@@ -18,7 +18,7 @@ export const FACILITIES: Facility[] = [
 ];
 
 export const FACILITY_COLORS: Record<string, string> = {
-  mining:   '#00f5ff',
+  mining:   '#0EA8C7',
   smelting: '#ff6b35',
   refinery: '#7fff00',
   mfg:      '#bf5fff',
@@ -26,7 +26,7 @@ export const FACILITY_COLORS: Record<string, string> = {
 
 export const PROJECTS: Project[] = [
   { name: 'New Smelter — Almalyk Phase II', pct: 78, color: '#ff6b35' },
-  { name: 'Navoi Deep Mining Extension',   pct: 54, color: '#00f5ff' },
+  { name: 'Navoi Deep Mining Extension',   pct: 54, color: '#0EA8C7' },
   { name: 'Tashkent EV Components Plant',  pct: 31, color: '#7fff00' },
   { name: 'Bukhara Rail Logistics Hub',    pct: 92, color: '#ffa500' },
 ];

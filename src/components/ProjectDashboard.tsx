@@ -209,7 +209,7 @@ const ProjectDashboard: React.FC = () => {
                         {metrics.map((metric, idx) => (
                             <div key={idx} className="metric-item">
                                 <div className="metric-left">
-                                    <span className="metric-icon">{metric.icon}</span>
+                                    {/*<span className="metric-icon">{metric.icon}</span>*/}
                                     <span className="metric-label">{metric.label}</span>
                                 </div>
                                 <span className="metric-value">{metric.value}</span>

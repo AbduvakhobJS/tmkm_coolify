@@ -12,10 +12,10 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 export const MONTHS       = ['Yanvar', 'Fevral', 'Mart', 'Aprel'];
 export const MONTHS_SHORT = ['Yan', 'Fev', 'Mar', 'Apr'];
 export const C = {
-    electric:'#00f5ff', gas:'#ff6b35', water:'#4fc3f7', solar:'#ffd700',
+    electric:'#0EA8C7', gas:'#ff6b35', water:'#4fc3f7', solar:'#ffd700',
     chemical:'#bf5fff', cost:'#7fff00', co2:'#ff4444', eff:'#00ff88',
     warn:'#ffaa00', ok:'#00ff88', crit:'#ff4444', info:'#4fc3f7',
-    bg:'#030d22', border:'#00f5ff22', text:'#a0c4e8', muted:'#7aa5cc',
+    bg:'#030d22', border:'#0EA8C722', text:'#a0c4e8', muted:'#7aa5cc',
 };
 
 /* ── Chart options ── */
@@ -35,7 +35,7 @@ export const baseOpts = (leg?: 'bottom'|'right'|false) => ({
 export const panelStyle: React.CSSProperties = {
     width:'100%', height:'100%', overflowY:'auto', overflowX:'hidden',
     padding:'8px', display:'flex', flexDirection:'column', gap:'10px',
-    scrollbarWidth:'thin', scrollbarColor:'#00f5ff33 transparent',
+    scrollbarWidth:'thin', scrollbarColor:'#0EA8C733 transparent',
 };
 /* alignItems:stretch — ikkala ustun bir xil balandlikda bo'ladi */
 export const twoCol: React.CSSProperties = {
@@ -240,7 +240,7 @@ export const PeakHeatmap: React.FC = () => {
     const hours = ['06','09','12','15','18','21','00','03'];
     const days  = ['Dush','Sesh','Chor','Pay','Jum'];
     const heat  = [[0.3,0.4,0.6,0.7,0.95,0.85,0.3,0.2],[0.3,0.45,0.65,0.75,0.98,0.82,0.25,0.18],[0.35,0.5,0.6,0.7,0.9,0.88,0.35,0.22],[0.28,0.42,0.58,0.68,0.92,0.80,0.28,0.2],[0.25,0.35,0.5,0.6,0.75,0.65,0.2,0.15]];
-    const bg = (v:number) => v>0.85?'#ff4444bb':v>0.65?'#ff6b35bb':v>0.45?'#ffd700bb':'#00f5ff22';
+    const bg = (v:number) => v>0.85?'#ff4444bb':v>0.65?'#ff6b35bb':v>0.45?'#ffd700bb':'#0EA8C722';
     return (
         <div style={{display:'flex', flexDirection:'column', gap:'2px'}}>
             <div style={{display:'flex', gap:'2px', paddingLeft:'32px'}}>
@@ -253,7 +253,7 @@ export const PeakHeatmap: React.FC = () => {
                 </div>
             ))}
             <div style={{display:'flex', gap:'8px', marginTop:'4px', justifyContent:'flex-end'}}>
-                {[['#ff4444bb','Yuqori'],['#ff6b35bb',"O'rta"],['#ffd700bb','Normal'],['#00f5ff22','Past']].map(([c,l]) => (
+                {[['#ff4444bb','Yuqori'],['#ff6b35bb',"O'rta"],['#ffd700bb','Normal'],['#0EA8C722','Past']].map(([c,l]) => (
                     <div key={l} style={{display:'flex', alignItems:'center', gap:'3px'}}>
                         <div style={{width:'10px', height:'10px', borderRadius:'2px', background:c}}/>
                         <span style={{fontSize:'9px', color:C.muted}}>{l}</span>

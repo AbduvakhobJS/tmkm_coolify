@@ -9,7 +9,7 @@ const LeftPanel: React.FC = () => {
         height: '90vh',
         background: '#030d22',
         borderRadius: '12px',
-        border: '1px solid #00f5ff33',
+        border: '1px solid #0EA8C733',
         marginTop: '10px',
         overflow: 'hidden',
         position: 'relative',

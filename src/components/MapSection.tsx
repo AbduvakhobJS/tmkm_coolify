@@ -106,7 +106,7 @@
 //         <div ref={mapRef} className="map" />
 //         <div className="map-legend">
 //           <div className="legend-title">FACILITY TYPE</div>
-//           <div className="legend-item"><span className="legend-dot" style={{ background: '#00f5ff' }} />Mining Site</div>
+//           <div className="legend-item"><span className="legend-dot" style={{ background: '#0EA8C7' }} />Mining Site</div>
 //           <div className="legend-item"><span className="legend-dot" style={{ background: '#ff6b35' }} />Smelting Plant</div>
 //           <div className="legend-item"><span className="legend-dot" style={{ background: '#7fff00' }} />Refinery</div>
 //           <div className="legend-item"><span className="legend-dot" style={{ background: '#bf5fff' }} />Manufacturing</div>
