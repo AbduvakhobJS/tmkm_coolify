@@ -423,7 +423,7 @@ const Row2Suv = () => (
                 </Card>
             </div>
             <div style={{width: "100%", paddingLeft: "5px" }}>
-                <Card title="Suv sarfi tarkibi (joriy, m³/soat)" accent={C.water} extra={badge(C.water,'720 m³/h')} style={{flex:1}}>
+                <Card title="Suv sarfi tarkibi (joriy, m³/soat)" accent={C.water} extra={badge(C.water,'720 m³/h')} style={{flex:1, height: "100%"}}>
                     <DonutChart
                         data={[420,180,120]}
                         labels={['Sovitish: 420','Texnologik: 180','Maishiy: 120']}
@@ -433,7 +433,7 @@ const Row2Suv = () => (
             </div>
         </div>
 
-        <Card title="Oylik suv sarfi (m³ × 1000)" accent={C.water} extra={badge(C.crit,'Mart: +20%')}>
+        <Card title="Oylik suv sarfi (m³ × 1000)" accent={C.water} extra={badge(C.crit,'Mart: +20%')} style={{height: "100%"}}>
             <MiniLine data={[15,14.5,18,16]} color={C.water} warnIdx={2} refLine={16} height={85}/>
             <MonthRow values={['15k','14.5k','18k ⚠','16k']} color={C.water} warn={2}/>
         </Card>
