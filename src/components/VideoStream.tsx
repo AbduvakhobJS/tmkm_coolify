@@ -44,22 +44,22 @@ const defaultCells: StreamCell[] = [
 
     {
         id: "t2",
-        label: "Camera 1",
+        label: "Angren PTZ 84.54.112.21",
         streamUrl: "https://tmkstream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1",
     },
     {
         id: "t1",
-        label: "Camera 2",
+        label: "Navoi 1 10.85.0.201",
         streamUrl: "https://tmkstream.bgs.uz/stream/5705c987-46c6-4144-af4e-9ff878309c83/channel/1/webrtc?uuid=5705c987-46c6-4144-af4e-9ff878309c83=1",
     },
     {
         id: "t3",
-        label: "Camera 3",
+        label: "Angren PTZ Panorama 84.54.112.21",
         streamUrl: "https://tmkstream.bgs.uz/stream/46c74c01-a0bd-4e42-ade1-0a5dc734ce09/channel/1/webrtc?uuid=46c74c01-a0bd-4e42-ade1-0a5dc734ce09&channel=1",
     },
     {
         id: "t4",
-        label: "Camera 4",
+        label: "Navoi 2 PTZ Panoraman 10.85.0.202",
         streamUrl: "https://tmkstream.bgs.uz/stream/85d5d297-7d73-43c6-a589-d175d78eb771/channel/1/webrtc?uuid=85d5d297-7d73-43c6-a589-d175d78eb771&channel=1",
     },
 
@@ -257,7 +257,7 @@ const StreamGrid: React.FC<StreamGridProps> = ({
 const badge: React.CSSProperties = {
     position: "absolute", top: 4, left: 5,
     background: "rgba(0,0,0,0.7)", color: "#999",
-    fontSize: 9, padding: "1px 5px", borderRadius: 3,
+    fontSize: 12, padding: "3px 5px 4px 5px", borderRadius: 3,
     zIndex: 2, whiteSpace: "nowrap", pointerEvents: "none",
 };
 

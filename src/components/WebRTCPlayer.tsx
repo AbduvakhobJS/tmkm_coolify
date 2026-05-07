@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 
 interface WebRTCPlayerProps {
     url: string;
 }
 
-const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({ url }) => {
+const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({url}) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const peerRef = useRef<RTCPeerConnection | null>(null);
-
+    const [isOffline, setIsOffline] = useState<boolean>(false);
     const [reconnectKey, setReconnectKey] = useState(0);
 
     useEffect(() => {
@@ -21,13 +21,13 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({ url }) => {
 
                 videoRef.current.srcObject = mediaStream;
 
-const pc = new RTCPeerConnection({
-    iceServers: [
-        {
-            urls: ["stun:stun.l.google.com:19302"],
-        },
-    ],
-});
+                const pc = new RTCPeerConnection({
+                    iceServers: [
+                        {
+                            urls: ["stun:stun.l.google.com:19302"],
+                        },
+                    ],
+                });
 
 
                 peerRef.current = pc;
@@ -38,15 +38,29 @@ const pc = new RTCPeerConnection({
                     mediaStream.addTrack(event.track);
                 };
 
+                // pc.onconnectionstatechange = () => {
+                //     console.log("STATE:", pc.connectionState);
+                //
+                //     if (
+                //         pc.connectionState === "failed" ||
+                //         pc.connectionState === "disconnected" ||
+                //         pc.connectionState === "closed"
+                //     ) {
+                //         reconnect();
+                //     }
+                // };
                 pc.onconnectionstatechange = () => {
                     console.log("STATE:", pc.connectionState);
-
-                    if (
-                        pc.connectionState === "failed" ||
-                        pc.connectionState === "disconnected" ||
-                        pc.connectionState === "closed"
-                    ) {
-                        reconnect();
+                    switch (pc.connectionState) {
+                        case "connected":
+                            setIsOffline(false);
+                            break;
+                        case "failed":
+                        case "disconnected":
+                        case "closed":
+                            setIsOffline(true);
+                            reconnect();
+                            break;
                     }
                 };
 
@@ -111,21 +125,38 @@ const pc = new RTCPeerConnection({
         };
     }, [url, reconnectKey]);
 
-    return (
-        <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            controls={false}
-            style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                background: "#000",
-            }}
-        />
-    );
+    return (<div style={{width: "100%", height: "100%", position: "relative", background: "#000",}}>
+        <video ref={videoRef} autoPlay muted playsInline controls={false}
+               style={{width: "100%", height: "100%", objectFit: "cover", background: "#000",}}/>
+        {isOffline && (<div style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.75)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            zIndex: 10,
+            gap: 10,
+            fontSize: 14,
+            fontWeight: 500,
+            letterSpacing: 0.5,
+        }}>
+    <div className="d-flex" style={{alignItems: "center"}}>
+        <div style={{
+            width: 12,
+            height: 12,
+            borderRadius: "50%",
+            background: "red",
+            animation: "blink 1s infinite",
+            marginRight: "10px"
+        }}/>
+        <span>Signal yo‘q</span>
+    </div>
+            <span style={{fontSize: 11, opacity: 0.7,}}> Qayta ulanmoqda... </span>
+        </div>)}
+    </div>);
 };
 
 export default WebRTCPlayer;
