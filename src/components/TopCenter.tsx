@@ -17,8 +17,8 @@ const TopCenter = () => {
         // Eng yuqori qavat (4-qavat, 3 ta)
         [
             { name: 'Metal', position: { x: 50.5, y: 14 }, image: '', side: 'left', angle: 0, opacity: 1 },
-            { name: 'Mining', position: { x: 38, y: 17 }, image: '', side: 'left', angle: 20, opacity: 1 },
-            { name: 'Marketing', position: { x: 64, y: 17 }, image: '', side: 'right', angle: 20, opacity: 1 },
+            { name: 'Mining', position: { x: 37, y: 15}, image: '', side: 'left', angle: 24, opacity: 1 },
+            { name: 'Marketing', position: { x: 64, y: 15 }, image: '', side: 'right', angle: 24, opacity: 1 },
         ],
         // 3-qavat (5 ta)
         [

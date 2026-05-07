@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import WebRTCPlayer from "./WebRTCPlayer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -40,50 +41,85 @@ function isVideoFile(url: string): boolean {
 */
 
 const defaultCells: StreamCell[] = [
-    // Tepa — 4 ta
-    { id: "t1", label: "T-1", streamUrl: rand() },
-    { id: "t2", label: "T-2", streamUrl: rand() },
-    { id: "t3", label: "T-3", streamUrl: rand() },
-    { id: "t4", label: "T-4", streamUrl: rand() },
-    // Chap — 2 ta (vertikal)
-    { id: "l1", label: "L-1", streamUrl: rand() },
-    { id: "l2", label: "L-2", streamUrl: rand() },
-    // Markaz — katta ekran
-    { id: "main", label: "Asosiy", streamUrl: rand() },
-    // O'ng — 2 ta (vertikal)
-    { id: "r1", label: "R-1", streamUrl: rand() },
-    { id: "r2", label: "R-2", streamUrl: rand() },
-    // Past — 4 ta
-    { id: "b1", label: "B-1", streamUrl: rand() },
-    { id: "b2", label: "B-2", streamUrl: rand() },
-    { id: "b3", label: "B-3", streamUrl: rand() },
-    { id: "b4", label: "B-4", streamUrl: rand() },
+
+    {
+        id: "t2",
+        label: "Camera 1",
+        streamUrl: "https://tmkstream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1",
+    },
+    {
+        id: "t1",
+        label: "Camera 2",
+        streamUrl: "https://tmkstream.bgs.uz/stream/5705c987-46c6-4144-af4e-9ff878309c83/channel/1/webrtc?uuid=5705c987-46c6-4144-af4e-9ff878309c83=1",
+    },
+    {
+        id: "t3",
+        label: "Camera 3",
+        streamUrl: "https://tmkstream.bgs.uz/stream/46c74c01-a0bd-4e42-ade1-0a5dc734ce09/channel/1/webrtc?uuid=46c74c01-a0bd-4e42-ade1-0a5dc734ce09&channel=1",
+    },
+    {
+        id: "t4",
+        label: "Camera 4",
+        streamUrl: "https://tmkstream.bgs.uz/stream/85d5d297-7d73-43c6-a589-d175d78eb771/channel/1/webrtc?uuid=85d5d297-7d73-43c6-a589-d175d78eb771&channel=1",
+    },
+
+
+    // // Tepa — 4 ta
+    // { id: "t1", label: "T-1", streamUrl: rand() },
+    // { id: "t2", label: "T-2", streamUrl: rand() },
+    // { id: "t3", label: "T-3", streamUrl: rand() },
+    // { id: "t4", label: "T-4", streamUrl: rand() },
+    // // Chap — 2 ta (vertikal)
+    // { id: "l1", label: "L-1", streamUrl: rand() },
+    // { id: "l2", label: "L-2", streamUrl: rand() },
+    // // Markaz — katta ekran
+    // { id: "main", label: "Asosiy", streamUrl: rand() },
+    // // O'ng — 2 ta (vertikal)
+    // { id: "r1", label: "R-1", streamUrl: rand() },
+    // { id: "r2", label: "R-2", streamUrl: rand() },
+    // // Past — 4 ta
+    // { id: "b1", label: "B-1", streamUrl: rand() },
+    // { id: "b2", label: "B-2", streamUrl: rand() },
+    // { id: "b3", label: "B-3", streamUrl: rand() },
+    // { id: "b4", label: "B-4", streamUrl: rand() },
 ];
 
 // ─── Player ───────────────────────────────────────────────────────────────────
 
-const Player: React.FC<{ cell: StreamCell; videoKey?: string }> = ({ cell, videoKey }) => {
+// const Player: React.FC<{ cell: StreamCell; videoKey?: string }> = ({ cell, videoKey }) => {
+//     if (!cell.streamUrl) return null;
+//     if (isVideoFile(cell.streamUrl)) {
+//         return (
+//             <video
+//                 key={videoKey ?? cell.id}
+//                 src="https://gostream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1"
+//                 autoPlay muted loop playsInline
+//                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+//             />
+//         );
+//     }
+//     return (
+//         <iframe
+//             key={videoKey ?? cell.id}
+//             src="https://gostream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1"
+//             allow="autoplay; fullscreen"
+//             allowFullScreen
+//             title={cell.label}
+//             style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+//         />
+//     );
+// };
+
+const STREAM =
+    "https://gostream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1";
+
+
+
+
+const Player: React.FC<{ cell: StreamCell }> = ({ cell }) => {
     if (!cell.streamUrl) return null;
-    if (isVideoFile(cell.streamUrl)) {
-        return (
-            <video
-                key={videoKey ?? cell.id}
-                src={cell.streamUrl}
-                autoPlay muted loop playsInline
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
-        );
-    }
-    return (
-        <iframe
-            key={videoKey ?? cell.id}
-            src={cell.streamUrl}
-            allow="autoplay; fullscreen"
-            allowFullScreen
-            title={cell.label}
-            style={{ width: "100%", height: "100%", border: "none", display: "block" }}
-        />
-    );
+
+    return <WebRTCPlayer url={cell.streamUrl} />;
 };
 
 // ─── Small Cell ───────────────────────────────────────────────────────────────
@@ -110,8 +146,8 @@ const Cell: React.FC<{
             transition: "outline 0.12s",
         }}
     >
-        <Player cell={cell} />
-
+        {/*<Player cell={cell} />*/}
+        <WebRTCPlayer url={cell.streamUrl!} />
         {!cell.streamUrl && (
             <div style={noStream}>
                 <TvIcon size={13} />
@@ -132,68 +168,86 @@ const StreamGrid: React.FC<StreamGridProps> = ({
     const c = cells.length >= 13 ? cells : defaultCells;
     const [t1, t2, t3, t4, l1, l2, mainCell, r1, r2, b1, b2, b3, b4] = c;
 
-    const [focusedId, setFocusedId] = useState<string>(mainCell.id);
+    const [focusedId, setFocusedId] = useState<any>(mainCell?.id);
     const focused = c.find((x) => x.id === focusedId) ?? mainCell;
 
     const click = (id: string) => setFocusedId(id);
 
     return (
+        // <div
+        //     style={{
+        //         width: "100%",
+        //         height: "100%",
+        //         display: "grid",
+        //         gridTemplateColumns: "repeat(4, 1fr)",
+        //         gridTemplateRows: "repeat(4, 1fr)",
+        //         gap,
+        //         background: "#0a0a0a",
+        //         padding: gap,
+        //         boxSizing: "border-box",
+        //     }}
+        // >
+        //     {/* ── TEPA — row 1 ── */}
+        //     <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1.id)} gridArea="1 / 1 / 2 / 2" />
+        //     <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2.id)} gridArea="1 / 2 / 2 / 3" />
+        //     <Cell cell={t3} isActive={focusedId === t3.id} onClick={() => click(t3.id)} gridArea="1 / 3 / 2 / 4" />
+        //     <Cell cell={t4} isActive={focusedId === t4.id} onClick={() => click(t4.id)} gridArea="1 / 4 / 2 / 5" />
+        //
+        //     {/* ── CHAP — col 1, row 2-3 ── */}
+        //     <Cell cell={l1} isActive={focusedId === l1.id} onClick={() => click(l1.id)} gridArea="2 / 1 / 3 / 2" />
+        //     <Cell cell={l2} isActive={focusedId === l2.id} onClick={() => click(l2.id)} gridArea="3 / 1 / 4 / 2" />
+        //
+        //     {/* ── MARKAZ — col 2-3, row 2-3 (rowspan+colspan 2) ── */}
+        //     <div
+        //         style={{
+        //             gridArea: "2 / 2 / 4 / 4",
+        //             position: "relative",
+        //             overflow: "hidden",
+        //             borderRadius: 2,
+        //             background: "#0d0d0d",
+        //             outline: "1px solid rgba(68,170,255,0.2)",
+        //             outlineOffset: -1,
+        //         }}
+        //     >
+        //         <Player cell={focused} videoKey={focusedId} />
+        //
+        //         {!focused.streamUrl && (
+        //             <div style={noStream}>
+        //                 <TvIcon size={36} />
+        //                 <span style={{ fontSize: 11, color: "#2a2a2a", marginTop: 6 }}>{focused.label}</span>
+        //             </div>
+        //         )}
+        //
+        //         <div style={mainLabel}>{focused.label}</div>
+        //     </div>
+        //
+        //     {/* ── O'NG — col 4, row 2-3 ── */}
+        //     <Cell cell={r1} isActive={focusedId === r1.id} onClick={() => click(r1.id)} gridArea="2 / 4 / 3 / 5" />
+        //     <Cell cell={r2} isActive={focusedId === r2.id} onClick={() => click(r2.id)} gridArea="3 / 4 / 4 / 5" />
+        //
+        //     {/* ── PAST — row 4 ── */}
+        //     <Cell cell={b1} isActive={focusedId === b1.id} onClick={() => click(b1.id)} gridArea="4 / 1 / 5 / 2" />
+        //     <Cell cell={b2} isActive={focusedId === b2.id} onClick={() => click(b2.id)} gridArea="4 / 2 / 5 / 3" />
+        //     <Cell cell={b3} isActive={focusedId === b3.id} onClick={() => click(b3.id)} gridArea="4 / 3 / 5 / 4" />
+        //     <Cell cell={b4} isActive={focusedId === b4.id} onClick={() => click(b4.id)} gridArea="4 / 4 / 5 / 5" />
+        // </div>
         <div
             style={{
                 width: "100%",
                 height: "100%",
                 display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                gridTemplateRows: "repeat(4, 1fr)",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gridTemplateRows: "repeat(2, 1fr)",
                 gap,
                 background: "#0a0a0a",
                 padding: gap,
                 boxSizing: "border-box",
             }}
         >
-            {/* ── TEPA — row 1 ── */}
-            <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1.id)} gridArea="1 / 1 / 2 / 2" />
-            <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2.id)} gridArea="1 / 2 / 2 / 3" />
-            <Cell cell={t3} isActive={focusedId === t3.id} onClick={() => click(t3.id)} gridArea="1 / 3 / 2 / 4" />
-            <Cell cell={t4} isActive={focusedId === t4.id} onClick={() => click(t4.id)} gridArea="1 / 4 / 2 / 5" />
-
-            {/* ── CHAP — col 1, row 2-3 ── */}
-            <Cell cell={l1} isActive={focusedId === l1.id} onClick={() => click(l1.id)} gridArea="2 / 1 / 3 / 2" />
-            <Cell cell={l2} isActive={focusedId === l2.id} onClick={() => click(l2.id)} gridArea="3 / 1 / 4 / 2" />
-
-            {/* ── MARKAZ — col 2-3, row 2-3 (rowspan+colspan 2) ── */}
-            <div
-                style={{
-                    gridArea: "2 / 2 / 4 / 4",
-                    position: "relative",
-                    overflow: "hidden",
-                    borderRadius: 2,
-                    background: "#0d0d0d",
-                    outline: "1px solid rgba(68,170,255,0.2)",
-                    outlineOffset: -1,
-                }}
-            >
-                <Player cell={focused} videoKey={focusedId} />
-
-                {!focused.streamUrl && (
-                    <div style={noStream}>
-                        <TvIcon size={36} />
-                        <span style={{ fontSize: 11, color: "#2a2a2a", marginTop: 6 }}>{focused.label}</span>
-                    </div>
-                )}
-
-                <div style={mainLabel}>{focused.label}</div>
-            </div>
-
-            {/* ── O'NG — col 4, row 2-3 ── */}
-            <Cell cell={r1} isActive={focusedId === r1.id} onClick={() => click(r1.id)} gridArea="2 / 4 / 3 / 5" />
-            <Cell cell={r2} isActive={focusedId === r2.id} onClick={() => click(r2.id)} gridArea="3 / 4 / 4 / 5" />
-
-            {/* ── PAST — row 4 ── */}
-            <Cell cell={b1} isActive={focusedId === b1.id} onClick={() => click(b1.id)} gridArea="4 / 1 / 5 / 2" />
-            <Cell cell={b2} isActive={focusedId === b2.id} onClick={() => click(b2.id)} gridArea="4 / 2 / 5 / 3" />
-            <Cell cell={b3} isActive={focusedId === b3.id} onClick={() => click(b3.id)} gridArea="4 / 3 / 5 / 4" />
-            <Cell cell={b4} isActive={focusedId === b4.id} onClick={() => click(b4.id)} gridArea="4 / 4 / 5 / 5" />
+            <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1.id)} gridArea="2 / 2" />
+            <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2.id)} gridArea="1 / 1" />
+            <Cell cell={t3} isActive={focusedId === t3.id} onClick={() => click(t3.id)} gridArea="1 / 2" />
+            <Cell cell={t4} isActive={focusedId === t4.id} onClick={() => click(t4.id)} gridArea="2 / 1" />
         </div>
     );
 };

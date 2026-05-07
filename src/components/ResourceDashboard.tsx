@@ -287,7 +287,7 @@ const Row1Elektr = () => (
         <SectionHeader title="Elektr Energiya" color={C.electric} right={badge(C.crit,'Bugun +9%')}/>
        <div style={{display: "flex"}}>
            <div style={{width: "100%", height: "100%", paddingRight: "5px"}}>
-               <Card title="Umumiy sarf" accent={C.electric} style={{height: "100%"}}>
+               <Card title="Umumiy sarf" accent={C.electric} style={{height: "100%", width: "100%"}}>
                    <KpiRow value="1.2" unit="GWh" color={C.electric} trend="+9% kechaga nisbatan" up={false}
                            sub="Kecha: 1.1 GWh  |  Haftalik o'rta: 1.15 GWh"
                            right={rightStat('Pik soat','380 MW','18:00–20:00',C.electric)}/>
@@ -299,7 +299,7 @@ const Row1Elektr = () => (
                </Card>
            </div>
            <div style={{width: "100%", height: "100%", paddingLeft: "5px"}}>
-               <Card title="Zavodlar bo'yicha oylik sarf (GWh)" accent={C.electric} extra={badge(C.warn,'Mart: 57 GWh')}>
+               <Card title="Zavodlar bo'yicha oylik sarf (GWh)" accent={C.electric} extra={badge(C.warn,'Mart: 57 GWh')} style={{height: "100%", width: "100%"}}>
                    <StackedBar datasets={[
                        {label:'A+B', data:[18,16,21,19], color:C.electric},
                        {label:'C+D', data:[12,11,15,13], color:'#00ccdd'},
@@ -328,8 +328,8 @@ const Row1Quyosh = () => (
     <div style={colFlex}>
         <SectionHeader title="Quyosh Energiyasi" color={C.solar} right={badge(C.ok,'Oshmoqda ↑')}/>
         <div style={{display:'flex', width: "100%"}}>
-            <div style={{width: "99%", paddingRight: "5px"}}>
-                <Card title="Joriy ishlab chiqarish" accent={C.solar}>
+            <div style={{width: "100%", paddingRight: "5px"}}>
+                <Card title="Joriy ishlab chiqarish" accent={C.solar} style={{width: "100%", height: "100%"}}>
                     <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
                         <div style={{flex:1, position:'relative'}}>
                             <GaugeChart value={12} color={C.solar} label="Umumiydan ulush" height={95}/>
@@ -345,8 +345,8 @@ const Row1Quyosh = () => (
                     </div>
                 </Card>
             </div>
-            <div style={{width: "99%", paddingLeft: "5px"}}>
-                <Card title="Energiya manbalari tarkibi" accent={C.electric} extra={badge(C.solar,'Solar: 20%')} style={{flex:1}}>
+            <div style={{width: "100%", paddingLeft: "5px"}}>
+                <Card title="Energiya manbalari tarkibi" accent={C.electric} extra={badge(C.solar,'Solar: 20%')} style={{flex:1, width: "100%", height: "100%"}}>
                     <DonutChart
                         data={[70,20,10]}
                         labels={['Grid: 70%','Solar: 20%','Generator: 10%']}
@@ -373,9 +373,9 @@ const Row1Quyosh = () => (
 const Row2Gaz = () => (
     <div style={colFlex}>
         <SectionHeader title="Gaz Sarfi" color={C.gas} right={badge(C.warn,'Mart: +24%')}/>
-        <div style={{display:'flex'}}>
+        <div style={{display:'flex', boxSizing: 'border-box', width: "100%", height: "100%"}}>
             <div style={{width: "100%", paddingRight: "5px"}}>
-                <Card title="Bugungi sarf" accent={C.gas} extra={badge(C.gas,'2.4 mln m³')} style={{height: "100%"}}>
+                <Card title="Bugungi sarf" accent={C.gas}  extra={badge(C.gas,'2.4 mln m³')} style={{height: "100%", width: "100%"}}>
                     <KpiRow value="2.4" unit="mln m³" color={C.gas} trend="+8% o'rtachadan" up={false}
                             sub="1t po'lat = 85 m³  |  Normativ: 2.22 mln m³"
                             right={rightStat('Haddan oshiq','+180k','m³/kun',C.crit)}/>
@@ -387,7 +387,7 @@ const Row2Gaz = () => (
                 </Card>
             </div>
             <div style={{width: "100%", paddingLeft: "5px"  }}>
-                <Card title="Oylik gaz sarfi (mln m³)" accent={C.gas} extra={badge(C.warn,'Mart: pik')}>
+                <Card title="Oylik gaz sarfi (mln m³)" accent={C.gas} extra={badge(C.warn,'Mart: pik')} style={{height: "100%", width: "100%"}}>
                     <MiniArea data={[2.1,2.0,2.6,2.3]} color={C.gas} height={80}/>
                     <MonthRow values={['2.1','2.0','2.6 ⚠','2.3']} color={C.gas} warn={2}/>
                 </Card>
