@@ -1,6 +1,10 @@
 import { useState } from "react";
+import type { StreamCell } from "./VideoStream";
 
-// PTZ uchun zarur bo'lgan minimal CSS uslublari
+// PTZ API endpoint
+const PTZ_API = "https://tmk.bgs.uz/api/cameras/ptz-control?lang=uz";
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const ptzStyles = `
   .ptz-container {
     background: linear-gradient(145deg, #1e1e1e, #121212);
@@ -65,25 +69,22 @@ const ptzStyles = `
   .ptz-icon.active {
     color: #fff;
     background: #0EA8C7;
-    // transform: scale(1.1);
     box-shadow: 0 0 20px rgba(14, 168, 199, 0.6);
   }
-  .ptz-icon-up { top: 4px; left: 50%; transform: translateX(-50%); }
-  .ptz-icon-down { bottom: 4px; left: 50%; transform: translateX(-50%); }
-  .ptz-icon-left { left: 4px; top: 50%; transform: translateY(-50%); }
-  .ptz-icon-right { right: 4px; top: 50%; transform: translateY(-50%); }
-  .ptz-icon-up-left { top: 24px; left: 24px; font-size: 14px; }
-  .ptz-icon-up-right { top: 24px; right: 24px; font-size: 14px; }
-  .ptz-icon-down-left { bottom: 24px; left: 24px; font-size: 14px; }
+  .ptz-icon-up       { top: 4px;    left: 50%;  transform: translateX(-50%); }
+  .ptz-icon-down     { bottom: 4px; left: 50%;  transform: translateX(-50%); }
+  .ptz-icon-left     { left: 4px;   top: 50%;   transform: translateY(-50%); }
+  .ptz-icon-right    { right: 4px;  top: 50%;   transform: translateY(-50%); }
+  .ptz-icon-up-left  { top: 24px;   left: 24px;   font-size: 14px; }
+  .ptz-icon-up-right { top: 24px;   right: 24px;  font-size: 14px; }
+  .ptz-icon-down-left  { bottom: 24px; left: 24px;  font-size: 14px; }
   .ptz-icon-down-right { bottom: 24px; right: 24px; font-size: 14px; }
-  
+
   .ptz-center-joystick {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 68px;
-    height: 68px;
+    width: 68px; height: 68px;
     background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
     border-radius: 50%;
     border: 1px solid #333;
@@ -94,8 +95,7 @@ const ptzStyles = `
     box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
   }
   .ptz-center-dot {
-    width: 12px;
-    height: 12px;
+    width: 12px; height: 12px;
     background: #0EA8C7;
     border-radius: 50%;
     box-shadow: 0 0 10px #0EA8C7;
@@ -109,8 +109,7 @@ const ptzStyles = `
     justify-content: center;
   }
   .zoom-btn {
-    width: 54px;
-    height: 48px;
+    width: 54px; height: 48px;
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 12px;
@@ -123,202 +122,201 @@ const ptzStyles = `
     transition: all 0.2s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   }
-  .zoom-btn span {
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 1;
+  .zoom-btn span { font-size: 20px; font-weight: bold; line-height: 1; }
+  .zoom-label { font-size: 9px; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px; }
+  .zoom-btn:hover  { background: #222; color: #0EA8C7; border-color: #444; }
+  .zoom-btn.active { background: #0EA8C7; border-color: #0EA8C7; color: #fff; box-shadow: 0 0 15px rgba(14,168,199,0.4); }
+
+  .ptz-status {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 1px;
+    height: 18px;
+    transition: opacity 0.3s;
   }
-  .zoom-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    margin-top: 2px;
-    letter-spacing: 0.5px;
-  }
-  .zoom-btn:hover {
-    background: #222;
-    color: #0EA8C7;
-    border-color: #444;
-  }
-  .zoom-btn.active {
-    background: #0EA8C7;
-    border-color: #0EA8C7;
-    color: #fff;
-    box-shadow: 0 0 15px rgba(14, 168, 199, 0.4);
-  }
+  .ptz-status.ok   { color: #00ff88; }
+  .ptz-status.err  { color: #ff4444; }
+  .ptz-status.idle { opacity: 0; }
 `;
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 interface PTZControlsProps {
-  camera: any;
-  onSendCommand: any;
+    camera: StreamCell;
+    onSendCommand?: (cmd: { cameraId: number; pan: number; tilt: number; zoom: number }) => void;
 }
 
-export default function PTZControls({
-  camera,
-  onSendCommand,
-}: PTZControlsProps) {
-  const [activeControl, setActiveControl] = useState<string | null>(null);
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+// ─── Component ────────────────────────────────────────────────────────────────
 
-  const [status, setStatus] = useState<string>("");
+export default function PTZControls({ camera, onSendCommand }: PTZControlsProps) {
+    const [activeControl, setActiveControl] = useState<string | null>(null);
+    const [intervalId,    setIntervalId]    = useState<NodeJS.Timeout | null>(null);
+    const [status,        setStatus]        = useState<{ text: string; ok: boolean } | null>(null);
 
-  const sendPTZCommand = async (pan: number, tilt: number, zoom: number) => {
-    if (!camera.streamUrl) return;
+    // ── Core API call ──────────────────────────────────────────────────────────
+    /**
+     * pan/tilt/zoom: ±1 araliqda (tugmadan kelgan ±60 ni 60 ga bo'lamiz)
+     * API: POST https://tmk.bgs.uz/api/cameras/ptz-control?lang=uz
+     * Body: { cameraId, pan, tilt, zoom }
+     */
+    const sendPTZCommand = async (pan: number, tilt: number, zoom: number) => {
+        const body = {
+            cameraId: camera.cameraId,
+            pan:  +(pan  / 60).toFixed(4),
+            tilt: +(tilt / 60).toFixed(4),
+            zoom: +(zoom / 60).toFixed(4),
+        };
 
-    const match = camera.streamUrl.match(/\/stream\/([^/]+)/);
-    const streamName = match ? match[1] : null;
+        // Parent callback (logging, state, vs.)
+        onSendCommand?.(body);
 
-    if (!streamName) return;
+        try {
+            const res = await fetch(PTZ_API, {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify(body),
+            });
 
-    const x = pan / 60;
-    const y = tilt / 60;
-    const z = zoom / 60;
-
-    onSendCommand({ cameraId: camera.id, x, y, z, streamName });
-
-    try {
-      const baseUrl = camera.streamUrl.split('/stream/')[0];
-      const apiUrl = `${baseUrl}/api/onvif?src=${streamName}&action=move&x=${x}&y=${y}&z=${z}`;
-      
-      const response = await fetch(apiUrl, { method: 'POST' });
-      if (!response.ok) {
-        const retryResponse = await fetch(apiUrl, { method: 'GET' });
-        if (!retryResponse.ok) {
-          setStatus("Xatolik!");
-          setTimeout(() => setStatus(""), 2000);
-        } else {
-          setStatus("Yuborildi");
-          setTimeout(() => setStatus(""), 1000);
+            if (res.ok) {
+                // To'xtatish buyrug'iga (0,0,0) status ko'rsatmaymiz — faqat harakat paytida
+                if (pan !== 0 || tilt !== 0 || zoom !== 0) {
+                    setStatus({ text: "YUBORILDI", ok: true });
+                    setTimeout(() => setStatus(null), 900);
+                }
+            } else {
+                const errText = await res.text().catch(() => "");
+                console.error("[PTZ] Server xato:", res.status, errText);
+                setStatus({ text: `XATO ${res.status}`, ok: false });
+                setTimeout(() => setStatus(null), 2000);
+            }
+        } catch (err) {
+            console.error("[PTZ] Tarmoq xatosi:", err);
+            setStatus({ text: "XATO!", ok: false });
+            setTimeout(() => setStatus(null), 2000);
         }
-      } else {
-        setStatus("Yuborildi");
-        setTimeout(() => setStatus(""), 1000);
-      }
-    } catch (error) {
-      setStatus("Xato!");
-      setTimeout(() => setStatus(""), 2000);
-    }
-  };
+    };
 
-  const handleControlStart = (direction: string, pan: number, tilt: number) => {
-    if (intervalId) clearInterval(intervalId);
-    
-    setActiveControl(direction);
-    // Birinchi buyruqni darhol yuboramiz
-    sendPTZCommand(pan, tilt, 0);
-    
-    // Keyin har 500ms da qayta yuboramiz (go2rtc harakatni davom ettirishi uchun)
-    const id = setInterval(() => {
-      sendPTZCommand(pan, tilt, 0);
-    }, 500);
-    setIntervalId(id);
-  };
+    // ── Direction controls ─────────────────────────────────────────────────────
+    /**
+     * Bosish: darhol buyruq + har 500ms da qayta (kamera harakat qilishi uchun)
+     * Qo'yib yuborish: interval o'chirilib, to'xtatish buyrug'i (0,0,0) yuboriladi
+     */
+    const handleControlStart = (direction: string, pan: number, tilt: number) => {
+        if (intervalId) clearInterval(intervalId);
+        setActiveControl(direction);
+        sendPTZCommand(pan, tilt, 0);
+        const id = setInterval(() => sendPTZCommand(pan, tilt, 0), 500);
+        setIntervalId(id);
+    };
 
-  const handleControlStop = () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
-    }
-    setActiveControl(null);
-    // To'xtatish buyrug'i (0,0,0)
-    sendPTZCommand(0, 0, 0);
-  };
+    const handleControlStop = () => {
+        if (intervalId) { clearInterval(intervalId); setIntervalId(null); }
+        setActiveControl(null);
+        sendPTZCommand(0, 0, 0); // TO'XTAT
+    };
 
-  const handleZoomStart = (direction: "in" | "out") => {
-    if (intervalId) clearInterval(intervalId);
+    // ── Zoom controls ──────────────────────────────────────────────────────────
+    const handleZoomStart = (direction: "in" | "out") => {
+        if (intervalId) clearInterval(intervalId);
+        const zoomVal = direction === "in" ? 60 : -60;
+        setActiveControl(direction);
+        sendPTZCommand(0, 0, zoomVal);
+        const id = setInterval(() => sendPTZCommand(0, 0, zoomVal), 500);
+        setIntervalId(id);
+    };
 
-    const zoomVal = direction === "in" ? 60 : -60;
-    setActiveControl(direction);
-    sendPTZCommand(0, 0, zoomVal);
+    const handleZoomStop = () => {
+        if (intervalId) { clearInterval(intervalId); setIntervalId(null); }
+        setActiveControl(null);
+        sendPTZCommand(0, 0, 0); // TO'XTAT
+    };
 
-    const id = setInterval(() => {
-      sendPTZCommand(0, 0, zoomVal);
-    }, 500);
-    setIntervalId(id);
-  };
+    // ── Direction button definitions ───────────────────────────────────────────
+    // pan > 0 → O'nga,  pan < 0 → Chapga
+    // tilt > 0 → Yuqoriga, tilt < 0 → Pastga
+    const ptzActions = [
+        { id: "upLeft",    icon: "↖", pan: -60, tilt:  60, title: "Chapga yuqoriga",  className: "ptz-icon-up-left"   },
+        { id: "up",        icon: "↑", pan:   0, tilt:  60, title: "Yuqoriga",         className: "ptz-icon-up"        },
+        { id: "upRight",   icon: "↗", pan:  60, tilt:  60, title: "O'ngga yuqoriga",  className: "ptz-icon-up-right"  },
+        { id: "left",      icon: "←", pan: -60, tilt:   0, title: "Chapga",           className: "ptz-icon-left"      },
+        { id: "right",     icon: "→", pan:  60, tilt:   0, title: "O'ngga",           className: "ptz-icon-right"     },
+        { id: "downLeft",  icon: "↙", pan: -60, tilt: -60, title: "Chapga pastga",    className: "ptz-icon-down-left" },
+        { id: "down",      icon: "↓", pan:   0, tilt: -60, title: "Pastga",           className: "ptz-icon-down"      },
+        { id: "downRight", icon: "↘", pan:  60, tilt: -60, title: "O'ngga pastga",    className: "ptz-icon-down-right"},
+    ];
 
-  const handleZoomStop = () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
-    }
-    setActiveControl(null);
-    sendPTZCommand(0, 0, 0);
-  };
+    return (
+        <div className="flex flex-col gap-4">
+            <style>{ptzStyles}</style>
 
-  const ptzActions = [
-    { id: "factoryUpLeft", icon: "↖", pan: -60, tilt: 60, title: "Chapga yuqoriga", className: "ptz-icon-up-left" },
-    { id: "factoryUp", icon: "↑", pan: 0, tilt: 60, title: "Yuqoriga", className: "ptz-icon-up" },
-    { id: "factoryUpRight", icon: "↗", pan: 60, tilt: 60, title: "O'ngga yuqoriga", className: "ptz-icon-up-right" },
-    { id: "factoryLeft", icon: "←", pan: -60, tilt: 0, title: "Chapga", className: "ptz-icon-left" },
-    { id: "factoryRight", icon: "→", pan: 60, tilt: 0, title: "O'ngga", className: "ptz-icon-right" },
-    { id: "factoryDownLeft", icon: "↙", pan: -60, tilt: -60, title: "Chapga pastga", className: "ptz-icon-down-left" },
-    { id: "factoryDown", icon: "↓", pan: 0, tilt: -60, title: "Pastga", className: "ptz-icon-down" },
-    { id: "factoryDownRight", icon: "↘", pan: 60, tilt: -60, title: "O'ngga pastga", className: "ptz-icon-down-right" },
-  ];
+            <div className="ptz-container" style={{ margin: "20px" }}>
+                {/* Header */}
+                <h4 className="text-[11px] font-bold text-[#0EA8C7] text-center mb-6 uppercase tracking-[3px] opacity-80">
+                    Kamera boshqaruvi
+                </h4>
 
-  return (
-    <div className="flex flex-col gap-4" >
-      <style>{ptzStyles}</style>
+                {/* Joystick ring */}
+                <div className="ptz-root">
+                    <div className="ptz-outer-ring" />
+                    <div className="ptz-panel mx-auto">
+                        <div className="ptz-panel-content">
+                            {ptzActions.map(action => (
+                                <div
+                                    key={action.id}
+                                    title={action.title}
+                                    className={`ptz-icon ${action.className} ${activeControl === action.id ? "active" : ""}`}
+                                    onMouseDown={() => handleControlStart(action.id, action.pan, action.tilt)}
+                                    onMouseUp={handleControlStop}
+                                    onMouseLeave={handleControlStop}
+                                    onTouchStart={e => { e.preventDefault(); handleControlStart(action.id, action.pan, action.tilt); }}
+                                    onTouchEnd={e => { e.preventDefault(); handleControlStop(); }}
+                                >
+                                    {action.icon}
+                                </div>
+                            ))}
 
-      <div >
-        <div className="ptz-container" style={{ margin: "20px"}}>
-          <h4 className="text-[11px] font-bold text-[#0EA8C7] text-center mb-6 uppercase tracking-[3px] opacity-80">
-          Kamera boshqaruvi
-          </h4>
-
-          <div className="ptz-root">
-            <div className="ptz-outer-ring"></div>
-            <div className="ptz-panel mx-auto">
-              <div className="ptz-panel-content">
-                {ptzActions.map((action) => (
-                    <div
-                        key={action.id}
-                        title={action.title}
-                        className={`ptz-icon ${action.className} ${activeControl === action.id ? 'active' : ''}`}
-                        onMouseDown={() => handleControlStart(action.id, action.pan, action.tilt)}
-                        onMouseUp={handleControlStop}
-                        onMouseLeave={handleControlStop}
-                        onTouchStart={(e) => { e.preventDefault(); handleControlStart(action.id, action.pan, action.tilt); }}
-                        onTouchEnd={(e) => { e.preventDefault(); handleControlStop(); }}
-                    >
-                      {action.icon}
+                            {/* Center decoration */}
+                            <div className="ptz-center-joystick">
+                                <div className="ptz-center-dot" />
+                            </div>
+                        </div>
                     </div>
-                ))}
-
-                {/* Center Joystick Decoration */}
-                <div className="ptz-center-joystick">
-                  <div className="ptz-center-dot"></div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="ptz-zoom-controls">
-            <div
-                title="Kichraytirish -"
-                className={`zoom-btn ${activeControl === "out" ? "active" : ""}`}
-                onMouseDown={() => handleZoomStart("out")}
-                onMouseUp={handleZoomStop}
-                onMouseLeave={handleZoomStop}
-                onTouchStart={(e) => { e.preventDefault(); handleZoomStart("out"); }}
-                onTouchEnd={(e) => { e.preventDefault(); handleZoomStop(); }}
-            >
-              <span style={{fontSize: "20px"}}>-</span>
+                {/* Zoom buttons */}
+                <div className="ptz-zoom-controls">
+                    <div
+                        title="Kichraytirish −"
+                        className={`zoom-btn ${activeControl === "out" ? "active" : ""}`}
+                        onMouseDown={() => handleZoomStart("out")}
+                        onMouseUp={handleZoomStop}
+                        onMouseLeave={handleZoomStop}
+                        onTouchStart={e => { e.preventDefault(); handleZoomStart("out"); }}
+                        onTouchEnd={e => { e.preventDefault(); handleZoomStop(); }}
+                    >
+                        <span>−</span>
+                        <span className="zoom-label" style={{ fontSize: "9px", textTransform: "uppercase", marginTop: "2px", letterSpacing: "0.5px" }}>Zoom</span>
+                    </div>
+                    <div
+                        title="Kattalashtirish +"
+                        className={`zoom-btn ${activeControl === "in" ? "active" : ""}`}
+                        onMouseDown={() => handleZoomStart("in")}
+                        onMouseUp={handleZoomStop}
+                        onMouseLeave={handleZoomStop}
+                        onTouchStart={e => { e.preventDefault(); handleZoomStart("in"); }}
+                        onTouchEnd={e => { e.preventDefault(); handleZoomStop(); }}
+                    >
+                        <span>+</span>
+                        <span className="zoom-label" style={{ fontSize: "9px", textTransform: "uppercase", marginTop: "2px", letterSpacing: "0.5px" }}>Zoom</span>
+                    </div>
+                </div>
+
+                {/* Status indicator */}
+                <div className={`ptz-status ${status ? (status.ok ? "ok" : "err") : "idle"}`}>
+                    {status?.text ?? "·"}
+                </div>
             </div>
-            <div
-                title="Kattalashtirish +"
-                className={`zoom-btn ${activeControl === "in" ? "active" : ""}`}
-                onMouseDown={() => handleZoomStart("in")}
-                onMouseUp={handleZoomStop}
-                onMouseLeave={handleZoomStop}
-                onTouchStart={(e) => { e.preventDefault(); handleZoomStart("in"); }}
-                onTouchEnd={(e) => { e.preventDefault(); handleZoomStop(); }}
-            >
-              <span style={{fontSize: "20px"}}>+</span>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

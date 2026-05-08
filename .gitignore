@@ -7,7 +7,7 @@
 /logs
 # testing
 /coverage
-
+/.claude
 
 # misc
 .DS_Store

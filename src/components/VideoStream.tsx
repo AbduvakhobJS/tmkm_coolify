@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import WebRTCPlayer from "./WebRTCPlayer";
 import PTZControls from "./PTZControls";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface StreamCell {
-    id: string;
+    id: string;          // stream_uuid
+    cameraId: number;    // numeric ID from API (used for PTZ)
     label: string;
     streamUrl?: string;
-    type?: string;
+    type?: string;       // 'ptz' | 'oddiy'
+    has_ptz?: boolean;
 }
 
 export interface StreamGridProps {
@@ -16,118 +18,93 @@ export interface StreamGridProps {
     gap?: number;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── API config ───────────────────────────────────────────────────────────────
 
-const TEST = ["./videos/test.mp4", "./videos/test2.mp4"];
-const rand = () => TEST[Math.floor(Math.random() * TEST.length)];
+const API_BASE = "https://tmk.bgs.uz/api";
 
-function isVideoFile(url: string): boolean {
-    return /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
-}
-
-/*
-  SXEMA (5 qator x 4 ustun):
-  ┌──────┬──────┬──────┬──────┐
-  │  T1  │  T2  │  T3  │  T4  │  row 1 — tepa 4 ta
-  ├──────┼──────┴──────┼──────┤
-  │  L1  │             │  R1  │  row 2 ┐
-  ├──────┤   MARKAZ    ├──────┤         ├─ markaz rowspan 2
-  │  L2  │  (2×2)     │  R2  │  row 3 ┘
-  ├──────┼──────┬──────┼──────┤
-  │  B1  │  B2  │  B3  │  B4  │  row 4 — past 4 ta
-  └──────┴──────┴──────┴──────┘
-
-  Chap: L1(row2,col1), L2(row3,col1) — 2 ta
-  O'ng: R1(row2,col4), R2(row3,col4) — 2 ta
-  Jami kichik: 4+2+2+4 = 12 ta + 1 markaz = 13 ta cell
-*/
-
-const defaultCells: StreamCell[] = [
-
-    {
-        id: "t2",
-        label: "Angren PTZ",
-        streamUrl: "https://tmkstream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1",
-        type: "ptz",
-    },
-    {
-        id: "t1",
-        label: "Navoi 1",
-        streamUrl: "https://tmkstream.bgs.uz/stream/5705c987-46c6-4144-af4e-9ff878309c83/channel/1/webrtc?uuid=5705c987-46c6-4144-af4e-9ff878309c83=1",
-        type: "oddiy",
-
-    },
-    {
-        id: "t3",
-        label: "Angren PTZ Panorama ",
-        streamUrl: "https://tmkstream.bgs.uz/stream/46c74c01-a0bd-4e42-ade1-0a5dc734ce09/channel/1/webrtc?uuid=46c74c01-a0bd-4e42-ade1-0a5dc734ce09&channel=1",
-        type: "ptz",
-
-    },
-    {
-        id: "t4",
-        label: "Navoi 2 PTZ Panoraman ",
-        streamUrl: "https://tmkstream.bgs.uz/stream/85d5d297-7d73-43c6-a589-d175d78eb771/channel/1/webrtc?uuid=85d5d297-7d73-43c6-a589-d175d78eb771&channel=1",
-        type: "ptz",
-
-    },
-
-
-    // // Tepa — 4 ta
-    // { id: "t1", label: "T-1", streamUrl: rand() },
-    // { id: "t2", label: "T-2", streamUrl: rand() },
-    // { id: "t3", label: "T-3", streamUrl: rand() },
-    // { id: "t4", label: "T-4", streamUrl: rand() },
-    // // Chap — 2 ta (vertikal)
-    // { id: "l1", label: "L-1", streamUrl: rand() },
-    // { id: "l2", label: "L-2", streamUrl: rand() },
-    // // Markaz — katta ekran
-    // { id: "main", label: "Asosiy", streamUrl: rand() },
-    // // O'ng — 2 ta (vertikal)
-    // { id: "r1", label: "R-1", streamUrl: rand() },
-    // { id: "r2", label: "R-2", streamUrl: rand() },
-    // // Past — 4 ta
-    // { id: "b1", label: "B-1", streamUrl: rand() },
-    // { id: "b2", label: "B-2", streamUrl: rand() },
-    // { id: "b3", label: "B-3", streamUrl: rand() },
-    // { id: "b4", label: "B-4", streamUrl: rand() },
+/** UUID tartibini saqlash uchun — shu ketma-ketlikda 4 ta kamera chiqadi */
+const TARGET_UUIDS = [
+    "27aec28e-6181-4753-9acd-0456a75f0289",
+    "5705c987-46c6-4144-af4e-9ff878309c83",
+    "46c74c01-a0bd-4e42-ade1-0a5dc734ce09",
+    "85d5d297-7d73-43c6-a589-d175d78eb771",
 ];
+
+/** API yuklanguncha fallback (stream URL-lar to'g'ri) */
+const defaultCells: StreamCell[] = [
+    {
+        id: "27aec28e-6181-4753-9acd-0456a75f0289",
+        cameraId: 6,
+        label: "Navoi 1",
+        streamUrl: "https://tmkstream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1",
+        type: "oddiy",
+        has_ptz: false,
+    },
+    {
+        id: "5705c987-46c6-4144-af4e-9ff878309c83",
+        cameraId: 5,
+        label: "Angren PTZ",
+        streamUrl: "https://tmkstream.bgs.uz/stream/5705c987-46c6-4144-af4e-9ff878309c83/channel/1/webrtc?uuid=5705c987-46c6-4144-af4e-9ff878309c83&channel=1",
+        type: "ptz",
+        has_ptz: true,
+    },
+    {
+        id: "46c74c01-a0bd-4e42-ade1-0a5dc734ce09",
+        cameraId: 4,
+        label: "Angren PTZ Panorama",
+        streamUrl: "https://tmkstream.bgs.uz/stream/46c74c01-a0bd-4e42-ade1-0a5dc734ce09/channel/1/webrtc?uuid=46c74c01-a0bd-4e42-ade1-0a5dc734ce09&channel=1",
+        type: "oddiy",
+        has_ptz: false,
+    },
+    {
+        id: "85d5d297-7d73-43c6-a589-d175d78eb771",
+        cameraId: 10,
+        label: "Navoi 2 PTZ Panorama",
+        streamUrl: "https://tmkstream.bgs.uz/stream/85d5d297-7d73-43c6-a589-d175d78eb771/channel/1/webrtc?uuid=85d5d297-7d73-43c6-a589-d175d78eb771&channel=1",
+        type: "oddiy",
+        has_ptz: false,
+    },
+];
+
+// ─── API fetch hook ───────────────────────────────────────────────────────────
+
+function useCameras(): StreamCell[] {
+    const [cells, setCells] = useState<StreamCell[]>(defaultCells);
+
+    useEffect(() => {
+        fetch(`${API_BASE}/cameras?lang=uz`)
+            .then(r => r.json())
+            .then((data: { factories: { cameras: any[] }[] }) => {
+                // Barcha kameralarni yig'amiz
+                const all: any[] = data.factories.flatMap(f => f.cameras);
+
+                // TARGET_UUIDS tartibida 4 ta cell yasaymiz
+                const fetched: StreamCell[] = TARGET_UUIDS.map(uuid => {
+                    const cam = all.find(c => c.stream_uuid === uuid);
+                    if (!cam) return null;
+                    const streamUrl = `${cam.webrtc_server}/stream/${cam.stream_uuid}/channel/1/webrtc?uuid=${cam.stream_uuid}&channel=1`;
+                    return {
+                        id: cam.stream_uuid as string,
+                        cameraId: cam.id as number,
+                        label: (cam.modelUz || cam.model || uuid.slice(0, 8)) as string,
+                        streamUrl,
+                        type: cam.has_ptz ? "ptz" : "oddiy",
+                        has_ptz: cam.has_ptz as boolean,
+                    } satisfies StreamCell;
+                }).filter(Boolean) as StreamCell[];
+
+                if (fetched.length === 4) setCells(fetched);
+            })
+            .catch(err => console.error("[VideoStream] Camera API xato:", err));
+    }, []);
+
+    return cells;
+}
 
 // ─── Player ───────────────────────────────────────────────────────────────────
 
-// const Player: React.FC<{ cell: StreamCell; videoKey?: string }> = ({ cell, videoKey }) => {
-//     if (!cell.streamUrl) return null;
-//     if (isVideoFile(cell.streamUrl)) {
-//         return (
-//             <video
-//                 key={videoKey ?? cell.id}
-//                 src="https://gostream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1"
-//                 autoPlay muted loop playsInline
-//                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-//             />
-//         );
-//     }
-//     return (
-//         <iframe
-//             key={videoKey ?? cell.id}
-//             src="https://gostream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1"
-//             allow="autoplay; fullscreen"
-//             allowFullScreen
-//             title={cell.label}
-//             style={{ width: "100%", height: "100%", border: "none", display: "block" }}
-//         />
-//     );
-// };
-
-const STREAM =
-    "https://gostream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1";
-
-
-
-
 const Player: React.FC<{ cell: StreamCell }> = ({ cell }) => {
     if (!cell.streamUrl) return null;
-
     return <WebRTCPlayer url={cell.streamUrl} />;
 };
 
@@ -137,7 +114,7 @@ const Cell: React.FC<{
     cell: StreamCell;
     isActive: boolean;
     onClick: () => void;
-    gridArea: string; // e.g. "1 / 1 / 2 / 2"
+    gridArea: string;
 }> = ({ cell, isActive, onClick, gridArea }) => (
     <div
         onClick={onClick}
@@ -155,7 +132,6 @@ const Cell: React.FC<{
             transition: "outline 0.12s",
         }}
     >
-        {/*<Player cell={cell} />*/}
         <WebRTCPlayer url={cell.streamUrl!} />
         {!cell.streamUrl && (
             <div style={noStream}>
@@ -163,30 +139,53 @@ const Cell: React.FC<{
             </div>
         )}
 
-        <span style={badge}>{cell.label}</span>
+        <span style={badgeStyle}>{cell.label}</span>
+        {/* PTZ belgisi */}
+        {cell.has_ptz && (
+            <span style={{
+                position: "absolute", top: 4, right: 5,
+                background: "rgba(14,168,199,0.25)", color: "#0EA8C7",
+                fontSize: 9, padding: "2px 5px", borderRadius: 3,
+                zIndex: 2, fontWeight: 700, letterSpacing: "0.5px",
+                border: "1px solid rgba(14,168,199,0.4)"
+            }}>PTZ</span>
+        )}
         {isActive && <span style={activeMark}>▶</span>}
     </div>
 );
 
 // ─── StreamGrid ───────────────────────────────────────────────────────────────
 
-const StreamGrid: React.FC<StreamGridProps> = ({
-                                                   cells = defaultCells,
-                                                   gap = 3,
-                                               }) => {
-    const c = cells.length >= 4 ? cells : defaultCells;
-    const [t1, t2, t3, t4] = c;
+const StreamGrid: React.FC<StreamGridProps> = ({ gap = 3 }) => {
+    const cells = useCameras();
+    const [t1, t2, t3, t4] = cells;
 
-    const [focusedId, setFocusedId] = useState<any>(t1?.id);
+    const [focusedId, setFocusedId] = useState<string>(cells[0]?.id ?? "");
     const [selectedCell, setSelectedCell] = useState<StreamCell | null>(null);
+
+    // cells yangilanganda focusedId ni birinchi kamera bilan yangilash
+    useEffect(() => {
+        if (cells.length > 0 && !focusedId) {
+            setFocusedId(cells[0].id);
+        }
+    }, [cells]);
 
     const click = (cell: StreamCell) => {
         setFocusedId(cell.id);
         setSelectedCell(cell);
     };
 
+    if (!t1 || !t2 || !t3 || !t4) {
+        return (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#555", fontSize: 12 }}>
+                Kameralar yuklanmoqda...
+            </div>
+        );
+    }
+
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%", overflow: "hidden" }}>
+            {/* ── 2×2 Grid ──────────────────────────────────────────────────────── */}
             <div
                 style={{
                     flex: 1,
@@ -197,7 +196,7 @@ const StreamGrid: React.FC<StreamGridProps> = ({
                     background: "#0a0a0a",
                     padding: gap,
                     boxSizing: "border-box",
-                    minHeight: 0 // Grid containerning qisqarishiga imkon beradi
+                    minHeight: 0,
                 }}
             >
                 <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1)} gridArea="1 / 1" />
@@ -215,7 +214,7 @@ const StreamGrid: React.FC<StreamGridProps> = ({
                 overflowY: "auto",
                 color: "#ccc",
                 fontSize: "11px",
-                flexShrink: 0
+                flexShrink: 0,
             }}>
                 <div style={{ fontWeight: "bold", marginBottom: "6px", color: "#0EA8C7", display: "flex", justifyContent: "space-between", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     <span>So'nggi hodisalar (Events)</span>
@@ -223,10 +222,10 @@ const StreamGrid: React.FC<StreamGridProps> = ({
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     {[
-                        { time: "19:45:12", type: "Motion", camera: "Navoi 1", desc: "Harakat aniqlandi" },
-                        { time: "19:42:05", type: "System", camera: "Angren PTZ", desc: "Kamera ulandi" },
-                        { time: "19:40:55", type: "PTZ", camera: "Angren PTZ", desc: "Pozitsiya o'zgardi" },
-                        { time: "19:38:20", type: "Storage", camera: "Navoi 2", desc: "Arxiv yozilmoqda" },
+                        { time: "19:45:12", type: "Motion",  camera: "Navoi 1",       desc: "Harakat aniqlandi" },
+                        { time: "19:42:05", type: "System",  camera: "Angren PTZ",    desc: "Kamera ulandi" },
+                        { time: "19:40:55", type: "PTZ",     camera: "Angren PTZ",    desc: "Pozitsiya o'zgardi" },
+                        { time: "19:38:20", type: "Storage", camera: "Navoi 2",       desc: "Arxiv yozilmoqda" },
                     ].map((ev, i) => (
                         <div key={i} style={{ display: "flex", gap: "8px", borderBottom: "1px solid rgba(14,168,199,0.1)", paddingBottom: "3px" }}>
                             <span style={{ color: "#555", whiteSpace: "nowrap" }}>{ev.time}</span>
@@ -243,23 +242,24 @@ const StreamGrid: React.FC<StreamGridProps> = ({
                 <div style={{
                     position: "fixed",
                     inset: 0,
-                    zIndex: 1000,
                     background: "rgba(0,0,0,0.9)",
                     display: "flex",
+                    zIndex: 100000000000,
+
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: "40px"
+                    padding: "40px",
                 }}>
                     <div style={{
                         position: "relative",
                         width: "90%",
-                        height: "90%",
+                        height: "95%",
                         background: "#000",
                         borderRadius: "8px",
                         overflow: "hidden",
                         display: "flex",
                         flexDirection: "column",
-                        border: "1px solid #333"
+                        border: "1px solid #333",
                     }}>
                         {/* Modal Header */}
                         <div style={{
@@ -268,19 +268,23 @@ const StreamGrid: React.FC<StreamGridProps> = ({
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            borderBottom: "1px solid #333"
+                            borderBottom: "1px solid #333",
+                            flexShrink: 0,
                         }}>
-                            <span style={{ color: "#fff", fontWeight: 500 }}>{selectedCell.label}</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <span style={{ color: "#fff", fontWeight: 500 }}>{selectedCell.label}</span>
+                                {selectedCell.has_ptz && (
+                                    <span style={{ fontSize: 10, color: "#0EA8C7", background: "rgba(14,168,199,0.15)", padding: "2px 8px", borderRadius: 4, border: "1px solid rgba(14,168,199,0.4)", fontWeight: 700 }}>
+                                        PTZ
+                                    </span>
+                                )}
+                                <span style={{ fontSize: 10, color: "#555" }}>
+                                    ID: {selectedCell.cameraId}
+                                </span>
+                            </div>
                             <button
                                 onClick={() => setSelectedCell(null)}
-                                style={{
-                                    background: "transparent",
-                                    border: "none",
-                                    color: "#fff",
-                                    fontSize: "24px",
-                                    cursor: "pointer",
-                                    lineHeight: "1"
-                                }}
+                                style={{ background: "transparent", border: "none", color: "#fff", fontSize: "24px", cursor: "pointer", lineHeight: "1" }}
                             >
                                 &times;
                             </button>
@@ -288,31 +292,31 @@ const StreamGrid: React.FC<StreamGridProps> = ({
 
                         {/* Modal Content */}
                         <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+                            {/* Video */}
                             <div style={{ flex: 1, background: "#000" }}>
                                 <WebRTCPlayer url={selectedCell.streamUrl!} />
                             </div>
 
-                            {/* PTZ Controls Side Panel */}
-                            {selectedCell.type === "ptz" && (
+                            {/* PTZ Controls Side Panel — faqat has_ptz=true kameralarda */}
+                            {selectedCell.has_ptz && (
                                 <div style={{
-                                    width: "240px",
+                                    width: "260px",
                                     background: "#1a1a1a",
                                     borderLeft: "1px solid #333",
                                     display: "flex",
                                     flexDirection: "column",
                                     alignItems: "center",
-                                    padding: "10px",
-                                    overflowY: "auto"
+                                    overflowY: "auto",
+                                    flexShrink: 0,
                                 }}>
-                                    <PTZControls 
-                                        camera={selectedCell} 
+                                    <PTZControls
+                                        camera={selectedCell}
                                         onSendCommand={(cmd: any) => {
-                                            console.log("PTZ Command Sent:", cmd);
-                                        }} 
+                                            console.log("[PTZ] Buyruq:", cmd);
+                                        }}
                                     />
-                                    
                                     <div style={{ marginTop: "auto", padding: "10px", fontSize: "10px", color: "#555", textAlign: "center" }}>
-                                        Kamera ID: {selectedCell.id}
+                                        Camera ID: {selectedCell.cameraId} · UUID: {selectedCell.id.slice(0, 8)}...
                                     </div>
                                 </div>
                             )}
@@ -324,33 +328,9 @@ const StreamGrid: React.FC<StreamGridProps> = ({
     );
 };
 
-const PTZButton = ({ label, onClick, style }: { label: string, onClick: () => void, style?: React.CSSProperties }) => (
-    <button
-        onClick={onClick}
-        style={{
-            background: "#333",
-            border: "none",
-            borderRadius: "4px",
-            color: "#fff",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "14px",
-            transition: "background 0.2s",
-            padding: "5px",
-            ...style
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "#444")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "#333")}
-    >
-        {label}
-    </button>
-);
-
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const badge: React.CSSProperties = {
+const badgeStyle: React.CSSProperties = {
     position: "absolute", top: 4, left: 5,
     background: "rgba(0,0,0,0.7)", color: "#999",
     fontSize: 12, padding: "3px 5px 4px 5px", borderRadius: 3,
@@ -358,16 +338,8 @@ const badge: React.CSSProperties = {
 };
 
 const activeMark: React.CSSProperties = {
-    position: "absolute", top: 4, right: 5,
+    position: "absolute", bottom: 4, right: 5,
     color: "#4af", fontSize: 8, zIndex: 2, pointerEvents: "none",
-};
-
-const mainLabel: React.CSSProperties = {
-    position: "absolute", bottom: 8, left: 10,
-    background: "rgba(0,0,0,0.65)", color: "#bbb",
-    fontSize: 11, padding: "3px 10px", borderRadius: 4,
-    backdropFilter: "blur(4px)", letterSpacing: "0.3px",
-    pointerEvents: "none",
 };
 
 const noStream: React.CSSProperties = {
