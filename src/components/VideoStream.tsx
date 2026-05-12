@@ -25,6 +25,7 @@ const API_BASE = "https://tmk.bgs.uz/api";
 /** UUID tartibini saqlash uchun — shu ketma-ketlikda 4 ta kamera chiqadi */
 const TARGET_UUIDS = [
     "27aec28e-6181-4753-9acd-0456a75f0289",
+    // "27aec28e-6181-4753-9acd-0456a75f0289",
     "5705c987-46c6-4144-af4e-9ff878309c83",
     "46c74c01-a0bd-4e42-ade1-0a5dc734ce09",
     "85d5d297-7d73-43c6-a589-d175d78eb771",
@@ -32,38 +33,38 @@ const TARGET_UUIDS = [
 
 /** API yuklanguncha fallback (stream URL-lar to'g'ri) */
 const defaultCells: StreamCell[] = [
-    {
-        id: "27aec28e-6181-4753-9acd-0456a75f0289",
-        cameraId: 6,
-        label: "Navoi 1",
-        streamUrl: "https://tmkstream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1",
-        type: "oddiy",
-        has_ptz: false,
-    },
-    {
-        id: "5705c987-46c6-4144-af4e-9ff878309c83",
-        cameraId: 5,
-        label: "Angren PTZ",
-        streamUrl: "https://tmkstream.bgs.uz/stream/5705c987-46c6-4144-af4e-9ff878309c83/channel/1/webrtc?uuid=5705c987-46c6-4144-af4e-9ff878309c83&channel=1",
-        type: "ptz",
-        has_ptz: true,
-    },
-    {
-        id: "46c74c01-a0bd-4e42-ade1-0a5dc734ce09",
-        cameraId: 4,
-        label: "Angren PTZ Panorama",
-        streamUrl: "https://tmkstream.bgs.uz/stream/46c74c01-a0bd-4e42-ade1-0a5dc734ce09/channel/1/webrtc?uuid=46c74c01-a0bd-4e42-ade1-0a5dc734ce09&channel=1",
-        type: "oddiy",
-        has_ptz: false,
-    },
-    {
-        id: "85d5d297-7d73-43c6-a589-d175d78eb771",
-        cameraId: 10,
-        label: "Navoi 2 PTZ Panorama",
-        streamUrl: "https://tmkstream.bgs.uz/stream/85d5d297-7d73-43c6-a589-d175d78eb771/channel/1/webrtc?uuid=85d5d297-7d73-43c6-a589-d175d78eb771&channel=1",
-        type: "oddiy",
-        has_ptz: false,
-    },
+    // {
+    //     id: "27aec28e-6181-4753-9acd-0456a75f0289",
+    //     cameraId: 6,
+    //     label: "Navoi 1",
+    //     streamUrl: "https://tmkstream.bgs.uz/stream/27aec28e-6181-4753-9acd-0456a75f0289/channel/1/webrtc?uuid=27aec28e-6181-4753-9acd-0456a75f0289&channel=1",
+    //     type: "oddiy",
+    //     has_ptz: false,
+    // },
+    // {
+    //     id: "5705c987-46c6-4144-af4e-9ff878309c83",
+    //     cameraId: 5,
+    //     label: "Angren PTZ",
+    //     streamUrl: "https://tmkstream.bgs.uz/stream/5705c987-46c6-4144-af4e-9ff878309c83/channel/1/webrtc?uuid=5705c987-46c6-4144-af4e-9ff878309c83&channel=1",
+    //     type: "ptz",
+    //     has_ptz: true,
+    // },
+    // {
+    //     id: "46c74c01-a0bd-4e42-ade1-0a5dc734ce09",
+    //     cameraId: 4,
+    //     label: "Angren PTZ Panorama",
+    //     streamUrl: "https://tmkstream.bgs.uz/stream/46c74c01-a0bd-4e42-ade1-0a5dc734ce09/channel/1/webrtc?uuid=46c74c01-a0bd-4e42-ade1-0a5dc734ce09&channel=1",
+    //     type: "ptz",
+    //     has_ptz: true,
+    // },
+    // {
+    //     id: "85d5d297-7d73-43c6-a589-d175d78eb771",
+    //     cameraId: 10,
+    //     label: "Navoi 2 PTZ Panorama",
+    //     streamUrl: "https://tmkstream.bgs.uz/stream/85d5d297-7d73-43c6-a589-d175d78eb771/channel/1/webrtc?uuid=85d5d297-7d73-43c6-a589-d175d78eb771&channel=1",
+    //     type: "ptz",
+    //     has_ptz: true,
+    // },
 ];
 
 // ─── API fetch hook ───────────────────────────────────────────────────────────

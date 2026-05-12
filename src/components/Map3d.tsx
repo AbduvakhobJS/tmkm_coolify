@@ -647,7 +647,7 @@ const Map3D = ({
                 <div style={{ fontSize: '14px', fontWeight: 'bold', borderBottom: '1px solid rgba(0, 245, 255, 0.2)', paddingBottom: '5px', marginBottom: '10px' }}>
                     FILTRLASH
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                <div style={{ display: 'flex'}}>
                     {[1, 2, 3, 4, 5].map(num => {
                         const toifa = `toifa_${num}`;
                         const isChecked = visibleToifas.includes(toifa);
@@ -656,8 +656,8 @@ const Map3D = ({
                         const label = `Toifa ${num}`;
                         
                         return (
-                            <label key={toifa} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', fontSize: '13px' }}>
-                                <input 
+                            <label key={toifa} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', marginLeft: "10px", fontSize: '13px' }}>
+                                <input
                                     type="checkbox" 
                                     checked={isChecked} 
                                     onChange={() => toggleToifa(toifa)}
@@ -668,7 +668,7 @@ const Map3D = ({
                             </label>
                         );
                     })}
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', fontSize: '13px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', fontSize: '13px' ,marginLeft: "10px" }}>
                         <input 
                             type="checkbox" 
                             checked={visibleToifas.includes('active_car')} 
@@ -678,7 +678,7 @@ const Map3D = ({
                         <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#39ff14', boxShadow: '0 0 5px #39ff14' }}></div>
                         Active
                     </label>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', fontSize: '13px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', fontSize: '13px',  marginLeft: "10px" }}>
                         <input 
                             type="checkbox" 
                             checked={visibleToifas.includes('inactive_car')} 
@@ -958,7 +958,9 @@ const Map3D = ({
                         top: '55px',
                         left: 0,
                         right: 0,
-                        bottom: 0,
+                        bottom: 20,
+
+                        inset: "55px 0px 45px" !,
                         background: 'rgba(2, 11, 24, 0.98)',
                         zIndex: 900000000,
                         pointerEvents: 'auto',

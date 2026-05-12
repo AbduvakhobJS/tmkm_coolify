@@ -313,9 +313,9 @@ export default function PTZControls({ camera, onSendCommand }: PTZControlsProps)
                 </div>
 
                 {/* Status indicator */}
-                <div className={`ptz-status ${status ? (status.ok ? "ok" : "err") : "idle"}`}>
-                    {status?.text ?? "·"}
-                </div>
+                {/*<div className={`ptz-status ${status ? (status.ok ? "ok" : "err") : "idle"}`}>*/}
+                {/*    {status?.text ?? "·"}*/}
+                {/*</div>*/}
             </div>
         </div>
     );
