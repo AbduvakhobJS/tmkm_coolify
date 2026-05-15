@@ -343,15 +343,18 @@ const TopCenter = () => {
                                         fontSize:'8px', color:'#5a8aaa',
                                         lineHeight:1.3, marginBottom:'3px',
                                         minHeight:'22px',
-                                        display:'flex', alignItems:'center', justifyContent:'center',
+                                        display:'flex', alignItems:'center', justifyContent:'start',
                                     }}>{k.label}</div>
-                                    <div style={{
-                                        fontSize:'clamp(15px,1.8vw,24px)',
-                                        fontWeight:900, color:'#ffd700',
-                                        lineHeight:1, marginBottom:'2px',
-                                        textShadow:'0 0 12px rgba(255,215,0,0.4)',
-                                    }}>{k.value}</div>
-                                    <div style={{fontSize:'9px', color:'#7aa5cc', fontWeight:600}}>{k.unit}</div>
+                                  <div className="d-flex" style={{alignItems: "end"}}>
+                                      <div style={{
+                                          fontSize:'clamp(15px,1.8vw,24px)',
+                                          fontWeight:900, color:'#ffd700',
+                                          lineHeight:1, marginBottom:'2px',
+                                          textShadow:'0 0 12px rgba(255,215,0,0.4)',
+                                      }}>{k.value}
+                                      </div>
+                                      <div style={{fontSize:'9px',marginLeft: '2px', color:'#7aa5cc', fontWeight:600}}>{k.unit}</div>
+                                  </div>
                                 </div>
                             ))}
                         </div>
