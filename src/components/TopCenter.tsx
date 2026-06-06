@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 
 /* ── TMK Schema data ── */
 const stages = [
-    { num:1, title:'GEOLOGIK QIDIRUVLAR',       statLabel:'Maydoni',    statVal:'18', statusLabel:'Статус работ',   statusVal:'O`tkazilmoqda', progress:null, img: "./imgs/r6.png" },
-    { num:2, title:'JOYLASHUVI',          statLabel:'Faol', statVal:'5',  statusLabel:'Статус добычи',  statusVal:'O`tkazilmoqda', progress:null, img: "./imgs/re3.png" },
-    { num:3, title:'BOYITISH ZAVODI', statLabel:'Zavod',      statVal:'6',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',         val:88}, img: "./imgs/re0.png" },
-    { num:4, title:'ZAVODLAR',                 statLabel:'Zavod',     statVal:'3',  statusLabel:null, statusVal:null, progress:{label:'Zavodlarni yuklash',     val:92}, img: "./imgs/r5.png" },
-    { num:5, title:'TEXNO PARKLARI / KLASTERLARI',  statLabel:'Joylarda',    statVal:'4',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',    val:92}, img: "./imgs/re1.png" },
-    { num:6, title:'TAYYOR MAHSULOTLAR',      statLabel:'Korxonalar', statVal:'12', statusLabel:null, statusVal:null, progress:{label:'Yuk tashish',             val:96}, img: "./imgs/re2.png" },
+    { num:1, title:'GEOLOGIK QIDIRUVLAR',       statLabel:'Maydoni',    statVal:'18', statusLabel:'Статус работ',   statusVal:'O`tkazilmoqda', progress:null, img: "./imgs/r6.jpg" },
+    { num:2, title:'JOYLASHUVI',          statLabel:'Faol', statVal:'5',  statusLabel:'Статус добычи',  statusVal:'O`tkazilmoqda', progress:null, img: "./imgs/re3.jpg" },
+    { num:3, title:'BOYITISH ZAVODI', statLabel:'Zavod',      statVal:'6',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',         val:88}, img: "./imgs/re0.jpg" },
+    { num:4, title:'ZAVODLAR',                 statLabel:'Zavod',     statVal:'3',  statusLabel:null, statusVal:null, progress:{label:'Zavodlarni yuklash',     val:92}, img: "./imgs/r5.jpg" },
+    { num:5, title:'TEXNO PARKLARI / KLASTERLARI',  statLabel:'Joylarda',    statVal:'4',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',    val:92}, img: "./imgs/re1.jpg" },
+    { num:6, title:'TAYYOR MAHSULOTLAR',      statLabel:'Korxonalar', statVal:'12', statusLabel:null, statusVal:null, progress:{label:'Yuk tashish',             val:96}, img: "./imgs/re2.jpg" },
 ];
 
 const flows = [

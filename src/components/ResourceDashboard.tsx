@@ -5,6 +5,7 @@ import {
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import ResourceDashboardPart2 from './ResourceDashboardPart2';
+import EnterExit from "./EnterExit";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -487,7 +488,8 @@ const ResourceDashboard: React.FC = () => {
                 border: "1px solid rgba(14, 168, 199, 0.2)",
             }}>
 
-                <ResourceDashboardPart2/>
+                {/*<ResourceDashboardPart2/>*/}
+                <EnterExit />
             </div>
         </div>
     );

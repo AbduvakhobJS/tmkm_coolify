@@ -42,6 +42,11 @@ const Parts = () => {
             >
                 5.1/6
             </button>
+            <button className="btn btn-primary part-btn"
+                    onClick={() => navigate('/7')}
+            >
+               5.2/6
+            </button>
         </div>
     );
 };

@@ -184,7 +184,8 @@ const Map3D = ({
             container: mapContainer.current,
             style: 'https://api.maptiler.com/maps/019de83b-bc0c-7558-9ffe-1761aa83c410/style.json?key=YqciQrrpszIp23MCz2am',
             center: [66.9, 40.0],
-            zoom: 5.5,
+            zoom: 5,
+            pitch: 45,
             fadeDuration: 0
         });
 
@@ -630,63 +631,64 @@ const Map3D = ({
             {/* Filter Panel */}
             <div style={{
                 position: 'absolute',
-                top: '20px',
-                left: '20px',
-                background: 'rgba(2, 11, 24, 0.85)',
-                border: '1px solid rgba(0, 245, 255, 0.3)',
-                borderRadius: '8px',
-                padding: '12px',
+                top: 0,
+                right: 0,
+                width: '6vw',
+                height: '96%',
+                marginTop:"1%",
+                background: 'rgba(2, 11, 24, 0.5)',
+                borderLeft: '1px solid rgba(0, 245, 255, 0.3)',
+                padding: '12px 6px',
                 zIndex: 10,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '5px',
                 backdropFilter: 'blur(8px)',
                 color: 'white',
-                minWidth: '160px'
+                alignItems: 'center',
             }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', borderBottom: '1px solid rgba(0, 245, 255, 0.2)', paddingBottom: '5px', marginBottom: '10px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 'bold', borderBottom: '1px solid rgba(0, 245, 255, 0.2)', paddingBottom: '5px', marginBottom: '10px', textAlign: 'center', width: '100%' }}>
                     FILTRLASH
                 </div>
-                <div style={{ display: 'flex'}}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 10px', width: '100%', alignItems: 'center', overflowY: 'auto', flex: 1 }}>
                     {[1, 2, 3, 4, 5].map(num => {
                         const toifa = `toifa_${num}`;
                         const isChecked = visibleToifas.includes(toifa);
                         const colors = ['#ff1493', '#0EA8C7', '#32cd32', '#ffa500', '#9370db'];
                         const color = colors[num - 1];
-                        const label = `Toifa ${num}`;
-                        
+
                         return (
-                            <label key={toifa} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', marginLeft: "10px", fontSize: '13px' }}>
+                            <label key={toifa} style={{ display: 'flex', flexDirection: 'row',  justifyContent: "space-between", width: '100%', cursor: 'pointer', gap: '4px', color: 'white', fontSize: '11px', flexShrink: 0, textAlign: 'center' }}>
+                                <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 6px ${color}` }}></div>
+                                <span style={{ color: color, fontWeight: 'bold' }}>Toifa {num}</span>
                                 <input
-                                    type="checkbox" 
-                                    checked={isChecked} 
+                                    type="checkbox"
+                                    checked={isChecked}
                                     onChange={() => toggleToifa(toifa)}
-                                    style={{ cursor: 'pointer', accentColor: color }}
+                                    style={{ cursor: 'pointer', accentColor: color, width: '14px', height: '14px' }}
                                 />
-                                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 5px ${color}` }}></div>
-                                {label}
                             </label>
                         );
                     })}
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', fontSize: '13px' ,marginLeft: "10px" }}>
-                        <input 
-                            type="checkbox" 
-                            checked={visibleToifas.includes('active_car')} 
+                    <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", width: '100%', cursor: 'pointer', gap: '4px', color: 'white', fontSize: '11px', flexShrink: 0, textAlign: 'center' }}>
+                        <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#39ff14', boxShadow: '0 0 6px #39ff14' }}></div>
+                        <span style={{ color: '#39ff14', fontWeight: 'bold' }}>Active</span>
+                        <input
+                            type="checkbox"
+                            checked={visibleToifas.includes('active_car')}
                             onChange={() => toggleToifa('active_car')}
-                            style={{ cursor: 'pointer', accentColor: '#39ff14' }}
+                            style={{ cursor: 'pointer', accentColor: '#39ff14', width: '14px', height: '14px' }}
                         />
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#39ff14', boxShadow: '0 0 5px #39ff14' }}></div>
-                        Active
                     </label>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', fontSize: '13px',  marginLeft: "10px" }}>
-                        <input 
-                            type="checkbox" 
-                            checked={visibleToifas.includes('inactive_car')} 
+                    <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", width: '100%', cursor: 'pointer', gap: '4px', color: 'white', fontSize: '11px', flexShrink: 0, textAlign: 'center' }}>
+                        <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#ff2d55', boxShadow: '0 0 6px #ff2d55' }}></div>
+                        <span style={{ color: '#ff2d55', fontWeight: 'bold' }}>Inactive</span>
+                        <input
+                            type="checkbox"
+                            checked={visibleToifas.includes('inactive_car')}
                             onChange={() => toggleToifa('inactive_car')}
-                            style={{ cursor: 'pointer', accentColor: '#ff2d55' }}
+                            style={{ cursor: 'pointer', accentColor: '#ff2d55', width: '14px', height: '14px' }}
                         />
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#ff2d55', boxShadow: '0 0 5px #ff2d55' }}></div>
-                        Inactive
                     </label>
                 </div>
             </div>
