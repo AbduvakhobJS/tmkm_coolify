@@ -125,6 +125,68 @@ const MARKER_STYLES = `
     .toifa-5 .marker-info-box { border-left-color: #9370db; }
 `;
 
+// Mineral markers array (name, type, color, coords)
+// Row 1: 6 triangle + 7 circle = 13  |  Row 2: 5 rhombus + 8 star = 13  |  Row 3: 12 square
+const MINERAL_MARKERS: { name: string; type: 'square' | 'triangle' | 'circle' | 'rhombus' | 'star'; color: string; coords: [number, number] }[] = [
+    // Triangles (6)
+    { name: 'Oltin',       type: 'triangle', color: '#FFD700', coords: [64.6, 40.9] },
+    { name: 'Kumush',      type: 'triangle', color: '#C0C0C0', coords: [67.3, 39.7] },
+    { name: 'Platina',     type: 'triangle', color: '#E0E0E0', coords: [61.4, 41.5] },
+    { name: 'Volfram',     type: 'triangle', color: '#4682B4', coords: [60.9, 43.8] },
+    { name: 'Molibden',    type: 'triangle', color: '#9370DB', coords: [61.0, 42.5] },
+    { name: 'Palladiy',    type: 'triangle', color: '#ADD8E6', coords: [63.2, 40.3] },
+    // Circles (7)
+    { name: 'Reniy',       type: 'circle',   color: '#87CEEB', coords: [71.8, 40.1] },
+    { name: 'Rodiy',       type: 'circle',   color: '#E0C8FF', coords: [65.1, 39.5] },
+    { name: 'Indiy',       type: 'circle',   color: '#FF6347', coords: [67.7, 41.4] },
+    { name: 'Galliy',      type: 'circle',   color: '#20B2AA', coords: [68.4, 40.6] },
+    { name: 'Tellurid',    type: 'circle',   color: '#FFA07A', coords: [64.9, 42.2] },
+    { name: 'Selen',       type: 'circle',   color: '#DA70D6', coords: [67.9, 41.0] },
+    { name: 'Surma',       type: 'circle',   color: '#DDA0DD', coords: [68.9, 40.1] },
+    // Rhombuses (5)
+    { name: 'Litiy',       type: 'rhombus',  color: '#FF4500', coords: [66.5, 40.2] },
+    { name: 'Berilliy',    type: 'rhombus',  color: '#FFA500', coords: [63.8, 39.2] },
+    { name: 'Skandiy',     type: 'rhombus',  color: '#FF00FF', coords: [70.1, 41.2] },
+    { name: 'Stronsiy',    type: 'rhombus',  color: '#00FF7F', coords: [62.5, 41.7] },
+    { name: 'Vismut',      type: 'rhombus',  color: '#5F9EA0', coords: [72.0, 40.5] },
+    // Stars (8)
+    { name: 'Rubidiy',     type: 'star',     color: '#FF1493', coords: [69.0, 41.3] },
+    { name: 'Sesiy',       type: 'star',     color: '#00CED1', coords: [58.9, 32.5] },
+    { name: 'Lantan',      type: 'star',     color: '#EE82EE', coords: [65.8, 38.8] },
+    { name: 'Seriy',       type: 'star',     color: '#F0E68C', coords: [68.2, 38.9] },
+    { name: 'Neodim',      type: 'star',     color: '#7FFFD4', coords: [71.5, 40.6] },
+    { name: 'Erbiy',       type: 'star',     color: '#FF8C69', coords: [63.5, 41.8] },
+    { name: 'Ytterbiy',    type: 'star',     color: '#00FA9A', coords: [60.6, 43.1] },
+    { name: 'Gadoliniy',   type: 'star',     color: '#BA55D3', coords: [70.7, 41.5] },
+    // Squares (12)
+    { name: 'Temir',       type: 'square',   color: '#8B8B8B', coords: [60.6, 41.3] },
+    { name: 'Mis',         type: 'square',   color: '#B87333', coords: [69.3, 40.8] },
+    { name: 'Rux',         type: 'square',   color: '#6BAED6', coords: [67.8, 38.6] },
+    { name: "Qo'rg'oshin", type: 'square',   color: '#708090', coords: [70.5, 40.5] },
+    { name: 'Alyuminiy',   type: 'square',   color: '#A6BDDB', coords: [65.4, 41.8] },
+    { name: 'Nikel',       type: 'square',   color: '#98FB98', coords: [58.5, 43.2] },
+    { name: 'Xrom',        type: 'square',   color: '#32CD32', coords: [62.1, 40.5] },
+    { name: 'Marganes',    type: 'square',   color: '#FF8C00', coords: [64.4, 40.1] },
+    { name: 'Kobalt',      type: 'square',   color: '#00BFFF', coords: [66.9, 38.1] },
+    { name: 'Titan',       type: 'square',   color: '#FF69B4', coords: [71.2, 40.7] },
+    { name: 'Vanadiy',     type: 'square',   color: '#1E90FF', coords: [60.8, 42.9] },
+    { name: 'Qalay',       type: 'square',   color: '#BC8F8F', coords: [59.2, 44.1] },
+];
+
+const getMineralSVG = (type: 'square' | 'triangle' | 'circle' | 'rhombus' | 'star', color: string) => {
+    if (type === 'square') {
+        return `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="12" height="12" fill="${color}" stroke="white" stroke-width="1.2" rx="1"/></svg>`;
+    } else if (type === 'triangle') {
+        return `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,13 1,13" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+    } else if (type === 'circle') {
+        return `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="6" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+    } else if (type === 'rhombus') {
+        return `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><polygon points="7,1 13,7 7,13 1,7" fill="${color}" stroke="white" stroke-width="1.2"/></svg>`;
+    } else {
+        return `<svg width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><path d="M7,1 L8.6,5.1 L13,5.1 L9.7,7.9 L10.9,12.2 L7,9.8 L3.1,12.2 L4.3,7.9 L1,5.1 L5.4,5.1 Z" fill="${color}" stroke="white" stroke-width="0.8"/></svg>`;
+    }
+};
+
 // 1. RIGHTPANEL VIEW MODEL (Modal uchun 3D model)
 export const FactoryViewer = ({
                                   modelPath,
@@ -162,6 +224,7 @@ const Map3D = ({
     const timerRef = useRef<any>(null);
     const markersRef = useRef<Record<number, maplibregl.Marker>>({});
     const vehicleMarkersRef = useRef<Record<number, maplibregl.Marker>>({});
+    const mineralMarkersRef = useRef<maplibregl.Marker[]>([]);
     const [visibleToifas, setVisibleToifas] = React.useState<string[]>(['toifa_1', 'toifa_2', 'toifa_3', 'toifa_4', 'toifa_5']);
     const [vehicles, setVehicles] = React.useState<any[]>([]);
     const [selectedVehicle, setSelectedVehicle] = React.useState<any | null>(null);
@@ -274,10 +337,12 @@ const Map3D = ({
 
             // 2. FABRIKA MARKERLARINI QO'SHISH
             updateMarkers();
+            addMineralMarkers();
         });
 
         return () => {
             if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+            mineralMarkersRef.current.forEach(m => m.remove());
             map.current?.remove();
         };
     }, []);
@@ -296,6 +361,43 @@ const Map3D = ({
 
     const handleCloseDetails = () => {
         setOpenDetailIndex(null);
+    };
+
+    const addMineralMarkers = () => {
+        if (!map.current) return;
+        mineralMarkersRef.current.forEach(m => m.remove());
+        mineralMarkersRef.current = [];
+
+        MINERAL_MARKERS.forEach((mineral) => {
+            const el = document.createElement('div');
+            el.title = mineral.name;
+            el.style.cssText = 'width:14px;height:14px;cursor:pointer;';
+
+            const inner = document.createElement('div');
+            inner.style.cssText = `
+                width:14px;height:14px;
+                filter: drop-shadow(0 0 3px ${mineral.color});
+                transition: transform 0.15s, filter 0.15s;
+                transform: scale(0.7);
+                transform-origin: center center;
+            `;
+            inner.innerHTML = getMineralSVG(mineral.type, mineral.color);
+            el.appendChild(inner);
+
+            el.onmouseenter = () => {
+                inner.style.transform = 'scale(1.1)';
+                inner.style.filter = `drop-shadow(0 0 6px ${mineral.color})`;
+            };
+            el.onmouseleave = () => {
+                inner.style.transform = 'scale(0.7)';
+                inner.style.filter = `drop-shadow(0 0 3px ${mineral.color})`;
+            };
+
+            const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+                .setLngLat(mineral.coords)
+                .addTo(map.current!);
+            mineralMarkersRef.current.push(marker);
+        });
     };
 
     const updateMarkers = () => {
@@ -628,6 +730,43 @@ const Map3D = ({
         }}>
             <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
 
+            {/* Minerals Legend Panel */}
+            <div style={{
+                position: 'absolute',
+                bottom: '2%',
+                left: "2%",
+                width: 'auto',
+                background: 'rgba(2, 11, 24, 0.55)',
+                border: '1px solid rgba(0, 245, 255, 0.3)',
+                borderRadius: '0 0 8px 0',
+                padding: '8px 10px',
+                zIndex: 10,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5px',
+                backdropFilter: 'blur(8px)',
+            }}>
+                <div style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', borderBottom: '1px solid rgba(0,245,255,0.2)', paddingBottom: '4px', textAlign: 'center', letterSpacing: '1px' }}>
+                    MINERALLAR
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: '0 10px', alignItems: 'start' }}>
+                    {[
+                        MINERAL_MARKERS.filter(m => m.type === 'triangle' || m.type === 'circle'),
+                        MINERAL_MARKERS.filter(m => m.type === 'rhombus'  || m.type === 'star'),
+                        MINERAL_MARKERS.filter(m => m.type === 'square'),
+                    ].map((col, ci) => (
+                        <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: '3px', borderRight: ci < 2 ? '1px solid rgba(0,245,255,0.1)' : 'none', paddingRight: ci < 2 ? '10px' : 0 }}>
+                            {col.map(m => (
+                                <div key={m.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <span style={{ flexShrink: 0, lineHeight: 0, filter: `drop-shadow(0 0 2px ${m.color})` }} dangerouslySetInnerHTML={{ __html: getMineralSVG(m.type, m.color) }} />
+                                    <span style={{ fontSize: '8px', color: m.color, fontWeight: 'bold', whiteSpace: 'nowrap' }}>{m.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             {/* Filter Panel */}
             <div style={{
                 position: 'absolute',
@@ -637,7 +776,7 @@ const Map3D = ({
                 height: '96%',
                 marginTop:"1%",
                 background: 'rgba(2, 11, 24, 0.5)',
-                borderLeft: '1px solid rgba(0, 245, 255, 0.3)',
+                border: '1px solid rgba(0, 245, 255, 0.3)',
                 padding: '12px 6px',
                 zIndex: 10,
                 display: 'flex',
