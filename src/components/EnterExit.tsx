@@ -105,61 +105,199 @@ function Counter({ to, dur=1100 }: { to:number; dur?:number }) {
 }
 
 /* ═══════════════════════════════════════════════════════
-   STAT CARD  — ikonasiz, zamonaviy
+   STAT CARD  — SOC situatsion markaz uslubida
 ═══════════════════════════════════════════════════════ */
-function StatCard({ label, count, change, pct, color }: {
-    label:string; count:number; change:number; pct:number; color:string;
-}) {
-    const up = change >= 0;
+const CARD_ICONS: Record<string, React.ReactNode> = {
+    arrived: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12l5 5L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    ),
+    not_arrived: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M12 8v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+        </svg>
+    ),
+    late: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    ),
+    currently_in: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="10" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M7 10V7a5 5 0 0 1 10 0v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            <circle cx="12" cy="15.5" r="1.5" fill="currentColor"/>
+        </svg>
+    ),
+    left: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            <path d="M10 17l5-5-5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M15 12H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+        </svg>
+    ),
+    not_found: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M12 9v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="12" cy="17" r="1" fill="currentColor"/>
+        </svg>
+    ),
+};
+
+function ArcRing({ pct, color, size=48 }: { pct:number; color:string; size?:number }) {
+    const r = (size - 6) / 2;
+    const circ = 2 * Math.PI * r;
+    const dash = (Math.min(pct, 100) / 100) * circ;
     return (
-        <div style={{
-            position:'relative', overflow:'hidden',
-            background:`linear-gradient(145deg, rgba(5,16,38,0.98) 0%, rgba(2,10,26,1) 100%)`,
-            border:`1px solid ${color}28`,
-            borderRadius:12,
-            padding:'14px 16px 12px',
-            display:'flex', flexDirection:'column', gap:8,
-        }}>
-            {/* top-right glow */}
-            <div style={{position:'absolute',right:-24,top:-24,width:90,height:90,borderRadius:'50%',
-                background:`radial-gradient(circle,${color}18 0%,transparent 65%)`,pointerEvents:'none'}}/>
-            {/* left accent */}
-            <div style={{position:'absolute',left:0,top:'15%',bottom:'15%',width:3,
-                background:`linear-gradient(180deg,transparent,${color},transparent)`,borderRadius:2}}/>
+        <svg width={size} height={size} style={{transform:'rotate(-90deg)',flexShrink:0}}>
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`${color}18`} strokeWidth="5"/>
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="5"
+                strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
+                style={{transition:'stroke-dasharray 1.2s ease',filter:`drop-shadow(0 0 4px ${color}88)`}}/>
+        </svg>
+    );
+}
 
-            <div style={{fontSize:'clamp(8px,.65vw,10px)',color:T.muted,textTransform:'uppercase',
-                letterSpacing:1.8,paddingLeft:8,lineHeight:1.2}}>{label}</div>
+function StatCard({ cardKey, label, count, change, pct, color, active, onClick }: {
+    cardKey:string; label:string; count:number; change:number; pct:number; color:string;
+    active?:boolean; onClick?:()=>void;
+}) {
+    const [hov, setHov] = useState(false);
+    const up = change >= 0;
+    const isAlert = cardKey === 'not_found';
+    const highlighted = active || hov;
 
-            <div style={{paddingLeft:8,fontFamily:'Orbitron,monospace',fontWeight:900,
-                fontSize:'clamp(24px,2vw,36px)',color,lineHeight:1,
-                textShadow:`0 0 30px ${color}55`}}>
-                <Counter to={count}/>
-            </div>
+    return (
+        <div
+            onClick={onClick}
+            onMouseEnter={()=>setHov(true)}
+            onMouseLeave={()=>setHov(false)}
+            style={{
+                position:'relative', overflow:'hidden',
+                background: active
+                    ? `linear-gradient(160deg, ${color}18 0%, ${color}08 100%)`
+                    : `linear-gradient(160deg, rgba(4,14,34,0.97) 0%, rgba(2,8,22,1) 100%)`,
+                border:`1px solid ${color}${highlighted ? (active?'99':'55') : (isAlert?'55':'22')}`,
+                borderRadius:10,
+                padding:'10px 12px 9px',
+                display:'flex', flexDirection:'column', gap:0,
+                boxShadow: active
+                    ? `0 0 28px ${color}30, inset 0 0 40px ${color}10`
+                    : isAlert
+                        ? `0 0 20px ${color}18, inset 0 0 30px ${color}06`
+                        : hov ? `0 0 16px ${color}14` : `inset 0 0 30px ${color}04`,
+                transition:'all .2s ease',
+                cursor: onClick ? 'pointer' : 'default',
+                transform: hov && !active ? 'translateY(-1px)' : 'none',
+            }}
+        >
+            {/* active top bar */}
+            {active && (
+                <div style={{position:'absolute',top:0,left:0,right:0,height:2,
+                    background:`linear-gradient(90deg,transparent,${color},transparent)`,
+                    boxShadow:`0 0 8px ${color}`}}/>
+            )}
 
-            {/* thin bar */}
-            <div style={{paddingLeft:8,paddingRight:4}}>
-                <div style={{height:2,borderRadius:2,background:`${color}18`}}>
-                    <div style={{height:'100%',width:`${Math.min(pct,100)}%`,
-                        background:`linear-gradient(90deg,${color}66,${color})`,
-                        borderRadius:2,transition:'width 1.2s ease'}}/>
+            {/* corner brackets */}
+            <div style={{position:'absolute',left:0,top:0,width:10,height:10,
+                borderTop:`1.5px solid ${color}${highlighted?'cc':'88'}`,borderLeft:`1.5px solid ${color}${highlighted?'cc':'88'}`,pointerEvents:'none',transition:'border-color .2s'}}/>
+            <div style={{position:'absolute',right:0,top:0,width:10,height:10,
+                borderTop:`1.5px solid ${color}${highlighted?'cc':'88'}`,borderRight:`1.5px solid ${color}${highlighted?'cc':'88'}`,pointerEvents:'none',transition:'border-color .2s'}}/>
+            <div style={{position:'absolute',left:0,bottom:0,width:10,height:10,
+                borderBottom:`1.5px solid ${color}${highlighted?'88':'44'}`,borderLeft:`1.5px solid ${color}${highlighted?'88':'44'}`,pointerEvents:'none'}}/>
+            <div style={{position:'absolute',right:0,bottom:0,width:10,height:10,
+                borderBottom:`1.5px solid ${color}${highlighted?'88':'44'}`,borderRight:`1.5px solid ${color}${highlighted?'88':'44'}`,pointerEvents:'none'}}/>
+
+            {/* scan line for alert or active */}
+            {(isAlert || active) && (
+                <div style={{position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none',opacity: active?'.5':'.35'}}>
+                    <div style={{position:'absolute',top:0,left:0,right:0,height:'2px',
+                        background:`linear-gradient(90deg,transparent,${color},transparent)`,
+                        animation:'scanH 2s linear infinite'}}/>
+                </div>
+            )}
+
+            {/* top row: label + icon */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+                <div style={{display:'flex',alignItems:'center',gap:5}}>
+                    <div style={{
+                        width:5,height:5,borderRadius:'50%',
+                        background:color,boxShadow:`0 0 ${highlighted?10:6}px ${color}`,
+                        animation: (isAlert||active) ? 'blink .8s infinite' : 'none',
+                        transition:'box-shadow .2s',
+                    }}/>
+                    <span style={{fontSize:'clamp(7px,.6vw,9px)',
+                        color: highlighted ? color : T.muted,
+                        textTransform:'uppercase',letterSpacing:1.5,
+                        fontFamily:'Orbitron,monospace',transition:'color .2s'}}>
+                        {label}
+                    </span>
+                </div>
+                <div style={{
+                    color, opacity: highlighted ? 1 : .6,
+                    filter: highlighted ? `drop-shadow(0 0 4px ${color}88)` : 'none',
+                    transition:'all .2s',
+                }}>
+                    {/*{CARD_ICONS[cardKey]}*/}
+
                 </div>
             </div>
 
-            <div style={{display:'flex',alignItems:'center',gap:6,paddingLeft:8}}>
-                <span style={{
-                    fontSize:'clamp(8px,.65vw,10px)',fontWeight:700,
-                    color: up ? T.green : T.red,
-                    background: up ? `${T.green}10` : `${T.red}10`,
-                    border:`1px solid ${up?T.green:T.red}30`,
-                    borderRadius:4,padding:'1px 7px',
+            {/* main row: big number + arc ring */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:4}}>
+                <div style={{
+                    fontFamily:'Orbitron,monospace',fontWeight:900,
+                    fontSize:'clamp(22px,1.9vw,34px)',color,lineHeight:1,
+                    textShadow:`0 0 ${highlighted?36:24}px ${color}${highlighted?'99':'66'}`,
+                    transition:'text-shadow .2s',
                 }}>
-                    {up?'↑':'↓'} {Math.abs(change).toFixed(1)}%
+                    <Counter to={count}/>
+                </div>
+                <div style={{position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <ArcRing pct={pct} color={color} size={46}/>
+                    <div style={{position:'absolute',textAlign:'center'}}>
+                        <div style={{fontSize:'clamp(7px,.55vw,9px)',fontFamily:'Orbitron,monospace',
+                            fontWeight:700,color:`${color}cc`,lineHeight:1}}>
+                            {pct.toFixed(0)}
+                        </div>
+                        <div style={{fontSize:6,color:T.dim,lineHeight:1}}>%</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* thin separator bar */}
+            <div style={{height:2,borderRadius:2,background:`${color}12`,margin:'6px 0 5px'}}>
+                <div style={{height:'100%',width:`${Math.min(pct,100)}%`,
+                    background:`linear-gradient(90deg,${color}44,${color}cc)`,
+                    borderRadius:2,transition:'width 1.2s ease',
+                    boxShadow:`0 0 ${highlighted?10:6}px ${color}66`}}/>
+            </div>
+
+            {/* bottom: trend */}
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+                <span style={{
+                    fontSize:'clamp(7px,.58vw,9px)',fontWeight:700,
+                    color: up ? T.green : T.red,
+                    background: up ? `${T.green}12` : `${T.red}12`,
+                    border:`1px solid ${up?T.green:T.red}33`,
+                    borderRadius:3,padding:'1px 6px',letterSpacing:.3,
+                    fontFamily:'Orbitron,monospace',
+                }}>
+                    {up?'▲':'▼'} {Math.abs(change).toFixed(1)}%
                 </span>
-                <span style={{fontSize:'clamp(7px,.6vw,9px)',color:T.dim}}>kechaga</span>
-                <span style={{marginLeft:'auto',fontSize:'clamp(8px,.65vw,10px)',
-                    color:`${color}aa`,fontFamily:'Orbitron,monospace',fontWeight:700}}>
-                    {pct.toFixed(1)}%
-                </span>
+                <span style={{fontSize:'clamp(6px,.5vw,8px)',color:T.dim}}>kechaga</span>
+                {active && (
+                    <span style={{marginLeft:'auto',fontSize:'clamp(6px,.5vw,8px)',
+                        color,background:`${color}18`,border:`1px solid ${color}44`,
+                        borderRadius:3,padding:'1px 6px',fontFamily:'Orbitron,monospace',fontWeight:700,letterSpacing:.5}}>
+                        FAOL
+                    </span>
+                )}
             </div>
         </div>
     );
@@ -439,13 +577,14 @@ function SecHead({ title, color, right }: { title:string; color:string; right?:R
    MAIN
 ═══════════════════════════════════════════════════════ */
 export default function EnterExit() {
-    const [data,    setData]    = useState<Dash>(D0);
-    const [loading, setLoading] = useState(true);
-    const [err,     setErr]     = useState('');
-    const [wsOk,    setWsOk]    = useState(false);
-    const [now,     setNow]     = useState(new Date());
-    const [sel,     setSel]     = useState<{nf?:NotFoundP;emp?:Employee}|null>(null);
-    const [search,  setSearch]  = useState('');
+    const [data,         setData]         = useState<Dash>(D0);
+    const [loading,      setLoading]      = useState(true);
+    const [err,          setErr]          = useState('');
+    const [wsOk,         setWsOk]         = useState(false);
+    const [now,          setNow]          = useState(new Date());
+    const [sel,          setSel]          = useState<{nf?:NotFoundP;emp?:Employee}|null>(null);
+    const [search,       setSearch]       = useState('');
+    const [activeFilter, setActiveFilter] = useState<string|null>(null);
     const tokenRef = useRef('');
     const wsRef    = useRef<WebSocket|null>(null);
 
@@ -504,9 +643,19 @@ export default function EnterExit() {
 
     const cards    = data.cards;
     const incident = data.not_found_persons[0] ?? null;
-    const filtered = data.employees.filter(e=>!search
-        || e.full_name.toLowerCase().includes(search.toLowerCase())
-        || e.department.toLowerCase().includes(search.toLowerCase()));
+    const filtered = data.employees.filter(e => {
+        const matchSearch = !search
+            || e.full_name.toLowerCase().includes(search.toLowerCase())
+            || e.department.toLowerCase().includes(search.toLowerCase());
+        let matchFilter = true;
+        if (activeFilter === 'arrived')      matchFilter = e.status === 'arrived' && !e.is_late;
+        else if (activeFilter === 'not_arrived')  matchFilter = e.status === 'not_arrived';
+        else if (activeFilter === 'late')         matchFilter = e.is_late;
+        else if (activeFilter === 'currently_in') matchFilter = e.status === 'currently_in';
+        else if (activeFilter === 'left')         matchFilter = e.status === 'left';
+        else if (activeFilter === 'not_found')    matchFilter = false; // not_found => incidents list
+        return matchSearch && matchFilter;
+    });
     const pad = (n:number) => String(n).padStart(2,'0');
 
     const CARDS_DEF = [
@@ -543,7 +692,8 @@ export default function EnterExit() {
 
     return (
         <div style={{
-            width:'100%',height:'100vh',
+            width:'100%',
+            height:'50vh',
             background:T.bg0,color:T.text,
             fontFamily:"'Exo 2','Segoe UI',sans-serif",
             display:'flex',flexDirection:'column',gap:5,
@@ -566,105 +716,151 @@ export default function EnterExit() {
             {/* ══════════ HEADER ══════════ */}
             <div style={{
                 display:'flex',alignItems:'center',justifyContent:'space-between',
-                padding:'6px 16px',flexShrink:0,zIndex:2,
-                background:`linear-gradient(90deg,rgba(1,10,26,.97) 0%,rgba(4,18,42,.97) 50%,rgba(1,10,26,.97) 100%)`,
+                padding:'7px 18px',flexShrink:0,zIndex:2,
+                background:`linear-gradient(90deg,rgba(1,8,22,.98) 0%,rgba(3,16,40,.98) 40%,rgba(2,12,30,.98) 70%,rgba(1,8,22,.98) 100%)`,
                 border:`1px solid ${T.b1}`,borderRadius:10,
-                boxShadow:`0 2px 24px rgba(14,168,199,.12)`,position:'relative',
+                boxShadow:`0 2px 32px rgba(14,168,199,.1), inset 0 1px 0 rgba(14,168,199,.08)`,
+                position:'relative',overflow:'hidden',
             }}>
+                {/* horizontal scan line */}
+                <div style={{position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none'}}>
+                    <div style={{position:'absolute',top:0,left:0,right:0,height:'1px',
+                        background:`linear-gradient(90deg,transparent 0%,${T.cyan}33 30%,${T.cyan}66 50%,${T.cyan}33 70%,transparent 100%)`,
+                        opacity:.6}}/>
+                    <div style={{position:'absolute',bottom:0,left:0,right:0,height:'1px',
+                        background:`linear-gradient(90deg,transparent,${T.b2}44,transparent)`,opacity:.4}}/>
+                </div>
+
                 {/* corner marks */}
                 {([[0,0],[1,0],[0,1],[1,1]] as [number,number][]).map(([lr,tb],i)=>(
                     <div key={i} style={{
                         position:'absolute',[lr?'right':'left' as string]:0,[tb?'bottom':'top' as string]:0,
-                        width:14,height:14,
-                        borderRight:  lr?'none':`1.5px solid ${T.cyan}`,
-                        borderLeft:   lr?`1.5px solid ${T.cyan}`:'none',
-                        borderTop:    tb?'none':`1.5px solid ${T.cyan}`,
-                        borderBottom: tb?`1.5px solid ${T.cyan}`:'none',
+                        width:16,height:16,
+                        borderRight:  lr?'none':`2px solid ${T.cyan}88`,
+                        borderLeft:   lr?`2px solid ${T.cyan}88`:'none',
+                        borderTop:    tb?'none':`2px solid ${T.cyan}88`,
+                        borderBottom: tb?`2px solid ${T.cyan}88`:'none',
+                        zIndex:3,
                     }}/>
                 ))}
 
-                {/* left — title */}
-                <div style={{display:'flex',alignItems:'center',gap:12}}>
+                {/* left — logo + title */}
+                <div style={{display:'flex',alignItems:'center',gap:14}}>
+                    {/* emblem */}
                     <div style={{
-                        width:38,height:38,borderRadius:9,
-                        background:`linear-gradient(135deg,${T.cyan}18,${T.cyan}06)`,
-                        border:`1px solid ${T.cyan}44`,
+                        width:44,height:44,borderRadius:10,
+                        background:`linear-gradient(135deg,${T.cyan}20,${T.cyan}06)`,
+                        border:`1px solid ${T.cyan}55`,
                         display:'flex',alignItems:'center',justifyContent:'center',
-                        boxShadow:`0 0 18px ${T.cyan}28`,
+                        boxShadow:`0 0 22px ${T.cyan}30, inset 0 0 14px ${T.cyan}0a`,
+                        flexShrink:0,position:'relative',
                     }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="11" width="18" height="11" rx="2" stroke={T.cyan} strokeWidth="1.5"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={T.cyan} strokeWidth="1.5" strokeLinecap="round"/>
-                            <circle cx="12" cy="16" r="1.5" fill={T.cyan}/>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L3 7v5c0 5.25 3.8 10.15 9 11.35C17.2 22.15 21 17.25 21 12V7L12 2z"
+                                stroke={T.cyan} strokeWidth="1.6" strokeLinejoin="round"/>
+                            <path d="M9 12l2 2 4-4" stroke={T.cyan} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
+                        <div style={{position:'absolute',inset:-1,borderRadius:10,
+                            boxShadow:`inset 0 0 10px ${T.cyan}08`}}/>
                     </div>
+
                     <div>
-                        <div style={{fontSize:'clamp(10px,.9vw,13px)',fontFamily:'Orbitron,monospace',fontWeight:900,
-                            color:T.cyan,letterSpacing:2,textTransform:'uppercase'}}>
+                        <div style={{
+                            fontSize:'clamp(10px,.85vw,13px)',fontFamily:'Orbitron,monospace',fontWeight:900,
+                            color:T.cyan,letterSpacing:2.5,textTransform:'uppercase',
+                            textShadow:`0 0 20px ${T.cyan}55`,
+                        }}>
                             XAVFSIZLIK NAZORAT MARKAZI
                         </div>
-                        <div style={{fontSize:9,color:T.muted,marginTop:1}}>
-                            Kirish-chiqish nazorati · Mehnat intizomi · Hodisalar monitoringi
+                        <div style={{display:'flex',alignItems:'center',gap:8,marginTop:3}}>
+                            {['Kirish/Chiqish nazorati','Mehnat intizomi','Hodisalar monitoringi'].map((t,i)=>(
+                                <React.Fragment key={t}>
+                                    {i>0 && <span style={{width:3,height:3,borderRadius:'50%',background:T.dim,display:'inline-block'}}/>}
+                                    <span style={{fontSize:'clamp(7px,.58vw,9px)',color:T.muted}}>{t}</span>
+                                </React.Fragment>
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                {/* right — indicators */}
+                {/* center — connection + date/time */}
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    {/* WS/load status */}
-                    <div style={{display:'flex',alignItems:'center',gap:5,
-                        background:wsOk?`${T.green}0e`:`${T.amber}0e`,
-                        border:`1px solid ${wsOk?T.green:T.amber}30`,
-                        borderRadius:6,padding:'4px 10px',
+                    {/* WS status */}
+                    <div style={{
+                        display:'flex',alignItems:'center',gap:7,
+                        background:wsOk?`${T.green}0c`:`${T.amber}0c`,
+                        border:`1px solid ${wsOk?T.green:T.amber}33`,
+                        borderRadius:7,padding:'5px 12px',
+                        position:'relative',overflow:'hidden',
                     }}>
-                        <div style={{width:6,height:6,borderRadius:'50%',
+                        <div style={{
+                            width:7,height:7,borderRadius:'50%',
                             background:wsOk?T.green:T.amber,
-                            boxShadow:`0 0 8px ${wsOk?T.green:T.amber}`,
-                            animation:loading?'pulse 1s infinite':'none'}}/>
-                        <span style={{fontSize:8,fontFamily:'Orbitron,monospace',fontWeight:700,
-                            color:wsOk?T.green:T.amber}}>
-                            {wsOk?'LIVE WS':loading?'YUKLANMOQDA':'POLLING'}
-                        </span>
+                            boxShadow:`0 0 10px ${wsOk?T.green:T.amber}`,
+                            animation:loading?'pulse 1s infinite':'none',
+                            flexShrink:0,
+                        }}/>
+                        <div>
+                            <div style={{fontSize:'clamp(7px,.58vw,8px)',fontFamily:'Orbitron,monospace',
+                                fontWeight:800,color:wsOk?T.green:T.amber,letterSpacing:1}}>
+                                {wsOk?'JONLI ULANISH':loading?'YUKLANMOQDA...':'POLLING'}
+                            </div>
+                            <div style={{fontSize:6,color:T.dim,marginTop:1}}>
+                                {wsOk ? 'WebSocket aktiv' : 'HTTP rejimi'}
+                            </div>
+                        </div>
                     </div>
 
-                    <div style={{width:1,height:26,background:T.b1}}/>
+                    <div style={{width:1,height:30,background:`${T.b1}88`}}/>
 
                     {/* date */}
-                    <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1}}>
-                        <div style={{fontSize:9,color:T.muted}}>
+                    <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:2}}>
+                        <div style={{fontSize:'clamp(7px,.58vw,9px)',color:T.muted,letterSpacing:.3}}>
                             {now.toLocaleDateString('uz-UZ',{day:'2-digit',month:'long',year:'numeric'})}
                         </div>
-                        <div style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(14px,1.3vw,20px)',
-                            fontWeight:700,color:T.cyan2,letterSpacing:3,
-                            textShadow:`0 0 18px ${T.cyan2}77`}}>
-                            {pad(now.getHours())}:{pad(now.getMinutes())}:{pad(now.getSeconds())}
+                        <div style={{
+                            fontFamily:'Orbitron,monospace',fontSize:'clamp(15px,1.35vw,22px)',
+                            fontWeight:900,color:T.cyan2,letterSpacing:4,
+                            textShadow:`0 0 22px ${T.cyan2}88`,lineHeight:1,
+                        }}>
+                            {pad(now.getHours())}:{pad(now.getMinutes())}
+                            <span style={{fontSize:'clamp(10px,.9vw,14px)',opacity:.6,letterSpacing:2}}>
+                                :{pad(now.getSeconds())}
+                            </span>
                         </div>
                     </div>
 
-                    <div style={{width:1,height:26,background:T.b1}}/>
+                    <div style={{width:1,height:30,background:`${T.b1}88`}}/>
 
-                    {/* total */}
-                    <div style={{display:'flex',flexDirection:'column',alignItems:'center',
-                        background:`${T.cyan}0e`,border:`1px solid ${T.cyan}28`,
-                        borderRadius:8,padding:'4px 12px',
+                    {/* total users */}
+                    <div style={{
+                        display:'flex',flexDirection:'column',alignItems:'center',
+                        background:`${T.cyan}0c`,border:`1px solid ${T.cyan}2a`,
+                        borderRadius:8,padding:'5px 14px',
+                        boxShadow:`inset 0 0 12px ${T.cyan}06`,
                     }}>
-                        <span style={{fontSize:7,color:T.muted,letterSpacing:1}}>JAMI XODIM</span>
-                        <span style={{fontFamily:'Orbitron,monospace',fontSize:14,fontWeight:900,color:T.cyan}}>
+                        <span style={{fontSize:'clamp(6px,.5vw,8px)',color:T.dim,
+                            letterSpacing:1.2,fontFamily:'Orbitron,monospace'}}>JAMI XODIM</span>
+                        <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(14px,1.2vw,18px)',
+                            fontWeight:900,color:T.cyan,textShadow:`0 0 16px ${T.cyan}66`}}>
                             <Counter to={data.total_users}/>
                         </span>
                     </div>
 
-                    {/* alert bell */}
+                    {/* alert counter */}
                     {cards.not_found.count > 0 && (
                         <div style={{
-                            position:'relative',
-                            background:`${T.red}14`,border:`1px solid ${T.red}44`,
-                            borderRadius:8,padding:'4px 12px',
+                            background:`linear-gradient(135deg,${T.red}18,${T.red}0a)`,
+                            border:`1px solid ${T.red}55`,
+                            borderRadius:8,padding:'5px 14px',
                             display:'flex',flexDirection:'column',alignItems:'center',
                             animation:'alertPulse 2s ease-in-out infinite',
+                            boxShadow:`0 0 18px ${T.red}22`,
                         }}>
-                            <span style={{fontSize:7,color:T.red,letterSpacing:1,fontFamily:'Orbitron,monospace'}}>HODISA</span>
-                            <span style={{fontFamily:'Orbitron,monospace',fontSize:14,fontWeight:900,color:T.red}}>
+                            <span style={{fontSize:'clamp(6px,.5vw,8px)',color:T.red,
+                                letterSpacing:1.2,fontFamily:'Orbitron,monospace'}}>⚠ HODISA</span>
+                            <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(14px,1.2vw,18px)',
+                                fontWeight:900,color:T.red,textShadow:`0 0 14px ${T.red}88`}}>
                                 {cards.not_found.count}
                             </span>
                         </div>
@@ -689,23 +885,39 @@ export default function EnterExit() {
             {cards.not_found.count > 0 && incident && (
                 <div style={{
                     position:'relative',overflow:'hidden',flexShrink:0,zIndex:2,
-                    background:`linear-gradient(90deg,${T.red}1a 0%,${T.red}0d 50%,${T.red}1a 100%)`,
-                    border:`1px solid ${T.red}77`,borderRadius:7,
-                    padding:'5px 14px',
-                    display:'flex',alignItems:'center',gap:12,
+                    background:`linear-gradient(90deg,${T.red}22 0%,${T.red}0e 50%,${T.red}22 100%)`,
+                    border:`1px solid ${T.red}77`,borderRadius:8,
+                    padding:'6px 16px',
+                    display:'flex',alignItems:'center',gap:14,
                     animation:'alertPulse 2s ease-in-out infinite',
+                    boxShadow:`0 0 24px ${T.red}18`,
                 }}>
                     <div style={{position:'absolute',inset:0,
-                        background:`linear-gradient(90deg,transparent,${T.red}07,transparent)`,
-                        animation:'scanH 3s linear infinite'}}/>
-                    <div style={{width:8,height:8,borderRadius:'50%',background:T.red,
-                        boxShadow:`0 0 10px ${T.red}`,animation:'blink .8s infinite',flexShrink:0}}/>
-                    <span style={{fontFamily:'Orbitron,monospace',fontSize:9,fontWeight:700,
-                        color:T.red,letterSpacing:1}}>
-                        ⚠ OGOHLANTIRISH: {cards.not_found.count} RUXSATSIZ KIRISH ANIQLANDI
+                        background:`linear-gradient(90deg,transparent,${T.red}09,transparent)`,
+                        animation:'scanH 2.5s linear infinite'}}/>
+                    {/* left urgent stripe */}
+                    <div style={{position:'absolute',left:0,top:0,bottom:0,width:4,
+                        background:`linear-gradient(180deg,transparent,${T.red},transparent)`,
+                        boxShadow:`0 0 8px ${T.red}`}}/>
+                    <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+                        <div style={{width:9,height:9,borderRadius:'50%',background:T.red,
+                            boxShadow:`0 0 12px ${T.red}`,animation:'blink .7s infinite'}}/>
+                        <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(8px,.7vw,10px)',
+                            fontWeight:900,color:T.red,letterSpacing:1.5}}>
+                            XAVF DARAJASI: YUQORI
+                        </span>
+                    </div>
+                    <div style={{width:1,height:20,background:`${T.red}44`,flexShrink:0}}/>
+                    <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(7px,.62vw,9px)',
+                        fontWeight:700,color:`${T.red}cc`,letterSpacing:.8}}>
+                        {cards.not_found.count} RUXSATSIZ KIRISH ANIQLANDI
                     </span>
-                    <span style={{fontSize:9,color:T.text,opacity:.8}}>
-                        — {incident.full_name??'Noma\'lum'} · {incident.turniket_name} {incident.door_label} · {incident.formatted_date}
+                    <div style={{width:1,height:20,background:`${T.red}33`,flexShrink:0}}/>
+                    <span style={{fontSize:'clamp(8px,.68vw,10px)',color:T.text,opacity:.9,flex:1}}>
+                        <span style={{color:T.amber,fontWeight:600}}>{incident.full_name??'Noma\'lum shaxs'}</span>
+                        {' · '}{incident.turniket_name}
+                        {' · '}<span style={{color:`${T.red}cc`}}>{incident.door_label}</span>
+                        {' · '}{incident.formatted_date}
                     </span>
                 </div>
             )}
@@ -714,8 +926,13 @@ export default function EnterExit() {
             <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:6,flexShrink:0,zIndex:1}}>
                 {CARDS_DEF.map(({key,label,color})=>{
                     const s = cards[key as keyof Cards];
-                    return <StatCard key={key} label={label} count={s.count}
-                        change={s.change_percent} pct={s.percent_of_total} color={color}/>;
+                    return <StatCard key={key} cardKey={key} label={label} count={s.count}
+                        change={s.change_percent} pct={s.percent_of_total} color={color}
+                        active={activeFilter === key}
+                        onClick={()=>{
+                            setActiveFilter(prev => prev===key ? null : key);
+                            if (key==='not_found' && data.not_found_persons.length>0) setSel({nf:data.not_found_persons[0]});
+                        }}/>;
                 })}
             </div>
 
@@ -728,10 +945,23 @@ export default function EnterExit() {
                     border:`1px solid ${T.b1}`,borderRadius:10,
                     display:'flex',flexDirection:'column',overflow:'hidden',
                 }}>
-                    <SecHead title="XODIMLAR RO'YXATI" color={T.cyan} right={
-                        <span style={{fontSize:8,color:T.muted}}>
-                            {filtered.length} / {data.total_users.toLocaleString()}
-                        </span>
+                    <SecHead title="XODIMLAR RO'YXATI" color={activeFilter ? CARDS_DEF.find(c=>c.key===activeFilter)?.color??T.cyan : T.cyan} right={
+                        <div style={{display:'flex',alignItems:'center',gap:6}}>
+                            {activeFilter && activeFilter!=='not_found' && (
+                                <span style={{
+                                    fontSize:7,fontFamily:'Orbitron,monospace',fontWeight:700,
+                                    color: CARDS_DEF.find(c=>c.key===activeFilter)?.color??T.cyan,
+                                    background:`${CARDS_DEF.find(c=>c.key===activeFilter)?.color??T.cyan}18`,
+                                    border:`1px solid ${CARDS_DEF.find(c=>c.key===activeFilter)?.color??T.cyan}44`,
+                                    borderRadius:4,padding:'1px 7px',letterSpacing:.5,cursor:'pointer',
+                                }} onClick={()=>setActiveFilter(null)}>
+                                    {CARDS_DEF.find(c=>c.key===activeFilter)?.label} ✕
+                                </span>
+                            )}
+                            <span style={{fontSize:8,color:T.muted}}>
+                                {filtered.length} / {data.total_users.toLocaleString()}
+                            </span>
+                        </div>
                     }/>
                     {/* search */}
                     <div style={{padding:'6px 10px',borderBottom:`1px solid ${T.b0}55`,flexShrink:0}}>
@@ -868,100 +1098,107 @@ export default function EnterExit() {
             </div>
 
             {/* ══════════ BOTTOM ══════════ */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1.7fr 1fr',gap:6,height:'20vh',flexShrink:0,zIndex:1}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1.7fr 1fr',gap:6,height:'14vh',flexShrink:0,zIndex:1}}>
 
-                {/* Donut */}
+                {/* ─── DONUT: Bugungi statistika ─── */}
                 <div style={{
                     background:T.glass,backdropFilter:'blur(8px)',
                     border:`1px solid ${T.b1}`,borderRadius:10,
                     display:'flex',flexDirection:'column',overflow:'hidden',
                 }}>
-                    <SecHead title="BUGUNGI STATISTIKA" color={T.cyan}/>
-                    <div style={{flex:1,position:'relative',padding:'4px 8px'}}>
+                    <SecHead title="BUGUNGI TAQSIMOT" color={T.cyan}
+                        right={<span style={{fontSize:8,color:T.muted,fontFamily:'Orbitron,monospace'}}>
+                            JAMI: <span style={{color:T.cyan2,fontWeight:700}}><Counter to={data.total_users}/></span>
+                        </span>}
+                    />
+                    <div style={{flex:1,position:'relative',padding:'2px 6px 4px',minHeight:0}}>
                         <Doughnut data={pieData} options={{
-                            responsive:true,maintainAspectRatio:false,cutout:'64%',
+                            responsive:true, maintainAspectRatio:false, cutout:'62%',
+                            animation:{ duration:900 },
                             plugins:{
-                                legend:{display:true,position:'right',labels:{
-                                    color:T.muted,font:{size:8},boxWidth:8,padding:5,
-                                    generateLabels:(ch)=>{
-                                        const ds=ch.data.datasets[0];
-                                        return (ch.data.labels as string[]).map((l,i)=>({
-                                            text:`${l}  ${(ds.data[i] as number).toLocaleString()}`,
-                                            fillStyle:(ds.backgroundColor as string[])[i],
-                                            index:i,datasetIndex:0,hidden:false,lineWidth:0,
-                                            strokeStyle:'transparent',
-                                        }));
-                                    }
-                                }},
-                                tooltip:{enabled:true},
+                                legend:{
+                                    display:true, position:'right',
+                                    labels:{
+                                        color:T.muted, font:{size:9}, boxWidth:9, padding:6,
+                                        generateLabels:(ch:any)=>{
+                                            const ds = ch.data.datasets[0];
+                                            return (ch.data.labels as string[]).map((l:string,i:number)=>({
+                                                text:`${l}  ${(ds.data[i] as number).toLocaleString()}`,
+                                                fillStyle:(ds.backgroundColor as string[])[i],
+                                                index:i, datasetIndex:0, hidden:false,
+                                                lineWidth:0, strokeStyle:'transparent',
+                                            }));
+                                        },
+                                    },
+                                },
+                                tooltip:{
+                                    enabled:true,
+                                    backgroundColor:'rgba(2,10,26,0.95)',
+                                    borderColor:T.b1, borderWidth:1,
+                                    titleColor:T.text, bodyColor:T.muted, padding:8,
+                                    callbacks:{
+                                        label:(c:any)=>` ${c.label}: ${(c.parsed as number).toLocaleString()} nafar`,
+                                    },
+                                },
                             },
-                        }}/>
-                        <div style={{position:'absolute',top:'50%',left:'43%',
+                        } as any}/>
+                        {/* center label */}
+                        <div style={{position:'absolute',top:'50%',left:'36%',
                             transform:'translate(-50%,-50%)',textAlign:'center',pointerEvents:'none'}}>
-                            <div style={{fontSize:7,color:T.muted,letterSpacing:.5}}>JAMI</div>
-                            <div style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(13px,1.3vw,18px)',
-                                fontWeight:900,color:T.cyan2,textShadow:`0 0 16px ${T.cyan2}77`}}>
+                            <div style={{fontSize:7,color:T.muted,letterSpacing:1,fontFamily:'Orbitron,monospace'}}>JAMI</div>
+                            <div style={{fontFamily:'Orbitron,monospace',
+                                fontSize:'clamp(12px,1.2vw,18px)',fontWeight:900,
+                                color:T.cyan2,textShadow:`0 0 16px ${T.cyan2}77`,lineHeight:1.1}}>
                                 <Counter to={data.total_users}/>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Event log */}
-
-                {/*BOTTOM CENTER — soat bo'yicha qoidabuzarlar*/}
-                {(() => {
-                    // 07–20 soat oralig'ida hourly breakdown
-                    const HOURS = Array.from({length:14},(_,i)=>i+7); // 7..20
-                    const lbl   = HOURS.map(h=>String(h).padStart(2,'0'));
-
+                {/* ─── BAR: Soat bo'yicha qoidabuzarlar ─── */}
+                {(()=>{
+                    const HOURS = Array.from({length:14},(_,i)=>i+7);
+                    const lbl   = HOURS.map(h=>String(h).padStart(2,'0')+':00');
                     const notFoundH = new Array(14).fill(0);
                     const lateH     = new Array(14).fill(0);
                     const earlyH    = new Array(14).fill(0);
-
-                    // not_found_persons: formatted_date = "dd.MM.yyyy HH:mm" yoki "yyyy-MM-dd HH:mm"
-                    data.not_found_persons.forEach(p => {
-                        const timePart = (p.formatted_date ?? '').split(' ')[1] ?? '';
-                        const h = parseInt(timePart.split(':')[0], 10);
-                        if (!isNaN(h) && h >= 7 && h <= 20) notFoundH[h - 7]++;
+                    data.not_found_persons.forEach(p=>{
+                        const h = parseInt((p.formatted_date??'').split(' ')[1]?.split(':')[0]??'',10);
+                        if(!isNaN(h)&&h>=7&&h<=20) notFoundH[h-7]++;
                     });
-                    // kech kelganlar
-                    data.employees.filter(e => e.is_late && e.entry_time).forEach(e => {
-                        const h = parseInt((e.entry_time ?? '').split(':')[0], 10);
-                        if (!isNaN(h) && h >= 7 && h <= 20) lateH[h - 7]++;
+                    data.employees.filter(e=>e.is_late&&e.entry_time).forEach(e=>{
+                        const h = parseInt((e.entry_time??'').split(':')[0],10);
+                        if(!isNaN(h)&&h>=7&&h<=20) lateH[h-7]++;
                     });
-                    // erta ketganlar
-                    data.employees.filter(e => e.is_early_left && e.exit_time).forEach(e => {
-                        const h = parseInt((e.exit_time ?? '').split(':')[0], 10);
-                        if (!isNaN(h) && h >= 7 && h <= 20) earlyH[h - 7]++;
+                    data.employees.filter(e=>e.is_early_left&&e.exit_time).forEach(e=>{
+                        const h = parseInt((e.exit_time??'').split(':')[0],10);
+                        if(!isNaN(h)&&h>=7&&h<=20) earlyH[h-7]++;
                     });
-
-                    const maxVal = Math.max(...notFoundH, ...lateH, ...earlyH, 1);
-
+                    const maxVal = Math.max(...notFoundH,...lateH,...earlyH,1);
                     const barData = {
                         labels: lbl,
-                        datasets: [
-                            { label:'Ruxsatsiz kirish', data: notFoundH, backgroundColor:`${T.red}cc`,     borderRadius:3, borderSkipped:false as const },
-                            { label:'Kech keldi',        data: lateH,     backgroundColor:`${T.amber}cc`,   borderRadius:3, borderSkipped:false as const },
-                            { label:'Erta ketdi',        data: earlyH,    backgroundColor:`${T.gold}99`,    borderRadius:3, borderSkipped:false as const },
+                        datasets:[
+                            {label:'Ruxsatsiz kirish', data:notFoundH, backgroundColor:`${T.red}bb`,   borderRadius:3, borderSkipped:false as const},
+                            {label:'Kech keldi',        data:lateH,     backgroundColor:`${T.amber}bb`, borderRadius:3, borderSkipped:false as const},
+                            {label:'Erta ketdi',        data:earlyH,    backgroundColor:`${T.gold}99`,  borderRadius:3, borderSkipped:false as const},
                         ],
                     };
-
+                    const legendItems = [
+                        {c:T.red,  l:'Ruxsatsiz'},
+                        {c:T.amber,l:'Kech keldi'},
+                        {c:T.gold, l:'Erta ketdi'},
+                    ];
                     return (
                         <div style={{
                             background:T.glass,backdropFilter:'blur(8px)',
                             border:`1px solid ${T.b1}`,borderRadius:10,
                             display:'flex',flexDirection:'column',overflow:'hidden',
                         }}>
-                            <SecHead title="SOAT BO'YICHA QOIDABUZARLAR" color={T.red} right={
+                            <SecHead title="SOAT BO'YICHA BUZILISHLAR" color={T.red} right={
                                 <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                                    {[
-                                        {c:T.red,   l:'Ruxsatsiz'},
-                                        {c:T.amber, l:'Kech keldi'},
-                                        {c:T.gold,  l:'Erta ketdi'},
-                                    ].map(({c,l})=>(
-                                        <span key={l} style={{display:'flex',alignItems:'center',gap:3,fontSize:7,color:T.muted}}>
-                                            <span style={{width:7,height:7,borderRadius:2,background:c,display:'inline-block'}}/>
+                                    {legendItems.map(({c,l})=>(
+                                        <span key={l} style={{display:'flex',alignItems:'center',gap:3,fontSize:8,color:T.muted}}>
+                                            <span style={{width:8,height:8,borderRadius:2,background:c,display:'inline-block',boxShadow:`0 0 4px ${c}66`}}/>
                                             {l}
                                         </span>
                                     ))}
@@ -970,79 +1207,118 @@ export default function EnterExit() {
                             <div style={{flex:1,padding:'4px 10px 6px',minHeight:0}}>
                                 <Bar data={barData} options={{
                                     responsive:true, maintainAspectRatio:false,
+                                    animation:{duration:900},
                                     plugins:{
-                                        legend:{ display:false },
+                                        legend:{display:false},
                                         tooltip:{
                                             enabled:true,
-                                            backgroundColor:'rgba(2,10,26,0.95)',
-                                            borderColor:`${T.b1}`,
-                                            borderWidth:1,
-                                            titleColor:T.text,
-                                            bodyColor:T.muted,
-                                            padding:8,
+                                            backgroundColor:'rgba(2,10,26,0.96)',
+                                            borderColor:T.b1, borderWidth:1,
+                                            titleColor:T.text, bodyColor:T.muted,
+                                            padding:10, cornerRadius:6,
                                             callbacks:{
-                                                title: (items) => `${items[0].label}:00`,
-                                                label: (c) => ` ${c.dataset.label}: ${c.parsed.y} ta`,
+                                                title:(items:any[])=>`🕐 ${items[0].label}`,
+                                                label:(c:any)=>`  ${c.dataset.label}: ${c.parsed.y} ta`,
                                             },
                                         },
                                     },
                                     scales:{
                                         x:{
                                             stacked:true,
-                                            grid:{ color:`${T.b0}55`, lineWidth:0.5 },
-                                            ticks:{ color:T.muted, font:{size:8} },
-                                            border:{ color:`${T.b0}` },
+                                            grid:{color:`rgba(255,255,255,0.04)`,lineWidth:0.5},
+                                            ticks:{color:T.muted,font:{size:8}},
+                                            border:{color:`${T.b0}`},
                                         },
                                         y:{
                                             stacked:true,
-                                            grid:{ color:`${T.b0}55`, lineWidth:0.5 },
-                                            ticks:{ color:T.muted, font:{size:8}, stepSize:1 },
-                                            border:{ color:`${T.b0}` },
-                                            max: maxVal + 1,
-                                            min: 0,
+                                            grid:{color:`rgba(255,255,255,0.04)`,lineWidth:0.5},
+                                            ticks:{color:T.muted,font:{size:8},stepSize:1},
+                                            border:{color:`${T.b0}`},
+                                            max:maxVal+1, min:0,
                                         },
                                     },
-                                }}/>
+                                } as any}/>
                             </div>
                         </div>
                     );
                 })()}
 
-                {/* Event log */}
+                {/* ─── EVENT LOG: Hodisalar jurnali ─── */}
                 <div style={{
                     background:T.glass,backdropFilter:'blur(8px)',
-                    border:`1px solid ${T.b1}`,borderRadius:10,
+                    border:`1px solid ${LOG.some(e=>e.type==='crit') ? T.red+'44' : T.b1}`,
+                    borderRadius:10,
                     display:'flex',flexDirection:'column',overflow:'hidden',
+                    boxShadow: LOG.some(e=>e.type==='crit') ? `0 0 18px ${T.red}10` : 'none',
+                    transition:'border-color .3s,box-shadow .3s',
                 }}>
                     <SecHead title="HODISALAR JURNALI" color={T.cyan} right={
-                        <span style={{fontSize:7,color:T.cyan,cursor:'pointer',letterSpacing:.5,
-                            fontFamily:'Orbitron,monospace'}}>BARCHASI →</span>
+                        <div style={{display:'flex',alignItems:'center',gap:6}}>
+                            {LOG.filter(e=>e.type==='crit').length > 0 && (
+                                <span style={{
+                                    fontSize:8,fontFamily:'Orbitron,monospace',fontWeight:700,
+                                    color:T.red,background:`${T.red}18`,
+                                    border:`1px solid ${T.red}44`,borderRadius:4,
+                                    padding:'1px 7px',animation:'blink 1.5s infinite',
+                                }}>
+                                    ⚠ {LOG.filter(e=>e.type==='crit').length} KRITIK
+                                </span>
+                            )}
+                        </div>
                     }/>
                     <div style={{flex:1,overflowY:'auto'}}>
                         {LOG.length===0 ? (
-                            <div style={{display:'flex',alignItems:'center',
-                                justifyContent:'center',height:'100%',opacity:.3}}>
-                                <span style={{fontSize:9,color:T.muted}}>Hodisalar yo'q</span>
+                            <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
+                                <span style={{fontSize:10,color:T.muted}}>Hodisalar yo'q</span>
                             </div>
                         ) : LOG.map((ev,i)=>{
                             const ec = ev.type==='crit'?T.red:ev.type==='warn'?T.amber:T.green;
+                            const isCrit = ev.type==='crit';
                             return (
-                                <div key={i} style={{
-                                    display:'flex',alignItems:'flex-start',gap:8,
-                                    padding:'5px 10px',
-                                    borderBottom:`1px solid ${T.b0}33`,
-                                    borderLeft:`2px solid ${ec}`,
-                                    animation:'fadeUp .25s ease',
-                                }}>
-                                    <div style={{width:5,height:5,borderRadius:'50%',background:ec,
-                                        marginTop:4,flexShrink:0,boxShadow:`0 0 5px ${ec}`}}/>
+                                <div key={i}
+                                    onClick={()=>{
+                                        if(isCrit && data.not_found_persons[0]) setSel({nf:data.not_found_persons[0]});
+                                    }}
+                                    style={{
+                                        display:'flex',alignItems:'flex-start',gap:8,
+                                        padding:'6px 10px',
+                                        borderBottom:`1px solid ${T.b0}33`,
+                                        borderLeft:`2.5px solid ${ec}`,
+                                        background: isCrit ? `${T.red}0a` : 'transparent',
+                                        cursor: isCrit ? 'pointer' : 'default',
+                                        transition:'background .15s',
+                                        animation:'fadeUp .25s ease',
+                                    }}
+                                    onMouseEnter={e=>{ if(isCrit) e.currentTarget.style.background=`${T.red}14`; }}
+                                    onMouseLeave={e=>{ if(isCrit) e.currentTarget.style.background=`${T.red}0a`; }}
+                                >
+                                    <div style={{
+                                        width:7,height:7,borderRadius:'50%',background:ec,
+                                        marginTop:3,flexShrink:0,
+                                        boxShadow:`0 0 ${isCrit?10:5}px ${ec}`,
+                                        animation: isCrit ? 'blink .9s infinite' : 'none',
+                                    }}/>
                                     <div style={{flex:1,minWidth:0}}>
-                                        <div style={{fontSize:9,fontWeight:600,color:T.text}}>{ev.line1}</div>
-                                        <div style={{fontSize:7.5,color:T.muted,overflow:'hidden',
-                                            textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ev.line2}</div>
+                                        <div style={{
+                                            fontSize: isCrit ? 11 : 10,
+                                            fontWeight: isCrit ? 700 : 600,
+                                            color: isCrit ? T.red : T.text,
+                                            fontFamily: isCrit ? 'Orbitron,monospace' : 'inherit',
+                                            letterSpacing: isCrit ? .5 : 0,
+                                        }}>{ev.line1}</div>
+                                        <div style={{
+                                            fontSize: isCrit ? 9.5 : 8.5,
+                                            color: isCrit ? T.text : T.muted,
+                                            overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',
+                                            marginTop:1,
+                                        }}>{ev.line2}</div>
                                     </div>
-                                    <div style={{fontSize:7.5,color:T.dim,flexShrink:0,
-                                        fontFamily:'monospace',marginTop:1}}>{ev.time}</div>
+                                    <div style={{
+                                        fontSize: isCrit ? 9 : 8,
+                                        color: isCrit ? T.amber : T.dim,
+                                        flexShrink:0,fontFamily:'monospace',marginTop:1,
+                                        fontWeight: isCrit ? 700 : 400,
+                                    }}>{ev.time}</div>
                                 </div>
                             );
                         })}

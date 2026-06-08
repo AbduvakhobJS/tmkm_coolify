@@ -4,7 +4,9 @@
       "Bash(xargs grep:*)",
       "Bash(find D:projectstmkm_coolify/src -type f -name *Map*)",
       "Bash(npm install *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(git stash *)"
     ]
   }
 }

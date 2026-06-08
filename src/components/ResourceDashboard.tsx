@@ -487,7 +487,6 @@ const ResourceDashboard: React.FC = () => {
                 overflowX: "hidden",
                 border: "1px solid rgba(14, 168, 199, 0.2)",
             }}>
-
                 {/*<ResourceDashboardPart2/>*/}
                 <EnterExit />
             </div>
