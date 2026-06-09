@@ -151,7 +151,7 @@ const MINERAL_MARKERS: { name: string; type: 'square' | 'triangle' | 'circle' | 
     { name: 'Vismut',      type: 'rhombus',  color: '#5F9EA0', coords: [72.0, 40.5] },
     // Stars (8)
     { name: 'Rubidiy',     type: 'star',     color: '#FF1493', coords: [69.0, 41.3] },
-    { name: 'Sesiy',       type: 'star',     color: '#00CED1', coords: [58.9, 32.5] },
+    { name: 'Sesiy',       type: 'star',     color: '#00CED1', coords: [68.9, 32.5] },
     { name: 'Lantan',      type: 'star',     color: '#EE82EE', coords: [65.8, 38.8] },
     { name: 'Seriy',       type: 'star',     color: '#F0E68C', coords: [68.2, 38.9] },
     { name: 'Neodim',      type: 'star',     color: '#7FFFD4', coords: [71.5, 40.6] },

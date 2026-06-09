@@ -4,6 +4,7 @@ import {
     Chart as ChartJS, ArcElement, Tooltip, Legend,
     CategoryScale, LinearScale, BarElement,
 } from 'chart.js';
+import {badge, C} from "./ResourceDashboard";
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -71,7 +72,7 @@ async function fetchDash(token: string): Promise<Dash> {
 ═══════════════════════════════════════════════════════ */
 const T = {
     bg0:'#010912', bg1:'#020e1c', bg2:'#041525',
-    glass:'rgba(3,14,34,0.82)',
+    glass:'rgba(0, 245, 255, 0.03)',
     b0:'#0a2d54', b1:'#0e3d72', b2:'#1a7fd4',
     cyan:'#0EA8C7', cyan2:'#00d4ff', teal:'#00ffd4',
     green:'#00ff9d', red:'#ff2952', amber:'#ff9f0a',
@@ -155,8 +156,8 @@ function ArcRing({ pct, color, size=48 }: { pct:number; color:string; size?:numb
     const dash = (Math.min(pct, 100) / 100) * circ;
     return (
         <svg width={size} height={size} style={{transform:'rotate(-90deg)',flexShrink:0}}>
-            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`${color}18`} strokeWidth="5"/>
-            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="5"
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={`${color}18`} strokeWidth="2.5"/>
+            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="2.5"
                 strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
                 style={{transition:'stroke-dasharray 1.2s ease',filter:`drop-shadow(0 0 4px ${color}88)`}}/>
         </svg>
@@ -182,6 +183,7 @@ function StatCard({ cardKey, label, count, change, pct, color, active, onClick }
                 background: active
                     ? `linear-gradient(160deg, ${color}18 0%, ${color}08 100%)`
                     : `linear-gradient(160deg, rgba(4,14,34,0.97) 0%, rgba(2,8,22,1) 100%)`,
+                backgroundColor: "rgba(0, 245, 255, 0.03)",
                 border:`1px solid ${color}${highlighted ? (active?'99':'55') : (isAlert?'55':'22')}`,
                 borderRadius:10,
                 padding:'10px 12px 9px',
@@ -252,16 +254,16 @@ function StatCard({ cardKey, label, count, change, pct, color, active, onClick }
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:4}}>
                 <div style={{
                     fontFamily:'Orbitron,monospace',fontWeight:900,
-                    fontSize:'clamp(22px,1.9vw,34px)',color,lineHeight:1,
+                    fontSize:'clamp(15.4px, 1.33vw, 23.8px)',color,lineHeight:1,
                     textShadow:`0 0 ${highlighted?36:24}px ${color}${highlighted?'99':'66'}`,
                     transition:'text-shadow .2s',
                 }}>
                     <Counter to={count}/>
                 </div>
                 <div style={{position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <ArcRing pct={pct} color={color} size={46}/>
-                    <div style={{position:'absolute',textAlign:'center'}}>
-                        <div style={{fontSize:'clamp(7px,.55vw,9px)',fontFamily:'Orbitron,monospace',
+                    <ArcRing pct={pct} color={color} size={32}/>
+                    <div style={{position:'absolute', top: "40%", textAlign:'center'}}>
+                        <div style={{fontSize:'clamp(7px,.35vw, 7px)',fontFamily:'Orbitron,monospace',
                             fontWeight:700,color:`${color}cc`,lineHeight:1}}>
                             {pct.toFixed(0)}
                         </div>
@@ -290,14 +292,14 @@ function StatCard({ cardKey, label, count, change, pct, color, active, onClick }
                 }}>
                     {up?'▲':'▼'} {Math.abs(change).toFixed(1)}%
                 </span>
-                <span style={{fontSize:'clamp(6px,.5vw,8px)',color:T.dim}}>kechaga</span>
-                {active && (
-                    <span style={{marginLeft:'auto',fontSize:'clamp(6px,.5vw,8px)',
-                        color,background:`${color}18`,border:`1px solid ${color}44`,
-                        borderRadius:3,padding:'1px 6px',fontFamily:'Orbitron,monospace',fontWeight:700,letterSpacing:.5}}>
-                        FAOL
-                    </span>
-                )}
+                {/*<span style={{fontSize:'clamp(6px,.5vw,8px)',color:T.dim}}>kechaga</span>*/}
+                {/*{active && (*/}
+                {/*    <span style={{marginLeft:'auto',fontSize:'clamp(6px,.5vw,8px)',*/}
+                {/*        color,background:`${color}18`,border:`1px solid ${color}44`,*/}
+                {/*        borderRadius:3,padding:'1px 6px',fontFamily:'Orbitron,monospace',fontWeight:700,letterSpacing:.5}}>*/}
+                {/*        FAOL*/}
+                {/*    </span>*/}
+                {/*)}*/}
             </div>
         </div>
     );
@@ -694,7 +696,7 @@ export default function EnterExit() {
         <div style={{
             width:'100%',
             height:'50vh',
-            background:T.bg0,color:T.text,
+            // background:T.bg0,color:T.text,
             fontFamily:"'Exo 2','Segoe UI',sans-serif",
             display:'flex',flexDirection:'column',gap:5,
             padding:'6px 8px',overflow:'hidden',
@@ -714,151 +716,37 @@ export default function EnterExit() {
             `}</style>
 
             {/* ══════════ HEADER ══════════ */}
-            <div style={{
-                display:'flex',alignItems:'center',justifyContent:'space-between',
-                padding:'7px 18px',flexShrink:0,zIndex:2,
-                background:`linear-gradient(90deg,rgba(1,8,22,.98) 0%,rgba(3,16,40,.98) 40%,rgba(2,12,30,.98) 70%,rgba(1,8,22,.98) 100%)`,
-                border:`1px solid ${T.b1}`,borderRadius:10,
-                boxShadow:`0 2px 32px rgba(14,168,199,.1), inset 0 1px 0 rgba(14,168,199,.08)`,
-                position:'relative',overflow:'hidden',
-            }}>
-                {/* horizontal scan line */}
-                <div style={{position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none'}}>
-                    <div style={{position:'absolute',top:0,left:0,right:0,height:'1px',
-                        background:`linear-gradient(90deg,transparent 0%,${T.cyan}33 30%,${T.cyan}66 50%,${T.cyan}33 70%,transparent 100%)`,
-                        opacity:.6}}/>
-                    <div style={{position:'absolute',bottom:0,left:0,right:0,height:'1px',
-                        background:`linear-gradient(90deg,transparent,${T.b2}44,transparent)`,opacity:.4}}/>
+
+
+            <div style={{display:'flex', marginBottom:"10px", justifyContent:'space-between', alignItems:'center'}}>
+                <div style={{fontSize:'13px', fontWeight:700, letterSpacing:'2px', color:C.electric}}>
+                    XAVFSIZLIK NAZORAT MARKA
                 </div>
-
-                {/* corner marks */}
-                {([[0,0],[1,0],[0,1],[1,1]] as [number,number][]).map(([lr,tb],i)=>(
-                    <div key={i} style={{
-                        position:'absolute',[lr?'right':'left' as string]:0,[tb?'bottom':'top' as string]:0,
-                        width:16,height:16,
-                        borderRight:  lr?'none':`2px solid ${T.cyan}88`,
-                        borderLeft:   lr?`2px solid ${T.cyan}88`:'none',
-                        borderTop:    tb?'none':`2px solid ${T.cyan}88`,
-                        borderBottom: tb?`2px solid ${T.cyan}88`:'none',
-                        zIndex:3,
-                    }}/>
-                ))}
-
-                {/* left — logo + title */}
-                <div style={{display:'flex',alignItems:'center',gap:14}}>
-                    {/* emblem */}
+                <div style={{display:'flex',alignItems:'center',gap:8,marginTop:3}}>
                     <div style={{
-                        width:44,height:44,borderRadius:10,
-                        background:`linear-gradient(135deg,${T.cyan}20,${T.cyan}06)`,
-                        border:`1px solid ${T.cyan}55`,
-                        display:'flex',alignItems:'center',justifyContent:'center',
-                        boxShadow:`0 0 22px ${T.cyan}30, inset 0 0 14px ${T.cyan}0a`,
-                        flexShrink:0,position:'relative',
-                    }}>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 2L3 7v5c0 5.25 3.8 10.15 9 11.35C17.2 22.15 21 17.25 21 12V7L12 2z"
-                                stroke={T.cyan} strokeWidth="1.6" strokeLinejoin="round"/>
-                            <path d="M9 12l2 2 4-4" stroke={T.cyan} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        <div style={{position:'absolute',inset:-1,borderRadius:10,
-                            boxShadow:`inset 0 0 10px ${T.cyan}08`}}/>
-                    </div>
-
-                    <div>
-                        <div style={{
-                            fontSize:'clamp(10px,.85vw,13px)',fontFamily:'Orbitron,monospace',fontWeight:900,
-                            color:T.cyan,letterSpacing:2.5,textTransform:'uppercase',
-                            textShadow:`0 0 20px ${T.cyan}55`,
-                        }}>
-                            XAVFSIZLIK NAZORAT MARKAZI
-                        </div>
-                        <div style={{display:'flex',alignItems:'center',gap:8,marginTop:3}}>
-                            {['Kirish/Chiqish nazorati','Mehnat intizomi','Hodisalar monitoringi'].map((t,i)=>(
-                                <React.Fragment key={t}>
-                                    {i>0 && <span style={{width:3,height:3,borderRadius:'50%',background:T.dim,display:'inline-block'}}/>}
-                                    <span style={{fontSize:'clamp(7px,.58vw,9px)',color:T.muted}}>{t}</span>
-                                </React.Fragment>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* center — connection + date/time */}
-                <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    {/* WS status */}
-                    <div style={{
-                        display:'flex',alignItems:'center',gap:7,
-                        background:wsOk?`${T.green}0c`:`${T.amber}0c`,
-                        border:`1px solid ${wsOk?T.green:T.amber}33`,
-                        borderRadius:7,padding:'5px 12px',
-                        position:'relative',overflow:'hidden',
-                    }}>
-                        <div style={{
-                            width:7,height:7,borderRadius:'50%',
-                            background:wsOk?T.green:T.amber,
-                            boxShadow:`0 0 10px ${wsOk?T.green:T.amber}`,
-                            animation:loading?'pulse 1s infinite':'none',
-                            flexShrink:0,
-                        }}/>
-                        <div>
-                            <div style={{fontSize:'clamp(7px,.58vw,8px)',fontFamily:'Orbitron,monospace',
-                                fontWeight:800,color:wsOk?T.green:T.amber,letterSpacing:1}}>
-                                {wsOk?'JONLI ULANISH':loading?'YUKLANMOQDA...':'POLLING'}
-                            </div>
-                            <div style={{fontSize:6,color:T.dim,marginTop:1}}>
-                                {wsOk ? 'WebSocket aktiv' : 'HTTP rejimi'}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{width:1,height:30,background:`${T.b1}88`}}/>
-
-                    {/* date */}
-                    <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:2}}>
-                        <div style={{fontSize:'clamp(7px,.58vw,9px)',color:T.muted,letterSpacing:.3}}>
-                            {now.toLocaleDateString('uz-UZ',{day:'2-digit',month:'long',year:'numeric'})}
-                        </div>
-                        <div style={{
-                            fontFamily:'Orbitron,monospace',fontSize:'clamp(15px,1.35vw,22px)',
-                            fontWeight:900,color:T.cyan2,letterSpacing:4,
-                            textShadow:`0 0 22px ${T.cyan2}88`,lineHeight:1,
-                        }}>
-                            {pad(now.getHours())}:{pad(now.getMinutes())}
-                            <span style={{fontSize:'clamp(10px,.9vw,14px)',opacity:.6,letterSpacing:2}}>
-                                :{pad(now.getSeconds())}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div style={{width:1,height:30,background:`${T.b1}88`}}/>
-
-                    {/* total users */}
-                    <div style={{
-                        display:'flex',flexDirection:'column',alignItems:'center',
+                        display:'flex',flexDirection:'row',alignItems:'center',
                         background:`${T.cyan}0c`,border:`1px solid ${T.cyan}2a`,
                         borderRadius:8,padding:'5px 14px',
                         boxShadow:`inset 0 0 12px ${T.cyan}06`,
                     }}>
-                        <span style={{fontSize:'clamp(6px,.5vw,8px)',color:T.dim,
-                            letterSpacing:1.2,fontFamily:'Orbitron,monospace'}}>JAMI XODIM</span>
+                        <span style={{fontSize:'clamp(6px,.5vw,8px)',color: "rgb(14, 168, 199)",
+                            letterSpacing:1.2,fontFamily:'Orbitron,monospace', marginRight: "10px"}}>JAMI XODIM: </span>
                         <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(14px,1.2vw,18px)',
                             fontWeight:900,color:T.cyan,textShadow:`0 0 16px ${T.cyan}66`}}>
                             <Counter to={data.total_users}/>
                         </span>
                     </div>
-
-                    {/* alert counter */}
                     {cards.not_found.count > 0 && (
                         <div style={{
                             background:`linear-gradient(135deg,${T.red}18,${T.red}0a)`,
                             border:`1px solid ${T.red}55`,
                             borderRadius:8,padding:'5px 14px',
-                            display:'flex',flexDirection:'column',alignItems:'center',
+                            display:'flex',flexDirection:'row',alignItems:'center',
                             animation:'alertPulse 2s ease-in-out infinite',
                             boxShadow:`0 0 18px ${T.red}22`,
                         }}>
                             <span style={{fontSize:'clamp(6px,.5vw,8px)',color:T.red,
-                                letterSpacing:1.2,fontFamily:'Orbitron,monospace'}}>⚠ HODISA</span>
+                                letterSpacing:1.2,fontFamily:'Orbitron,monospace', marginRight: "10px"}}>⚠ HODISA : </span>
                             <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(14px,1.2vw,18px)',
                                 fontWeight:900,color:T.red,textShadow:`0 0 14px ${T.red}88`}}>
                                 {cards.not_found.count}
@@ -867,7 +755,6 @@ export default function EnterExit() {
                     )}
                 </div>
             </div>
-
             {/* API xato banner */}
             {err && (
                 <div style={{
@@ -882,45 +769,45 @@ export default function EnterExit() {
             )}
 
             {/* Ruxsatsiz kirish banner */}
-            {cards.not_found.count > 0 && incident && (
-                <div style={{
-                    position:'relative',overflow:'hidden',flexShrink:0,zIndex:2,
-                    background:`linear-gradient(90deg,${T.red}22 0%,${T.red}0e 50%,${T.red}22 100%)`,
-                    border:`1px solid ${T.red}77`,borderRadius:8,
-                    padding:'6px 16px',
-                    display:'flex',alignItems:'center',gap:14,
-                    animation:'alertPulse 2s ease-in-out infinite',
-                    boxShadow:`0 0 24px ${T.red}18`,
-                }}>
-                    <div style={{position:'absolute',inset:0,
-                        background:`linear-gradient(90deg,transparent,${T.red}09,transparent)`,
-                        animation:'scanH 2.5s linear infinite'}}/>
-                    {/* left urgent stripe */}
-                    <div style={{position:'absolute',left:0,top:0,bottom:0,width:4,
-                        background:`linear-gradient(180deg,transparent,${T.red},transparent)`,
-                        boxShadow:`0 0 8px ${T.red}`}}/>
-                    <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
-                        <div style={{width:9,height:9,borderRadius:'50%',background:T.red,
-                            boxShadow:`0 0 12px ${T.red}`,animation:'blink .7s infinite'}}/>
-                        <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(8px,.7vw,10px)',
-                            fontWeight:900,color:T.red,letterSpacing:1.5}}>
-                            XAVF DARAJASI: YUQORI
-                        </span>
-                    </div>
-                    <div style={{width:1,height:20,background:`${T.red}44`,flexShrink:0}}/>
-                    <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(7px,.62vw,9px)',
-                        fontWeight:700,color:`${T.red}cc`,letterSpacing:.8}}>
-                        {cards.not_found.count} RUXSATSIZ KIRISH ANIQLANDI
-                    </span>
-                    <div style={{width:1,height:20,background:`${T.red}33`,flexShrink:0}}/>
-                    <span style={{fontSize:'clamp(8px,.68vw,10px)',color:T.text,opacity:.9,flex:1}}>
-                        <span style={{color:T.amber,fontWeight:600}}>{incident.full_name??'Noma\'lum shaxs'}</span>
-                        {' · '}{incident.turniket_name}
-                        {' · '}<span style={{color:`${T.red}cc`}}>{incident.door_label}</span>
-                        {' · '}{incident.formatted_date}
-                    </span>
-                </div>
-            )}
+            {/*{cards.not_found.count > 0 && incident && (*/}
+            {/*    <div style={{*/}
+            {/*        position:'relative',overflow:'hidden',flexShrink:0,zIndex:2,*/}
+            {/*        background:`linear-gradient(90deg,${T.red}22 0%,${T.red}0e 50%,${T.red}22 100%)`,*/}
+            {/*        border:`1px solid ${T.red}77`,borderRadius:8,*/}
+            {/*        padding:'6px 16px',*/}
+            {/*        display:'flex',alignItems:'center',gap:14,*/}
+            {/*        animation:'alertPulse 2s ease-in-out infinite',*/}
+            {/*        boxShadow:`0 0 24px ${T.red}18`,*/}
+            {/*    }}>*/}
+            {/*        <div style={{position:'absolute',inset:0,*/}
+            {/*            background:`linear-gradient(90deg,transparent,${T.red}09,transparent)`,*/}
+            {/*            animation:'scanH 2.5s linear infinite'}}/>*/}
+            {/*        /!* left urgent stripe *!/*/}
+            {/*        <div style={{position:'absolute',left:0,top:0,bottom:0,width:4,*/}
+            {/*            background:`linear-gradient(180deg,transparent,${T.red},transparent)`,*/}
+            {/*            boxShadow:`0 0 8px ${T.red}`}}/>*/}
+            {/*        <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>*/}
+            {/*            <div style={{width:9,height:9,borderRadius:'50%',background:T.red,*/}
+            {/*                boxShadow:`0 0 12px ${T.red}`,animation:'blink .7s infinite'}}/>*/}
+            {/*            <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(8px,.7vw,10px)',*/}
+            {/*                fontWeight:900,color:T.red,letterSpacing:1.5}}>*/}
+            {/*                XAVF DARAJASI: YUQORI*/}
+            {/*            </span>*/}
+            {/*        </div>*/}
+            {/*        <div style={{width:1,height:20,background:`${T.red}44`,flexShrink:0}}/>*/}
+            {/*        <span style={{fontFamily:'Orbitron,monospace',fontSize:'clamp(7px,.62vw,9px)',*/}
+            {/*            fontWeight:700,color:`${T.red}cc`,letterSpacing:.8}}>*/}
+            {/*            {cards.not_found.count} RUXSATSIZ KIRISH ANIQLANDI*/}
+            {/*        </span>*/}
+            {/*        <div style={{width:1,height:20,background:`${T.red}33`,flexShrink:0}}/>*/}
+            {/*        <span style={{fontSize:'clamp(8px,.68vw,10px)',color:T.text,opacity:.9,flex:1}}>*/}
+            {/*            <span style={{color:T.amber,fontWeight:600}}>{incident.full_name??'Noma\'lum shaxs'}</span>*/}
+            {/*            {' · '}{incident.turniket_name}*/}
+            {/*            {' · '}<span style={{color:`${T.red}cc`}}>{incident.door_label}</span>*/}
+            {/*            {' · '}{incident.formatted_date}*/}
+            {/*        </span>*/}
+            {/*    </div>*/}
+            {/*)}*/}
 
             {/* ══════════ STAT CARDS ══════════ */}
             <div style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:6,flexShrink:0,zIndex:1}}>
