@@ -93,6 +93,12 @@ const TopCenter = () => {
                 >
                     Tab 2
                 </button>
+                <button
+                    className={`top-center-tab${activeTab === 3 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(3)}
+                >
+                    Tab 3
+                </button>
             </div>
 
             {activeTab === 1 && (
@@ -125,6 +131,12 @@ const TopCenter = () => {
                             );
                         })}
                     </div>
+                </div>
+            )}
+
+            {activeTab === 3 && (
+                <div className="top-center-bg">
+                    <img src="./imgs/tab3.png" style={{width: '100%',  height:'100%'}} alt=""/>
                 </div>
             )}
 

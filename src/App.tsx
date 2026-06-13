@@ -11,7 +11,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div id="scanline" />
+      {/*<div id="scanline" />*/}
       <div id="grid-overlay" />
       <Header />
       <main id="dashboard">

@@ -6,6 +6,7 @@ import { factoryData } from '../data/factorys';
 import StreamGrid from "./VideoStream";
 import KpiCard from "./KpiCard";
 import {EnergyChart, RealtimeChart} from "./Charts";
+import EnterExit from "./EnterExit";
 
 const GeoModelCard: React.FC<{ title: string, factoryTitle: string, index: number }> = ({ title, factoryTitle, index }) => {
   return (
@@ -111,9 +112,14 @@ const RightPanel: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) =>
 
       </div>
 
+
+
       <div className="view-model-right-model" style={{ height: '40%' }}>
         <div className="view-model" style={{ width: '100%', height: '100%', padding: "10px", background: '#030d22', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1px solid #0EA8C733' }}>
-          <StreamGrid />
+          {/*<StreamGrid />*/}
+          <EnterExit />
+
+
         </div>
       </div>
     </div>

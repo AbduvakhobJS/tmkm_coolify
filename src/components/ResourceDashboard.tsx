@@ -6,6 +6,7 @@ import {
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import ResourceDashboardPart2 from './ResourceDashboardPart2';
 import EnterExit from "./EnterExit";
+import StreamGrid from "./VideoStream";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -14,7 +15,7 @@ export const MONTHS       = ['Yanvar', 'Fevral', 'Mart', 'Aprel'];
 export const MONTHS_SHORT = ['Yan', 'Fev', 'Mar', 'Apr'];
 export const C = {
     electric:'#0EA8C7', gas:'#ff6b35', water:'#4fc3f7', solar:'#ffd700',
-    chemical:'#bf5fff', cost:'#7fff00', co2:'#ff4444', eff:'#00ff88',
+    chemical:'#bf5fff', cost:'#00ff88', co2:'#ff4444', eff:'#00ff88',
     warn:'#ffaa00', ok:'#00ff88', crit:'#ff4444', info:'#4fc3f7',
     bg:'#030d22', border:'#0EA8C722', text:'#a0c4e8', muted:'#7aa5cc',
 };
@@ -487,10 +488,9 @@ const ResourceDashboard: React.FC = () => {
                 overflowX: "hidden",
                 border: "1px solid rgba(14, 168, 199, 0.2)",
             }}>
-                {/*<ResourceDashboardPart2/>*/}
-                <EnterExit />
+                <ResourceDashboardPart2/>
             </div>
-        </div>
+                </div>
     );
 };
 

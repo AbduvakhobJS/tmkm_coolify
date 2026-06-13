@@ -192,7 +192,7 @@ const StreamGrid: React.FC<StreamGridProps> = ({ gap = 3 }) => {
                     flex: 1,
                     display: "grid",
                     gridTemplateColumns: "repeat(2, 1fr)",
-                    gridTemplateRows: "repeat(2, 1fr)",
+                    gridTemplateRows: "repeat(3, 1fr)",
                     gap,
                     background: "#0a0a0a",
                     padding: gap,
@@ -204,6 +204,8 @@ const StreamGrid: React.FC<StreamGridProps> = ({ gap = 3 }) => {
                 <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2)} gridArea="1 / 2" />
                 <Cell cell={t3} isActive={focusedId === t3.id} onClick={() => click(t3)} gridArea="2 / 1" />
                 <Cell cell={t4} isActive={focusedId === t4.id} onClick={() => click(t4)} gridArea="2 / 2" />
+                <Cell cell={t1} isActive={focusedId === t1.id} onClick={() => click(t1)} gridArea="3 / 1" />
+                <Cell cell={t2} isActive={focusedId === t2.id} onClick={() => click(t2)} gridArea="3 / 2" />
             </div>
 
             {/* ── Events Section ────────────────────────────────────────────────── */}

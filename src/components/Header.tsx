@@ -16,7 +16,7 @@ const Header: React.FC = () => {
         </div>
       </div>
       <div className="top-center">
-        <div className="center-title">NATIONAL INDUSTRIAL SITUATION CENTER</div>
+        <div className="center-title">TMK SITUATION CENTER</div>
         <div className="center-sub">Real-time Operational Command &amp; Control Interface</div>
       </div>
       <div className="top-right">

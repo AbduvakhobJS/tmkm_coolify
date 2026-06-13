@@ -288,14 +288,14 @@ const ResourceDashboardPart2: React.FC = () => (
             <Row4Samaradorlik/>
             <Row4Nazorat/>
         </div>
-        <div style={twoCol}>
-            <Row3Kimyo/>
-            <Row3Xarajat/>
-        </div>
-        <div style={twoCol}>
-            <Row5Uskunalar/>
-            <Row5Monitoring/>
-        </div>
+        {/*<div style={twoCol}>*/}
+        {/*    <Row3Kimyo/>*/}
+        {/*    <Row3Xarajat/>*/}
+        {/*</div>*/}
+        {/*<div style={twoCol}>*/}
+        {/*    <Row5Uskunalar/>*/}
+        {/*    <Row5Monitoring/>*/}
+        {/*</div>*/}
 
         <MartSummary/>
     </>
