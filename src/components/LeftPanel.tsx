@@ -7,9 +7,9 @@ const LeftPanel: React.FC = () => {
       <div style={{
         width: '100%',
         height: '90vh',
-        background: '#030d22',
+        background: 'var(--gc-panel-bg)',  // gc-panel-bg
         borderRadius: '12px',
-        border: '1px solid #0EA8C733',
+        border: '1px solid rgba(14,168,199,0.2)',  // gc-title opacity
         marginTop: '10px',
         overflow: 'hidden',
         position: 'relative',

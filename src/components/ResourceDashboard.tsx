@@ -14,10 +14,14 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 export const MONTHS       = ['Yanvar', 'Fevral', 'Mart', 'Aprel'];
 export const MONTHS_SHORT = ['Yan', 'Fev', 'Mar', 'Apr'];
 export const C = {
-    electric:'#0EA8C7', gas:'#ff6b35', water:'#4fc3f7', solar:'#ffd700',
+    electric:'#0EA8C7', // = var(--gc-title) — Chart.js uchun hex kerak
+    gas:'#ff6b35', water:'#4fc3f7', solar:'#ffd700',
     chemical:'#bf5fff', cost:'#00ff88', co2:'#ff4444', eff:'#00ff88',
-    warn:'#ffaa00', ok:'#00ff88', crit:'#ff4444', info:'#4fc3f7',
-    bg:'#030d22', border:'#0EA8C722', text:'#a0c4e8', muted:'#7aa5cc',
+    warn:'#ffaa00', ok:'#00ff88',
+    crit:'#ff2d55',     // = var(--gc-red)
+    info:'#4fc3f7',
+    bg:'var(--gc-panel-bg)',
+    border:'rgba(14,168,199,0.13)', text:'#a0c4e8', muted:'#7aa5cc',
 };
 
 /* ── Chart options ── */
@@ -37,7 +41,7 @@ export const baseOpts = (leg?: 'bottom'|'right'|false) => ({
 export const panelStyle: React.CSSProperties = {
     width:'100%', height:'100%', overflowY:'auto', overflowX:'hidden',
     padding:'8px', display:'flex', flexDirection:'column', gap:'10px',
-    scrollbarWidth:'thin', scrollbarColor:'#0EA8C733 transparent',
+    scrollbarWidth:'thin', scrollbarColor:'rgba(14,168,199,0.2) transparent',
 };
 /* alignItems:stretch — ikkala ustun bir xil balandlikda bo'ladi */
 export const twoCol: React.CSSProperties = {
@@ -71,9 +75,9 @@ export const SectionHeader: React.FC<{title:string; color:string; right?:React.R
 
 export const Card: React.FC<{title:string; accent?:string; extra?:React.ReactNode; children:React.ReactNode; style?:React.CSSProperties}> =
     ({title, accent, extra, children, style}) => (
-    <div style={{...cardBase(accent), ...style}}>
+    <div style={{...cardBase(accent), ...style}} className="kpi-card-my" >
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:'6px' }}>
-            <div style={{ fontSize:'11px', fontWeight:600, letterSpacing:'1px', color:C.muted, textTransform:'uppercase' }}>{title}</div>
+            <div style={{ fontSize:'11px', fontWeight:600, letterSpacing:'1px',textTransform:'uppercase' }} className="kpi-card-my-main-title">{title}</div>
             {extra && <div style={{flexShrink:0}}>{extra}</div>}
         </div>
         {children}
@@ -165,7 +169,7 @@ export const GroupedBar: React.FC<{datasets:{label:string; data:number[]; color:
 export const DonutChart: React.FC<{data:number[]; labels:string[]; colors:string[]; height?:number; flex?:boolean}> =
     ({data, labels, colors, height=110, flex}) => (
     <div style={flex ? flexWrap(height) : wrap(height)}>
-        <Doughnut data={{labels, datasets:[{data, backgroundColor:colors, borderColor:C.bg, borderWidth:2, hoverOffset:4}]}}
+        <Doughnut data={{labels, datasets:[{data, backgroundColor:colors, borderColor:'#030d22', borderWidth:2, hoverOffset:4}]}}
             options={{responsive:true, maintainAspectRatio:false, cutout:'65%',
                 plugins:{legend:{position:'bottom', labels:{color:C.muted, font:{size:9}, boxWidth:9, padding:4}}}
             } as any}/>
@@ -289,7 +293,7 @@ const Row1Elektr = () => (
         <SectionHeader title="Elektr Energiya" color={C.electric} right={badge(C.crit,'Bugun +9%')}/>
        <div style={{display: "flex", width: "100%", gap: "8px"}}>
            <div style={{flex: 1, minWidth: 0}}>
-               <Card title="Umumiy sarf" accent={C.electric} style={{height: "100%"}}>
+               <Card title="Umumiy sarf"  accent={C.electric} style={{height: "100%"}}>
                    <KpiRow value="1.2" unit="GWh" color={C.electric} trend="+9% kechaga nisbatan" up={false}
                            sub="Kecha: 1.1 GWh  |  Haftalik o'rta: 1.15 GWh"
                            right={rightStat('Pik soat','380 MW','18:00–20:00',C.electric)}/>
@@ -316,7 +320,7 @@ const Row1Elektr = () => (
         <Card title="Oylik umumiy trend (GWh)" accent={C.electric} extra={badge(C.crit,'Mart: +25%')} style={{flex:13}}>
             <div style={flexWrap(50)}>
                 <Line data={{labels:MONTHS, datasets:[{
-                    data:[24,28,35,33], borderColor:C.electric, backgroundColor:`${C.electric}18`,
+                    data:[24,28,35,33], borderColor:C.electric, backgroundColor:'rgba(14,168,199,0.09)',
                     borderWidth:1.8, pointRadius:[3,3,5,3], pointBackgroundColor:[C.electric,C.electric,'#fff',C.electric],
                     tension:0.4, fill:true,
                 }]}} options={baseOpts() as any}/>
@@ -399,8 +403,8 @@ const Row2Gaz = () => (
         <Card title="Energiya vs Gaz — korrelyatsiya (r=0.94)" accent={C.electric} extra={badge(C.warn,'r=0.94')} style={{flex:1}}>
             <div style={flexWrap(25)}>
                 <Line data={{labels:MONTHS, datasets:[
-                    {label:'Energiya (GWh)',     data:[25,28,27,29], borderColor:C.electric, backgroundColor:`${C.electric}12`, borderWidth:2, pointRadius:3, tension:0.4, fill:true},
-                    {label:'Gaz (×10 mln m³)',   data:[21,20,26,23], borderColor:C.gas,     backgroundColor:`${C.gas}12`,     borderWidth:2, pointRadius:3, tension:0.4, fill:true},
+                    {label:'Energiya (GWh)',     data:[25,28,27,29], borderColor:C.electric, backgroundColor:'rgba(14,168,199,0.07)',  borderWidth:2, pointRadius:3, tension:0.4, fill:true},
+                    {label:'Gaz (×10 mln m³)',   data:[21,20,26,23], borderColor:C.gas,     backgroundColor:'rgba(255,107,53,0.07)', borderWidth:2, pointRadius:3, tension:0.4, fill:true},
                 ]}} options={baseOpts('bottom') as any}/>
             </div>
         </Card>
@@ -463,7 +467,7 @@ const ResourceDashboard: React.FC = () => {
                 overflowX: "hidden",
                 border: "1px solid rgba(14, 168, 199, 0.2)",
             }}>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                <div  style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                     <div style={{fontSize:'13px', fontWeight:700, letterSpacing:'2px', color:C.electric}}>
                         RESURSLAR SARFI MONITORINGI
                     </div>
@@ -473,7 +477,7 @@ const ResourceDashboard: React.FC = () => {
                         <div style={{fontSize:'11px', color:C.muted}}>{clock.toLocaleTimeString('uz-UZ')}</div>
                     </div>
                 </div>
-                <div style={twoCol}><Row1Elektr/><Row1Quyosh/></div>
+                <div style={twoCol} ><Row1Elektr/><Row1Quyosh/></div>
                 <Div color={C.electric}/>
                 <div style={twoCol}><Row2Gaz/><Row2Suv/></div>
             </div>

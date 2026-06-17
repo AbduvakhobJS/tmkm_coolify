@@ -26,7 +26,7 @@ const kpis = [
     {label:'1 tonna konsentratning tannarxi', value:'8 420', unit:'$'},
 ];
 
-const c = { teal:'#0EA8C7', muted:'#7aa5cc', text:'#a0c4e8', bright:'#b4dcff', ok:'#00ff88', gold:'#ffd700', bg:'rgba(0,245,255,0.04)', border:'#0ea8c733' };
+const c = { teal:'var(--gc-title)' /* gc-title */, muted:'#7aa5cc', text:'#a0c4e8', bright:'#b4dcff', ok:'#00ff88', gold:'#ffd700', bg:'rgba(0,245,255,0.04)', border:'rgba(14,168,199,0.2)' };
 
 
 interface WidgetData {
@@ -266,7 +266,7 @@ const TopCenter = () => {
                                         <svg viewBox="0 0 14 24" width="12" height="22" fill="none">
                                             <defs>
                                                 <linearGradient id={`ag${i}`} x1="0" y1="0" x2="1" y2="0">
-                                                    <stop offset="0%" stopColor="#0EA8C7" stopOpacity="0.4"/>
+                                                    <stop offset="0%" stopColor="var(--gc-title)" stopOpacity="0.4"/>
                                                     <stop offset="100%" stopColor="#4fc3f7"/>
                                                 </linearGradient>
                                             </defs>
@@ -288,7 +288,7 @@ const TopCenter = () => {
                         <div style={{
                             fontSize:'8px', fontWeight:700, letterSpacing:'2px',
                             color:'#3d7a9a', textTransform:'uppercase',
-                            borderLeft:'2px solid #0EA8C7', paddingLeft:'6px',
+                            borderLeft:'2px solid var(--gc-title)', paddingLeft:'6px',
                             marginBottom:'6px',
                         }}>
                             Materiallar oqimi (kunlik)
@@ -318,8 +318,8 @@ const TopCenter = () => {
                                     </div>
                                     {i < flows.length - 1 && (
                                         <svg viewBox="0 0 16 12" width="13" height="10" fill="none" style={{flexShrink:0}}>
-                                            <line x1="1" y1="6" x2="11" y2="6" stroke="#0EA8C7" strokeWidth="1.5" strokeLinecap="round"/>
-                                            <polyline points="7,2 12,6 7,10" stroke="#0EA8C7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                            <line x1="1" y1="6" x2="11" y2="6" stroke="var(--gc-title)" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <polyline points="7,2 12,6 7,10" stroke="var(--gc-title)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                     )}
                                 </React.Fragment>

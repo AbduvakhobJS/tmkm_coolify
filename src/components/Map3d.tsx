@@ -104,10 +104,10 @@ const MARKER_STYLES = `
     .toifa-1 .marker-title-tag { background: #ff1493; }
     .toifa-1 .marker-info-box { border-left-color: #ff1493; }
 
-    .toifa-2 .marker-pin { border-color: #0EA8C7; }
-    .toifa-2 .marker-line { background: #0EA8C7; }
-    .toifa-2 .marker-title-tag { background: #0EA8C7; }
-    .toifa-2 .marker-info-box { border-left-color: #0EA8C7; }
+    .toifa-2 .marker-pin { border-color: var(--gc-title); }
+    .toifa-2 .marker-line { background: var(--gc-title); }
+    .toifa-2 .marker-title-tag { background: var(--gc-title); }
+    .toifa-2 .marker-info-box { border-left-color: var(--gc-title); }
 
     .toifa-3 .marker-pin { border-color: #32cd32; }
     .toifa-3 .marker-line { background: #32cd32; }
@@ -270,7 +270,7 @@ const Map3D = ({
                     type: 'fill',
                     source: 'uzbekistan-border',
                     paint: {
-                        'fill-color': '#0EA8C7',
+                        'fill-color': 'var(--gc-title)',
                         'fill-opacity': 0.05
                     }
                 });
@@ -281,7 +281,7 @@ const Map3D = ({
                     type: 'line',
                     source: 'uzbekistan-border',
                     paint: {
-                        'line-color': '#0EA8C7',
+                        'line-color': 'var(--gc-title)',
                         'line-width': 8,
                         'line-blur': 12,
                         'line-opacity': 0.4
@@ -294,7 +294,7 @@ const Map3D = ({
                     type: 'line',
                     source: 'uzbekistan-border',
                     paint: {
-                        'line-color': '#0EA8C7',
+                        'line-color': 'var(--gc-title)',
                         'line-width': 4,
                         'line-blur': 6,
                         'line-opacity': 0.7
@@ -793,7 +793,7 @@ const Map3D = ({
                     {[1, 2, 3, 4, 5].map(num => {
                         const toifa = `toifa_${num}`;
                         const isChecked = visibleToifas.includes(toifa);
-                        const colors = ['#ff1493', '#0EA8C7', '#32cd32', '#ffa500', '#9370db'];
+                        const colors = ['#ff1493', 'var(--gc-title)', '#32cd32', '#ffa500', '#9370db'];
                         const color = colors[num - 1];
 
                         return (
@@ -869,10 +869,10 @@ const Map3D = ({
                         <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,245,255,0.2)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                 <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(0,245,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,245,255,0.3)' }}>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA8C7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gc-title)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#0EA8C7', textTransform: 'uppercase', letterSpacing: '1px' }}>{selectedVehicle.name}</h3>
+                                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--gc-title)', textTransform: 'uppercase', letterSpacing: '1px' }}>{selectedVehicle.name}</h3>
                                     <div style={{ 
                                         display: 'inline-flex', 
                                         alignItems: 'center', 
@@ -913,7 +913,7 @@ const Map3D = ({
                         <div style={{ padding: '20px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', background: 'rgba(0,0,0,0.2)', overflowY: 'auto' }}>
                             {/* Joylashuv */}
                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: '#0EA8C7', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: 'var(--gc-title)', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                     Joylashuv
                                 </div>
@@ -1010,7 +1010,7 @@ const Map3D = ({
 
                             {/* Aloqa ma'lumotlari */}
                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: '#0EA8C7', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: 'var(--gc-title)', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                                     Aloqa
                                 </div>
@@ -1066,7 +1066,7 @@ const Map3D = ({
                                 style={{ 
                                     padding: '8px 24px', 
                                     background: 'transparent', 
-                                    color: '#0EA8C7', 
+                                    color: 'var(--gc-title)', 
                                     border: '1px solid rgba(0,245,255,0.5)', 
                                     borderRadius: '4px', 
                                     cursor: 'pointer',
@@ -1123,7 +1123,7 @@ const Map3D = ({
                             boxSizing: 'border-box',
                         }}
                     >
-                        <div style={{ color: '#0EA8C7', fontSize: '18px', fontWeight: 'bold' }}>
+                        <div style={{ color: 'var(--gc-title)', fontSize: '18px', fontWeight: 'bold' }}>
                             {factorys[openDetailIndex]?.title} - Batafsil ma'lumot
                         </div>
                         <button
@@ -1170,7 +1170,7 @@ const Map3D = ({
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                color: '#0EA8C7',
+                                color: 'var(--gc-title)',
                                 // padding: '20px',
                                 background: '#020B18'
                             }}
@@ -1189,13 +1189,13 @@ const Map3D = ({
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                color: '#0EA8C7',
+                                color: 'var(--gc-title)',
                                 fontWeight: 'bold',
                                 fontSize: '22px',
                             }}
                         >
-                                <div className="view-model" style={{ width: '100%', height: "100%", padding: "20px", background: '#030d22', borderRadius: '12px', overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }}>
-                                    <div style={{ position: 'absolute', top: '15px', left: '20px', zIndex: 10, color: '#0EA8C7', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                <div className="view-model" style={{ width: '100%', height: "100%", padding: "20px", background: 'var(--gc-panel-bg)', borderRadius: '12px', overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }}>
+                                    <div style={{ position: 'absolute', top: '15px', left: '20px', zIndex: 10, color: 'var(--gc-title)', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
                                         Tanlangan Zavod: {factorys[openDetailIndex]?.title}
                                     </div>
 
@@ -1241,7 +1241,7 @@ const Map3D = ({
                                     <Canvas shadows camera={{ position: [0, 2, 5], fov: 40 }}>
                                         <ambientLight intensity={0.8} />
                                         <pointLight position={[10, 10, 10]} intensity={1.5} />
-                                        <Suspense fallback={<Html center><div style={{ color: '#0EA8C7' }}>Model yuklanmoqda...</div></Html>}>
+                                        <Suspense fallback={<Html center><div style={{ color: 'var(--gc-title)' }}>Model yuklanmoqda...</div></Html>}>
                                             <FactoryViewer
                                                 modelPath={factorys[openDetailIndex].factory_model}
                                                 rotationSpeed={0.5}
@@ -1263,7 +1263,7 @@ const Map3D = ({
                                 overflow: 'auto',
                                 boxSizing: 'border-box',
                                 borderRight: '1px solid rgba(0,245,255,0.2)',
-                                color: '#0EA8C7',
+                                color: 'var(--gc-title)',
                                 fontWeight: 'bold',
                                 fontSize: '22px',
                             }}
@@ -1282,7 +1282,7 @@ const Map3D = ({
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                color: '#0EA8C7',
+                                color: 'var(--gc-title)',
                                 fontWeight: 'bold',
                                 fontSize: '22px',
                             }}

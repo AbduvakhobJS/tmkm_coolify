@@ -63,12 +63,12 @@ const ptzStyles = `
     border-radius: 12px;
   }
   .ptz-icon:hover {
-    color: #0EA8C7;
+    color: var(--gc-title);
     background: rgba(14, 168, 199, 0.1);
   }
   .ptz-icon.active {
     color: #fff;
-    background: #0EA8C7;
+    background: var(--gc-title);
     box-shadow: 0 0 20px rgba(14, 168, 199, 0.6);
   }
   .ptz-icon-up       { top: 4px;    left: 50%;  transform: translateX(-50%); }
@@ -96,9 +96,9 @@ const ptzStyles = `
   }
   .ptz-center-dot {
     width: 12px; height: 12px;
-    background: #0EA8C7;
+    background: var(--gc-title);
     border-radius: 50%;
-    box-shadow: 0 0 10px #0EA8C7;
+    box-shadow: 0 0 10px var(--gc-title);
     opacity: 0.5;
   }
 
@@ -124,8 +124,8 @@ const ptzStyles = `
   }
   .zoom-btn span { font-size: 20px; font-weight: bold; line-height: 1; }
   .zoom-label { font-size: 9px; text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px; }
-  .zoom-btn:hover  { background: #222; color: #0EA8C7; border-color: #444; }
-  .zoom-btn.active { background: #0EA8C7; border-color: #0EA8C7; color: #fff; box-shadow: 0 0 15px rgba(14,168,199,0.4); }
+  .zoom-btn:hover  { background: #222; color: var(--gc-title); border-color: #444; }
+  .zoom-btn.active { background: var(--gc-title); border-color: var(--gc-title); color: #fff; box-shadow: 0 0 15px rgba(14,168,199,0.4); }
 
   .ptz-status {
     margin-top: 14px;
@@ -252,7 +252,7 @@ export default function PTZControls({ camera, onSendCommand }: PTZControlsProps)
 
             <div className="ptz-container" style={{ margin: "20px" }}>
                 {/* Header */}
-                <h4 className="text-[11px] font-bold text-[#0EA8C7] text-center mb-6 uppercase tracking-[3px] opacity-80">
+                <h4 className="text-[11px] font-bold text-[var(--gc-title)] text-center mb-6 uppercase tracking-[3px] opacity-80">
                     Kamera boshqaruvi
                 </h4>
 

@@ -85,14 +85,17 @@ async function fetchToday(token:string, status:'arrived'|'left'): Promise<TodayE
    THEME  — rasmga mos ranglar
 ───────────────────────────────────────────────────────── */
 const T = {
-    bg:     '#0d1117',
-    card:   'rgba(255,255,255,0.05)',
+    bg:     'var(--gc-panel-bg)',  // gc-panel-bg (faqat to'g'ridan-to'g'ri property)
+    card:   'var(--gc-card-bg)',   // gc-card-bg
     border: 'rgba(255,255,255,0.09)',
-    cyan:   '#0EA8C7',  cyan2: '#00d4ff',
-    green:  '#4ade80',  red:   '#f87171',
+    cyan:   '#0EA8C7',  // = var(--gc-title) — template literal uchun hex kerak
+    cyan2:  '#00d4ff',
+    green:  '#4ade80',
+    red:    '#ff2d55',  // = var(--gc-red) — template literal uchun hex kerak
     amber:  '#fbbf24',  blue:  '#60a5fa',
     purple: '#a78bfa',  muted: '#6b7a99',
-    text:   '#e2e8f0',  dim:   '#334155',
+    text:   'var(--gc-white)',
+    dim:    '#334155',
     b0:     '#1e293b',
 };
 
@@ -315,7 +318,7 @@ function PanelHead({title,icon,right}:{title:string;icon?:React.ReactNode;right?
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',borderBottom:`1px solid rgba(255,255,255,0.07)`,flexShrink:0}}>
             <div style={{display:'flex',alignItems:'center',gap:7}}>
                 {icon&&<span style={{color:T.cyan,opacity:.7,display:'flex'}}>{icon}</span>}
-                <span style={{fontSize:10,fontWeight:700,color:T.text,letterSpacing:1.2,textTransform:'uppercase'}}>{title}</span>
+                <span style={{fontSize:10,fontWeight:700, letterSpacing:1.2,textTransform:'uppercase'}} className="kpi-card-my-main-title">{title}</span>
             </div>
             {right&&<div style={{display:'flex',alignItems:'center',gap:6}}>{right}</div>}
         </div>
@@ -464,7 +467,7 @@ export default function EnterExit() {
                                 <circle cx="12" cy="16.5" r="1.5" fill={T.cyan}/>
                             </svg>
                         </div>
-                        <span style={{fontSize:11,fontWeight:700,color:'#e2e8f0',letterSpacing:1.4,textTransform:'uppercase'}}>
+                        <span style={{fontSize:11,fontWeight:700, letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
                             XAVFSIZLIK NAZORAT MARKAZI
                         </span>
                     </div>
@@ -695,7 +698,7 @@ export default function EnterExit() {
                             <rect x="1" y="5" width="15" height="14" rx="2" stroke={T.cyan} strokeWidth="1.8"/>
                         </svg>
                     </div>
-                    <span style={{fontSize:11,fontWeight:700,color:'#e2e8f0',letterSpacing:1.4,textTransform:'uppercase'}}>
+                    <span style={{fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
                         VIDEOKUZATUV
                     </span>
                 </div>
@@ -704,7 +707,7 @@ export default function EnterExit() {
                 <CameraInfoCards/>
 
                 {/* Video stream */}
-                <div style={{minHeight:0,background:'#030d22',borderRadius:12,overflow:'hidden',border:`1px solid ${T.cyan}20`,position:'relative'}}>
+                <div style={{minHeight:0,background:'var(--gc-panel-bg)',borderRadius:12,overflow:'hidden',border:'1px solid rgba(14,168,199,0.13)',position:'relative'}}>
                     <StreamGrid/>
                 </div>
             </div>

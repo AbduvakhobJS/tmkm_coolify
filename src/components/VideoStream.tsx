@@ -145,7 +145,7 @@ const Cell: React.FC<{
         {cell.has_ptz && (
             <span style={{
                 position: "absolute", top: 4, right: 5,
-                background: "rgba(14,168,199,0.25)", color: "#0EA8C7",
+                background: "rgba(14,168,199,0.25)", color: "var(--gc-title)",
                 fontSize: 9, padding: "2px 5px", borderRadius: 3,
                 zIndex: 2, fontWeight: 700, letterSpacing: "0.5px",
                 border: "1px solid rgba(14,168,199,0.4)"
@@ -211,15 +211,15 @@ const StreamGrid: React.FC<StreamGridProps> = ({ gap = 3 }) => {
             {/* ── Events Section ────────────────────────────────────────────────── */}
             <div style={{
                 height: "120px",
-                background: "#030d22",
-                borderTop: "1px solid #0EA8C733",
+                background: "var(--gc-panel-bg)",
+                borderTop: "1px solid rgba(14,168,199,0.2)",
                 padding: "8px 12px",
                 overflowY: "auto",
                 color: "#ccc",
                 fontSize: "11px",
                 flexShrink: 0,
             }}>
-                <div style={{ fontWeight: "bold", marginBottom: "6px", color: "#0EA8C7", display: "flex", justifyContent: "space-between", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                <div style={{ fontWeight: "bold", marginBottom: "6px", color: "var(--gc-title)", display: "flex", justifyContent: "space-between", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     <span>So'nggi hodisalar (Events)</span>
                     <span style={{ fontSize: "10px", opacity: 0.7 }}>JAMI: 4</span>
                 </div>
@@ -277,7 +277,7 @@ const StreamGrid: React.FC<StreamGridProps> = ({ gap = 3 }) => {
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <span style={{ color: "#fff", fontWeight: 500 }}>{selectedCell.label}</span>
                                 {selectedCell.has_ptz && (
-                                    <span style={{ fontSize: 10, color: "#0EA8C7", background: "rgba(14,168,199,0.15)", padding: "2px 8px", borderRadius: 4, border: "1px solid rgba(14,168,199,0.4)", fontWeight: 700 }}>
+                                    <span style={{ fontSize: 10, color: "var(--gc-title)", background: "rgba(14,168,199,0.15)", padding: "2px 8px", borderRadius: 4, border: "1px solid rgba(14,168,199,0.4)", fontWeight: 700 }}>
                                         PTZ
                                     </span>
                                 )}

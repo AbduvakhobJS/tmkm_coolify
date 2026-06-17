@@ -4,10 +4,19 @@
    ============================================================ */
 
 :root {
+  /* ── global color ── barchani shu yerdan boshqaring */
+  --gc-card-bg:  rgba(255, 255, 255, 0.05);  /* global color: kichik card background */
+  --gc-panel-bg: rgb(3, 13, 34);             /* global color: left/center/right katta panel background */
+  --gc-title:    rgb(14, 168, 199);          /* global color: barcha title rangi (cyan) */
+  --gc-white:    #ffffff;                    /* global color: oq matn rangi */
+  --gc-red:      #ff2d55;                    /* global color: qizil rang (xato, kritik) */
+  --gc-font:     sans-serif;                 /* global color: global shrift */
+  /* ── /global color ── */
+
   --bg-void:       #020b18;
   --bg-panel:      #040f1f;
-  --bg-card:       #061428;
-  --bg-card-hover: #0a1e38;
+  --bg-card:       var(--gc-card-bg);
+  --bg-card-hover: rgba(255, 255, 255, 0.09);
   --border-glow:   #0d3a6e;
   --border-bright: #1a5fa8;
 
@@ -15,19 +24,19 @@
   --midstream-color:  #ff6b35;
   --downstream-color: #7fff00;
 
-  --accent-cyan:   #0EA8C7;
+  --accent-cyan:   var(--gc-title);
   --accent-amber:  #ffa500;
   --accent-green:  #39ff14;
-  --accent-red:    #ff2d55;
+  --accent-red:    var(--gc-red);
   --accent-purple: #bf5fff;
 
-  --text-primary:  #e0f0ff;
+  --text-primary:  var(--gc-white);
   --text-secondary:#7aa5cc;
   --text-muted:    #3a5f85;
 
   --font-display: 'Orbitron', monospace;
   --font-mono:    'Share Tech Mono', monospace;
-  --font-body:    'Exo 2', sans-serif;
+  --font-body:    'Exo 2', var(--gc-font);
 
   --header-h: 60px;
   --footer-h: 36px;
@@ -45,6 +54,9 @@ body {
   position: relative;
   animation: flicker 1.5s ease forwards;
 }
+
+/* global color: barcha elementlarga sans-serif shrift */
+*, *::before, *::after { font-family: inherit; }
 
 /* ── OVERLAYS ── */
 /*#scanline {*/
@@ -197,11 +209,11 @@ body {
 
 .left-panel {
   border-right: 1px solid var(--border-glow);
-  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-void) 100%);
+  background: var(--gc-panel-bg); /* global color: katta panel bg */
 }
 .right-panel {
   border-left: 1px solid var(--border-glow);
-  background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-void) 100%);
+  background: var(--gc-panel-bg); /* global color: katta panel bg */
 }
 
 /* ── PANEL LABELS ── */
@@ -223,6 +235,18 @@ body {
   gap: 0.5rem;
 }
 
+.kpi-card-my {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(255,255,255,0.09) !important;
+
+}
+
+.kpi-card-my-main-title {
+  color: var(--gc-title) !important;
+  /*background: var(--bg-card) !important;*/
+  /*border: 1px solid rgba(255,255,255,0.09) !important;*/
+
+}
 .kpi-card {
   background: var(--bg-card);
   border: 1px solid var(--border-glow);
@@ -303,7 +327,7 @@ body {
 }
 
 /* ── CENTER PANEL ── */
-.center-panel { gap: 0.5rem; padding: 0.8rem 0.8rem; }
+.center-panel { gap: 0.5rem; padding: 0.8rem 0.8rem; background: var(--gc-panel-bg); /* global color */ }
 
 .pipeline-section {
   flex: 0 0 auto;
