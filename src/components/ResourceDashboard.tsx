@@ -7,6 +7,7 @@ import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import ResourceDashboardPart2 from './ResourceDashboardPart2';
 import EnterExit from "./EnterExit";
 import StreamGrid from "./VideoStream";
+import StModal from "./StModal";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -288,12 +289,12 @@ const rightStat = (label:string, value:string, unit:string, col:string) => (
 /* ══════════════════════════════
    ROW 1 — Elektr | Quyosh
 ══════════════════════════════ */
-const Row1Elektr = () => (
+const Row1Elektr = ({isOpen, setIsOpen} :{isOpen:boolean, setIsOpen:(isOpen:boolean)=>void}) => (
     <div style={colFlex}>
         <SectionHeader title="Elektr Energiya"
                        color={C.electric}
                        // right={badge(C.crit,'Bugun +9%')}
-                       right={<button className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}
+                       right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}
 
         />
        <div style={{display: "flex", width: "100%", gap: "8px"}}>
@@ -458,6 +459,7 @@ const Row2Suv = () => (
 ══════════════════════════════ */
 const ResourceDashboard: React.FC = () => {
     const [clock, setClock] = useState(new Date());
+    const [isOpen, setIsOpen] = useState(false);
     useEffect(() => { const id = setInterval(()=>setClock(new Date()),1000); return ()=>clearInterval(id); }, []);
     return (
         <div style={panelStyle}>
@@ -482,7 +484,7 @@ const ResourceDashboard: React.FC = () => {
                     {/*</div>*/}
                 </div>
                 <div style={twoCol}>
-                    <Row1Elektr/>
+                    <Row1Elektr isOpen={isOpen} setIsOpen={setIsOpen}/>
                     <Row1Quyosh/>
                 </div>
                 <Div color={C.electric}/>
@@ -504,6 +506,9 @@ const ResourceDashboard: React.FC = () => {
             }}>
                 <ResourceDashboardPart2/>
             </div>
+
+
+            <StModal isOpen={isOpen} onClose={() => setIsOpen(false)}/>
                 </div>
     );
 };

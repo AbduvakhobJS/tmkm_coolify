@@ -67,8 +67,8 @@ const DEMO_IFRAMES: IframeItem[] = [
 ];
 
 const StModal: React.FC<StModalProps> = ({
-                                             isOpen = true,
-                                             onClose = () => {},
+                                             isOpen ,
+                                             onClose ,
                                              iframes = DEMO_IFRAMES,
                                          }) => {
     if (!isOpen) return null;
@@ -80,9 +80,9 @@ const StModal: React.FC<StModalProps> = ({
             style={{
                 position: 'fixed',
                 inset: 0,
-                top: '8vh',
+                top: '5vh',
                 backgroundColor: 'rgba(0,0,0,0.45)',
-                zIndex: 1000,
+                zIndex: 999999999,
                 display: 'flex',
                 flexDirection: 'column',
             }}
