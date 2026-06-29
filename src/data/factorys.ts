@@ -24,6 +24,7 @@ export const mapModels = [
     '/models/factory3.glb'
 ];
 
+
 export const factoryData = [
     {
         id: 1, side: 'right',

@@ -290,7 +290,12 @@ const rightStat = (label:string, value:string, unit:string, col:string) => (
 ══════════════════════════════ */
 const Row1Elektr = () => (
     <div style={colFlex}>
-        <SectionHeader title="Elektr Energiya" color={C.electric} right={badge(C.crit,'Bugun +9%')}/>
+        <SectionHeader title="Elektr Energiya"
+                       color={C.electric}
+                       // right={badge(C.crit,'Bugun +9%')}
+                       right={<button className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}
+
+        />
        <div style={{display: "flex", width: "100%", gap: "8px"}}>
            <div style={{flex: 1, minWidth: 0}}>
                <Card title="Umumiy sarf"  accent={C.electric} style={{height: "100%"}}>
@@ -471,15 +476,20 @@ const ResourceDashboard: React.FC = () => {
                     <div style={{fontSize:'13px', fontWeight:700, letterSpacing:'2px', color:C.electric}}>
                         RESURSLAR SARFI MONITORINGI
                     </div>
-                    <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
-                        {badge(C.ok,'10 zavod online')}
-                        {badge(C.crit,'3 ta kritik')}
-                        <div style={{fontSize:'11px', color:C.muted}}>{clock.toLocaleTimeString('uz-UZ')}</div>
-                    </div>
+                    {/*<div style={{display:'flex', gap:'8px', alignItems:'center'}}>*/}
+                    {/*    {badge(C.ok,'10 zavod online')}*/}
+                    {/*    {badge(C.crit,'3 ta kritik')}*/}
+                    {/*</div>*/}
                 </div>
-                <div style={twoCol} ><Row1Elektr/><Row1Quyosh/></div>
+                <div style={twoCol}>
+                    <Row1Elektr/>
+                    <Row1Quyosh/>
+                </div>
                 <Div color={C.electric}/>
-                <div style={twoCol}><Row2Gaz/><Row2Suv/></div>
+                <div style={twoCol}>
+                    <Row2Gaz/>
+                    <Row2Suv/>
+                </div>
             </div>
             <div style={{
                 width: "100%",

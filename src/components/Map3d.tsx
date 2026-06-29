@@ -1250,7 +1250,7 @@ const Map3D = ({
                                             <Environment preset="city" />
                                             <ContactShadows position={[0, -1.5, 0]} opacity={0.6} scale={15} blur={3} />
                                         </Suspense>
-                                        <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={15} />
+                                        <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={25} />
                                     </Canvas>
                             </div>
                         </div>

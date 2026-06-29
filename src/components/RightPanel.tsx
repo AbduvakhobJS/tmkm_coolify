@@ -47,14 +47,14 @@ const GeoModelCard: React.FC<{ title: string, factoryTitle: string, index: numbe
             <pointLight position={[10, 10, 10]} intensity={1.5} />
             <Suspense fallback={<Html center><div style={{ color: 'var(--gc-title)', fontSize: '10px' }}>...</div></Html>}>
               <FactoryViewer
-                modelPath={"/models/geo3d_1.glb"}
+                modelPath={"/models/olmaliq_grr.glb"}
                 rotationSpeed={0.5}
                 zoom={1.6}
               />
               <Environment preset="city" />
               <ContactShadows position={[0, -1.5, 0]} opacity={0.6} scale={15} blur={3} />
             </Suspense>
-            <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={15} />
+            <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={35} />
           </Canvas>
           
 

@@ -973,3 +973,14 @@ body {
   border: none;
   color: white;
 }
+.view-detail-btn{
+  background-color: transparent;
+  border: none;
+  height: 2vh;
+  cursor: pointer;
+  padding: 0;
+}
+
+.view-detail-btn img{
+  height: 100%;
+}
