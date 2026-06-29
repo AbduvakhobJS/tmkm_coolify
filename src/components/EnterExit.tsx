@@ -198,8 +198,9 @@ function CameraInfoCards() {
                             <span style={{fontSize:16,fontWeight:700,color:'#fff',lineHeight:1}}>{item.value}</span>
                             <div style={{
                                 width:38, height:38, borderRadius:9, flexShrink:0,
-                                background:`${item.color}18`,
-                                border:`1px solid ${item.color}30`,
+                                // background:`${item.color}18`,
+                                // border:`1px solid ${item.color}30`,
+
                                 display:'flex', alignItems:'center', justifyContent:'center',
                             }}>
                                 {item.icon}
@@ -252,7 +253,7 @@ function TopCard({label,count,change,icon,accent}:{
                 }}>
                     {up?'↑':'↓'} {Math.abs(change).toFixed(1)}%
                 </span>
-                <span style={{fontSize:10,color:T.muted}}>bugun</span>
+                {/*<span style={{fontSize:10,color:T.muted}}>bugun</span>*/}
             </div>
         </div>
     );
