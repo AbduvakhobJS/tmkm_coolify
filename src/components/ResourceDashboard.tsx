@@ -49,7 +49,7 @@ export const twoCol: React.CSSProperties = {
     display:'grid', gridTemplateColumns:'minmax(0,1fr) minmax(0,1fr)', gap:'8px', alignItems:'stretch',
 };
 export const colFlex: React.CSSProperties = {
-    display:'flex', flexDirection:'column', gap:'6px',
+    display:'flex', flexDirection:'column', gap:'6px', marginTop: "12px", marginBottom: "12px",
 };
 /* Qattiq px o'rniga flex:1 ishlatish uchun — oxirgi kartochka kengaytiradi */
 export const flexWrap = (minH: number): React.CSSProperties => ({
@@ -93,10 +93,10 @@ export const KpiRow: React.FC<{value:string; unit:string; color:string; trend?:s
                 <span style={{fontSize:'26px', fontWeight:700, color, lineHeight:1.1}}>{value}</span>
                 <span style={{fontSize:'13px', color:C.muted}}>{unit}</span>
             </div>
-            {trend && <div style={{fontSize:'12px', color:up?C.ok:C.crit, display:'flex', alignItems:'center', gap:'3px'}}>
+            {trend && <div style={{fontSize:'12px', color:up?C.ok:C.crit, display:'flex', alignItems:'center', gap:'3px', marginTop: "4px"}}>
                 <span>{up?'▲':'▼'}</span><span>{trend}</span>
             </div>}
-            {sub && <div style={{fontSize:'10px', color:C.muted, marginTop:'2px'}}>{sub}</div>}
+            {sub && <div style={{fontSize:'10px', color:C.muted, marginTop:'4px'}}>{sub}</div>}
         </div>
         {right && <div style={{flexShrink:0}}>{right}</div>}
     </div>
@@ -201,7 +201,9 @@ export const ProgressItem: React.FC<{label:string; pct:number; color:string; val
             <div style={{height:'6px', background:'rgba(255,255,255,0.07)', borderRadius:'3px', overflow:'hidden'}}>
                 <div style={{height:'100%', width:`${Math.min(pct,100)}%`, background:over?C.crit:color, borderRadius:'3px', transition:'width 1s ease'}}/>
             </div>
-            <div style={{textAlign:'right', fontSize:'9px', color:over?C.crit:C.muted, marginTop:'1px'}}>{pct}%{over&&' ⚠️ limit oshdi'}</div>
+            <div style={{textAlign:'right', fontSize:'9px', color:over?C.crit:C.muted, marginTop:'1px'}}>{pct}
+                {/*%{over&&' ⚠️ limit oshdi'}*/}
+            </div>
         </div>
     );
 };
@@ -311,7 +313,9 @@ const Row1Elektr = ({isOpen, setIsOpen} :{isOpen:boolean, setIsOpen:(isOpen:bool
                </Card>
            </div>
            <div style={{flex: 1, minWidth: 0}}>
-               <Card title="Zavodlar bo'yicha oylik sarf (GWh)" accent={C.electric} extra={badge(C.warn,'Mart: 57 GWh')} style={{height: "100%"}}>
+               <Card title="Zavodlar bo'yicha oylik sarf (GWh)" accent={C.electric}
+                     // extra={badge(C.warn,'Mart: 57 GWh')} style={{height: "100%"}}
+               >
                    <StackedBar datasets={[
                        {label:'A+B', data:[18,16,21,19], color:C.electric},
                        {label:'C+D', data:[12,11,15,13], color:'#00ccdd'},
@@ -331,14 +335,14 @@ const Row1Elektr = ({isOpen, setIsOpen} :{isOpen:boolean, setIsOpen:(isOpen:bool
                     tension:0.4, fill:true,
                 }]}} options={baseOpts() as any}/>
             </div>
-            <MonthRow values={['30','28','35 ⚠','33']} color={C.electric} warn={2}/>
+            {/*<MonthRow values={['30','28','35 ⚠','33']} color={C.electric} warn={2}/>*/}
         </Card>
     </div>
 );
 
-const Row1Quyosh = () => (
+const Row1Quyosh = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void}) => (
     <div style={colFlex}>
-        <SectionHeader title="Quyosh Energiyasi" color={C.solar} right={badge(C.ok,'Oshmoqda ↑')}/>
+        <SectionHeader title="Quyosh Energiyasi" color={C.solar} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}/>
         <div style={{display:'flex', width: "100%", gap: "8px"}}>
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="Joriy ishlab chiqarish" accent={C.solar} style={{height: "100%"}}>
@@ -372,7 +376,7 @@ const Row1Quyosh = () => (
             <div style={{marginTop:'10px'}}/>
             <MiniLine data={[5,7,12,10]} color={C.solar} height={80}/>
             <div style={{marginTop:'4px'}}/>
-            <MonthRow values={['5%','7%','12%','10%']} color={C.solar}/>
+            {/*<MonthRow values={['5%','7%','12%','10%']} color={C.solar}/>*/}
         </Card>
         {/* Oxirgi karta flex:1 */}
 
@@ -382,15 +386,16 @@ const Row1Quyosh = () => (
 /* ══════════════════════════════
    ROW 2 — Gaz | Suv
 ══════════════════════════════ */
-const Row2Gaz = () => (
+const Row2Gaz = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void}) => (
     <div style={colFlex}>
-        <SectionHeader title="Gaz Sarfi" color={C.gas} right={badge(C.warn,'Mart: +24%')}/>
+        <SectionHeader title="Gaz Sarfi" color={C.gas} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}/>
         <div style={{display:'flex', width: "100%", gap: "8px"}}>
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="Bugungi sarf" accent={C.gas}  extra={badge(C.gas,'2.4 mln m³')} style={{height: "100%"}}>
                     <KpiRow value="2.4" unit="mln m³" color={C.gas} trend="+8% o'rtachadan" up={false}
                             sub="1t po'lat = 85 m³  |  Normativ: 2.22 mln m³"
-                            right={rightStat('Haddan oshiq','+180k','m³/kun',C.crit)}/>
+                            // right={rightStat('Haddan oshiq','+180k','m³/kun',C.crit)}
+                    />
                     <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'4px'}}>
                         {miniBox('Pechlar','1.4M m³',C.gas)}
                         {miniBox('Qozonlar','0.6M m³','#ff8844')}
@@ -401,7 +406,7 @@ const Row2Gaz = () => (
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="Oylik gaz sarfi (mln m³)" accent={C.gas} extra={badge(C.warn,'Mart: pik')} style={{height: "100%"}}>
                     <MiniArea data={[2.1,2.0,2.6,2.3]} color={C.gas} height={80}/>
-                    <MonthRow values={['2.1','2.0','2.6 ⚠','2.3']} color={C.gas} warn={2}/>
+                    {/*<MonthRow values={['2.1','2.0','2.6 ⚠','2.3']} color={C.gas} warn={2}/>*/}
                 </Card>
             </div>
         </div>
@@ -417,17 +422,19 @@ const Row2Gaz = () => (
     </div>
 );
 
-const Row2Suv = () => (
+const Row2Suv = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void}) => (
     <div style={colFlex}>
-        <SectionHeader title="Suv Sarfi" color={C.water} right={badge(C.crit,'OGOHLANTIRISH')}/>
+        <SectionHeader title="Suv Sarfi" color={C.water} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}/>
         <div style={{display:'flex', width: "100%", gap: "8px"}}>
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="Real-vaqt monitoring" accent={C.water} extra={badge(C.crit,'+44% normadan')} style={{height: "100%"}}>
+
                     <KpiRow value="720" unit="m³/soat" color={C.crit} trend="+44% normadan" up={false}
                             sub="Norm: 500 m³/soat  |  Max ruxsat: 600 m³/soat"
-                            right={rightStat('Utilizatsiya','72%','quvvat',C.water)}/>
+                            // right={rightStat('Utilizatsiya','72%','quvvat',C.water)}
+                    />
 
-                    <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'4px'}}>
+                    <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'4px', marginTop: "12px"}}>
                         {miniBox('Sovitish','420 m³/h',C.water)}
                         {miniBox('Texnologik','180 m³/h','#2299bb')}
                         {miniBox('Maishiy','120 m³/h',C.muted)}
@@ -447,7 +454,7 @@ const Row2Suv = () => (
 
         <Card title="Oylik suv sarfi (m³ × 1000)" accent={C.water} extra={badge(C.crit,'Mart: +20%')} style={{height: "100%"}}>
             <MiniLine data={[15,14.5,18,16]} color={C.water} warnIdx={2} refLine={16} height={85}/>
-            <MonthRow values={['15k','14.5k','18k ⚠','16k']} color={C.water} warn={2}/>
+            {/*<MonthRow values={['15k','14.5k','18k ⚠','16k']} color={C.water} warn={2}/>*/}
         </Card>
         {/* Oxirgi karta flex:1 */}
 
@@ -485,12 +492,12 @@ const ResourceDashboard: React.FC = () => {
                 </div>
                 <div style={twoCol}>
                     <Row1Elektr isOpen={isOpen} setIsOpen={setIsOpen}/>
-                    <Row1Quyosh/>
+                    <Row1Quyosh isOpen={isOpen} setIsOpen={setIsOpen}/>
                 </div>
                 <Div color={C.electric}/>
                 <div style={twoCol}>
-                    <Row2Gaz/>
-                    <Row2Suv/>
+                    <Row2Gaz isOpen={isOpen} setIsOpen={setIsOpen}/>
+                    <Row2Suv isOpen={isOpen} setIsOpen={setIsOpen}/>
                 </div>
             </div>
             <div style={{

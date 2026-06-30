@@ -41,7 +41,7 @@ const Row3Kimyo = () => (
                 {label:'MnO₂',  data:[20,18,27,22],    color:'#cc66ff'},
                 {label:'Boshqa', data:[30,28,40,33],    color:'#6600cc'},
             ]} height={100} flex/>
-            <MonthRow values={['190t','179t','252t ⚠','210t']} color={C.chemical} warn={2}/>
+            {/*<MonthRow values={['190t','179t','252t ⚠','210t']} color={C.chemical} warn={2}/>*/}
         </Card>
     </div>
 );
@@ -64,7 +64,7 @@ const Row3Xarajat = () => (
                 {label:'Suv',    data:[10,9,12,11],  color:C.water},
                 {label:'Kimyo',  data:[15,14,18,16], color:C.chemical},
             ]} height={100} flex/>
-            <MonthRow values={['$105k','$96k','$130k ⚠','$117k']} color={C.cost} warn={2}/>
+            {/*<MonthRow values={['$105k','$96k','$130k ⚠','$117k']} color={C.cost} warn={2}/>*/}
         </Card>
     </div>
 );
@@ -74,7 +74,9 @@ const Row3Xarajat = () => (
 ══════════════════════════════════════════ */
 const Row4Samaradorlik = () => (
     <div style={colFlex}>
-        <SectionHeader title="Samaradorlik KPI" color={C.eff} right={badge(C.ok,'Joriy: 78%')}/>
+        <SectionHeader title="Samaradorlik KPI" color={C.eff}
+                       // right={badge(C.ok,'Joriy: 78%')}
+        />
 
         <Card title="Samaradorlik indeksi (%)" accent={C.eff} extra={badge(C.ok,'Joriy: 78%')}>
             <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
@@ -103,18 +105,18 @@ const Row4Samaradorlik = () => (
                     <KpiRow value="620" unit="kWh/t" color={C.eff} trend="−11.4% yaxshilandi" up={true}
                             sub="Yanvar: 650 → Aprel: 620  |  Maqsad: 580 kWh/t"
                             right={<div style={{textAlign:'right', background:`${C.crit}11`, borderRadius:'6px', padding:'6px 8px', border:`1px solid ${C.crit}33`}}>
-                                <div style={{fontSize:'10px', color:C.muted}}>Mart ⚠️</div>
+                                {/*<div style={{fontSize:'10px', color:C.muted}}>Mart ⚠️</div>*/}
                                 <div style={{fontSize:'18px', fontWeight:700, color:C.crit}}>700 kWh/t</div>
                             </div>}/>
                     <MiniLine data={[650,630,700,620]} color={C.eff} warnIdx={2} height={65}/>
-                    <MonthRow values={['650','630','700 ⚠','620']} color={C.eff} warn={2}/>
+                    {/*<MonthRow values={['650','630','700 ⚠','620']} color={C.eff} warn={2}/>*/}
                 </Card>
             </div>
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="CO₂ chiqindilar (tonna/kun)" accent={C.co2} extra={badge(C.crit,'Mart: +30%')} style={{height:'100%'}}>
                     <KpiRow value="1,200" unit="t CO₂/kun" color={C.co2} trend="+30% Martda" up={false}
                             right={<div style={{textAlign:'right', background:`${C.co2}11`, borderRadius:'6px', padding:'6px 8px', border:`1px solid ${C.co2}33`}}>
-                                <div style={{fontSize:'10px', color:C.muted}}>Mart ⚠️</div>
+                                {/*<div style={{fontSize:'10px', color:C.muted}}>Mart ⚠️</div>*/}
                                 <div style={{fontSize:'18px', fontWeight:700, color:C.co2}}>1,300 t/kun</div>
                             </div>}/>
                     <div style={wrap(100)}>
@@ -124,7 +126,7 @@ const Row4Samaradorlik = () => (
                                 tension:0.4, fill:true,
                             }]}} options={baseOpts() as any}/>
                     </div>
-                    <MonthRow values={['1000','950','1300 ⚠','1100']} color={C.co2} warn={2}/>
+                    {/*<MonthRow values={['1000','950','1300 ⚠','1100']} color={C.co2} warn={2}/>*/}
                 </Card>
             </div>
         </div>
@@ -134,32 +136,40 @@ const Row4Samaradorlik = () => (
 
 const Row4Nazorat = () => (
     <div style={colFlex}>
-        <SectionHeader title="Reja va Nazorat" color={C.warn} right={badge(C.crit,'Mart: limit oshdi')}/>
+        <SectionHeader title="Reja va Nazorat" color={C.warn}
+                       // right={badge(C.crit,'Mart: limit oshdi')}
+        />
         {/* 2×2 grid — flex:1 bilan butun qolgan joyni egallaydi */}
 
         <div style={{display:'flex', flexDirection:'column', width: "100%", gap: "8px"}}>
-            <Card title="Oylik byudjet nazorati" accent={C.warn} extra={badge(C.crit,'Mar: 120%')}>
+            <Card title="Oylik byudjet nazorati" accent={C.warn}
+                  // extra={badge(C.crit,'Mar: 120%')}
+            >
                 <ProgressItem label="Yanvar" pct={90}  color={C.warn} value="$105k / $117k"/>
                 <ProgressItem label="Fevral" pct={85}  color={C.cost} value="$96k / $113k"/>
-                <ProgressItem label="Mart ⚠️" pct={120} color={C.warn} value="$145k / $121k"/>
+                <ProgressItem label="Mart" pct={120} color={C.warn} value="$145k / $121k"/>
                 <ProgressItem label="Aprel"  pct={80}  color={C.cost} value="$90k / $113k"/>
             </Card>
             <div style={{display: "flex", width: "100%", gap: "8px"}}>
                 <div style={{flex: 1, minWidth: 0}}>
-                    <Card title="Reja vs Fakt (GWh)" accent={C.warn} extra={badge(C.crit,'Mar +17%')} style={{height: "100%"}}>
+                    <Card title="Reja vs Fakt (GWh)" accent={C.warn}
+                          // extra={badge(C.crit,'Mar +17%')}
+                          style={{height: "100%"}}>
                         <div style={wrap(105)}>
                             <Bar data={{labels:MONTHS, datasets:[
                                     {label:'Reja', data:[30,30,30,30], backgroundColor:'#ffffff33', borderRadius:3},
                                     {label:'Fakt', data:[32,30,35,33], backgroundColor:['#ff444499','#00ff8899','#ff444499','#ffaa0099'], borderRadius:3},
                                 ]}} options={baseOpts('bottom') as any}/>
                         </div>
-                        <MonthRow values={['+7%','±0%','+17% ⚠','+10%']} color={C.warn} warn={2}/>
+                        {/*<MonthRow values={['+7%','±0%','+17% ⚠','+10%']} color={C.warn} warn={2}/>*/}
                     </Card>
                 </div>
                 <div style={{flex: 1, minWidth: 0}}>
-                    <Card title="Normadan og'ish (%)" accent={C.co2} extra={badge(C.crit,'Mart ⚠️')} style={{height: "100%"}}>
+                    <Card title="Normadan og'ish (%)" accent={C.co2}
+                          // extra={badge(C.crit,'Mart ⚠️')}
+                          style={{height: "100%"}}>
                         <MiniBar data={[7,0,17,10]} barColors={['#ffaa0066','#00ff8866','#ff444488','#ffaa0066']} height={85}/>
-                        <MonthRow values={['+7%','±0%','+17% ⚠','+10%']} color={C.warn} warn={2}/>
+                        {/*<MonthRow values={['+7%','±0%','+17% ⚠','+10%']} color={C.warn} warn={2}/>*/}
                     </Card>
                 </div>
             </div>
@@ -206,7 +216,7 @@ const Row5Uskunalar = () => (
                     {label:'Boshqa',   data:[0,1,1,1], backgroundColor:`${C.muted}66`,borderRadius:3},
                 ]}} options={baseOpts('bottom') as any}/>
             </div>
-            <MonthRow values={['3 ta','3 ta','8 ta ⚠','4 ta']} color={C.crit} warn={2}/>
+            {/*<MonthRow values={['3 ta','3 ta','8 ta ⚠','4 ta']} color={C.crit} warn={2}/>*/}
         </Card>
     </div>
 );
