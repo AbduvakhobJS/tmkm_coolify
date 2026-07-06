@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import TopCenterNew, {TopCenterItem} from "./TopCenterNew";
 
 /* ── TMK Schema data ── */
 const stages = [
@@ -38,8 +39,30 @@ interface WidgetData {
     opacity: number;
 }
 
+
+export interface TopCenterNewProps {
+    items?: TopCenterItem[];
+    /** To'liq ekran fon rasmi. Masalan: bigItem.png */
+    backgroundImage?: string;
+    /** Har bir item ortidagi shisha pyedestal rasmi (item2.png) */
+    pedestalImage?: string;
+}
+
+// Namuna array — o'zingiznikini shu strukturada bering: { title, description, icon }
+const defaultItems: TopCenterItem[] = [
+    { title: "Konlar", description: "Geologiya • Qazib olish • Transport", icon: "/imgs/icon2.png" },
+    { title: "Zavodlar", description: "Boyitish • Eritish • Ishlab chiqarish", icon: "/imgs/icon3.png" },
+    { title: "Ta'minot", description: "Xomashyo • Ombor • Xarid", icon: "/imgs/icon2.png" },
+    { title: "Logistika", description: "Transport • Yetkazish • Monitoring", icon: "/imgs/icon3.png" },
+    { title: "Energiya", description: "Elektr • Gaz • Issiqlik", icon: "/imgs/icon2.png" },
+    { title: "Ekologiya", description: "Havo • Suv • Chiqindilar", icon: "/imgs/icon3.png" },
+    { title: "Biznes", description: "Moliya • HR • Analitika", icon: "/imgs/icon3.png" },
+];
+
+
 const TopCenter = () => {
-    const [activeTab, setActiveTab] = useState(1);
+    const [activeTab, setActiveTab] = useState(3);
+
 
     // Har bir qavat uchun widgetlar (piramida ko'rinishida)
     const layers: WidgetData[][] = [
@@ -78,6 +101,15 @@ const TopCenter = () => {
         ],
     ];
 
+    const items = [
+        {x:20,y:270,title:"Konlar"},
+        {x:250,y:210,title:"Zavodlar"},
+        {x:520,y:170,title:"Logistika"},
+        {x:760,y:160,title:"Energiya"},
+        {x:1010,y:170,title:"Ekologiya"},
+        {x:1270,y:210,title:"Biznes"},
+        {x:1490,y:270,title:"Ta'lim"},
+    ];
     return (
         <div className="top-center-wrapper">
             <div className="top-center-tabs">
@@ -131,12 +163,6 @@ const TopCenter = () => {
                             );
                         })}
                     </div>
-                </div>
-            )}
-
-            {activeTab === 3 && (
-                <div className="top-center-bg">
-                    <img src="./imgs/tab3.png" style={{width: '100%',  height:'100%'}} alt=""/>
                 </div>
             )}
 
@@ -373,6 +399,18 @@ const TopCenter = () => {
                     </div>
 
                 </div>
+            )}
+
+            {activeTab === 3 && (
+              //   <div style={{ width: "100%", height: "47.5vh" }}>
+              //     <TopCenterNew
+              //         items={defaultItems}
+              //         backgroundImage=""
+              //         // pedestalImage="/imgs/item2.png"
+              //     />
+              // </div>
+                <img src="/imgs/tab3.png" style={{width:'100%', height:'100%'}} alt=""/>
+
             )}
         </div>
     );

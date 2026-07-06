@@ -8,7 +8,7 @@ import KpiCard from "./KpiCard";
 import {EnergyChart, RealtimeChart} from "./Charts";
 import EnterExit from "./EnterExit";
 
-const GeoModelCard: React.FC<{ title: string, factoryTitle: string, index: number }> = ({ title, factoryTitle, index }) => {
+const GeoModelCard: React.FC<{ title: string, factoryTitle: string, index: number, model: string }> = ({ title, factoryTitle, index, model }) => {
   return (
     <div className="view-model" style={{ 
       width: '100%', 
@@ -47,7 +47,7 @@ const GeoModelCard: React.FC<{ title: string, factoryTitle: string, index: numbe
             <pointLight position={[10, 10, 10]} intensity={1.5} />
             <Suspense fallback={<Html center><div style={{ color: 'var(--gc-title)', fontSize: '10px' }}>...</div></Html>}>
               <FactoryViewer
-                modelPath={"/models/olmaliq_grr.glb"}
+                modelPath={model}
                 rotationSpeed={0.5}
                 zoom={1.6}
               />
@@ -105,16 +105,16 @@ const RightPanel: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) =>
         minHeight: 0
       }}>
 
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={0} />
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={1} />
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={2} />
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" factoryTitle={currentFactoryTitle} index={3} />
+        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo.glb" factoryTitle={currentFactoryTitle} index={0} />
+        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo.glb"  factoryTitle={currentFactoryTitle} index={1} />
+        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo.glb"  factoryTitle={currentFactoryTitle} index={2} />
+        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo.glb"  factoryTitle={currentFactoryTitle} index={3} />
 
       </div>
 
 
 
-      <div className="view-model-right-model" style={{ height: '40%' }}>
+      <div className="view-model-right-model" style={{ height: '50%' }}>
         <div className="view-model" style={{ width: '100%', height: '100%', padding: "10px", background: 'var(--gc-panel-bg)', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1px solid rgba(14,168,199,0.2)' }}>
           {/*<StreamGrid />*/}
           <EnterExit />

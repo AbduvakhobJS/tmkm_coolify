@@ -1,0 +1,354 @@
+/** {*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+/*.tcn-viewport {*/
+/*    position: fixed;*/
+/*    inset: 0;*/
+/*    width: 100vw;*/
+/*    height: 100vh;*/
+/*    overflow: hidden;*/
+/*    background: #030712;*/
+/*}*/
+
+/*.tcn-canvas {*/
+/*    position: absolute;*/
+/*    top: 50%;*/
+/*    left: 50%;*/
+/*    width: 1920px;*/
+/*    height: 1080px;*/
+/*    transform-origin: center center;*/
+/*    will-change: transform;*/
+/*}*/
+
+/*.tcn-bg {*/
+/*    position: absolute;*/
+/*    inset: 0;*/
+/*    width: 1920px !important;*/
+/*    height: 1080px !important;*/
+/*    max-width: none !important;*/
+/*    max-height: none !important;*/
+/*    object-fit: fill;*/
+/*    display: block;*/
+/*    z-index: 0;*/
+/*    pointer-events: none;*/
+/*    user-select: none;*/
+/*}*/
+
+/*!* ---------------- Itemlar qatori ---------------- *!*/
+
+/*.tcn-row {*/
+/*    position: absolute;*/
+/*    left: 50%;*/
+/*    top: 480px;                  !* <-- shu qiymatni fon rasmingizdagi joyga moslang *!*/
+/*    transform: translateX(-50%);*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: flex-start;*/
+/*    gap: 24px;*/
+/*    z-index: 2;*/
+/*    width: 1000px;*/
+/*}*/
+
+/*!* Har bir item — flex: 1 tufayli array 3 ta ham, 10 ta ham bo'lsin,*/
+/*   qator har doim teng bo'lib taqsimlanadi va markazlashadi.*/
+/*   Kartochka (item2.png) esa .tcn-card ichida FIXED o'lchamda, shuning*/
+/*   uchun barcha itemlarning kartochkasi bir xil kattalikda chiqadi. *!*/
+/*.tcn-item {*/
+/*    flex: 1 1 0;*/
+/*    min-width: 0;*/
+/*    max-width: 230px;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    align-items: center;*/
+/*}*/
+
+/*!* ---------------- Ikonka (kartochka tepasida) ---------------- *!*/
+
+/*.tcn-icon {*/
+/*    width: 82px !important;*/
+/*    height: 82px !important;*/
+/*    max-width: none !important;*/
+/*    max-height: none !important;*/
+/*    object-fit: contain;*/
+/*    margin-bottom: -70px;*/
+/*    z-index: 2;*/
+/*    pointer-events: none;*/
+/*    user-select: none;*/
+/*    filter: drop-shadow(0 0 8px rgba(73, 201, 255, 0.9));*/
+/*}*/
+
+/*!* ---------------- Kartochka: fon = item2.png, ustida title + bullet list ----------------*/
+/*   FIXED width/height — barcha kartochkalar bir xil o'lchamda bo'ladi.*/
+/*   item2.png shu qutiga object-fit:contain bilan joylashadi, ya'ni hech*/
+/*   qachon cho'zilmaydi va HECH QACHON qutidan tashqariga chiqmaydi. *!*/
+/*.tcn-card {*/
+/*    position: relative;*/
+/*    width: 180px;    !* <-- barcha kartochkalar uchun bir xil eni *!*/
+/*    height: 230px;   !* <-- barcha kartochkalar uchun bir xil bo'yi *!*/
+/*}*/
+
+/*!* item2.png — o'z proporsiyasini saqlab, qutining ichiga sig'adi*/
+/*   (cho'zilmaydi, kesilmaydi, chetga chiqmaydi) *!*/
+/*.tcn-card-bg {*/
+/*    position: absolute;*/
+/*    inset: 0;*/
+/*    width: 100% !important;*/
+/*    height: 100% !important;*/
+/*    max-width: none !important;*/
+/*    max-height: none !important;*/
+/*    object-fit: contain;*/
+/*    z-index: 0;*/
+/*    pointer-events: none;*/
+/*    user-select: none;*/
+/*}*/
+
+/*!* title + description — item2.png ning ICHKI qismida (shishaning devorlari*/
+/*   orasida) turishi uchun yuqori/quyi/yon bo'shliqlar % da berilgan.*/
+/*   Bu % lar item2.png rasmining o'zidagi shisha idishning aniq joylashuviga*/
+/*   qarab moslanadi — kerak bo'lsa quyidagi 4 ta qiymatni ozgina siljiting. *!*/
+/*.tcn-card-content {*/
+/*    position: absolute;*/
+/*    z-index: 1;*/
+/*    top: 38%;*/
+/*    bottom: 8%;*/
+/*    left: 10%;*/
+/*    right: 10%;*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    align-items: center;*/
+/*    overflow: hidden;*/
+/*}*/
+
+/*.tcn-title {*/
+/*    font-family: "Segoe UI", "Inter", -apple-system, sans-serif;*/
+/*    font-size: 14px;              !* <-- ekrandan qat'iy nazar bir xil qoladi *!*/
+/*    font-weight: 700;*/
+/*    color: #ffffff;*/
+/*    letter-spacing: 0.5px;*/
+/*    text-align: center;*/
+/*    text-transform: uppercase;*/
+/*    padding-bottom: 6px;*/
+/*    margin-bottom: 6px;*/
+/*    width: 100%;*/
+/*    border-bottom: 1px solid rgba(73, 201, 255, 0.4);*/
+/*    white-space: nowrap;*/
+/*    overflow: hidden;*/
+/*    text-overflow: ellipsis;*/
+/*}*/
+
+/*.tcn-desc {*/
+/*    list-style: none;*/
+/*    margin: 0;*/
+/*    width: 100%;*/
+/*    font-family: "Segoe UI", "Inter", -apple-system, sans-serif;*/
+/*    font-size: 10.5px;*/
+/*    padding: 0 15px;*/
+/*    font-weight: 400;*/
+/*    color: #d5e8fb;*/
+/*    line-height: 1.55;*/
+/*}*/
+
+/*.tcn-desc li {*/
+/*    position: relative;*/
+/*    padding-left: 11px;*/
+/*}*/
+
+/*.tcn-desc li::before {*/
+/*    content: "";*/
+/*    position: absolute;*/
+/*    left: 0;*/
+/*    top: 6px;*/
+/*    width: 4px;*/
+/*    height: 4px;*/
+/*    border-radius: 50%;*/
+/*    background: #f3f7f8;*/
+/*    box-shadow: 0 0 4px rgb(216 221 223 / 0.9);*/
+/*}*/
+
+/* ==========================================================================
+   TopCenterNew.css
+   Barcha o'lchamlar QAT'IY piksellarda (px) berilgan — % yoki vw/vh EMAS.
+   Chunki proporsiyani .tcn-canvas dagi JS scale(scaleX, scaleY) o'zi
+   boshqaradi. Shrift o'lchami ham shu sababli px da — u ekran kengligidan
+   mustaqil, faqat canvas scale koeffitsientiga bog'liq bo'lib qoladi.
+   ========================================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+.tcn-viewport {
+    position: relative;   /* endi "fixed" emas — o'zi joylashgan divni to'ldiradi */
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #030712;
+}
+
+.tcn-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: center center;
+    will-change: transform;
+}
+
+.tcn-bg {
+    position: absolute;
+    inset: 0;
+    width: 1920px !important;
+    height: 1080px !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: fill;
+    display: block;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ---------------- Itemlar qatori ---------------- */
+
+.tcn-row {
+    position: absolute;
+    left: 50%;
+    top: 480px;                  /* <-- shu qiymatni fon rasmingizdagi joyga moslang */
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    z-index: 2;
+    width: 1100px;
+}
+.tcn-row-2 {
+    position: absolute;
+    left: 50%;
+    top: 750px;                  /* <-- shu qiymatni fon rasmingizdagi joyga moslang */
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    z-index: 2;
+    width: 1100px;
+}
+
+/* Har bir item — flex: 1 tufayli array 3 ta ham, 10 ta ham bo'lsin,
+   qator har doim teng bo'lib taqsimlanadi va markazlashadi.
+   Kartochka (item2.png) esa .tcn-card ichida FIXED o'lchamda, shuning
+   uchun barcha itemlarning kartochkasi bir xil kattalikda chiqadi. */
+.tcn-item {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 230px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ---------------- Ikonka (kartochka tepasida) ---------------- */
+
+.tcn-icon {
+    width: 82px !important;
+    height: 82px !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain;
+    margin-bottom: -68px;
+    z-index: 2;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 0 8px rgba(73, 201, 255, 0.9));
+}
+
+/* ---------------- Kartochka: fon = item2.png, ustida title + bullet list ----------------
+   FIXED width/height — barcha kartochkalar bir xil o'lchamda bo'ladi.
+   item2.png shu qutiga object-fit:contain bilan joylashadi, ya'ni hech
+   qachon cho'zilmaydi va HECH QACHON qutidan tashqariga chiqmaydi. */
+.tcn-card {
+    position: relative;
+    width: 180px;    /* <-- barcha kartochkalar uchun bir xil eni */
+    height: 230px;   /* <-- barcha kartochkalar uchun bir xil bo'yi */
+}
+
+/* item2.png — o'z proporsiyasini saqlab, qutining ichiga sig'adi
+   (cho'zilmaydi, kesilmaydi, chetga chiqmaydi) */
+.tcn-card-bg {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* title + description — item2.png ning ICHKI qismida (shishaning devorlari
+   orasida) turishi uchun yuqori/quyi/yon bo'shliqlar % da berilgan.
+   Bu % lar item2.png rasmining o'zidagi shisha idishning aniq joylashuviga
+   qarab moslanadi — kerak bo'lsa quyidagi 4 ta qiymatni ozgina siljiting. */
+.tcn-card-content {
+    position: absolute;
+    z-index: 1;
+    top: 38%;
+    bottom: 8%;
+    left: 10%;
+    right: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+.tcn-title {
+    font-family: "Segoe UI", "Inter", -apple-system, sans-serif;
+    font-size: 14px;              /* <-- ekrandan qat'iy nazar bir xil qoladi */
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    text-align: center;
+    text-transform: uppercase;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    width: 100%;
+    /*border-bottom: 1px solid rgba(73, 201, 255, 0.4);*/
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tcn-desc {
+    list-style: none;
+    margin: 0;
+    width: 100%;
+    font-family: "Segoe UI", "Inter", -apple-system, sans-serif;
+    font-size: 10.5px;
+    padding: 0 15px;
+    font-weight: 400;
+    color: #d5e8fb;
+    line-height: 1.55;
+}
+
+.tcn-desc li {
+    position: relative;
+    padding-left: 11px;
+}
+
+.tcn-desc li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fbfbfb;
+    box-shadow: 0 0 4px rgb(219 227 230 / 0.9);
+}
