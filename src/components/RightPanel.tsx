@@ -1,7 +1,7 @@
 import React, {Suspense, useMemo, useRef} from 'react';
 import { Canvas } from '@react-three/fiber';
 import {OrbitControls, Environment, ContactShadows, Html, useGLTF} from '@react-three/drei';
-import { FactoryViewer } from './Map3d';
+import { FactoryViewer } from '../Parts/Map/Map3d';
 import { factoryData } from '../data/factorys';
 import StreamGrid from "./VideoStream";
 import KpiCard from "./KpiCard";
@@ -130,7 +130,7 @@ const RightPanel: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) =>
         minHeight: 0
       }}>
 
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo3.glb" factoryTitle={currentFactoryTitle} index={0} />
+        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo1.glb" factoryTitle={currentFactoryTitle} index={0} />
         <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo2.glb"  factoryTitle={currentFactoryTitle} index={1} />
         <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo2.glb"  factoryTitle={currentFactoryTitle} index={2} />
         <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo3.glb"  factoryTitle={currentFactoryTitle} index={3} />

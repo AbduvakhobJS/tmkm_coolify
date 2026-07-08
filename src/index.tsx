@@ -13,24 +13,48 @@ import ProjectDashboard from "./components/ProjectDashboard";
 import Part5 from "./components/Part5";
 import EnterExit from "./components/EnterExit";
 import StModal from "./components/StModal";
-
+import HseSla from "./Parts/Hse/HseSla";
+import LoginPage from "./components/LoginPage";
+import PrivateRoute from "./components/PrivateRoute";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+import HseSlaBig from "./Parts/Hse/HseSlaBig";
+import Marketing from "./Parts/Marketing/Marketing";
+import MarketingDetail from "./Parts/Marketing/MarketingDetail";
+import PrMedia from "./Parts/PrMedia/PrMedia";
+import PrMediaDetail from "./Parts/PrMedia/PrMediaDetail";
+import HrAnalitikaDetail from "./Parts/HrAnalitika/HrAnalitikaDetail";
 SciChartSurface.setRuntimeLicenseKey("NbX+2XP9JhtSxLiFXWZHRkPfQJz1ladswS9bZa9nR+HQYgAvAQ+qGVaNrxbIHiFYjIkf7WbsQcgKkk5dIOar27oI78ndSaTKtUGcIg3QG1LphEcW7+M3az5rma0vDbjxz3MX4dN3r3+HnYK50ErzErnLx7kzUYYZRmZOgPiMIP/bnVLp1I07eKJv4J7pHGbf2/5Sz/+staHCf8OscRw0lOaodXWOybw9gigzKZpp9QBJbJr9b2YINi6sRikakhwRQ5RnW838qqTvxbbcPaRLjqp7+0tZlU3KQ2351+Hz96EMFZwKN2TdRYCZO1ARHp57eck+8M+9fUDcSEo0NzgdCTe3bZ6tXepsOyUIgwMFY8s9WWwvRScewcS2pFG1DCun2HvSC/G5rCaoAjFYuXhi3zx/Znx8qY5YNCGRI6uuBgHqJDDuZflM2Ot2XSl5PtatddhWogw97AeFUEbNAO3WNuUyPweKYSFAfhdlzfRof+3ZRxCtI7Wv6M269RGDToZJniFgn9Pw6mf+d3DVnz+RSj4/16eCI4ZUDeQJg/dfD/kefdNpa/+B22DexowqOjtjmR7ECgBktFN0Pq46enu+6Z0b9WphqUt7i62+9PD7ctHFJYqLfzwaHBrOG0VdpGRX7hoBHv4L9RaqEJ8kzEUswRuKkyKnwghr");
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const queryClient = new QueryClient()
 
 root.render(
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Parts />} />
-      <Route path="/full" element={<App />} />
-      <Route path="/1" element={<Part1 />} />
-      <Route path="/2" element={<Part2 />} />
-      <Route path="/3" element={<Part3 />} />
-      <Route path="/4" element={<Part4 />} />
-      <Route path="/5" element={<ProjectDashboard />} />
-      <Route path="/6" element={<Part5 />} />
-      <Route path="/7" element={<EnterExit />} />
-      <Route path="/8" element={<StModal />} />
-    </Routes>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/main" element={<PrivateRoute><Parts /></PrivateRoute>} />
+          <Route path="/main/full" element={<PrivateRoute><App /></PrivateRoute>} />
+          <Route path="/main/1" element={<PrivateRoute><Part1 /></PrivateRoute>} />
+          <Route path="/main/2" element={<PrivateRoute><Part2 /></PrivateRoute>} />
+          <Route path="/main/3" element={<PrivateRoute><Part3 /></PrivateRoute>} />
+          <Route path="/main/4" element={<PrivateRoute><Part4 /></PrivateRoute>} />
+          <Route path="/main/5" element={<PrivateRoute><ProjectDashboard /></PrivateRoute>} />
+          <Route path="/main/6" element={<PrivateRoute><Part5 /></PrivateRoute>} />
+          <Route path="/main/7" element={<PrivateRoute><EnterExit /></PrivateRoute>} />
+          <Route path="/main/8" element={<PrivateRoute><StModal /></PrivateRoute>} />
+          <Route path="/main/9" element={<PrivateRoute><StModal /></PrivateRoute>} />
+          <Route path="/main/pr-media" element={<PrivateRoute><PrMedia /></PrivateRoute>} />
+          <Route path="/main/pr-media-detail" element={<PrivateRoute><PrMediaDetail /></PrivateRoute>} />
+          <Route path="/main/hse-big" element={<PrivateRoute><HseSlaBig /></PrivateRoute>} />
+          <Route path="/main/hse" element={<PrivateRoute><HseSla /></PrivateRoute>} />
+          <Route path="/main/marketing" element={<PrivateRoute><Marketing /></PrivateRoute>} />
+          <Route path="/main/marketing-detail" element={<PrivateRoute><MarketingDetail /></PrivateRoute>} />
+          <Route path="/main/hr-bi-detail" element={<PrivateRoute><HrAnalitikaDetail /></PrivateRoute>} />
+        </Routes>
   </BrowserRouter>
+    </QueryClientProvider>
 );

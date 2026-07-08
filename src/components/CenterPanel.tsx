@@ -2,7 +2,7 @@ import React from 'react';
 import PipelineSection from './PipelineSection';
 import MapSection from './MapSection';
 import {MapChartComponent} from "./charts/MapChartComponent";
-import Map3D from "./Map3d";
+import Map3D from "../Parts/Map/Map3d";
 import TopCenter from "./TopCenter";
 import Part3 from "./Part3";
 

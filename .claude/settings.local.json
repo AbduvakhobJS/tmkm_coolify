@@ -6,7 +6,9 @@
       "Bash(npm install *)",
       "Bash(npx tsc *)",
       "Bash(npx vite *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Read(//d/Downloads/**)",
+      "Bash(node -e ' *)"
     ]
   }
 }

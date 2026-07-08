@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import Map3D from "./Map3d";
+import Map3D from "../Parts/Map/Map3d";
 import Part3 from "./Part3";
 
 const Part4 = () => {
