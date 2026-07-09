@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, axis, centerText } from '../../components/dashboardUI';
 import { useSituationSummary } from '../../hooks/hr';
+import hrDemoData from './hrDemoData.json';
 
 /* ── Neon ikonkalar ── */
 
@@ -118,12 +119,6 @@ const IconBookOpen = () => (
         <path d="M12 6.5v13.3" stroke="currentColor" strokeWidth="1.6" />
     </svg>
 );
-const IconAlertOctagon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 3h8l5 5v8l-5 5H8l-5-5V8l5-5z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-        <path d="M12 8v5M12 16.2h.01" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
-    </svg>
-);
 
 /* ── API javob turlari (situation.uzkmt.uz /api/v1/summary) ── */
 
@@ -222,44 +217,21 @@ function usePaged<T>(items: T[], page: number) {
 
 /* ── Yuklanish / xatolik holatlari ── */
 
-const LoadingState: React.FC = () => (
-    <div style={{ background: C.bg, height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, fontFamily: '"Segoe UI", system-ui, sans-serif' }}>
-        <div style={{
-            width: 52, height: 52, borderRadius: '50%', border: '3px solid rgba(79,179,217,0.15)',
-            borderTopColor: '#4fb3d9', animation: 'hr-spin 0.9s linear infinite',
-        }} />
-        <style>{'@keyframes hr-spin { to { transform: rotate(360deg); } }'}</style>
-        <div style={{ color: C.sub, fontSize: 13 }}>Загрузка данных HR-аналитики из situation.uzkmt.uz…</div>
-    </div>
-);
-
-const ErrorState: React.FC<{ message: string; onRetry: () => void }> = ({ message, onRetry }) => (
-    <div style={{ background: C.bg, height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, fontFamily: '"Segoe UI", system-ui, sans-serif', padding: 20 }}>
-        <NeonIcon color={C.down} size={52}><IconAlertOctagon /></NeonIcon>
-        <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>Не удалось загрузить данные</div>
-        <div style={{ color: C.sub, fontSize: 12.5, maxWidth: 480, textAlign: 'center' }}>{message}</div>
-        <button
-            onClick={onRetry}
-            style={{
-                background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 8,
-                color: '#fff', fontSize: 12.5, fontWeight: 700, padding: '9px 18px', cursor: 'pointer',
-                boxShadow: '0 6px 16px rgba(14,168,199,0.3)',
-            }}
-        >
-            Повторить попытку
-        </button>
-    </div>
-);
+const DEMO_HR = hrDemoData as unknown as HrData;
 
 const HrAnalitikaDetail: React.FC = () => {
-    const { data, isLoading, isError, error, refetch } = useSituationSummary();
+    const { data, isSuccess } = useSituationSummary();
 
     const [unitsPage, setUnitsPage] = useState(1);
     const [empPage, setEmpPage] = useState(1);
     const [todayAbsPage, setTodayAbsPage] = useState(1);
     const [periodAbsPage, setPeriodAbsPage] = useState(1);
 
-    const HR: HrData | undefined = data?.data?.payload?.summary?.hrZup;
+    // API javob berguncha demo (na'muna) ma'lumot ko'rsatiladi;
+    // so'rov muvaffaqiyatli bo'lishi bilan komponent avtomatik jonli ma'lumotga o'tadi.
+    const liveHR: HrData | undefined = data?.data?.payload?.summary?.hrZup;
+    const isLive = isSuccess && !!liveHR;
+    const HR: HrData = liveHR ?? DEMO_HR;
 
     const units = useMemo(() => HR?.drilldown.units ?? [], [HR]);
     const { totalPages: unitsTotalPages, slice: unitsSlice } = usePaged(units, unitsPage);
@@ -324,12 +296,6 @@ const HrAnalitikaDetail: React.FC = () => {
         datasets: [{ data: (HR?.charts.employeesByPosition ?? []).slice(0, 10).map((p) => p.value), backgroundColor: '#a855f7', borderRadius: 4, barPercentage: 0.6 }],
     }), [HR]);
 
-    if (isLoading) return <LoadingState />;
-    if (isError || !HR) {
-        const msg = (error as any)?.message ?? 'Проверьте сетевое соединение и токен авторизации (tmk-token) в localStorage.';
-        return <ErrorState message={msg} onRetry={() => refetch()} />;
-    }
-
     return (
         <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
@@ -344,9 +310,21 @@ const HrAnalitikaDetail: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <span style={{ color: C.sub, fontSize: 11, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: '5px 12px' }}>
-                    Обновлено: {HR.generatedAt.replace('T', ', ').slice(0, 19)}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{
+                        display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700,
+                        color: isLive ? '#22c55e' : '#eab308',
+                        background: isLive ? '#22c55e18' : '#eab30818',
+                        border: `1px solid ${isLive ? '#22c55e44' : '#eab30844'}`,
+                        borderRadius: 999, padding: '5px 12px',
+                    }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isLive ? '#22c55e' : '#eab308', boxShadow: `0 0 6px ${isLive ? '#22c55e' : '#eab308'}` }} />
+                        {isLive ? 'Живые данные API' : 'Демо-данные'}
+                    </span>
+                    <span style={{ color: C.sub, fontSize: 11, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: '5px 12px' }}>
+                        Обновлено: {HR.generatedAt.replace('T', ', ').slice(0, 19)}
+                    </span>
+                </div>
             </div>
 
             {/* KPI qatori */}
@@ -373,7 +351,7 @@ const HrAnalitikaDetail: React.FC = () => {
             </div>
 
             {/* 1-qator: shtat / jins / yosh */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, alignItems: 'stretch' }}>
                 <SectionCard title="Штат: факт / вакансии" icon={<IconBriefcase />} style={{ height: 230 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
                         <div style={{ width: 100, height: 100, flexShrink: 0 }}>
@@ -413,11 +391,7 @@ const HrAnalitikaDetail: React.FC = () => {
                         <Bar data={ageBar} options={{ ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any} />
                     </div>
                 </SectionCard>
-            </div>
-
-            {/* 2-qator: harakat / tekuchest */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Движение персонала по месяцам" icon={<IconTrend />} style={{ height: 250 }}>
+                <SectionCard title="Движение персонала по месяцам" icon={<IconTrend />} style={{ height: 230 }}>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={movementBar} options={{
                             ...chartBase,
@@ -426,38 +400,7 @@ const HrAnalitikaDetail: React.FC = () => {
                         } as any} />
                     </div>
                 </SectionCard>
-
-                <SectionCard title="Текучесть по подразделениям" icon={<IconSitemap />} hint="топ-8" style={{ height: 250 }}>
-                    <div style={{ overflowY: 'auto', flex: 1 }}>
-                        {HR.charts.turnover.slice(0, 8).map((t) => (
-                            <ProgressRow key={t.unit_id} name={t.label} sub={t.sub} value={t.value} max={maxTurnover} color="#a855f7" />
-                        ))}
-                    </div>
-                </SectionCard>
-            </div>
-
-            {/* 3-qator: top vakansiyalar / top xodimlar soni */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Топ вакансий по подразделениям" icon={<IconBriefcase />} hint="топ-10" style={{ height: 290 }}>
-                    <div style={{ overflowY: 'auto', flex: 1 }}>
-                        {HR.charts.topVacancies.slice(0, 10).map((v, i) => (
-                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxVacancy} color="#f59e0b" />
-                        ))}
-                    </div>
-                </SectionCard>
-
-                <SectionCard title="Топ подразделений по факт. численности" icon={<IconUsers />} hint="топ-10" style={{ height: 290 }}>
-                    <div style={{ overflowY: 'auto', flex: 1 }}>
-                        {HR.charts.topActualHeadcount.slice(0, 10).map((v, i) => (
-                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxHeadcount} color="#22c55e" />
-                        ))}
-                    </div>
-                </SectionCard>
-            </div>
-
-            {/* 4-qator: yo'qliklar (qisqa ko'rinish) */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Отсутствия сегодня" icon={<IconWalk />} style={{ height: 250 }}>
+                <SectionCard title="Отсутствия сегодня" icon={<IconWalk />} style={{ height: 230 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
                         <div style={{ width: 96, height: 96, flexShrink: 0 }}>
                             <Doughnut data={absenceDonut} options={donutOptions} plugins={[centerText(String(currentAbsTotal), 'всего')]} />
@@ -473,7 +416,33 @@ const HrAnalitikaDetail: React.FC = () => {
                         </div>
                     </div>
                 </SectionCard>
+            </div>
 
+            {/* 2-qator: harakat / tekuchest */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8, alignItems: 'stretch' }}>
+
+
+                <SectionCard title="Текучесть по подразделениям" icon={<IconSitemap />} hint="топ-8" style={{ height: 250 }}>
+                    <div style={{ overflowY: 'auto', flex: 1 }}>
+                        {HR.charts.turnover.slice(0, 8).map((t) => (
+                            <ProgressRow key={t.unit_id} name={t.label} sub={t.sub} value={t.value} max={maxTurnover} color="#a855f7" />
+                        ))}
+                    </div>
+                </SectionCard>
+                <SectionCard title="Топ вакансий по подразделениям" icon={<IconBriefcase />} hint="топ-10" style={{ height: 250 }}>
+                    <div style={{ overflowY: 'auto', flex: 1 }}>
+                        {HR.charts.topVacancies.slice(0, 10).map((v, i) => (
+                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxVacancy} color="#f59e0b" />
+                        ))}
+                    </div>
+                </SectionCard>
+                <SectionCard title="Топ подразделений по факт. численности" icon={<IconUsers />} hint="топ-10" style={{ height: 250 }}>
+                    <div style={{ overflowY: 'auto', flex: 1 }}>
+                        {HR.charts.topActualHeadcount.slice(0, 10).map((v, i) => (
+                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxHeadcount} color="#22c55e" />
+                        ))}
+                    </div>
+                </SectionCard>
                 <SectionCard title="Отсутствия за период" icon={<IconWalk />} hint={`${HR.totals.absencePeriodTotal} всего`} style={{ height: 250 }}>
                     <div style={{ overflowY: 'auto', flex: 1 }}>
                         {HR.charts.periodAbsences.map((a, i) => (
@@ -483,18 +452,20 @@ const HrAnalitikaDetail: React.FC = () => {
                 </SectionCard>
             </div>
 
-            {/* Таблица отсутствий на дату — pagination 20 ta */}
-            <SectionCard title="Таблица отсутствий на дату" icon={<IconCalendarClock />} hint={`${absToday.length} записей`}>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
-                        <thead>
+            {/* 3-qator: top vakansiyalar / top xodimlar soni */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, alignItems: 'stretch' }}>
+
+                <SectionCard title="Таблица отсутствий на дату" icon={<IconCalendarClock />} hint={`${absToday.length} записей`}>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+                            <thead>
                             <tr style={{ color: C.sub, textAlign: 'left' }}>
                                 <th style={{ padding: '4px 6px', fontWeight: 500 }}>Подразделение</th>
                                 <th style={{ padding: '4px 6px', fontWeight: 500 }}>Статус отсутствия</th>
                                 <th style={{ padding: '4px 6px', fontWeight: 500, textAlign: 'right' }}>Количество</th>
                             </tr>
-                        </thead>
-                        <tbody>
+                            </thead>
+                            <tbody>
                             {todayAbsSlice.map((a, idx) => (
                                 <tr key={idx} style={{ borderTop: `1px solid ${C.border}`, transition: 'background 0.15s ease' }}
                                     onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
@@ -505,24 +476,23 @@ const HrAnalitikaDetail: React.FC = () => {
                                     <td style={{ padding: '6px 6px', color: C.text, textAlign: 'right', fontWeight: 700 }}>{a.value}</td>
                                 </tr>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-                <Pager page={todayAbsPage} totalPages={todayAbsTotalPages} onChange={setTodayAbsPage} total={absToday.length} pageSize={PAGE_SIZE} />
-            </SectionCard>
+                            </tbody>
+                        </table>
+                    </div>
+                    <Pager page={todayAbsPage} totalPages={todayAbsTotalPages} onChange={setTodayAbsPage} total={absToday.length} pageSize={PAGE_SIZE} />
+                </SectionCard>
 
-            {/* Таблица отсутствий за период — pagination 20 ta */}
-            <SectionCard title="Таблица отсутствий за период" icon={<IconCalendarRange />} hint={`${absPeriod.length} записей`}>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
-                        <thead>
+                <SectionCard title="Таблица отсутствий за период" icon={<IconCalendarRange />} hint={`${absPeriod.length} записей`}>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+                            <thead>
                             <tr style={{ color: C.sub, textAlign: 'left' }}>
                                 <th style={{ padding: '4px 6px', fontWeight: 500 }}>Подразделение</th>
                                 <th style={{ padding: '4px 6px', fontWeight: 500 }}>Статус отсутствия</th>
                                 <th style={{ padding: '4px 6px', fontWeight: 500, textAlign: 'right' }}>Количество</th>
                             </tr>
-                        </thead>
-                        <tbody>
+                            </thead>
+                            <tbody>
                             {periodAbsSlice.map((a, idx) => (
                                 <tr key={idx} style={{ borderTop: `1px solid ${C.border}`, transition: 'background 0.15s ease' }}
                                     onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
@@ -533,11 +503,21 @@ const HrAnalitikaDetail: React.FC = () => {
                                     <td style={{ padding: '6px 6px', color: C.text, textAlign: 'right', fontWeight: 700 }}>{a.value}</td>
                                 </tr>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-                <Pager page={periodAbsPage} totalPages={periodAbsTotalPages} onChange={setPeriodAbsPage} total={absPeriod.length} pageSize={PAGE_SIZE} />
-            </SectionCard>
+                            </tbody>
+                        </table>
+                    </div>
+                    <Pager page={periodAbsPage} totalPages={periodAbsTotalPages} onChange={setPeriodAbsPage} total={absPeriod.length} pageSize={PAGE_SIZE} />
+                </SectionCard>
+            </div>
+
+            {/* 4-qator: yo'qliklar (qisqa ko'rinish) */}
+
+
+            {/* Таблица отсутствий на дату — pagination 20 ta */}
+
+
+            {/* Таблица отсутствий за период — pagination 20 ta */}
+
 
             {/* Агрегатор метрик / Справочник состояний */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, alignItems: 'stretch' }}>
@@ -599,7 +579,7 @@ const HrAnalitikaDetail: React.FC = () => {
             </div>
 
             {/* 5-qator: lavozimlar / bo'limlar jadvali */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: 8, alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, alignItems: 'stretch' }}>
                 <SectionCard title="Топ должностей" icon={<IconIdCard />} hint="топ-10" style={{ height: 280 }}>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={posBar} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: { x: { grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 9.5 } } }, y: { grid: { display: false }, ticks: { color: C.sub, font: { size: 9.5 } } } } } as any} />

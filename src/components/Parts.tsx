@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import HrAnalitikaDetail from "../Parts/HrAnalitika/HrAnalitikaDetail";
+import Esg from "../Parts/ESG/ESG";
 
 const Parts = () => {
     const navigate = useNavigate();
@@ -59,8 +60,6 @@ const Parts = () => {
                     </button>
                 </div>
 
-            </div>
-            <div className="row  d-flex " style={{marginTop: "10px"}} >
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
                             onClick={() => navigate('/main/5')}
@@ -68,14 +67,17 @@ const Parts = () => {
                         5/6
                     </button>
                 </div>
+            </div>
+            <div className="row  d-flex " style={{marginTop: "10px"}} >
 
-                <div className="col-md-2">
-                    <button className="btn btn-primary part-btn"
-                            onClick={() => navigate('/main/8')}
-                    >
-                        Stats
-                    </button>
-                </div>
+
+                {/*<div className="col-md-2">*/}
+                {/*    <button className="btn btn-primary part-btn"*/}
+                {/*            onClick={() => navigate('/main/8')}*/}
+                {/*    >*/}
+                {/*        Stats*/}
+                {/*    </button>*/}
+                {/*</div>*/}
 
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
@@ -121,9 +123,56 @@ const Parts = () => {
                 </div>
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/hr-bi-main')}
+                    >
+                        HR BI MAIN
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
                             onClick={() => navigate('/main/hr-bi-detail')}
                     >
-                        HR BI
+                        HR BI DETAIL
+                    </button>
+                </div>
+
+
+            </div>
+            <div className="row  d-flex " style={{marginTop: "10px"}} >
+
+            <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/contact-hub')}
+                    >
+                        Contact hub
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/contact-hub-detail')}
+                    >
+                        Contact hub detail
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/esg')}
+                    >
+                        ESG
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/esg-detail')}
+                    >
+                        ESG detail
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/constructor')}
+                    >
+                       Constructor
                     </button>
                 </div>
             </div>

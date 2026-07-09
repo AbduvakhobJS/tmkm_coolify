@@ -296,7 +296,7 @@ const Row1Elektr = ({isOpen, setIsOpen} :{isOpen:boolean, setIsOpen:(isOpen:bool
         <SectionHeader title="Elektr Energiya"
                        color={C.electric}
                        // right={badge(C.crit,'Bugun +9%')}
-                       right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}
+                       right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="/icons/trend.png" alt="/"/></button>}
 
         />
        <div style={{display: "flex", width: "100%", gap: "8px"}}>
@@ -342,7 +342,7 @@ const Row1Elektr = ({isOpen, setIsOpen} :{isOpen:boolean, setIsOpen:(isOpen:bool
 
 const Row1Quyosh = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void}) => (
     <div style={colFlex}>
-        <SectionHeader title="Quyosh Energiyasi" color={C.solar} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}/>
+        <SectionHeader title="Quyosh Energiyasi" color={C.solar} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="/icons/trend.png" alt="/"/></button>}/>
         <div style={{display:'flex', width: "100%", gap: "8px"}}>
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="Joriy ishlab chiqarish" accent={C.solar} style={{height: "100%"}}>
@@ -388,7 +388,7 @@ const Row1Quyosh = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: b
 ══════════════════════════════ */
 const Row2Gaz = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void}) => (
     <div style={colFlex}>
-        <SectionHeader title="Gaz Sarfi" color={C.gas} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}/>
+        <SectionHeader title="Gaz Sarfi" color={C.gas} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="/icons/trend.png" alt="/"/></button>}/>
         <div style={{display:'flex', width: "100%", gap: "8px"}}>
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="Bugungi sarf" accent={C.gas}  extra={badge(C.gas,'2.4 mln m³')} style={{height: "100%"}}>
@@ -424,7 +424,7 @@ const Row2Gaz = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: bool
 
 const Row2Suv = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void}) => (
     <div style={colFlex}>
-        <SectionHeader title="Suv Sarfi" color={C.water} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="./icons/trend.png" alt="/"/></button>}/>
+        <SectionHeader title="Suv Sarfi" color={C.water} right={<button onClick={() => setIsOpen(true)} className="view-detail-btn"><img src="/icons/trend.png" alt="/"/></button>}/>
         <div style={{display:'flex', width: "100%", gap: "8px"}}>
             <div style={{flex: 1, minWidth: 0}}>
                 <Card title="Real-vaqt monitoring" accent={C.water} extra={badge(C.crit,'+44% normadan')} style={{height: "100%"}}>

@@ -1,0 +1,40 @@
+{
+    "generatedAt": "2026-06-18T15:17:00Z",
+    "status": "Удовлетворительно",
+    "goal": "Оперативный контроль ESG-показателей, рисков и устойчивого развития",
+    "kpi": [
+        { "key": "esgRating", "label": "ESG рейтинг", "value": "82", "unit": "/100", "delta": 6.2, "icon": "shield" },
+        { "key": "irma", "label": "IRMA", "value": "78", "unit": "%", "delta": 5.9, "icon": "leaf" },
+        { "key": "hseIndex", "label": "HSE индекс", "value": "88", "unit": "/100", "delta": 6.1, "icon": "heart-pulse" },
+        { "key": "co2", "label": "CO₂: выбросы", "value": "1.45", "unit": "млн т", "delta": -7.8, "icon": "cloud" },
+        { "key": "water", "label": "Вода", "value": "12.8", "unit": "млн м³", "delta": -9.3, "icon": "droplet" },
+        { "key": "violations", "label": "Нарушения", "value": "7", "unit": "", "delta": -22.2, "icon": "alert-triangle" }
+    ],
+    "ecology": [
+        { "label": "Энергопотребление", "value": "18 950", "unit": "тыс. МВт·ч", "delta": -2.1, "icon": "zap" },
+        { "label": "Переработка отходов", "value": "76", "unit": "%", "delta": 7.8, "icon": "recycle" },
+        { "label": "Экологические цели", "value": "76", "unit": "%", "delta": 7.8, "icon": "target" }
+    ],
+    "social": [
+        { "label": "Персонал", "value": "28 540", "unit": "чел.", "delta": 15.3, "icon": "users" },
+        { "label": "Обучение", "value": "1 245", "unit": "чел.", "delta": 12.3, "icon": "book-open" },
+        { "label": "Социальные проекты", "value": "8.7", "unit": "тыс. чел.", "delta": 12.3, "icon": "hand-heart" }
+    ],
+    "governance": [
+        { "label": "LTIFR", "value": "0.32", "unit": "", "delta": 12.3, "icon": "gauge" },
+        { "label": "Дней без травм", "value": "1 320", "unit": "", "delta": 15.2, "icon": "calendar-check" },
+        { "label": "Стандарты", "value": "7", "unit": "", "delta": 30.0, "icon": "clipboard-list" },
+        { "label": "Обучены", "value": "96", "unit": "%", "delta": 18.0, "icon": "graduation-cap" }
+    ],
+    "kpiExecution": [
+        { "label": "Снижение CO₂", "value": 68, "color": "#22c55e", "icon": "leaf" },
+        { "label": "Энергоэффективность", "value": 58, "color": "#eab308", "icon": "zap" },
+        { "label": "Переработка", "value": 76, "color": "#22c55e", "icon": "recycle" },
+        { "label": "ВИЭ", "value": 35, "color": "#f59e0b", "icon": "sun" }
+    ],
+    "sentiment": [
+        { "label": "Позитивные", "value": 21, "color": "#22c55e" },
+        { "label": "Нейтральные", "value": 5, "color": "#3b82f6" },
+        { "label": "Негативные", "value": 2, "color": "#ef4444" }
+    ]
+}

@@ -1,0 +1,102 @@
+{
+    "generatedAt": "2026-06-18T15:12:00Z",
+    "kpi": [
+        { "key": "esgRating", "label": "ESG рейтинг", "value": "A-", "unit": "", "delta": 6.2, "note": "Рейтинг постоянный", "icon": "shield", "trend": [70, 72, 74, 76, 80, 82] },
+        { "key": "irma", "label": "IRMA соответствие", "value": "78", "unit": "%", "delta": 5.9, "icon": "leaf", "trend": [68, 70, 71, 73, 76, 78] },
+        { "key": "hseIndex", "label": "HSE индекс", "value": "88", "unit": "/100", "delta": 6.1, "icon": "heart-pulse", "trend": [78, 80, 82, 84, 86, 88] },
+        { "key": "ltifr", "label": "LTIFR", "value": "0.32", "unit": "", "delta": -12.3, "icon": "gauge", "trend": [0.5, 0.46, 0.42, 0.38, 0.35, 0.32] },
+        { "key": "co2", "label": "CO₂ выбросы", "value": "1.45", "unit": "млн т CO₂e", "delta": -7.8, "icon": "cloud", "trend": [1.7, 1.65, 1.6, 1.55, 1.5, 1.45] },
+        { "key": "water", "label": "Потребление воды", "value": "12.8", "unit": "млн м³", "delta": -9.3, "icon": "droplet", "trend": [14.5, 14.1, 13.7, 13.3, 13.0, 12.8] },
+        { "key": "renewables", "label": "Возобнов. энергия", "value": "35", "unit": "%", "delta": 4.1, "icon": "sun", "trend": [28, 29, 31, 32, 34, 35] },
+        { "key": "violations", "label": "Случаи нарушений", "value": "7", "unit": "", "delta": -22.2, "icon": "alert-triangle", "trend": [12, 11, 10, 9, 8, 7] }
+    ],
+    "ecology": {
+        "items": [
+            { "label": "Выбросы CO₂, млн т CO₂e", "value": "1.45", "unit": "", "delta": -7.8, "icon": "cloud" },
+            { "label": "Потребление электроэнергии, тыс. МВт·ч", "value": "18 950", "unit": "", "delta": 2.1, "icon": "zap" },
+            { "label": "Потребление воды, млн м³", "value": "12.8", "unit": "", "delta": -3.5, "icon": "droplet" },
+            { "label": "Объем отходов, тыс. т", "value": "124.5", "unit": "", "delta": -7.3, "icon": "trash" },
+            { "label": "Доля переработанных отходов", "value": "76", "unit": "%", "delta": 7.8, "icon": "recycle" }
+        ],
+        "goalProgress": { "label": "Выполнение экологических целей", "value": 76 },
+        "trend": {
+            "labels": ["Янв", "Фев", "Мар", "Апр", "Май", "Июн"],
+            "series": [
+                { "name": "ESG рейтинг", "color": "#22c55e", "data": [70, 74, 75, 78, 80, 82] },
+                { "name": "IRMA", "color": "#4fb3d9", "data": [68, 69, 71, 73, 76, 78] }
+            ]
+        }
+    },
+    "esgCore": {
+        "legend": [
+            { "label": "В работе", "color": "#22c55e" },
+            { "label": "Требует внимания", "color": "#eab308" },
+            { "label": "В зоне риска", "color": "#ef4444" }
+        ],
+        "sites": [
+            { "name": "Ташкент", "lon": 69.24, "lat": 41.31, "status": "ok" },
+            { "name": "Алмалык", "lon": 69.60, "lat": 40.84, "status": "ok" },
+            { "name": "Ангрен", "lon": 70.14, "lat": 41.02, "status": "ok" },
+            { "name": "Навои", "lon": 65.38, "lat": 40.10, "status": "ok" },
+            { "name": "Зарафшан", "lon": 64.20, "lat": 41.57, "status": "attention" },
+            { "name": "Учкудук", "lon": 63.55, "lat": 42.15, "status": "ok" },
+            { "name": "Бухара", "lon": 64.42, "lat": 39.77, "status": "ok" },
+            { "name": "Самарканд", "lon": 66.96, "lat": 39.65, "status": "ok" },
+            { "name": "Ингичка", "lon": 66.70, "lat": 39.90, "status": "risk" },
+            { "name": "Карши", "lon": 65.79, "lat": 38.86, "status": "ok" },
+            { "name": "Термез", "lon": 67.28, "lat": 37.22, "status": "attention" },
+            { "name": "Нукус", "lon": 59.61, "lat": 42.46, "status": "ok" },
+            { "name": "Фергана", "lon": 71.78, "lat": 40.38, "status": "ok" },
+            { "name": "Наманган", "lon": 71.67, "lat": 41.00, "status": "ok" },
+            { "name": "Андижан", "lon": 72.34, "lat": 40.78, "status": "ok" },
+            { "name": "Джизак", "lon": 67.84, "lat": 40.12, "status": "ok" },
+            { "name": "Чирчик", "lon": 69.58, "lat": 41.47, "status": "risk" },
+            { "name": "Нурата", "lon": 65.69, "lat": 40.56, "status": "attention" }
+        ],
+        "summary": { "total": 139, "ok": 122, "attention": 12, "risk": 5 },
+        "goals2030": [
+            { "label": "Снижение выбросов CO₂", "value": 68, "color": "#22c55e", "icon": "leaf" },
+            { "label": "Энергоэффективность", "value": 58, "color": "#4fb3d9", "icon": "zap" },
+            { "label": "Потребление воды", "value": 64, "color": "#3b82f6", "icon": "droplet" },
+            { "label": "Переработка отходов", "value": 76, "color": "#22c55e", "icon": "recycle" },
+            { "label": "Возобновляемая энергия", "value": 35, "color": "#eab308", "icon": "sun" }
+        ]
+    },
+    "social": {
+        "headcount": "28 540",
+        "turnover": 4.7,
+        "turnoverDelta": -1.2,
+        "genderSplit": { "female": 38, "male": 62 },
+        "extra": [
+            { "label": "Обучение сотрудников", "value": "1 245 чел.", "icon": "book-open" },
+            { "label": "Социальные проекты", "value": "8.7 тыс. чел.", "icon": "hand-heart" },
+            { "label": "Жалобы и обращения", "value": "3", "icon": "message-square" }
+        ]
+    },
+    "hse": [
+        { "label": "Травматизм (TRIR)", "value": "28", "unit": "", "delta": 7.7, "icon": "shield-check" },
+        { "label": "TRCR подрядчиков", "value": "0.45", "unit": "", "delta": -9.3, "icon": "hard-hat" },
+        { "label": "LTIFR (соб. персонал)", "value": "0.32", "unit": "", "delta": 12.3, "icon": "gauge" },
+        { "label": "Дни без травм", "value": "1 320", "unit": "", "delta": 15.2, "icon": "calendar-check" },
+        { "label": "Near Miss", "value": "245", "unit": "", "delta": 5.1, "icon": "eye" }
+    ],
+    "ppe": { "label": "Обеспеченность СИЗ", "value": 96, "delta": 38, "unit": "п.п." },
+    "governance": [
+        { "label": "Внедрение стандартов", "value": "7", "unit": "", "delta": 30.0, "icon": "clipboard-check" },
+        { "label": "Нарушения комплаенса", "value": "2", "unit": "", "delta": -33.3, "icon": "alert-octagon" },
+        { "label": "Конфликты интересов", "value": "0", "unit": "", "delta": -100, "icon": "users-conflict" },
+        { "label": "Обучение сотрудников", "value": "96", "unit": "%", "delta": 3.7, "icon": "graduation-cap" },
+        { "label": "ESG-мероприятия выполнено", "value": "86", "unit": "", "delta": 18.0, "icon": "flag" }
+    ],
+    "highlights": [
+        { "icon": "leaf", "color": "#22c55e", "title": "Снижение выбросов CO₂", "text": "Выбросы снижены на 7.8% благодаря модернизации и оптимизации процессов." },
+        { "icon": "zap", "color": "#eab308", "title": "Энергоэффективность", "text": "Рост энергоэффективности на 20% за счёт модернизации оборудования." },
+        { "icon": "users", "color": "#3b82f6", "title": "Социальные инициативы", "text": "Охват социальными проектами вырос до 8.7 тыс. человек (+12.3%)." }
+    ],
+    "events": [
+        { "time": "14:30", "text": "Обновлён план снижения выбросов CO₂ до 2030", "icon": "leaf" },
+        { "time": "14:48", "text": "Завершён аудит водопотребления на Навоийском ГМК", "icon": "droplet" },
+        { "time": "15:05", "text": "Инцидент без травм на Ингичке — устранён", "icon": "users" },
+        { "time": "15:12", "text": "Новый стандарт ISO 45001 внедрён на всех площадках", "icon": "shield-check" }
+    ]
+}

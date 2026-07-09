@@ -26,6 +26,13 @@ import MarketingDetail from "./Parts/Marketing/MarketingDetail";
 import PrMedia from "./Parts/PrMedia/PrMedia";
 import PrMediaDetail from "./Parts/PrMedia/PrMediaDetail";
 import HrAnalitikaDetail from "./Parts/HrAnalitika/HrAnalitikaDetail";
+import HrAnalitika from "./Parts/HrAnalitika/HrAnalitika";
+import ContactHubDetail from "./Parts/ContactHub/ContactHubDetail";
+import ContactHub from "./Parts/ContactHub/ContactHub";
+import Esg from "./Parts/ESG/ESG";
+import EsgDetail from "./Parts/ESG/ESGDetail";
+import ConstuctorPage from "./Parts/ConstuctorPage/ConstuctorPage";
+import ResourceDashboard from "./components/ResourceDashboard";
 SciChartSurface.setRuntimeLicenseKey("NbX+2XP9JhtSxLiFXWZHRkPfQJz1ladswS9bZa9nR+HQYgAvAQ+qGVaNrxbIHiFYjIkf7WbsQcgKkk5dIOar27oI78ndSaTKtUGcIg3QG1LphEcW7+M3az5rma0vDbjxz3MX4dN3r3+HnYK50ErzErnLx7kzUYYZRmZOgPiMIP/bnVLp1I07eKJv4J7pHGbf2/5Sz/+staHCf8OscRw0lOaodXWOybw9gigzKZpp9QBJbJr9b2YINi6sRikakhwRQ5RnW838qqTvxbbcPaRLjqp7+0tZlU3KQ2351+Hz96EMFZwKN2TdRYCZO1ARHp57eck+8M+9fUDcSEo0NzgdCTe3bZ6tXepsOyUIgwMFY8s9WWwvRScewcS2pFG1DCun2HvSC/G5rCaoAjFYuXhi3zx/Znx8qY5YNCGRI6uuBgHqJDDuZflM2Ot2XSl5PtatddhWogw97AeFUEbNAO3WNuUyPweKYSFAfhdlzfRof+3ZRxCtI7Wv6M269RGDToZJniFgn9Pw6mf+d3DVnz+RSj4/16eCI4ZUDeQJg/dfD/kefdNpa/+B22DexowqOjtjmR7ECgBktFN0Pq46enu+6Z0b9WphqUt7i62+9PD7ctHFJYqLfzwaHBrOG0VdpGRX7hoBHv4L9RaqEJ8kzEUswRuKkyKnwghr");
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
@@ -46,7 +53,7 @@ root.render(
           <Route path="/main/6" element={<PrivateRoute><Part5 /></PrivateRoute>} />
           <Route path="/main/7" element={<PrivateRoute><EnterExit /></PrivateRoute>} />
           <Route path="/main/8" element={<PrivateRoute><StModal /></PrivateRoute>} />
-          <Route path="/main/9" element={<PrivateRoute><StModal /></PrivateRoute>} />
+          <Route path="/main/9" element={<PrivateRoute><ResourceDashboard /></PrivateRoute>} />
           <Route path="/main/pr-media" element={<PrivateRoute><PrMedia /></PrivateRoute>} />
           <Route path="/main/pr-media-detail" element={<PrivateRoute><PrMediaDetail /></PrivateRoute>} />
           <Route path="/main/hse-big" element={<PrivateRoute><HseSlaBig /></PrivateRoute>} />
@@ -54,6 +61,12 @@ root.render(
           <Route path="/main/marketing" element={<PrivateRoute><Marketing /></PrivateRoute>} />
           <Route path="/main/marketing-detail" element={<PrivateRoute><MarketingDetail /></PrivateRoute>} />
           <Route path="/main/hr-bi-detail" element={<PrivateRoute><HrAnalitikaDetail /></PrivateRoute>} />
+          <Route path="/main/hr-bi-main" element={<PrivateRoute><HrAnalitika /></PrivateRoute>} />
+          <Route path="/main/contact-hub-detail" element={<PrivateRoute><ContactHubDetail /></PrivateRoute>} />
+          <Route path="/main/contact-hub" element={<PrivateRoute><ContactHub /></PrivateRoute>} />
+          <Route path="/main/esg" element={<PrivateRoute><Esg /></PrivateRoute>} />
+          <Route path="/main/esg-detail" element={<PrivateRoute><EsgDetail /></PrivateRoute>} />
+          <Route path="/main/constructor" element={<PrivateRoute><ConstuctorPage /></PrivateRoute>} />
         </Routes>
   </BrowserRouter>
     </QueryClientProvider>

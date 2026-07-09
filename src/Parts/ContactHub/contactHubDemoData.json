@@ -1,0 +1,629 @@
+{
+  "ok": true,
+  "service": "notebook-contacthub",
+  "domain": "notebook.uzkmt.uz",
+  "generatedAt": "2026-07-08T04:41:14.141Z",
+  "totals": {
+    "companies": 230,
+    "countries": 42,
+    "directions": 134,
+    "files": 13,
+    "meetings": 39,
+    "meetingsPlanned": 0,
+    "meetingsDone": 0,
+    "meetingsOverdue": 36,
+    "notes": 2,
+    "users": 10,
+    "pendingSubmissions": 0
+  },
+  "cards": [
+    {
+      "label": "Всего компаний",
+      "value": 230,
+      "icon": "building"
+    },
+    {
+      "label": "Стран",
+      "value": 42,
+      "icon": "globe"
+    },
+    {
+      "label": "Сфер деятельности",
+      "value": 134,
+      "icon": "layer-group"
+    },
+    {
+      "label": "Карточек с файлами",
+      "value": 13,
+      "icon": "file-lines"
+    },
+    {
+      "label": "Всего встреч",
+      "value": 39,
+      "icon": "calendar-days"
+    },
+    {
+      "label": "Запланировано",
+      "value": 0,
+      "icon": "clock"
+    },
+    {
+      "label": "Проведено",
+      "value": 0,
+      "icon": "circle-check"
+    },
+    {
+      "label": "Просрочено",
+      "value": 36,
+      "icon": "triangle-exclamation"
+    }
+  ],
+  "calendar": [
+    [
+      "10:10",
+      "Перегаворы",
+      "Mr. Christopher Tao Li"
+    ],
+    [
+      "11:30",
+      "Встреча",
+      "Офис"
+    ],
+    [
+      "16:30",
+      "Звонок по ВКС",
+      "ВКС"
+    ]
+  ],
+  "tasks": [
+    [
+      "Запланированные встречи",
+      "Средний",
+      "0"
+    ],
+    [
+      "Проведенные встречи",
+      "Низкий",
+      "0"
+    ],
+    [
+      "Просроченные встречи",
+      "Высокий",
+      "36"
+    ],
+    [
+      "Ожидают модерации",
+      "Низкий",
+      "0"
+    ]
+  ],
+  "reminders": [
+    [
+      "10:10",
+      "Перегаворы",
+      "CCECC"
+    ],
+    [
+      "11:30",
+      "Встреча",
+      "China Railway Construction Investment Group Co., Ltd."
+    ],
+    [
+      "16:30",
+      "Звонок по ВКС",
+      "Vision Invest"
+    ]
+  ],
+  "notes": [
+    {
+      "id": 5,
+      "title": "Test",
+      "content": "тестовое создание стикера",
+      "color": "sky",
+      "pinned": false,
+      "createdAt": "2026-04-17 10:08:26",
+      "updatedAt": "2026-05-18 11:08:08"
+    },
+    {
+      "id": 4,
+      "title": "Название",
+      "content": "какое то описание",
+      "color": "amber",
+      "pinned": false,
+      "createdAt": "2026-04-17 08:51:49",
+      "updatedAt": "2026-04-17 08:51:49"
+    }
+  ],
+  "meetings": {
+    "upcoming": [
+      {
+        "id": 33,
+        "date": "2026-07-08",
+        "time": "10:10",
+        "dateLabel": "08.07",
+        "title": "Перегаворы",
+        "company": "CCECC",
+        "meetingWith": "Mr. Christopher Tao Li",
+        "place": "Mr. Christopher Tao Li",
+        "status": "Запланировано",
+        "assigned": "admin",
+        "url": "/?planner=33"
+      },
+      {
+        "id": 40,
+        "date": "2026-07-08",
+        "time": "11:30",
+        "dateLabel": "08.07",
+        "title": "Встреча",
+        "company": "China Railway Construction Investment Group Co., Ltd.",
+        "meetingWith": "Сюй Юйхэ - Генеральный директор",
+        "place": "Офис",
+        "status": "Запланировано",
+        "assigned": "s.rahmatullaev@uztmk.uz",
+        "url": "/?planner=40"
+      },
+      {
+        "id": 42,
+        "date": "2026-07-10",
+        "time": "16:30",
+        "dateLabel": "10.07",
+        "title": "Звонок по ВКС",
+        "company": "Vision Invest",
+        "meetingWith": "",
+        "place": "ВКС",
+        "status": "Запланировано",
+        "assigned": "s.rahmatullaev@uztmk.uz",
+        "url": "/?planner=42"
+      }
+    ],
+    "recent": [
+      {
+        "id": 42,
+        "date": "2026-07-10",
+        "time": "16:30",
+        "dateLabel": "10.07",
+        "title": "Звонок по ВКС",
+        "company": "Vision Invest",
+        "meetingWith": "",
+        "place": "ВКС",
+        "status": "Запланировано",
+        "assigned": "s.rahmatullaev@uztmk.uz",
+        "url": "/?planner=42"
+      },
+      {
+        "id": 40,
+        "date": "2026-07-08",
+        "time": "11:30",
+        "dateLabel": "08.07",
+        "title": "Встреча",
+        "company": "China Railway Construction Investment Group Co., Ltd.",
+        "meetingWith": "Сюй Юйхэ - Генеральный директор",
+        "place": "Офис",
+        "status": "Запланировано",
+        "assigned": "s.rahmatullaev@uztmk.uz",
+        "url": "/?planner=40"
+      },
+      {
+        "id": 33,
+        "date": "2026-07-08",
+        "time": "10:10",
+        "dateLabel": "08.07",
+        "title": "Перегаворы",
+        "company": "CCECC",
+        "meetingWith": "Mr. Christopher Tao Li",
+        "place": "Mr. Christopher Tao Li",
+        "status": "Запланировано",
+        "assigned": "admin",
+        "url": "/?planner=33"
+      },
+      {
+        "id": 41,
+        "date": "2026-07-07",
+        "time": "16:30",
+        "dateLabel": "07.07",
+        "title": "Звонок по ВКС",
+        "company": "Тау-Кен Самрук",
+        "meetingWith": "Нариман Абсаметов - Председатель Правления",
+        "place": "ВКС",
+        "status": "Перенесено",
+        "assigned": "b.makhamadjonov.@uztmk.uz",
+        "url": "/?planner=41"
+      },
+      {
+        "id": 30,
+        "date": "2026-07-07",
+        "time": "15:00",
+        "dateLabel": "07.07",
+        "title": "Встреча",
+        "company": "EarthDaily",
+        "meetingWith": "",
+        "place": "Офис",
+        "status": "Проведено",
+        "assigned": "s.rahmatullaev@uztmk.uz",
+        "url": "/?planner=30"
+      },
+      {
+        "id": 39,
+        "date": "2026-07-06",
+        "time": "17:30",
+        "dateLabel": "06.07",
+        "title": "Звонок по ВКС",
+        "company": "NEQSOL Holding",
+        "meetingWith": "Zahra Imranova - Senior Investment Manager",
+        "place": "ВКС",
+        "status": "Проведено",
+        "assigned": "s.rahmatullaev@uztmk.uz",
+        "url": "/?planner=39"
+      }
+    ]
+  },
+  "foreign": {
+    "totalCompanies": 230,
+    "countries": [
+      {
+        "label": "Turkey",
+        "count": 53,
+        "color": "#2f6bff"
+      },
+      {
+        "label": "Uzbekistan",
+        "count": 29,
+        "color": "#7c3aed"
+      },
+      {
+        "label": "China",
+        "count": 21,
+        "color": "#089b79"
+      },
+      {
+        "label": "Canada",
+        "count": 16,
+        "color": "#f97316"
+      },
+      {
+        "label": "Japan",
+        "count": 13,
+        "color": "#ef4444"
+      },
+      {
+        "label": "United States",
+        "count": 12,
+        "color": "#0891b2"
+      },
+      {
+        "label": "Kazakhstan",
+        "count": 9,
+        "color": "#d89100"
+      },
+      {
+        "label": "United Kingdom",
+        "count": 9,
+        "color": "#4f46e5"
+      },
+      {
+        "label": "Germany",
+        "count": 6,
+        "color": "#16a34a"
+      },
+      {
+        "label": "Russia",
+        "count": 5,
+        "color": "#db2777"
+      },
+      {
+        "label": "France",
+        "count": 4,
+        "color": "#8b5cf6"
+      },
+      {
+        "label": "South Korea",
+        "count": 4,
+        "color": "#0f766e"
+      }
+    ],
+    "directions": [
+      {
+        "label": "Оборудование и технологии",
+        "count": 14,
+        "color": "#2f6bff"
+      },
+      {
+        "label": "Инжиниринг и технические консультанты",
+        "count": 11,
+        "color": "#7c3aed"
+      },
+      {
+        "label": "Горнодобывающие компании",
+        "count": 9,
+        "color": "#089b79"
+      },
+      {
+        "label": "Горнодобывающие компании",
+        "count": 5,
+        "color": "#f97316"
+      },
+      {
+        "label": "Off-takers и промышленные потребители",
+        "count": 4,
+        "color": "#ef4444"
+      },
+      {
+        "label": "Инфраструктура и промышленное строительство",
+        "count": 4,
+        "color": "#0891b2"
+      },
+      {
+        "label": "Оборудование и технологии",
+        "count": 4,
+        "color": "#d89100"
+      },
+      {
+        "label": "Оборудование и технологии",
+        "count": 4,
+        "color": "#4f46e5"
+      }
+    ],
+    "categories": [
+      {
+        "label": "Производители горного оборудования (mining equipment OEM)",
+        "count": 10,
+        "color": "#2f6bff"
+      },
+      {
+        "label": "Инжиниринговые компании (Engineering consultants)",
+        "count": 9,
+        "color": "#7c3aed"
+      },
+      {
+        "label": "Средние горнодобывающие компании (mid-tier)",
+        "count": 9,
+        "color": "#089b79"
+      },
+      {
+        "label": "Компании по добыче редких металлов",
+        "count": 5,
+        "color": "#f97316"
+      },
+      {
+        "label": "Аналитические лаборатории",
+        "count": 3,
+        "color": "#ef4444"
+      },
+      {
+        "label": "Коммерческие банки",
+        "count": 3,
+        "color": "#0891b2"
+      },
+      {
+        "label": "Компании по добыче редких металлов",
+        "count": 3,
+        "color": "#d89100"
+      },
+      {
+        "label": "Международные организации и ассоциации",
+        "count": 3,
+        "color": "#4f46e5"
+      }
+    ],
+    "latestCompanies": [
+      {
+        "id": 205,
+        "name": "EarthDaily",
+        "country": "Canada",
+        "direction": "Цифровые технологии и инновации",
+        "updatedAt": "2026-07-07 13:48:49",
+        "url": "/?company=205"
+      },
+      {
+        "id": 190,
+        "name": "NEQSOL Holding",
+        "country": "Azerbaijan",
+        "direction": "Инфраструктура и промышленное строительство",
+        "updatedAt": "2026-07-06 14:52:47",
+        "url": "/?company=190"
+      },
+      {
+        "id": 236,
+        "name": "Saitama Resona Bank, Ltd.",
+        "country": "Japan",
+        "direction": "Банки и финансовые институты",
+        "updatedAt": "2026-07-04 07:01:32",
+        "url": "/?company=236"
+      },
+      {
+        "id": 235,
+        "name": "Saitama Resona Bank, Ltd.",
+        "country": "Japan",
+        "direction": "Банки и финансовые институты",
+        "updatedAt": "2026-07-04 07:01:31",
+        "url": "/?company=235"
+      },
+      {
+        "id": 234,
+        "name": "Saitama Resona Bank, Ltd.",
+        "country": "Japan",
+        "direction": "Банки и финансовые институты",
+        "updatedAt": "2026-07-04 07:01:31",
+        "url": "/?company=234"
+      },
+      {
+        "id": 233,
+        "name": "JANOME Corporation",
+        "country": "Japan",
+        "direction": "Off-takers и промышленные потребители",
+        "updatedAt": "2026-07-04 06:59:45",
+        "url": "/?company=233"
+      }
+    ]
+  },
+  "charts": {
+    "countries": [
+      {
+        "label": "Turkey",
+        "count": 53,
+        "color": "#2f6bff"
+      },
+      {
+        "label": "Uzbekistan",
+        "count": 29,
+        "color": "#7c3aed"
+      },
+      {
+        "label": "China",
+        "count": 21,
+        "color": "#089b79"
+      },
+      {
+        "label": "Canada",
+        "count": 16,
+        "color": "#f97316"
+      },
+      {
+        "label": "Japan",
+        "count": 13,
+        "color": "#ef4444"
+      },
+      {
+        "label": "United States",
+        "count": 12,
+        "color": "#0891b2"
+      },
+      {
+        "label": "Kazakhstan",
+        "count": 9,
+        "color": "#d89100"
+      },
+      {
+        "label": "United Kingdom",
+        "count": 9,
+        "color": "#4f46e5"
+      },
+      {
+        "label": "Germany",
+        "count": 6,
+        "color": "#16a34a"
+      },
+      {
+        "label": "Russia",
+        "count": 5,
+        "color": "#db2777"
+      },
+      {
+        "label": "France",
+        "count": 4,
+        "color": "#8b5cf6"
+      },
+      {
+        "label": "South Korea",
+        "count": 4,
+        "color": "#0f766e"
+      }
+    ],
+    "directions": [
+      {
+        "label": "Оборудование и технологии",
+        "count": 14,
+        "color": "#2f6bff"
+      },
+      {
+        "label": "Инжиниринг и технические консультанты",
+        "count": 11,
+        "color": "#7c3aed"
+      },
+      {
+        "label": "Горнодобывающие компании",
+        "count": 9,
+        "color": "#089b79"
+      },
+      {
+        "label": "Горнодобывающие компании",
+        "count": 5,
+        "color": "#f97316"
+      },
+      {
+        "label": "Off-takers и промышленные потребители",
+        "count": 4,
+        "color": "#ef4444"
+      },
+      {
+        "label": "Инфраструктура и промышленное строительство",
+        "count": 4,
+        "color": "#0891b2"
+      },
+      {
+        "label": "Оборудование и технологии",
+        "count": 4,
+        "color": "#d89100"
+      },
+      {
+        "label": "Оборудование и технологии",
+        "count": 4,
+        "color": "#4f46e5"
+      }
+    ],
+    "categories": [
+      {
+        "label": "Производители горного оборудования (mining equipment OEM)",
+        "count": 10,
+        "color": "#2f6bff"
+      },
+      {
+        "label": "Инжиниринговые компании (Engineering consultants)",
+        "count": 9,
+        "color": "#7c3aed"
+      },
+      {
+        "label": "Средние горнодобывающие компании (mid-tier)",
+        "count": 9,
+        "color": "#089b79"
+      },
+      {
+        "label": "Компании по добыче редких металлов",
+        "count": 5,
+        "color": "#f97316"
+      },
+      {
+        "label": "Аналитические лаборатории",
+        "count": 3,
+        "color": "#ef4444"
+      },
+      {
+        "label": "Коммерческие банки",
+        "count": 3,
+        "color": "#0891b2"
+      },
+      {
+        "label": "Компании по добыче редких металлов",
+        "count": 3,
+        "color": "#d89100"
+      },
+      {
+        "label": "Международные организации и ассоциации",
+        "count": 3,
+        "color": "#4f46e5"
+      }
+    ],
+    "meetingStatuses": [
+      {
+        "label": "Проведено",
+        "count": 30,
+        "color": "#2f6bff"
+      },
+      {
+        "label": "Запланировано",
+        "count": 6,
+        "color": "#7c3aed"
+      },
+      {
+        "label": "Перенесено",
+        "count": 2,
+        "color": "#089b79"
+      },
+      {
+        "label": "Отменено",
+        "count": 1,
+        "color": "#f97316"
+      }
+    ]
+  }
+}

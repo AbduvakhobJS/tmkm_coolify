@@ -3,12 +3,12 @@ import TopCenterNew, {TopCenterItem} from "./TopCenterNew";
 
 /* ── TMK Schema data ── */
 const stages = [
-    { num:1, title:'GEOLOGIK QIDIRUVLAR',       statLabel:'Maydoni',    statVal:'18', statusLabel:'Статус работ',   statusVal:'O`tkazilmoqda', progress:null, img: "./imgs/r6.jpg" },
-    { num:2, title:'JOYLASHUVI',          statLabel:'Faol', statVal:'5',  statusLabel:'Статус добычи',  statusVal:'O`tkazilmoqda', progress:null, img: "./imgs/re3.jpg" },
-    { num:3, title:'BOYITISH ZAVODI', statLabel:'Zavod',      statVal:'6',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',         val:88}, img: "./imgs/re0.jpg" },
-    { num:4, title:'ZAVODLAR',                 statLabel:'Zavod',     statVal:'3',  statusLabel:null, statusVal:null, progress:{label:'Zavodlarni yuklash',     val:92}, img: "./imgs/r5.jpg" },
-    { num:5, title:'TEXNO PARKLARI / KLASTERLARI',  statLabel:'Joylarda',    statVal:'4',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',    val:92}, img: "./imgs/re1.jpg" },
-    { num:6, title:'TAYYOR MAHSULOTLAR',      statLabel:'Korxonalar', statVal:'12', statusLabel:null, statusVal:null, progress:{label:'Yuk tashish',             val:96}, img: "./imgs/re2.jpg" },
+    { num:1, title:'GEOLOGIK QIDIRUVLAR',       statLabel:'Maydoni',    statVal:'18', statusLabel:'Статус работ',   statusVal:'O`tkazilmoqda', progress:null, img: "/imgs/r6.jpg" },
+    { num:2, title:'JOYLASHUVI',          statLabel:'Faol', statVal:'5',  statusLabel:'Статус добычи',  statusVal:'O`tkazilmoqda', progress:null, img: "/imgs/re3.jpg" },
+    { num:3, title:'BOYITISH ZAVODI', statLabel:'Zavod',      statVal:'6',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',         val:88}, img: "/imgs/re0.jpg" },
+    { num:4, title:'ZAVODLAR',                 statLabel:'Zavod',     statVal:'3',  statusLabel:null, statusVal:null, progress:{label:'Zavodlarni yuklash',     val:92}, img: "/imgs/r5.jpg" },
+    { num:5, title:'TEXNO PARKLARI / KLASTERLARI',  statLabel:'Joylarda',    statVal:'4',  statusLabel:null, statusVal:null, progress:{label:'Yuklanmoqda',    val:92}, img: "/imgs/re1.jpg" },
+    { num:6, title:'TAYYOR MAHSULOTLAR',      statLabel:'Korxonalar', statVal:'12', statusLabel:null, statusVal:null, progress:{label:'Yuk tashish',             val:96}, img: "/imgs/re2.jpg" },
 ];
 
 const flows = [
@@ -88,11 +88,11 @@ const TopCenter = () => {
         ],
         // 1-qavat (9 ta)
         [
-            { name: 'Li klasteri', position: { x: 50, y: 92 }, image: './imgs/icon1.png', side: 'right', angle: 0, opacity: 1 },
-            { name: 'Grafit klasteri', position: { x: 34, y: 88 }, image: './imgs/icon2.png', side: 'right', angle: 15, opacity: 1 },
-            { name: 'Mg klasteri', position: { x: 66, y: 88 }, image: './imgs/icon4.png', side: 'left', angle: 15, opacity: 1 },
-            { name: 'V klasteri', position: { x: 22, y: 80 }, image: './imgs/icon3.png', side: 'right', angle: 20, opacity: 1 },
-            { name: 'Co , Ni, Cr klasteri', position: { x: 78, y: 80 }, image: './imgs/icon5.png', side: 'left', angle: 20, opacity: 1 },
+            { name: 'Li klasteri', position: { x: 50, y: 92 }, image: '/imgs/icon1.png', side: 'right', angle: 0, opacity: 1 },
+            { name: 'Grafit klasteri', position: { x: 34, y: 88 }, image: '/imgs/icon2.png', side: 'right', angle: 15, opacity: 1 },
+            { name: 'Mg klasteri', position: { x: 66, y: 88 }, image: '/imgs/icon4.png', side: 'left', angle: 15, opacity: 1 },
+            { name: 'V klasteri', position: { x: 22, y: 80 }, image: '/imgs/icon3.png', side: 'right', angle: 20, opacity: 1 },
+            { name: 'Co , Ni, Cr klasteri', position: { x: 78, y: 80 }, image: '/imgs/icon5.png', side: 'left', angle: 20, opacity: 1 },
         ],
         [
             { name: 'Grafit klasteri', position: { x: 50, y: 84 }, image: '', side: 'right', angle: 5, opacity: 0.7 },
@@ -136,7 +136,7 @@ const TopCenter = () => {
             {activeTab === 1 && (
                 <div className="top-center-bg">
                     <div className="logo-title-piro">
-                        <img src="./imgs/logo2.png" alt="" />
+                        <img src="/imgs/logo2.png" alt="" />
                     </div>
                     <div className="top-center-content">
                         {layers.flat().map((widget, idx) => {
