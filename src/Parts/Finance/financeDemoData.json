@@ -1,0 +1,431 @@
+{
+    "meta": {
+        "company": "\"ТЕХНОЛОГИК МЕТАЛЛАР КОМБИНАТИ\" АКЦИЯДОРЛИК ЖАМИЯТИ",
+        "title": "МОЛИЯВИЙ ДАШБОРД",
+        "period": "2026 йил, Май",
+        "comparePeriod": "Апрель 2026",
+        "periodEndLabel": "2026-йил 31-майда якунланган давр учун",
+        "currency": "минг сўм",
+        "exchangeRate": 12009.29,
+        "generatedAt": "31.05.2026 18:30"
+    },
+    "balanceSheet": {
+        "longTermAssets": [
+            {
+                "label": "Асосий воситалар",
+                "value": 26266358
+            },
+            {
+                "label": "Шўъба корхоналарга инвестициялар",
+                "value": 138094284
+            },
+            {
+                "label": "Тугалланмаган қурилиш",
+                "value": 143323545
+            },
+            {
+                "label": "Бошқа узоқ муддатли активлар",
+                "value": 296857
+            }
+        ],
+        "longTermAssetsTotal": 307981044,
+        "currentAssets": [
+            {
+                "label": "Товар-моддий захиралар",
+                "value": 123454858
+            },
+            {
+                "label": "Савдо дебиторлик қарзлари ва олдиндан тўловлар",
+                "value": 233648303
+            },
+            {
+                "label": "Пул маблағлари ва уларнинг эквивалентлари",
+                "value": 98683974
+            },
+            {
+                "label": "Бошқа жорий активлар",
+                "value": 77992379
+            }
+        ],
+        "currentAssetsTotal": 533779514,
+        "totalAssets": 841760559,
+        "capital": [
+            {
+                "label": "Устав капитали",
+                "value": 447459109
+            },
+            {
+                "label": "Бошқа захиралар",
+                "value": 18535947
+            },
+            {
+                "label": "Тақсимланмаган фойда",
+                "value": 131960995
+            }
+        ],
+        "capitalTotal": 597956051,
+        "longTermLiabilities": [
+            {
+                "label": "Узоқ муддатли мажбуриятлар",
+                "value": 142097785
+            }
+        ],
+        "longTermLiabilitiesTotal": 142097785,
+        "currentLiabilities": [
+            {
+                "label": "Бошқа кредиторлик қарзлари",
+                "value": 143982906
+            },
+            {
+                "label": "Жорий мажбуриятлар",
+                "value": 47723817
+            }
+        ],
+        "currentLiabilitiesTotal": 191706723,
+        "totalLiabilities": 333804508,
+        "totalCapitalAndLiabilities": 931760559
+    },
+    "incomeStatement": {
+        "revenue": 133670868,
+        "costOfSales": -82073151,
+        "grossProfit": 51597716,
+        "sellingExpenses": -4701166,
+        "adminExpenses": -59033894,
+        "otherOperatingExpenses": -43656468,
+        "otherOperatingIncome": 761838,
+        "operatingProfit": -55031972,
+        "financialIncome": {
+            "total": 16532468,
+            "items": [
+                {
+                    "label": "Фоиз даромадлари",
+                    "value": 2913726
+                },
+                {
+                    "label": "Валюта курси бўйича фойдалар",
+                    "value": 13550913
+                },
+                {
+                    "label": "Бошқа молиявий даромадлар",
+                    "value": 67829
+                }
+            ]
+        },
+        "financialExpenses": {
+            "total": -21811973,
+            "items": [
+                {
+                    "label": "Фоиз харажатлари",
+                    "value": -6904647
+                },
+                {
+                    "label": "Валюта курси бўйича зарарлар",
+                    "value": -11263436
+                },
+                {
+                    "label": "Бошқа молиявий харажатлар",
+                    "value": -3643891
+                }
+            ]
+        },
+        "profitBeforeTax": -60311478,
+        "incomeTaxExpense": -5710457,
+        "netProfit": -66021935
+    },
+    "trend": {
+        "labels": [
+            "Янв 2026",
+            "Фев 2026",
+            "Мар 2026",
+            "Апр 2026",
+            "Май 2026"
+        ],
+        "revenue": [
+            102541250,
+            130202183,
+            129792977,
+            128570607,
+            133670868
+        ],
+        "grossProfit": [
+            40857349,
+            36084994,
+            49621157,
+            53607443,
+            51597716
+        ],
+        "operatingProfit": [
+            -43665740,
+            -42206932,
+            -41367691,
+            -43394700,
+            -55031972
+        ],
+        "netProfit": [
+            -81474345,
+            -85419437,
+            -70433747,
+            -62781994,
+            -66021935
+        ],
+        "profitBeforeTax": [
+            -52803606,
+            -58345083,
+            -56660574,
+            -55101714,
+            -60311478
+        ],
+        "costOfSales": [
+            -73366389,
+            -68676521,
+            -79500871,
+            -73671212,
+            -82073151
+        ],
+        "sellingExpenses": [
+            -4145475,
+            -4321987,
+            -4915898,
+            -3987023,
+            -4701166
+        ],
+        "adminExpenses": [
+            -51479514,
+            -48334814,
+            -59385387,
+            -66131406,
+            -59033894
+        ],
+        "otherOperatingExpenses": [
+            -54437499,
+            -49453126,
+            -42768335,
+            -49096808,
+            -43656468
+        ],
+        "otherOperatingIncome": [
+            912562,
+            767100,
+            817006,
+            869134,
+            761838
+        ],
+        "financialIncome": [
+            12711790,
+            13609624,
+            12771870,
+            17950557,
+            16532468
+        ],
+        "financialExpenses": [
+            -17631990,
+            -18427117,
+            -19272867,
+            -18702656,
+            -21811973
+        ],
+        "incomeTaxExpense": [
+            -4651353,
+            -4023608,
+            -5249351,
+            -5207848,
+            -5710457
+        ],
+        "grossMargin": [
+            35.1,
+            34.44,
+            35.4,
+            35.98,
+            38.600569272880016
+        ],
+        "operatingMargin": [
+            -47.17,
+            -45.74,
+            -43.8,
+            -40.45,
+            -41.16975734757703
+        ],
+        "netMargin": [
+            -55.39,
+            -53.39,
+            -52.57,
+            -48.56,
+            -49.39141638550593
+        ],
+        "cash": [
+            84237737,
+            90222920,
+            81528725,
+            94832832,
+            98683974
+        ],
+        "operatingCF": [
+            -45504840,
+            -44952377,
+            -45053682,
+            -45323501,
+            -41268912
+        ],
+        "investingCF": [
+            -33270015,
+            -33237606,
+            -30927104,
+            -28378051,
+            -26753440
+        ],
+        "financingCF": [
+            81020713,
+            69017221,
+            74034817,
+            77271044,
+            68295310
+        ],
+        "netCF": [
+            234071,
+            246044,
+            250207,
+            293380,
+            272958
+        ],
+        "ebitda": [
+            -47438888,
+            -49580666,
+            -45473833,
+            -40909137,
+            -38422117
+        ],
+        "roa": [
+            -10.34,
+            -10.47,
+            -8.63,
+            -7.16,
+            -7.843315334046198
+        ],
+        "roe": [
+            -14.04,
+            -12.16,
+            -13.93,
+            -10.73,
+            -11.04126881726296
+        ],
+        "debtToEquity": [
+            0.5,
+            0.52,
+            0.52,
+            0.57,
+            0.56
+        ],
+        "currentRatio": [
+            2.53,
+            2.67,
+            2.64,
+            2.76,
+            2.78
+        ]
+    },
+    "cashFlow": {
+        "cashAndEquivalents": 98683974,
+        "operating": -41268912,
+        "investing": -26753440,
+        "financing": 68295310,
+        "ebitda": -38422117
+    },
+    "banks": {
+        "accounts": [
+            {
+                "name": "Миллий банк",
+                "sum": 64891510,
+                "usd": 115195,
+                "sumEquivalent": 1448302873
+            },
+            {
+                "name": "Миллий банк FIRU",
+                "sum": 131828,
+                "usd": 0,
+                "sumEquivalent": 131828
+            },
+            {
+                "name": "Ипотека банк",
+                "sum": 1266693,
+                "usd": 0,
+                "sumEquivalent": 1266693
+            },
+            {
+                "name": "Асака банк",
+                "sum": 12765352,
+                "usd": 0,
+                "sumEquivalent": 12765352
+            },
+            {
+                "name": "Капитал банк",
+                "sum": 1207366625,
+                "usd": 2000,
+                "sumEquivalent": 1231385205
+            },
+            {
+                "name": "КДБ банк",
+                "sum": 1105653216,
+                "usd": 562,
+                "sumEquivalent": 6744898
+            },
+            {
+                "name": "Асака банк кредит",
+                "sum": 1105653216,
+                "usd": 0,
+                "sumEquivalent": 1105653216
+            },
+            {
+                "name": "Миллий банк кредит",
+                "sum": 1252089,
+                "usd": 0,
+                "sumEquivalent": 1252089
+            },
+            {
+                "name": "Капитал банк кредит",
+                "sum": 0,
+                "usd": 0,
+                "sumEquivalent": 0
+            },
+            {
+                "name": "Депозит",
+                "sum": 22000000000,
+                "usd": 0,
+                "sumEquivalent": 22000000000
+            }
+        ],
+        "total": {
+            "sum": 1286422008,
+            "usd": 117757,
+            "sumEquivalent": 2700596848
+        }
+    },
+    "deltas": {
+        "revenue": 12.4,
+        "grossProfit": 8.7,
+        "operatingProfit": -18.6,
+        "profitBeforeTax": -9.4,
+        "netProfit": -11.1,
+        "grossMarginPP": 2.1,
+        "operatingMarginPP": -7.8,
+        "netMarginPP": -6.2,
+        "costOfSales": 10.6,
+        "sellingExpenses": -3.1,
+        "adminExpenses": 14.2,
+        "otherOperatingExpenses": 6.8,
+        "otherOperatingIncome": 33.5,
+        "financialIncome": 15.7,
+        "financialExpenses": 18.9,
+        "incomeTaxExpense": 5.6,
+        "totalAssets": 3.8,
+        "longTermAssetsTotal": 2.1,
+        "currentAssetsTotal": 4.6,
+        "capitalTotal": 2.7,
+        "totalLiabilities": 4.9,
+        "totalCapitalAndLiabilities": 3.5,
+        "debtToEquity": 0.02,
+        "currentRatio": 0.09,
+        "cash": 6.3,
+        "roa": -2.1,
+        "roe": -2.4
+    }
+}

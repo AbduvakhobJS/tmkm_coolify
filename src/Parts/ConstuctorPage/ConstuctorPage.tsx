@@ -91,6 +91,8 @@ const WIDGETS: Widget[] = [
     { key: 'map', title: 'Map', desc: 'Map', route: '/main/4', color: '#ea08cc', icon: <IconShield /> },
     { key: 'events', title: 'Events', desc: 'Events', route: '/main/7', color: '#ea0808', icon: <IconUsers /> },
     { key: 'resurs', title: 'Resurs', desc: 'Resurs', route: '/main/9', color: '#8391d6', icon: <IconBarChart /> },
+    { key: 'finance', title: 'finance', desc: 'finance', route: '/main/fin' +
+            'ance', color: '#33d80f', icon: <IconBarChart /> },
 ];
 
 const WIDGET_MAP: Record<string, Widget> = Object.fromEntries(WIDGETS.map((w) => [w.key, w]));

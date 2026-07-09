@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import HrAnalitikaDetail from "../Parts/HrAnalitika/HrAnalitikaDetail";
 import Esg from "../Parts/ESG/ESG";
+import Finance from "../Parts/Finance/Finance";
 
 const Parts = () => {
     const navigate = useNavigate();
@@ -166,6 +167,13 @@ const Parts = () => {
                             onClick={() => navigate('/main/esg-detail')}
                     >
                         ESG detail
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/finance')}
+                    >
+                        Finance
                     </button>
                 </div>
                 <div className="col-md-2">
