@@ -1,310 +1,351 @@
 import React, { useState } from 'react';
-import './dashboard.css';
+import { C } from './dashboardUI';
 
+/* ── Neon ikonka (umumiy dizayn tizimi) ── */
+const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 26, children }) => (
+    <div style={{
+        width: size, height: size, borderRadius: '50%', flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
+        border: `1.3px solid ${color}70`,
+        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}25`,
+        color,
+    }}>
+        {children}
+    </div>
+);
+
+/* ── Professional ikonka to'plami ── */
+const IconImage = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="8.5" cy="9.5" r="1.7" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M4 17l5-5 3.5 3.5L16 12l4 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+const IconInfo = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M12 11v6M12 7.5h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+);
+const IconLayers = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3l9 5-9 5-9-5 9-5z" fill="currentColor" opacity="0.85" />
+        <path d="M3 13l9 5 9-5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M3 17l9 5 9-5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" opacity="0.6" />
+    </svg>
+);
+const IconDollar = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="9.2" stroke="currentColor" strokeWidth="1.5" opacity="0.35" />
+        <path d="M12 5.5v13M15.5 8.3c0-1.3-1.4-2.3-3.5-2.3-2.3 0-3.7 1.1-3.7 2.6 0 3.4 7.2 1.7 7.2 5.1 0 1.6-1.6 2.8-4 2.8-2.1 0-3.7-1-4-2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+const IconClipboard = () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="4" width="14" height="17" rx="2" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="9" y="2" width="6" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M8.5 12h7M8.5 16h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+);
+const IconCheck = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+const IconRuler = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2.5" y="8" width="19" height="8" rx="1.5" transform="rotate(-8 12 12)" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M6 9l1 2.5M10 8.3l1 2.5M14 7.6l1 2.5M18 6.9l1 2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+);
+const IconTrain = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="3" width="14" height="13" rx="3" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="8.5" cy="18.5" r="1.4" fill="currentColor" />
+        <circle cx="15.5" cy="18.5" r="1.4" fill="currentColor" />
+        <path d="M5 10h14M8 3v5M16 3v5" stroke="currentColor" strokeWidth="1.4" />
+        <path d="M7 16l-2 3M17 16l2 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+);
+const IconPackage = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M4 7.5L12 12l8-4.5M12 12v9" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+);
+const IconBolt = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor" opacity="0.9" />
+    </svg>
+);
+const IconFlask = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9.5 3h5M10 3v5.5L5.6 17a2 2 0 001.8 2.9h9.2a2 2 0 001.8-2.9L14 8.5V3" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M7.8 14.5h8.4" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+);
+const IconUsers = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M2.8 19c.6-3.4 3.1-5.5 6.2-5.5s5.6 2.1 6.2 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <circle cx="17" cy="8.5" r="2.6" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M15.6 13.7c2.6.2 4.6 2 5.1 4.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+);
+const IconDrill = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 8l8 4M3 8l4-2 8 4-4 2-8-4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M11 12l7-3.5 3 1.5-7 3.5-3-1.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M13.5 13.2L9 21" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+);
+const IconMapPin = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21s7-6.4 7-11.5A7 7 0 105 9.5C5 14.6 12 21 12 21z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <circle cx="12" cy="9.5" r="2.3" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+);
+const IconChevronLeft = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+const IconChevronRight = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+/* ── Ma'lumot turlari ── */
 interface Project {
     id: string;
     name: string;
-    organization: string;
-    description: string;
     corporateName: string;
     location: string;
-    technologiesUsed: string;
     region: string;
     condition: string;
     status: 'Yugori' | 'Normal';
     coordinates: string;
     images: string[];
 }
+interface Metric { label: string; value: string; icon: React.ReactNode }
+interface Construction { label: string; value: string; color: string }
+interface Parameter { label: string; status: string; date: string; value: number; verified?: boolean; approved?: boolean }
 
-interface Metric {
-    label: string;
-    value: string;
-    icon: string;
-}
+/* ── Yordamchi UI komponentlar ── */
+const SectionCard: React.FC<{ title: string; icon: React.ReactNode; color?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, color = '#4fb3d9', children, style }) => (
+    <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '12px 14px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <NeonIcon color={color} size={26}>{icon}</NeonIcon>
+            <span style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>{title}</span>
+        </div>
+        {children}
+    </div>
+);
 
-interface Construction {
-    label: string;
-    value: string;
-}
+const StatusBadge: React.FC<{ text: string; tone: 'ok' | 'warn' | 'down' | 'info' }> = ({ text, tone }) => {
+    const col = tone === 'ok' ? C.up : tone === 'down' ? C.down : tone === 'warn' ? '#eab308' : '#4fb3d9';
+    return (
+        <span style={{ padding: '3px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, color: col, background: `${col}1c`, border: `1px solid ${col}55`, whiteSpace: 'nowrap' }}>
+            {text}
+        </span>
+    );
+};
 
+/* ── Asosiy komponent ── */
 const ProjectDashboard: React.FC = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const project: Project = {
         id: "383",
         name: "«Наводий КМК» АЖ 3-сон Лойиҳавидрометаллургия заводи техноген номи: чикиндиларидан йўлдош ажратиб олиш технологиясини ишлаб чикиш",
-        organization: "«Узбекистон ТМК» АЖ",
-        description: "Чикиндилардан йўлдош металларни ажратиб олиш технологиясини ишлаб чикиш",
         corporateName: "«Узбекистон ТМК» АЖ",
         location: "Чикиндилардан йўлдош металларни ажратиб олиш технологиясини ишлаб чикиш",
-        technologiesUsed: "Наводий вилояти, Учқудуқ тумани",
         region: "Наводий вилояти, Учқудуқ тумани",
-        condition: "Rasmiylashtirilgan jarayenda",
+        condition: "Расмийлаштирилган жараенда",
         status: "Yugori",
         coordinates: "42.287819, 63.389067",
-        images: [
-            "/imgs/f1.png",
-            "/imgs/f2.jpg",
-            "/imgs/f3.png"
-        ]
+        images: ["/imgs/f1.png", "/imgs/f2.jpg", "/imgs/f3.png"],
     };
 
     const metrics: Metric[] = [
-        { label: "Maydoni:", value: "765 Га", icon: "📐" },
-        { label: "Temir yo'lgacha:", value: "15 км", icon: "🚂" },
-        { label: "Чиқинди захираси:", value: "171,5 млн тн", icon: "📦" },
-        { label: "Электр энергигача:", value: "1 км", icon: "⚡" },
-        { label: "Йўлдош компонентлар:", value: "Au, Ag, W, Sb, Sb, Ga", icon: "🧪" },
-        { label: "Аҳоли пункти:", value: "27 км", icon: "👥" },
-        { label: "Фойдали қазилмаларни ётиш чуқурлиги:", value: "25 метр", icon: "⛏️" }
+        { label: "Maydoni", value: "765 Га", icon: <IconRuler /> },
+        { label: "Temir yo'lgacha", value: "15 км", icon: <IconTrain /> },
+        { label: "Чиқинди захираси", value: "171,5 млн тн", icon: <IconPackage /> },
+        { label: "Электр энергигача", value: "1 км", icon: <IconBolt /> },
+        { label: "Йўлдош компонентлар", value: "Au, Ag, W, Sb, Ga", icon: <IconFlask /> },
+        { label: "Аҳоли пункти", value: "27 км", icon: <IconUsers /> },
+        { label: "Фойдали қазилма чуқурлиги", value: "25 метр", icon: <IconDrill /> },
     ];
 
     const constructions: Construction[] = [
-        { label: "Burg'ulash:", value: "883" },
-        { label: "Sinovlar:", value: "150$" },
-        { label: "Namunalar:", value: "455" },
-        { label: "Resurslar:", value: "50$" }
+        { label: "Burg'ulash", value: "883", color: '#4fb3d9' },
+        { label: "Sinovlar", value: "150$", color: '#22c55e' },
+        { label: "Namunalar", value: "455", color: '#4fb3d9' },
+        { label: "Resurslar", value: "50$", color: '#22c55e' },
     ];
 
-    const parameters = [
+    const parameters: Parameter[] = [
         { label: "ТЕО", status: "Yaxhi", date: "2025-11-12", value: 1 },
         { label: "Қурилманар рўйхати", status: "Normal", date: "", value: 0 },
         { label: "Қурилиши тугатиш санаси", status: "Normal", date: "2025-11-20 / 2026-11-12", value: 0 },
-        { label: "Таклифлар олиниши", status: "Nepmal", date: "", value: 0 },
+        { label: "Таклифлар олиниши", status: "Normal", date: "", value: 0 },
         { label: "Қурилиш лойиҳаси", status: "Normal", date: "", value: 0 },
         { label: "Концепция", status: "Normal", date: "2025-11-12", value: 0, verified: true },
         { label: "Қурилиш лойиҳаси", status: "Normal", date: "", value: 0 },
         { label: "Концепция", status: "Normal", date: "2025-11-12", value: 0, verified: true },
         { label: "Қурилиш лойиҳаси", status: "Normal", date: "", value: 0 },
-        { label: "Лойиҳалаш (Layout)", status: "Normal", date: "2025-11-12", value: 1, approved: true }
+        { label: "Лойиҳалаш (Layout)", status: "Normal", date: "2025-11-12", value: 1, approved: true },
     ];
 
-    const handlePrevImage = () => {
-        setCurrentImageIndex(prev => prev > 0 ? prev - 1 : project.images.length - 1);
-    };
-
-    const handleNextImage = () => {
-        setCurrentImageIndex(prev => prev < project.images.length - 1 ? prev + 1 : 0);
-    };
+    const handlePrevImage = () => setCurrentImageIndex(prev => (prev > 0 ? prev - 1 : project.images.length - 1));
+    const handleNextImage = () => setCurrentImageIndex(prev => (prev < project.images.length - 1 ? prev + 1 : 0));
 
     return (
-        <div className="dashboard-container">
-            <div className="dashboard-grid">
+        <div style={{ background: C.bg, padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-                {/* Left Panel - Project Images */}
-                <div className="panel panel-left">
-                    <div className="panel-header">
-                        <div className="header-icon">
-                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h2>Loyiha rasmlari</h2>
-                    </div>
-
-                    <div className="image-carousel">
-                        <div className="main-image">
-                            <img src={project.images[currentImageIndex]} alt="Project view" />
-                            <div className="image-counter">
-                                {currentImageIndex + 1} / {project.images.length}
-                            </div>
-                        </div>
-
-                        <button className="carousel-btn carousel-btn-prev" onClick={handlePrevImage}>
-                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-
-                        <button className="carousel-btn carousel-btn-next" onClick={handleNextImage}>
-                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div className="thumbnail-list">
-                        {project.images.map((img, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => setCurrentImageIndex(idx)}
-                                className={`thumbnail ${idx === currentImageIndex ? 'thumbnail-active' : ''}`}
-                            >
-                                <img src={img} alt="" />
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="project-info">
-                        <div className="info-header">
-                            <div className="header-icon">
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <h3>Asosiy ma'lumotlar</h3>
-                        </div>
-
-                        <div className="project-description">
-                            <p>{project.name}</p>
-                        </div>
-
-                        <div className="info-list">
-                            <div className="info-item">
-                                <span className="info-label">Корхона номи:</span>
-                                <span className="info-value">{project.corporateName}</span>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-label">Лойиҳа макқади:</span>
-                                <span className="info-value">{project.location}</span>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-label">Худуд:</span>
-                                <span className="info-value">{project.region}</span>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-label">Иш жараёни:</span>
-                                <span className="info-value">-‰</span>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-label">Ҳолат:</span>
-                                <span className="badge badge-warning">
-                  Rasmiylashtirilgan jarayenda
-                </span>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-label">Аҳамиятлилик:</span>
-                                <span className="badge badge-danger">
-                  Yugori
-                </span>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-label">Координаталар:</span>
-                                <span className="badge badge-info">
-                  {project.coordinates}
-                </span>
-                            </div>
-                        </div>
+            {/* Sarlavha */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                    <NeonIcon color="#4fb3d9" size={36}><IconLayers /></NeonIcon>
+                    <div style={{ minWidth: 0 }}>
+                        <div style={{ color: '#4fb3d9', fontSize: 18, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Лойиҳа карточкаси № {project.id}</div>
+                        <div style={{ color: C.sub, fontSize: 11.5, marginTop: 2, maxWidth: 640, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>{project.name}</div>
                     </div>
                 </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                    <StatusBadge text={project.condition} tone="warn" />
+                    <StatusBadge text={`Аҳамиятлилик: ${project.status}`} tone="down" />
+                </div>
+            </div>
 
-                {/* Middle Panel - Metrics */}
-                <div className="panel panel-middle">
-                    <div className="panel-header">
-                        <div className="header-icon">
-                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
+            {/* Asosiy 3 ustunli qism */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr 1fr', gap: 10, alignItems: 'stretch' }}>
+
+                {/* 1-ustun: Loyiha rasmlari + asosiy ma'lumotlar */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
+                    <SectionCard title="Лойиҳа расмлари" icon={<IconImage />}>
+                        <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.border}`, aspectRatio: '4/3', background: C.cardAlt }}
+                            onMouseEnter={(e) => { const btns = e.currentTarget.querySelectorAll<HTMLButtonElement>('.pd-carousel-btn'); btns.forEach(b => (b.style.opacity = '1')); }}
+                            onMouseLeave={(e) => { const btns = e.currentTarget.querySelectorAll<HTMLButtonElement>('.pd-carousel-btn'); btns.forEach(b => (b.style.opacity = '0')); }}
+                        >
+                            <img src={project.images[currentImageIndex]} alt="Project view" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                            <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(10,15,29,0.75)', backdropFilter: 'blur(6px)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, color: C.text, border: `1px solid ${C.border}` }}>
+                                {currentImageIndex + 1} / {project.images.length}
+                            </div>
+                            <button className="pd-carousel-btn" onClick={handlePrevImage} style={{ position: 'absolute', top: '50%', left: 8, transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: '50%', background: 'rgba(10,15,29,0.7)', border: `1px solid ${C.border}`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: 0, transition: 'opacity 0.25s ease' }}>
+                                <IconChevronLeft />
+                            </button>
+                            <button className="pd-carousel-btn" onClick={handleNextImage} style={{ position: 'absolute', top: '50%', right: 8, transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: '50%', background: 'rgba(10,15,29,0.7)', border: `1px solid ${C.border}`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: 0, transition: 'opacity 0.25s ease' }}>
+                                <IconChevronRight />
+                            </button>
                         </div>
-                        <h2>Qo'shimcha maydonlar</h2>
-                    </div>
+                        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                            {project.images.map((img, idx) => (
+                                <button key={idx} onClick={() => setCurrentImageIndex(idx)} style={{
+                                    flex: 1, height: 52, borderRadius: 8, overflow: 'hidden', padding: 0, cursor: 'pointer',
+                                    border: idx === currentImageIndex ? '2px solid #4fb3d9' : `2px solid ${C.border}`,
+                                    opacity: idx === currentImageIndex ? 1 : 0.55, transition: 'all 0.2s ease',
+                                    boxShadow: idx === currentImageIndex ? '0 4px 12px rgba(79,179,217,0.25)' : 'none',
+                                }}>
+                                    <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                                </button>
+                            ))}
+                        </div>
+                    </SectionCard>
 
-                    <div className="metrics-list">
-                        {metrics.map((metric, idx) => (
-                            <div key={idx} className="metric-item">
-                                <div className="metric-left">
-                                    {/*<span className="metric-icon">{metric.icon}</span>*/}
-                                    <span className="metric-label">{metric.label}</span>
+                    <SectionCard title="Асосий маълумотлар" icon={<IconInfo />} style={{ flex: 1 }}>
+                        <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 11px', marginBottom: 10 }}>
+                            <div style={{ color: C.sub, fontSize: 12, lineHeight: 1.6 }}>{project.name}</div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                            {[
+                                { label: 'Корхона номи', value: project.corporateName },
+                                { label: 'Лойиҳа мақсади', value: project.location },
+                                { label: 'Ҳудуд', value: project.region },
+                                { label: 'Иш жараёни', value: '—' },
+                            ].map((it) => (
+                                <div key={it.label} style={{ display: 'flex', justifyContent: 'space-between', gap: 14 }}>
+                                    <span style={{ color: C.sub, fontSize: 11.5, flexShrink: 0 }}>{it.label}:</span>
+                                    <span style={{ color: C.text, fontSize: 11.5, fontWeight: 600, textAlign: 'right' }}>{it.value}</span>
                                 </div>
-                                <span className="metric-value">{metric.value}</span>
+                            ))}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14 }}>
+                                <span style={{ color: C.sub, fontSize: 11.5 }}>Координаталар:</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#4fb3d9', fontSize: 11, fontFamily: 'monospace', background: 'rgba(79,179,217,0.12)', border: '1px solid rgba(79,179,217,0.25)', borderRadius: 8, padding: '3px 8px' }}>
+                                    <IconMapPin />{project.coordinates}
+                                </span>
                             </div>
-                        ))}
-                    </div>
-
-                    <div className="project-value-card">
-                        <div className="value-header">
-                            <div className="header-icon">
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <h3>Loyiha qiymatlari</h3>
                         </div>
+                    </SectionCard>
+                </div>
 
-                        <div className="value-display">
-                            <div className="value-label">Лойиҳанинг қиймати</div>
-                            <div className="value-number">
-                                {project.id}
-                                <div className="value-icon">
-                                    <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div className="value-currency">ming dollar</div>
-                        </div>
-
-                        <div className="constructions-grid">
-                            {constructions.map((item, idx) => (
-                                <div key={idx} className={`construction-item ${idx % 2 === 0 ? 'construction-primary' : 'construction-success'}`}>
-                                    <div className="construction-label">
-                                        <span className="construction-dot"></span>
-                                        {item.label}
-                                    </div>
-                                    <div className="construction-value">{item.value}</div>
+                {/* 2-ustun: Qo'shimcha maydonlar + Loyiha qiymatlari */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
+                    <SectionCard title="Қўшимча майдонлар" icon={<IconLayers />} color="#a855f7">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {metrics.map((m, idx) => (
+                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 9, background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 9, padding: '7px 9px' }}>
+                                    <NeonIcon color="#a855f7" size={22}>{m.icon}</NeonIcon>
+                                    <span style={{ flex: 1, color: C.sub, fontSize: 10.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.label}</span>
+                                    <span style={{ color: '#4fb3d9', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{m.value}</span>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </SectionCard>
+
+                    <SectionCard title="Лойиҳа қийматлари" icon={<IconDollar />} color="#22c55e" style={{ flex: 1 }}>
+                        <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                            <div style={{ color: C.sub, fontSize: 11.5, marginBottom: 4 }}>Лойиҳанинг қиймати</div>
+                            <div style={{
+                                fontSize: 46, fontWeight: 700, lineHeight: 1,
+                                background: 'linear-gradient(135deg, #4fb3d9 0%, #22c55e 100%)',
+                                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                            }}>
+                                {project.id}
+                            </div>
+                            <div style={{ color: '#4fb3d9', fontSize: 13, fontWeight: 600, marginTop: 4 }}>ming dollar</div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
+                            {constructions.map((item, idx) => (
+                                <div key={idx} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 9, padding: '8px 10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 10, marginBottom: 4 }}>
+                                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: item.color, boxShadow: `0 0 5px ${item.color}` }} />
+                                        {item.label}
+                                    </div>
+                                    <div style={{ fontSize: 17, fontWeight: 700, color: item.color }}>{item.value}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </SectionCard>
                 </div>
 
-                {/* Right Panel - Parameters */}
-                <div className="panel panel-right">
-                    <div className="panel-header">
-                        <div className="header-icon">
-                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <h2>Parametrlar</h2>
-                    </div>
-
-                    <div className="parameters-list">
+                {/* 3-ustun: Parametrlar */}
+                <SectionCard title="Параметрлар" icon={<IconClipboard />} color="#eab308">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                         {parameters.map((param, idx) => (
-                            <div key={idx} className="parameter-item">
-                                <div className="parameter-header">
-                                    <span className="parameter-label">{param.label}</span>
-                                    <div className="parameter-badges">
-                                        {param.verified && (
-                                            <div className="verified-badge">
-                                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
+                            <div key={idx} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 11px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 8 }}>
+                                    <span style={{ color: C.text, fontSize: 11.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{param.label}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                                        {(param.verified || param.approved) && (
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(34,197,94,0.18)', border: `1px solid ${C.up}55`, color: C.up, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <IconCheck />
+                                            </span>
                                         )}
-                                        {param.approved && (
-                                            <div className="verified-badge">
-                                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            </div>
-                                        )}
-                                        <span className={`parameter-status ${param.status === 'Yaxhi' ? 'status-success' : 'status-warning'}`}>
-                      {param.status}
-                    </span>
+                                        <StatusBadge text={param.status} tone={param.status === 'Yaxhi' ? 'ok' : 'warn'} />
                                     </div>
                                 </div>
-                                <div className="parameter-footer">
-                  <span className="parameter-value">
-                    Қиймат: <strong>{param.value}</strong>
-                  </span>
-                                    {param.date && (
-                                        <span className="parameter-date">
-                      Янгиланган: {param.date}
-                    </span>
-                                    )}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 10.5 }}>
+                                    <span style={{ color: C.sub }}>Қиймат: <strong style={{ color: C.text, fontWeight: 600 }}>{param.value}</strong></span>
+                                    {param.date && <span style={{ color: C.sub }}>Янгиланган: {param.date}</span>}
                                 </div>
                             </div>
                         ))}
                     </div>
-                </div>
+                </SectionCard>
             </div>
         </div>
     );

@@ -68,6 +68,13 @@ const Parts = () => {
                         5/6
                     </button>
                 </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/9')}
+                    >
+                       Rasxod Resurs
+                    </button>
+                </div>
             </div>
             <div className="row  d-flex " style={{marginTop: "10px"}} >
 

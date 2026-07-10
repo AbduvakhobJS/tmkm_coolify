@@ -13,7 +13,12 @@
       "Bash(curl -s -D - -o /dev/null --max-time 10 -H 'Origin: http://localhost:3000' -H 'Authorization: Bearer 26a1ffa663c7c9ae064d81a5325942dfaacd85232cb12b378dfe14c04ab04934' https://situation.uzkmt.uz/api/v1/summary)",
       "Bash(curl -s -D - -o /dev/null --max-time 10 \"https://employees.uzkmt.uz/api/situation/hr?_=$\\(date +%s%3N\\)\")",
       "Bash(curl -s \"https://employees.uzkmt.uz/api/situation/hr?_=$\\(date +%s%3N\\)\")",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 10 \"https://situation.uzkmt.uz/api/summary\")"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 10 \"https://situation.uzkmt.uz/api/summary\")",
+      "Bash(curl -s http://localhost:60475/static/js/bundle.js)",
+      "Bash(grep -o \"d.miniStats.map\\([^;]*React.Fragment key={i}}{miniBox\\(s.label, s.value, C.gas\\)\")",
+      "Bash(curl -s http://localhost:60475/static/js/bundle.js -o /tmp/bundle.js)",
+      "Read(//tmp/**)",
+      "Bash(awk 'NR==42423,NR==42592' /tmp/bundle.js)"
     ]
   }
 }

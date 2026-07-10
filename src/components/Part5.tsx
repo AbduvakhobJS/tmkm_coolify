@@ -44,7 +44,7 @@ const Part5: React.FC = () => {
         location: "Чикиндилардан йўлдош металларни ажратиб олиш технологиясини ишлаб чикиш",
         technologiesUsed: "Наводий вилояти, Учқудуқ тумани",
         region: "Наводий вилояти, Учқудуқ тумани",
-        condition: "Rasmiylashtirilgan jarayenda",
+        condition: "Расмийлаштирилган жараенда",
         status: "Yugori",
         coordinates: "42.287819, 63.389067",
         images: [
@@ -178,7 +178,7 @@ const Part5: React.FC = () => {
                             <div className="info-item">
                                 <span className="info-label">Ҳолат:</span>
                                 <span className="badge badge-warning">
-                  Rasmiylashtirilgan jarayenda
+                  Расмийлаштирилган жараенда
                 </span>
                             </div>
 

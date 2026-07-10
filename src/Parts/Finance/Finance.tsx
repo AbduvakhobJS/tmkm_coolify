@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, axis } from '../../components/dashboardUI';
 import financeData from './financeDemoData.json';
@@ -168,7 +168,7 @@ const SectionTitle: React.FC<{ index: number; title: string; icon: React.ReactNo
 
 const MONTH_SHORT = financeData.trend.labels.map((l) => l.split(' ')[0]);
 
-/* ── Karta ichidagi maydonli (area) trend grafik, oy belgilari bilan ── */
+/* ── Karta ichidagi maydonli (area) trend grafik, oy belgilari va hover tooltip bilan ── */
 const AreaTrend: React.FC<{ data: number[]; color: string; height?: number }> = ({ data, color, height = 46 }) => {
     const w = 260, h = height, padTop = 4, padBottom = 14;
     const plotH = h - padTop - padBottom;
@@ -179,23 +179,64 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number }> = 
     const linePoints = data.map((v, i) => `${x(i)},${y(v)}`).join(' ');
     const areaPoints = `0,${padTop + plotH} ${linePoints} ${w},${padTop + plotH}`;
     const gradId = `grad-${color.replace('#', '')}`;
+    const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+
+    const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        if (!rect.width) return;
+        const relX = ((e.clientX - rect.left) / rect.width) * w;
+        let nearest = 0, bestDist = Infinity;
+        data.forEach((_, i) => {
+            const dist = Math.abs(x(i) - relX);
+            if (dist < bestDist) { bestDist = dist; nearest = i; }
+        });
+        setHoverIdx(nearest);
+    };
+
+    const hovered = hoverIdx !== null;
+    const hx = hovered ? x(hoverIdx as number) : 0;
+    const hy = hovered ? y(data[hoverIdx as number]) : 0;
+    const tooltipAbove = hy > h * 0.4;
+
     return (
-        <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block' }}>
-            <defs>
-                <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity="0.45" />
-                    <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </linearGradient>
-            </defs>
-            <polygon points={areaPoints} fill={`url(#${gradId})`} />
-            <polyline points={linePoints} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            {data.map((v, i) => (
-                <circle key={i} cx={x(i)} cy={y(v)} r={i === data.length - 1 ? 3 : 2} fill={color} stroke={C.card} strokeWidth="1" />
-            ))}
-            {MONTH_SHORT.map((m, i) => (
-                <text key={m} x={x(i)} y={h - 2} fontSize="7.5" fill={C.sub} textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}>{m}</text>
-            ))}
-        </svg>
+        <div style={{ position: 'relative', width: '100%' }} onMouseMove={handleMove} onMouseLeave={() => setHoverIdx(null)}>
+            <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ display: 'block', overflow: 'visible' }}>
+                <defs>
+                    <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity="0.45" />
+                        <stop offset="100%" stopColor={color} stopOpacity="0" />
+                    </linearGradient>
+                </defs>
+                <polygon points={areaPoints} fill={`url(#${gradId})`} />
+                <polyline points={linePoints} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                {hovered && (
+                    <line x1={hx} y1={padTop} x2={hx} y2={padTop + plotH} stroke={color} strokeWidth="1" strokeDasharray="2,2" opacity={0.55} />
+                )}
+                {data.map((v, i) => (
+                    <circle
+                        key={i} cx={x(i)} cy={y(v)}
+                        r={hoverIdx === i ? 3.8 : i === data.length - 1 ? 3 : 2}
+                        fill={color} stroke={C.card} strokeWidth={hoverIdx === i ? 1.6 : 1}
+                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${color})` } : undefined}
+                    />
+                ))}
+                {MONTH_SHORT.map((m, i) => (
+                    <text key={m} x={x(i)} y={h - 2} fontSize="7.5" fill={hoverIdx === i ? color : C.sub} textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}>{m}</text>
+                ))}
+            </svg>
+            {hovered && (
+                <div style={{
+                    position: 'absolute', left: `${(hx / w) * 100}%`, top: `${(hy / h) * 100}%`,
+                    transform: `translate(-50%, ${tooltipAbove ? '-130%' : '20%'})`,
+                    background: '#0a0f1df2', border: `1px solid ${color}99`, borderRadius: 6,
+                    padding: '3px 8px', whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
+                    boxShadow: `0 2px 10px ${color}55`, textAlign: 'center',
+                }}>
+                    <div style={{ color: C.sub, fontSize: 8, fontWeight: 600, textTransform: 'uppercase' }}>{MONTH_SHORT[hoverIdx as number]}</div>
+                    <div style={{ color: C.text, fontSize: 11, fontWeight: 700 }}>{fmtNum(data[hoverIdx as number])}</div>
+                </div>
+            )}
+        </div>
     );
 };
 
@@ -417,7 +458,7 @@ const Finance: React.FC = () => {
             </div>
 
             {/* Bank jadvali va dinamika grafigi */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 8, alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, alignItems: 'stretch' }}>
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                         <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
