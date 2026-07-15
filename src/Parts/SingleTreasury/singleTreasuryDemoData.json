@@ -1,0 +1,74 @@
+{
+    "meta": {
+        "title": "Общий обзор заявок по направлениям",
+        "subtitle": "Единое казначейство — АО «УзМК»",
+        "periodLabel": "Июль 2026",
+        "periodRange": "01.07.2026 — 31.07.2026",
+        "unit": "млн сум",
+        "overdueThresholdDays": 3
+    },
+    "statuses": {
+        "new": { "label": "Новые", "color": "#3b82f6" },
+        "inWork": { "label": "В работе", "color": "#0ea8c7" },
+        "approved": { "label": "Согласовано", "color": "#22c55e" },
+        "overdue": { "label": "Просрочено", "color": "#ef4444" }
+    },
+    "directions": [
+        {
+            "id": 1,
+            "name": "Turdibayev Abdurauf Abdukarimovich",
+            "role": "Зам. председателя",
+            "initials": "TA",
+            "color": "#3b82f6",
+            "amount": 76.14,
+            "counts": { "new": 1, "inWork": 32, "approved": 0, "overdue": 77 }
+        },
+        {
+            "id": 2,
+            "name": "Abidov Amir Ilgizovich",
+            "role": "Зам. председателя",
+            "initials": "AA",
+            "color": "#22c55e",
+            "amount": 1.0,
+            "counts": { "new": 0, "inWork": 4, "approved": 0, "overdue": 2 }
+        },
+        {
+            "id": 3,
+            "name": "Karimov Uktamjon Dexkonboyevich",
+            "role": "Зам. председателя",
+            "initials": "KU",
+            "color": "#a855f7",
+            "amount": 218.9,
+            "counts": { "new": 1, "inWork": 3, "approved": 0, "overdue": 2 }
+        },
+        {
+            "id": 4,
+            "name": "Ruziyev Ulugbek Nematovich",
+            "role": "Зам. председателя",
+            "initials": "RU",
+            "color": "#f97316",
+            "amount": 0,
+            "counts": { "new": 1, "inWork": 1, "approved": 0, "overdue": 1 }
+        }
+    ],
+    "amounts": {
+        "new": 30.1,
+        "inWork": 100.8,
+        "approved": 0,
+        "overdue": 147.44
+    },
+    "approvalStatus": [
+        { "label": "На согласовании у зам. председателей", "value": 53, "color": "#3b82f6" },
+        { "label": "На согласовании у служб", "value": 22, "color": "#60a5fa" },
+        { "label": "На доработке", "value": 13, "color": "#f59e0b" },
+        { "label": "Одобрено", "value": 30, "color": "#22c55e" },
+        { "label": "Отклонено", "value": 7, "color": "#ef4444" }
+    ],
+    "overdueRequests": [
+        { "code": "Z-2025-0156", "direction": "Karimov U.D.", "amount": 1.2, "days": 5 },
+        { "code": "Z-2025-0148", "direction": "Abidov A.I.", "amount": 0.85, "days": 4 },
+        { "code": "Z-2025-0152", "direction": "Turdibayev A.A.", "amount": 1.5, "days": 4 },
+        { "code": "Z-2025-0145", "direction": "Ruziyev U.N.", "amount": 0.98, "days": 3 },
+        { "code": "Z-2025-0141", "direction": "Karimov U.D.", "amount": 0.72, "days": 3 }
+    ]
+}

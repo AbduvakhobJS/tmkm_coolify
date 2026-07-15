@@ -4,6 +4,7 @@ import HrAnalitikaDetail from "../Parts/HrAnalitika/HrAnalitikaDetail";
 import Esg from "../Parts/ESG/ESG";
 import Finance from "../Parts/Finance/Finance";
 import Investing from "../Parts/Investing/Investing";
+import SingleTreasury from "../Parts/SingleTreasury/SingleTreasury";
 
 const Parts = () => {
     const navigate = useNavigate();
@@ -203,6 +204,13 @@ const Parts = () => {
                             onClick={() => navigate('/main/investing')}
                     >
                         Investing
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/single-treasury')}
+                    >
+                        Single Treasury
                     </button>
                 </div>
                 <div className="col-md-2">
