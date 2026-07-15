@@ -154,51 +154,71 @@ const StatusBadge: React.FC<{ text: string; tone: 'ok' | 'warn' | 'down' | 'info
     );
 };
 
+/* ── Yordamchi: API "factory" obyektidan dashboard uchun ma'lumot chiqarish ── */
+const FALLBACK_IMAGES = ["/imgs/f1.png", "/imgs/f2.jpg", "/imgs/f3.png"];
+
+const parseImages = (images: any): string[] => {
+    if (!images) return [];
+    if (Array.isArray(images)) return images.filter(Boolean);
+    if (typeof images === 'string') {
+        try {
+            const parsed = JSON.parse(images);
+            if (Array.isArray(parsed)) return parsed.filter(Boolean);
+        } catch {
+            // JSON emas — vergul bilan ajratilgan bo'lishi mumkin
+        }
+        return images.split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+    return [];
+};
+
+const objectEntries = (obj: any): { label: string; value: string }[] => {
+    if (!obj || typeof obj !== 'object') return [];
+    return Object.entries(obj)
+        .filter(([, v]) => v !== null && v !== undefined && v !== '')
+        .map(([k, v]) => ({ label: k, value: typeof v === 'object' ? JSON.stringify(v) : String(v) }));
+};
+
 /* ── Asosiy komponent ── */
-const ProjectDashboard: React.FC = () => {
+const ProjectDashboard: React.FC<{ factory?: any }> = ({ factory }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+    const apiImages = parseImages(factory?.images);
+    const images = apiImages.length > 0 ? apiImages : FALLBACK_IMAGES;
+
     const project: Project = {
-        id: "383",
-        name: "«Наводий КМК» АЖ 3-сон Лойиҳавидрометаллургия заводи техноген номи: чикиндиларидан йўлдош ажратиб олиш технологиясини ишлаб чикиш",
-        corporateName: "«Узбекистон ТМК» АЖ",
-        location: "Чикиндилардан йўлдош металларни ажратиб олиш технологиясини ишлаб чикиш",
-        region: "Наводий вилояти, Учқудуқ тумани",
-        condition: "Расмийлаштирилган жараенда",
-        status: "Yugori",
-        coordinates: "42.287819, 63.389067",
-        images: ["/imgs/f1.png", "/imgs/f2.jpg", "/imgs/f3.png"],
+        id: factory?.id !== undefined ? String(factory.id) : "—",
+        name: factory?.name || factory?.projectGoal || 'Loyiha nomi ko\'rsatilmagan',
+        corporateName: factory?.enterprise_name || '—',
+        location: factory?.projectGoal || factory?.location || '—',
+        region: factory?.region || '—',
+        condition: factory?.status || '—',
+        status: factory?.importance === 'HIGH' ? 'Yugori' : 'Normal',
+        coordinates: factory?.coords || '—',
+        images,
     };
 
-    const metrics: Metric[] = [
-        { label: "Maydoni", value: "765 Га", icon: <IconRuler /> },
-        { label: "Temir yo'lgacha", value: "15 км", icon: <IconTrain /> },
-        { label: "Чиқинди захираси", value: "171,5 млн тн", icon: <IconPackage /> },
-        { label: "Электр энергигача", value: "1 км", icon: <IconBolt /> },
-        { label: "Йўлдош компонентлар", value: "Au, Ag, W, Sb, Ga", icon: <IconFlask /> },
-        { label: "Аҳоли пункти", value: "27 км", icon: <IconUsers /> },
-        { label: "Фойдали қазилма чуқурлиги", value: "25 метр", icon: <IconDrill /> },
-    ];
+    // "Qo'shimcha maydonlar" — API custom_fields obyektidan
+    const metricIcons = [<IconRuler />, <IconTrain />, <IconPackage />, <IconBolt />, <IconFlask />, <IconUsers />, <IconDrill />];
+    const metrics: Metric[] = objectEntries(factory?.custom_fields).map((e, i) => ({
+        label: e.label, value: e.value, icon: metricIcons[i % metricIcons.length],
+    }));
 
-    const constructions: Construction[] = [
-        { label: "Burg'ulash", value: "883", color: '#4fb3d9' },
-        { label: "Sinovlar", value: "150$", color: '#22c55e' },
-        { label: "Namunalar", value: "455", color: '#4fb3d9' },
-        { label: "Resurslar", value: "50$", color: '#22c55e' },
-    ];
+    // "Loyiha qiymatlari" — API project_values obyektidan
+    const valueColors = ['#4fb3d9', '#22c55e'];
+    const constructions: Construction[] = objectEntries(factory?.project_values).map((e, i) => ({
+        label: e.label, value: e.value, color: valueColors[i % valueColors.length],
+    }));
 
-    const parameters: Parameter[] = [
-        { label: "ТЕО", status: "Yaxhi", date: "2025-11-12", value: 1 },
-        { label: "Қурилманар рўйхати", status: "Normal", date: "", value: 0 },
-        { label: "Қурилиши тугатиш санаси", status: "Normal", date: "2025-11-20 / 2026-11-12", value: 0 },
-        { label: "Таклифлар олиниши", status: "Normal", date: "", value: 0 },
-        { label: "Қурилиш лойиҳаси", status: "Normal", date: "", value: 0 },
-        { label: "Концепция", status: "Normal", date: "2025-11-12", value: 0, verified: true },
-        { label: "Қурилиш лойиҳаси", status: "Normal", date: "", value: 0 },
-        { label: "Концепция", status: "Normal", date: "2025-11-12", value: 0, verified: true },
-        { label: "Қурилиш лойиҳаси", status: "Normal", date: "", value: 0 },
-        { label: "Лойиҳалаш (Layout)", status: "Normal", date: "2025-11-12", value: 1, approved: true },
-    ];
+    // "Parametrlar" — API factoryParams massividan
+    const parameters: Parameter[] = (Array.isArray(factory?.factoryParams) ? factory.factoryParams : []).map((p: any) => ({
+        label: p.label ?? p.name ?? p.paramName ?? p.title ?? 'Parametr',
+        status: p.status ?? p.statusText ?? 'Normal',
+        date: p.date ?? p.updatedAt ?? p.updated_at ?? p.createdAt ?? '',
+        value: typeof p.value === 'number' ? p.value : (p.value ?? 0),
+        verified: !!p.verified,
+        approved: !!p.approved,
+    }));
 
     const handlePrevImage = () => setCurrentImageIndex(prev => (prev > 0 ? prev - 1 : project.images.length - 1));
     const handleNextImage = () => setCurrentImageIndex(prev => (prev < project.images.length - 1 ? prev + 1 : 0));
@@ -265,7 +285,7 @@ const ProjectDashboard: React.FC = () => {
                                 { label: 'Корхона номи', value: project.corporateName },
                                 { label: 'Лойиҳа мақсади', value: project.location },
                                 { label: 'Ҳудуд', value: project.region },
-                                { label: 'Иш жараёни', value: '—' },
+                                { label: 'Иш жараёни', value: project.condition },
                             ].map((it) => (
                                 <div key={it.label} style={{ display: 'flex', justifyContent: 'space-between', gap: 14 }}>
                                     <span style={{ color: C.sub, fontSize: 11.5, flexShrink: 0 }}>{it.label}:</span>
@@ -286,6 +306,9 @@ const ProjectDashboard: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
                     <SectionCard title="Қўшимча майдонлар" icon={<IconLayers />} color="#a855f7">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {metrics.length === 0 && (
+                                <div style={{ color: C.sub, fontSize: 11, textAlign: 'center', padding: '8px 0' }}>Ma'lumot yo'q</div>
+                            )}
                             {metrics.map((m, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 9, background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 9, padding: '7px 9px' }}>
                                     <NeonIcon color="#a855f7" size={22}>{m.icon}</NeonIcon>
@@ -298,17 +321,19 @@ const ProjectDashboard: React.FC = () => {
 
                     <SectionCard title="Лойиҳа қийматлари" icon={<IconDollar />} color="#22c55e" style={{ flex: 1 }}>
                         <div style={{ textAlign: 'center', marginBottom: 12 }}>
-                            <div style={{ color: C.sub, fontSize: 11.5, marginBottom: 4 }}>Лойиҳанинг қиймати</div>
+                            <div style={{ color: C.sub, fontSize: 11.5, marginBottom: 4 }}>Бажарилиш фоизи</div>
                             <div style={{
                                 fontSize: 46, fontWeight: 700, lineHeight: 1,
                                 background: 'linear-gradient(135deg, #4fb3d9 0%, #22c55e 100%)',
                                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                             }}>
-                                {project.id}
+                                {typeof factory?.work_persent === 'number' ? `${factory.work_persent}%` : '—'}
                             </div>
-                            <div style={{ color: '#4fb3d9', fontSize: 13, fontWeight: 600, marginTop: 4 }}>ming dollar</div>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
+                            {constructions.length === 0 && (
+                                <div style={{ gridColumn: '1 / -1', color: C.sub, fontSize: 11, textAlign: 'center', padding: '8px 0' }}>Ma'lumot yo'q</div>
+                            )}
                             {constructions.map((item, idx) => (
                                 <div key={idx} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 9, padding: '8px 10px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 10, marginBottom: 4 }}>
@@ -325,6 +350,9 @@ const ProjectDashboard: React.FC = () => {
                 {/* 3-ustun: Parametrlar */}
                 <SectionCard title="Параметрлар" icon={<IconClipboard />} color="#eab308">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                        {parameters.length === 0 && (
+                            <div style={{ color: C.sub, fontSize: 11, textAlign: 'center', padding: '8px 0' }}>Ma'lumot yo'q</div>
+                        )}
                         {parameters.map((param, idx) => (
                             <div key={idx} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 11px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 8 }}>

@@ -6,7 +6,7 @@ import './LoginPage.css';
 const LoginPage = () => {
     const navigate = useNavigate();
     const { mutate, isPending } = useLogin();
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
@@ -15,14 +15,15 @@ const LoginPage = () => {
         e.preventDefault();
         setError('');
 
-        mutate({ username, password }, {
+        mutate({ email, password }, {
             onSuccess: (data) => {
                 const token = data?.token || data?.accessToken || data;
                 if (!token) {
                     setError('Login yoki parol xato');
                     return;
                 }
-                localStorage.setItem('tmk-token', token);
+                console.log(token);
+                localStorage.setItem('tmk-token-bgs', "Bearer " + token?.data?.token);
                 navigate('/main');
             },
             onError: () => {
@@ -54,13 +55,13 @@ const LoginPage = () => {
                                 </svg>
                             </span>
                             <input
-                                id="login-username"
+                                id="login-email"
                                 className="login-input"
                                 type="text"
                                 placeholder="Foydalanuvchi nomi"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                autoComplete="username"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="email"
                                 required
                             />
                         </div>
@@ -119,17 +120,17 @@ const LoginPage = () => {
                         </div>
                     )}
 
-                    {/*<button className="login-submit" type="submit" disabled={isPending}>*/}
-                    {/*    {isPending && <span className="login-spinner" />}*/}
-                    {/*    {isPending ? 'Tekshirilmoqda...' : 'Kirish'}*/}
-                    {/*</button>*/}
-
-                    <button className="login-submit" type="submit" onClick={() => {
-                        localStorage.setItem("tmk-token","26a1ffa663c7c9ae064d81a5325942dfaacd85232cb12b378dfe14c04ab04934")
-                        navigate('/main')
-                    }}>
-                        Kirish
+                    <button className="login-submit" type="submit" disabled={isPending}>
+                        {isPending && <span className="login-spinner" />}
+                        {isPending ? 'Tekshirilmoqda...' : 'Kirish'}
                     </button>
+
+                    {/*<button className="login-submit" type="submit" onClick={() => {*/}
+                    {/*    localStorage.setItem("tmk-token","26a1ffa663c7c9ae064d81a5325942dfaacd85232cb12b378dfe14c04ab04934")*/}
+                    {/*    navigate('/main')*/}
+                    {/*}}>*/}
+                    {/*    Kirish*/}
+                    {/*</button>*/}
                 </form>
 
                 <div className="login-footer">© {new Date().getFullYear()} UZTMK. Barcha huquqlar himoyalangan.</div>

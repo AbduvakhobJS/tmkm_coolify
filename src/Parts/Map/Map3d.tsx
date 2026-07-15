@@ -5,11 +5,92 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment, ContactShadows, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { io, Socket } from 'socket.io-client';
-import { factoryData } from '../../data/factorys';
-import StreamGrid from "../../components/VideoStream";
-import ProjectDashboard from "../../components/ProjectDashboard";
 import { uzbekistanBorder, loadUzbekistanBorder } from '../../components/uzbekistanBorder';
-import {useGetTypeObjectAll} from "../../hooks/map";
+import ProjectDashboard from '../../components/ProjectDashboard';
+import WebRTCPlayer from '../../components/WebRTCPlayer';
+import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "../../hooks/map";
+
+
+
+// Zavod modallari uchun 3D model yo'llari — har bir zavod uchun real model ma'lumoti
+// bo'lmagani sababli, modal ochilganda shu ro'yxatdan tasodifiy biri tanlanadi.
+const factoryModels = [
+    '/models/factory.glb',
+    '/models/factory2.glb',
+    '/models/factory3.glb'
+];
+
+// Factory API "coords" maydoni amalda turlicha kelishi mumkin:
+// - JSON-string ko'rinishidagi massiv: '["66.729483","40.278469"]' (=> [lng, lat])
+// - to'g'ridan-to'g'ri massiv: [66.729483, 40.278469] (=> [lng, lat])
+// - "lat,lng" vergul bilan ajratilgan string (docs'da yozilgan format)
+// maplibre esa har doim [lng, lat] tartibini kutadi.
+const parseFactoryCoords = (coords: any): [number, number] | null => {
+    if (!coords) return null;
+
+    let value: any = coords;
+    if (typeof value === 'string') {
+        try {
+            value = JSON.parse(value);
+        } catch {
+            // JSON emas — pastdagi vergul bilan ajratish logikasi ishlaydi
+        }
+    }
+
+    if (Array.isArray(value) && value.length === 2) {
+        const lng = Number(value[0]);
+        const lat = Number(value[1]);
+        return isNaN(lng) || isNaN(lat) ? null : [lng, lat];
+    }
+
+    if (typeof value === 'string') {
+        const parts = value.split(',').map((p: string) => parseFloat(p.trim()));
+        if (parts.length === 2 && !parts.some((n: number) => isNaN(n))) {
+            return [parts[1], parts[0]];
+        }
+    }
+
+    return null;
+};
+
+const CATEGORY_TOIFA: Record<string, string> = {
+    factory: 'toifa-1',
+    mine: 'toifa-2',
+    'mine-cart': 'toifa-3',
+};
+
+const CATEGORY_ICON: Record<string, string> = {
+    factory: '/icons/factory1.png',
+    mine: '/icons/factory2.png',
+    'mine-cart': '/icons/factory3.png',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+    REGISTRATION: '#ffa500',
+    CONSTRUCTION: 'var(--gc-title)',
+    STARTED: '#39ff14',
+};
+
+const IMPORTANCE_COLORS: Record<string, string> = {
+    HIGH: '#ff2d55',
+    AVERAGE: '#ffa500',
+    LOW: '#7aa5cc',
+};
+
+// /factory/:id javobidagi "cameras" massivi elementidan WebRTC stream URL yasaydi.
+// Kamera obyektining aniq maydon nomlari docs'da berilmagan — shuning uchun bir nechta
+// mumkin bo'lgan maydon nomini sinab ko'ramiz (global /cameras endpointi bilan bir xil shakl deb taxmin qilinadi).
+const buildCameraStreamUrl = (cam: any): string | undefined => {
+    if (!cam) return undefined;
+    if (cam.streamUrl) return cam.streamUrl;
+    if (cam.stream_url) return cam.stream_url;
+    if (cam.url) return cam.url;
+    if (cam.webrtc_server && cam.stream_uuid) {
+        return `${cam.webrtc_server}/stream/${cam.stream_uuid}/channel/1/webrtc?uuid=${cam.stream_uuid}&channel=1`;
+    }
+    return undefined;
+};
+
 
 const MARKER_STYLES = `
     .custom-html-marker {
@@ -221,19 +302,65 @@ const Map3D = ({
     const map = useRef<maplibregl.Map | null>(null);
     const socketRef = useRef<Socket | null>(null);
     const [isManual, setIsManual] = React.useState(false);
-    const [openDetailIndex, setOpenDetailIndex] = React.useState<number | null>(null);
+    const [openDetailId, setOpenDetailId] = React.useState<number | string | null>(null);
     const timerRef = useRef<any>(null);
-    const markersRef = useRef<Record<number, maplibregl.Marker>>({});
+    const markersRef = useRef<Record<string, maplibregl.Marker>>({});
     const vehicleMarkersRef = useRef<Record<number, maplibregl.Marker>>({});
     const mineralMarkersRef = useRef<maplibregl.Marker[]>([]);
-    const [visibleToifas, setVisibleToifas] = React.useState<string[]>(['toifa_1', 'toifa_2', 'toifa_3', 'toifa_4', 'toifa_5']);
+    const [visibleToifas, setVisibleToifas] = React.useState<string[]>([]);
+    const [projectCategory, setProjectCategory] = React.useState<string>('');
+    const [objectTypeFilter, setObjectTypeFilter] = React.useState<string>('');
     const [vehicles, setVehicles] = React.useState<any[]>([]);
     const [selectedVehicle, setSelectedVehicle] = React.useState<any | null>(null);
     const [wsConnected, setWsConnected] = React.useState(false);
 
-    const factorys = factoryData;
+    const {data: typeObject} = useGetTypeObjectAll();
+    const {data: markersData, isError: markersIsError, error: markersErrorObj, isLoading: markersLoading} = useGetFactoryMarkers({
+        lang: 'uz',
+        ...(projectCategory ? { project_category: projectCategory } : {}),
+        ...(objectTypeFilter ? { object_type: objectTypeFilter } : {}),
+    });
+    const {data: factoryDetail} = useGetFactoryDetail(openDetailId, 'uz');
 
-    const {data: typeObject} = useGetTypeObjectAll()
+    // Backend javobi turli ko'rinishda kelishi mumkin — barchasini tekshirib chiqamiz
+    const unwrapList = (payload: any): any[] => {
+        if (!payload) return [];
+        if (Array.isArray(payload)) return payload;
+        if (Array.isArray(payload.factories)) return payload.factories;
+        if (Array.isArray(payload.data)) return payload.data;
+        if (Array.isArray(payload.data?.factories)) return payload.data.factories;
+        if (Array.isArray(payload.items)) return payload.items;
+        if (Array.isArray(payload.result)) return payload.result;
+        return [];
+    };
+
+    const factorys = useMemo(() => {
+        const list = unwrapList(markersData);
+        if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.debug('[factory/marker] raw:', markersData, '-> parsed:', list);
+        }
+        return list;
+    }, [markersData]);
+
+    const objectTypeOptions = useMemo(() => {
+        const raw = unwrapList(typeObject);
+        const options = raw.map((item: any) => {
+            if (typeof item === 'string') return { value: item, label: item };
+            const value = item.value ?? item.object_type ?? item.code ?? item.key ?? item.slug ?? item.id ?? item.name ?? item.title;
+            const label = item.label ?? item.name ?? item.title ?? item.nameUz ?? String(value ?? '');
+            return { value, label };
+        }).filter((opt: any) => opt.value !== undefined && opt.value !== null && opt.value !== '');
+        if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.debug('[factory/object-types] raw:', typeObject, '-> parsed:', options);
+        }
+        return options;
+    }, [typeObject]);
+
+    const randomFactoryModel = useMemo(() => {
+        return factoryModels[Math.floor(Math.random() * factoryModels.length)];
+    }, [openDetailId]);
 
     // O'zbekiston chegara neon animatsiyasi uchun state yoki ref
     const animationFrameRef = useRef<number>();
@@ -338,8 +465,12 @@ const Map3D = ({
                 animateNeon();
             }
 
-            // 2. FABRIKA MARKERLARINI QO'SHISH
-            updateMarkers();
+            // 2. MINERAL MARKERLARINI QO'SHISH
+            // Fabrika markerlari bu yerda CHAQIRILMAYDI: bu effekt faqat bir marta (mount'da)
+            // ishlaydi va shu paytdagi "factorys" closure orqali eski (bo'sh) qiymatni ushlab qoladi.
+            // Style 'load' hodisasi so'rov tugagandan KEYIN kelib qolsa, o'sha eski bo'sh ro'yxat bilan
+            // updateMarkers() chaqirilib, allaqachon chizilgan markerlarni o'chirib yuborardi.
+            // Fabrika markerlari pastdagi [visibleToifas, factorys] effektida chiziladi.
             addMineralMarkers();
         });
 
@@ -357,13 +488,23 @@ const Map3D = ({
         timerRef.current = setTimeout(() => setIsManual(false), 30000);
     };
 
-    const handleOpenDetails = (index: number) => {
+    const handleOpenDetails = (id: number | string, index: number = 0) => {
         handleManualOpen(index);
-        setOpenDetailIndex(index);
+        setOpenDetailId(id);
     };
 
     const handleCloseDetails = () => {
-        setOpenDetailIndex(null);
+        setOpenDetailId(null);
+    };
+
+    // Sidebar ro'yxatidan bosilganda: xaritani o'sha markerga fokuslaydi VA detail modalni ochadi —
+    // marker ustiga bosilganda ham xuddi shu handleOpenDetails ishlaydi.
+    const focusFactory = (f: any, index: number) => {
+        const coords = parseFactoryCoords(f.coords);
+        if (coords && map.current) {
+            map.current.flyTo({ center: coords, zoom: 12, pitch: 45, speed: 1.2 });
+        }
+        handleOpenDetails(f.id, index);
     };
 
     const addMineralMarkers = () => {
@@ -402,7 +543,23 @@ const Map3D = ({
             mineralMarkersRef.current.push(marker);
         });
     };
+    const formatText = (text = "", count: number) => {
+        if (!text) return "";
 
+        const value = text.trim();
+
+        // 10 ta belgidan ko'p bo'lsa
+        if (value.length > count) {
+            return value.slice(0, count) + "...";
+        }
+
+        // 10 tadan kam yoki teng bo'lsa
+        const firstSpaceIndex = value.indexOf(" ");
+
+        return firstSpaceIndex === -1
+            ? value
+            : value.slice(0, firstSpaceIndex);
+    };
     const updateMarkers = () => {
         if (!map.current) return;
 
@@ -410,52 +567,54 @@ const Map3D = ({
         Object.values(markersRef.current).forEach(m => m.remove());
         markersRef.current = {};
 
-        factorys.forEach((f, index) => {
-            if (f.coords && visibleToifas.includes(f.marker_icon || 'toifa_1')) {
-                const el = document.createElement('div');
-                const toifaNum = f.marker_icon?.split('_')[1] || '1';
-                el.className = `custom-html-marker toifa-${toifaNum}`;
+        factorys.forEach((f: any, index: number) => {
+            const coords = parseFactoryCoords(f.coords);
+            if (!coords) return;
 
-                let iconPath = '/icons/factory1.png';
-                if (f.marker_icon === 'toifa_2') iconPath = '/icons/factory2.png';
-                else if (f.marker_icon === 'toifa_3') iconPath = '/icons/factory3.png';
-                else if (f.marker_icon === 'toifa_4') iconPath = '/icons/factory1.png';
-                else if (f.marker_icon === 'toifa_5') iconPath = '/icons/factory2.png';
+            // alert('test')
+            const el = document.createElement('div');
+            const toifaClass = CATEGORY_TOIFA[f.marker_icon] || 'toifa-1';
+            el.className = `custom-html-marker ${toifaClass}`;
 
-                el.innerHTML = `
-                <div class="marker-pin-wrapper" style="transform: scale(0.65); transform-origin: bottom left;">
-                        <div class="marker-content-box">
-                            <div class="marker-title-tag">
-                                ${f.title}
-                                <span class="marker-info-small">${(f as any).info || ''}</span>
-                            </div>
-                            <div class="marker-info-box">
-                                <span>${(f as any).description?.split(' ')[0] || 'Ma\'lumot'}</span>
-                                <span class="marker-info-value">${(f as any).description?.split(' ').slice(1).join(' ') || ''}</span>
-                            </div>
+            const iconPath = CATEGORY_ICON[f.marker_icon] || '/icons/factory1.png';
+            const name = f.name || f.title || '';
+            const subInfo = f.objectType || f.object_type || '';
+            const regionLabel = f.region || 'Hudud';
+            const statusLabel = f.status || '';
+
+            el.innerHTML = `
+            <div class="marker-pin-wrapper" style="transform: scale(0.65); transform-origin: bottom left;">
+                    <div class="marker-content-box">
+                        <div class="marker-title-tag">
+                            ${formatText(name, 10)}
+<!--                            <span class="marker-info-small">${subInfo}</span>-->
                         </div>
-                        <div class="marker-pin">
-                            <div class="marker-icon-inner" style="background-image: url(${iconPath})"></div>
+                        <div class="marker-info-box">
+                            <span>${formatText(regionLabel, 8)}</span>
+                            <span class="marker-info-value">${statusLabel}</span>
                         </div>
-                        <div class="marker-line"></div>
                     </div>
-                `;
+                    <div class="marker-pin">
+                        <div class="marker-icon-inner" style="background-image: url(${iconPath})"></div>
+                    </div>
+                    <div class="marker-line"></div>
+                </div>
+            `;
 
-                el.onclick = () => {
-                    handleOpenDetails(index);
-                };
+            el.onclick = () => {
+                handleOpenDetails(f.id, index);
+            };
 
-                const marker = new maplibregl.Marker({
-                    element: el,
-                    anchor: 'bottom-left'
-                })
-                    .setLngLat(f.coords as [number, number])
-                    .addTo(map.current!);
-                
-                markersRef.current[f.id] = marker;
-            }
+            const marker = new maplibregl.Marker({
+                element: el,
+                anchor: 'bottom-left'
+            })
+                .setLngLat(coords)
+                .addTo(map.current!);
+
+            markersRef.current[f.id] = marker;
         });
-        
+
         updateVehicleMarkers();
     };
 
@@ -720,10 +879,15 @@ const Map3D = ({
         });
     };
 
-    // Toifalar o'zgarganda markerlarni yangilash
+    // Filtr yoki fabrika ma'lumotlari o'zgarganda markerlarni yangilash.
+    // Vaqtinchalik xatolik (fon rejimidagi so'rov muvaffaqiyatsiz bo'lsa) allaqachon
+    // chizilgan markerlarni bekorga o'chirib yubormasligi uchun bunday holatda yangilanish o'tkazib yuboriladi.
     useEffect(() => {
+        if (markersIsError && factorys.length === 0 && Object.keys(markersRef.current).length > 0) {
+            return;
+        }
         updateMarkers();
-    }, [visibleToifas]);
+    }, [visibleToifas, factorys, markersIsError]);
 
 
     return (
@@ -770,68 +934,171 @@ const Map3D = ({
                 </div>
             </div>
 
-            {/* Filter Panel */}
+            {/* Filter Panel — top-left, horizontal row */}
             <div style={{
                 position: 'absolute',
-                top: 0,
-                right: 0,
-                width: '6vw',
-                height: '96%',
-                marginTop:"1%",
-                background: 'rgba(2, 11, 24, 0.5)',
+                top: '2%',
+                left: '2%',
+                maxWidth: 'calc(100% - 260px)',
+                width: 'fit-content',
+                background: 'rgba(2, 11, 24, 0.55)',
                 border: '1px solid rgba(0, 245, 255, 0.3)',
-                padding: '12px 6px',
+                borderRadius: '8px',
+                padding: '10px 14px',
                 zIndex: 10,
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '5px',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: '16px',
+                alignItems: 'center',
                 backdropFilter: 'blur(8px)',
                 color: 'white',
-                alignItems: 'center',
             }}>
-                <div style={{ fontSize: '10px', fontWeight: 'bold', borderBottom: '1px solid rgba(0, 245, 255, 0.2)', paddingBottom: '5px', marginBottom: '10px', textAlign: 'center', width: '100%' }}>
+                <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', letterSpacing: '1px', paddingRight: '10px', borderRight: '1px solid rgba(0,245,255,0.2)' }}>
                     FILTRLASH
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 10px', width: '100%', alignItems: 'center', overflowY: 'auto', flex: 1 }}>
-                    {[1, 2, 3, 4, 5].map(num => {
-                        const toifa = `toifa_${num}`;
-                        const isChecked = visibleToifas.includes(toifa);
-                        const colors = ['#ff1493', 'var(--gc-title)', '#32cd32', '#ffa500', '#9370db'];
-                        const color = colors[num - 1];
 
-                        return (
-                            <label key={toifa} style={{ display: 'flex', flexDirection: 'row',  justifyContent: "space-between", width: '100%', cursor: 'pointer', gap: '4px', color: 'white', fontSize: '11px', flexShrink: 0, textAlign: 'center' }}>
-                                <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 6px ${color}` }}></div>
-                                <span style={{ color: color, fontWeight: 'bold' }}>Toifa {num}</span>
-                                <input
-                                    type="checkbox"
-                                    checked={isChecked}
-                                    onChange={() => toggleToifa(toifa)}
-                                    style={{ cursor: 'pointer', accentColor: color, width: '14px', height: '14px' }}
-                                />
-                            </label>
-                        );
-                    })}
-                    <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", width: '100%', cursor: 'pointer', gap: '4px', color: 'white', fontSize: '11px', flexShrink: 0, textAlign: 'center' }}>
-                        <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#39ff14', boxShadow: '0 0 6px #39ff14' }}></div>
+                {/* Loyiha kategoriyasi */}
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    {[
+                        { value: '', label: 'Barchasi', color: 'var(--gc-title)' },
+                        { value: 'factory', label: 'Metall', color: '#ff1493' },
+                        { value: 'mine', label: 'Kon', color: '#32cd32' },
+                        { value: 'mine-cart', label: 'Market', color: '#ffa500' },
+                    ].map(opt => (
+                        <button
+                            key={opt.value}
+                            onClick={() => setProjectCategory(opt.value)}
+                            style={{
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                padding: '5px 10px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                color: projectCategory === opt.value ? '#020B18' : opt.color,
+                                background: projectCategory === opt.value ? opt.color : 'transparent',
+                                border: `1px solid ${opt.color}`,
+                                transition: 'all 0.2s',
+                            }}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Obyekt turi */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>Obyekt turi:</span>
+                    <select
+                        value={objectTypeFilter}
+                        onChange={(e) => setObjectTypeFilter(e.target.value)}
+                        style={{
+                            fontSize: '11px',
+                            background: 'rgba(2, 11, 24, 0.8)',
+                            color: 'white',
+                            border: '1px solid rgba(0,245,255,0.4)',
+                            borderRadius: '4px',
+                            padding: '5px 8px',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        <option value="">Barchasi</option>
+                        {objectTypeOptions.map((opt: any, i: number) => (
+                            <option key={`${opt.value}-${i}`} value={opt.value}>{opt.label}</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Transport holati */}
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#39ff14', boxShadow: '0 0 6px #39ff14' }}></div>
                         <span style={{ color: '#39ff14', fontWeight: 'bold' }}>Active</span>
                         <input
                             type="checkbox"
                             checked={visibleToifas.includes('active_car')}
                             onChange={() => toggleToifa('active_car')}
-                            style={{ cursor: 'pointer', accentColor: '#39ff14', width: '14px', height: '14px' }}
+                            style={{ cursor: 'pointer', accentColor: '#39ff14', width: '13px', height: '13px' }}
                         />
                     </label>
-                    <label style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", width: '100%', cursor: 'pointer', gap: '4px', color: 'white', fontSize: '11px', flexShrink: 0, textAlign: 'center' }}>
-                        <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#ff2d55', boxShadow: '0 0 6px #ff2d55' }}></div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ff2d55', boxShadow: '0 0 6px #ff2d55' }}></div>
                         <span style={{ color: '#ff2d55', fontWeight: 'bold' }}>Inactive</span>
                         <input
                             type="checkbox"
                             checked={visibleToifas.includes('inactive_car')}
                             onChange={() => toggleToifa('inactive_car')}
-                            style={{ cursor: 'pointer', accentColor: '#ff2d55', width: '14px', height: '14px' }}
+                            style={{ cursor: 'pointer', accentColor: '#ff2d55', width: '13px', height: '13px' }}
                         />
                     </label>
+                </div>
+            </div>
+
+            {/* Fabrika ro'yxati — o'ng tomondagi sidebar */}
+            <div style={{
+                position: 'absolute',
+                top: '2%',
+                right: '2%',
+                width: '220px',
+                maxHeight: '90%',
+                background: 'rgba(2, 11, 24, 0.55)',
+                border: '1px solid rgba(0, 245, 255, 0.3)',
+                borderRadius: '8px',
+                padding: '10px',
+                zIndex: 10,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+                backdropFilter: 'blur(8px)',
+                color: 'white',
+            }}>
+                <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', borderBottom: '1px solid rgba(0,245,255,0.2)', paddingBottom: '6px', textAlign: 'center', letterSpacing: '1px' }}>
+                    OBYEKTLAR ({factorys.length})
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto', flex: 1 }}>
+                    {factorys.map((f: any, index: number) => {
+                        const color = f.marker_icon === 'mine' ? '#32cd32' : f.marker_icon === 'mine-cart' ? '#ffa500' : '#ff1493';
+                        return (
+                            <div
+                                key={f.id ?? index}
+                                onClick={() => focusFactory(f, index)}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '2px',
+                                    padding: '6px 8px',
+                                    borderRadius: '4px',
+                                    borderLeft: `3px solid ${color}`,
+                                    background: 'rgba(255,255,255,0.04)',
+                                    cursor: 'pointer',
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0,245,255,0.1)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                            >
+                                <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {f.name || f.title}
+                                </span>
+                                <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.55)' }}>
+                                    {f.region || f.objectType || ''}
+                                </span>
+                            </div>
+                        );
+                    })}
+                    {markersLoading && (
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '10px 0' }}>
+                            Yuklanmoqda...
+                        </div>
+                    )}
+                    {markersIsError && (
+                        <div style={{ fontSize: '11px', color: '#ff2d55', textAlign: 'center', padding: '10px 0' }}>
+                            Xatolik: {(markersErrorObj as any)?.response?.status === 401 ? 'Token yo\'q yoki muddati o\'tgan, qayta login qiling' : ((markersErrorObj as any)?.message || 'ma\'lumot olinmadi')}
+                        </div>
+                    )}
+                    {!markersLoading && !markersIsError && factorys.length === 0 && (
+                        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '10px 0' }}>
+                            Obyektlar topilmadi
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -1094,212 +1361,217 @@ const Map3D = ({
                 </div>
             )}
 
-            {openDetailIndex !== null && (
+            {openDetailId !== null && (
                 <div
                     onClick={handleCloseDetails}
                     style={{
                         position: 'fixed',
-                        top: '55px',
-                        left: 0,
-                        right: 0,
-                        bottom: 20,
-
-                        inset: "55px 0px 45px" !,
-                        background: 'rgba(2, 11, 24, 0.98)',
+                        inset: 0,
+                        background: 'rgba(0, 0, 0, 0.75)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         zIndex: 900000000,
                         pointerEvents: 'auto',
-                        display: 'flex',
-                        flexDirection: 'column',
                     }}
                 >
-                    {/* Modal Navbar */}
-                    <div
-                        style={{
-                            height: '50px',
-                            width: '100%',
-                            background: 'rgba(2, 11, 24, 0.9)',
-                            borderBottom: '1px solid rgba(0,245,255,0.3)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '0 20px',
-                            boxSizing: 'border-box',
-                        }}
-                    >
-                        <div style={{ color: 'var(--gc-title)', fontSize: '18px', fontWeight: 'bold' }}>
-                            {factorys[openDetailIndex]?.title} - Batafsil ma'lumot
-                        </div>
-                        <button
-                            onClick={handleCloseDetails}
-                            style={{
-                                width: '32px',
-                                height: '32px',
-                                border: '1px solid rgba(255,255,255,0.35)',
-                                background: 'rgba(255,255,255,0.08)',
-                                color: 'white',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}
-                        >
-                            X
-                        </button>
-                    </div>
-
                     <div
                         onClick={(e) => e.stopPropagation()}
                         style={{
-                            flex: 1,
-                            width: '100%',
-                            display: 'grid',
-                            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-                            gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)',
+                            width: '100vw',
+                            maxWidth: '100vw',
+                            height: '95vh',
+                            maxHeight: '95vh',
+                            background: '#020B18',
+                            // border: '1px solid rgba(0,245,255,0.3)',
+                            // borderRadius: '12px',
+                            position: 'relative',
                             overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            color: '#e0f0ff',
+                            fontFamily: 'var(--font-body), sans-serif',
+                            // boxShadow: '0 0 30px rgba(0,245,255,0.15)',
                         }}
                     >
-                        <div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                minWidth: 0,
-                                minHeight: 0,
-                                overflow: 'hidden',
-                                boxSizing: 'border-box',
-                                borderRight: '1px solid rgba(0,245,255,0.2)',
-                                borderBottom: '1px solid rgba(0,245,255,0.2)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--gc-title)',
-                                // padding: '20px',
-                                background: '#020B18'
-                            }}
-                        >
-                            {/*<img src="./imgs/scada12.png" alt="..." style={{ width: '100%', height: '100%' }} />*/}
-
-                            <iframe
-                                src="https://www.scichart.com/demo/iframe/sync-multi-chart"
-                                title="SCADA"
-                                style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
-                                loading="lazy"
-                                sandbox="allow-scripts allow-same-origin"
-                            />
-                        </div>
-                        <div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                minWidth: 0,
-                                minHeight: 0,
-                                overflow: 'hidden',
-                                boxSizing: 'border-box',
-                                borderBottom: '1px solid rgba(0,245,255,0.2)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--gc-title)',
-                                fontWeight: 'bold',
-                                fontSize: '22px',
-                            }}
-                        >
-                                <div className="view-model" style={{ width: '100%', height: "100%", padding: "20px", background: 'var(--gc-panel-bg)', borderRadius: '12px', overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }}>
-                                    <div style={{ position: 'absolute', top: '15px', left: '20px', zIndex: 10, color: 'var(--gc-title)', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                        Tanlangan Zavod: {factorys[openDetailIndex]?.title}
-                                    </div>
-
-                                    <div style={{ position: 'absolute', bottom: '10px',
-                                        right: '10px',
-                                        zIndex: 10, color: '#00f5ff', fontWeight: 'bold',
-                                        textTransform: 'uppercase', letterSpacing: '1px' ,
-                                        backgroundColor: '#00f5ff33', padding: '5px 10px', borderRadius: '5px',
+                        {/* Header */}
+                        <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,245,255,0.2)' }}>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--gc-title)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    {factoryDetail?.name || factoryDetail?.enterprise_name || 'Zavod'}
+                                </h3>
+                                {factoryDetail?.status && (
+                                    <div style={{
+                                        display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', marginTop: '6px',
+                                        color: STATUS_COLORS[factoryDetail.status] || '#e0f0ff',
+                                        background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px',
+                                        border: `1px solid ${STATUS_COLORS[factoryDetail.status] || 'rgba(255,255,255,0.2)'}`,
                                     }}>
-                                        <div>
-                              <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px'}}>
-                                Hudud:
-                              </span>
-                                            <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px', marginLeft: '5px'}}>
-                                  Buxoro viloyati, Peshku tumani
-                              </span>
-                                        </div>
-                                        <div>
-                              <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px'}}>
-                                NPV:
-                              </span>
-                                            <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px', marginLeft: '5px'}}>
-                                  49 mln. dollor
-                              </span>
-                                        </div>
-                                        <div>
-                              <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px'}}>
-                                ROI:
-                              </span>
-                                            <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px', marginLeft: '5px'}}>
-                                 6 yil 6 oy Investitsiya qoplanishi
-                              </span>
-                                        </div>
-                                        <div>
-                              <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px'}}>
-                                Zaxira:
-                              </span>
-                                            <span style={{ color: '#00f5ff', fontWeight: 'bold', fontSize: '10px', marginLeft: '5px'}}>
-                                  9.17 mln. tonna
-                              </span>
-                                        </div>
+                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor', boxShadow: '0 0 5px currentColor' }}></span>
+                                        {factoryDetail.status}
                                     </div>
-                                    <Canvas shadows camera={{ position: [0, 2, 5], fov: 40 }}>
-                                        <ambientLight intensity={0.8} />
-                                        <pointLight position={[10, 10, 10]} intensity={1.5} />
-                                        <Suspense fallback={<Html center><div style={{ color: 'var(--gc-title)' }}>Model yuklanmoqda...</div></Html>}>
-                                            <FactoryViewer
-                                                modelPath={factorys[openDetailIndex].factory_model}
-                                                rotationSpeed={0.5}
-                                                zoom={0.06}
-                                            />
-                                            <Environment preset="city" />
-                                            <ContactShadows position={[0, -1.5, 0]} opacity={0.6} scale={15} blur={3} />
-                                        </Suspense>
-                                        <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={25} />
-                                    </Canvas>
+                                )}
                             </div>
-                        </div>
-                        <div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                minWidth: 0,
-                                minHeight: 0,
-                                overflow: 'auto',
-                                boxSizing: 'border-box',
-                                borderRight: '1px solid rgba(0,245,255,0.2)',
-                                color: 'var(--gc-title)',
-                                fontWeight: 'bold',
-                                fontSize: '22px',
-                            }}
-                        >
-                            <ProjectDashboard />
+                            <button
+                                onClick={handleCloseDetails}
+                                style={{
+                                    width: '32px', height: '32px', border: '1px solid rgba(255,255,255,0.35)',
+                                    background: 'rgba(255,255,255,0.08)', color: 'white', borderRadius: '8px',
+                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}
+                            >
+                                X
+                            </button>
                         </div>
 
-                        <div
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                minWidth: 0,
-                                minHeight: 0,
-                                overflow: 'hidden',
-                                boxSizing: 'border-box',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: 'var(--gc-title)',
-                                fontWeight: 'bold',
-                                fontSize: '22px',
-                            }}
-                        >
-                            <StreamGrid />
+                        {/* Content — 2x2: chap-tepa umumiy ma'lumot, o'ng-tepa 3D model, chap-past ProjectDashboard, o'ng-past kameralar */}
+                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '1px', background: 'rgba(0,245,255,0.15)', overflow: 'hidden', minHeight: 0 }}>
+                            {!factoryDetail ? (
+                                <div style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', background: '#020B18' }}>
+                                    Ma'lumot yuklanmoqda...
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Chap-tepa: umumiy ma'lumot */}
+                                    <div style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: 0 }}>
+                                        {/* Joylashuv */}
+                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
+                                            <div style={{ marginBottom: '15px', color: 'var(--gc-title)', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Joylashuv</div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Manzil:</span>
+                                                    <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.location || '-'}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Viloyat:</span>
+                                                    <span style={{ fontWeight: '600' }}>{factoryDetail.region || '-'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Loyiha */}
+                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
+                                            <div style={{ marginBottom: '15px', color: '#39ff14', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Loyiha</div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Maqsad:</span>
+                                                    <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.projectGoal || '-'}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Obyekt turi:</span>
+                                                    <span style={{ fontWeight: '600' }}>{factoryDetail.objectType || '-'}</span>
+                                                </div>
+                                                {typeof factoryDetail.work_persent === 'number' && (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                            <span style={{ color: '#7aa5cc' }}>Bajarilish:</span>
+                                                            <span style={{ fontWeight: '600' }}>{factoryDetail.work_persent}%</span>
+                                                        </div>
+                                                        <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                                                            <div style={{ width: `${factoryDetail.work_persent}%`, height: '100%', background: '#39ff14', boxShadow: '0 0 5px #39ff14' }}></div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Holat va muhimlik */}
+                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
+                                            <div style={{ marginBottom: '15px', color: '#bf5fff', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Holat</div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Holat:</span>
+                                                    <span style={{ fontWeight: '600', color: STATUS_COLORS[factoryDetail.status] || '#e0f0ff' }}>{factoryDetail.status || '-'}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Muhimlik:</span>
+                                                    <span style={{ fontWeight: '600', color: IMPORTANCE_COLORS[factoryDetail.importance] || '#e0f0ff' }}>{factoryDetail.importance || '-'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Boshqaruv */}
+                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
+                                            <div style={{ marginBottom: '15px', color: '#ffa500', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Boshqaruv</div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Korxona:</span>
+                                                    <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.enterprise_name || '-'}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span style={{ color: '#7aa5cc' }}>Rahbar:</span>
+                                                    <span style={{ fontWeight: '600' }}>{factoryDetail.manager || '-'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Elementlar */}
+                                        {Array.isArray(factoryDetail.elements) && factoryDetail.elements.length > 0 && (
+                                            <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
+                                                <div style={{ marginBottom: '15px', color: '#7aa5cc', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Elementlar</div>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                    {factoryDetail.elements.map((el: string, i: number) => (
+                                                        <span key={i} style={{ fontSize: '12px', fontWeight: '600', color: 'var(--gc-title)', border: '1px solid rgba(0,245,255,0.3)', borderRadius: '4px', padding: '3px 10px' }}>{el}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* O'ng-tepa: 3D model */}
+                                    <div style={{ background: 'var(--gc-panel-bg)', overflow: 'hidden', position: 'relative', minHeight: 0 }}>
+                                        <div style={{ position: 'absolute', top: '10px', left: '12px', zIndex: 10, color: 'var(--gc-title)', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                            3D Model
+                                        </div>
+                                        <Canvas shadows camera={{ position: [0, 2, 5], fov: 40 }}>
+                                            <ambientLight intensity={0.8} />
+                                            <pointLight position={[10, 10, 10]} intensity={1.5} />
+                                            <Suspense fallback={<Html center><div style={{ color: 'var(--gc-title)', fontSize: '11px' }}>Model yuklanmoqda...</div></Html>}>
+                                                <FactoryViewer
+                                                    modelPath={randomFactoryModel}
+                                                    rotationSpeed={0.5}
+                                                    zoom={0.06}
+                                                />
+                                                <Environment preset="city" />
+                                                <ContactShadows position={[0, -1.5, 0]} opacity={0.6} scale={15} blur={3} />
+                                            </Suspense>
+                                            <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={25} />
+                                        </Canvas>
+                                    </div>
+
+                                    {/* Chap-past: ProjectDashboard (real API ma'lumotlari bilan) */}
+                                    <div style={{ background: '#0a1420', overflowY: 'auto', minHeight: 0 }}>
+                                        <ProjectDashboard factory={factoryDetail} />
+                                    </div>
+
+                                    {/* O'ng-past: Kameralar (4 ta, /factory/:id javobidagi "cameras" massividan) */}
+                                    <div style={{ background: '#020B18', overflow: 'hidden', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', gap: '2px', minHeight: 0 }}>
+                                        {Array.from({ length: 4 }).map((_, i) => {
+                                            const cam = Array.isArray(factoryDetail.cameras) ? factoryDetail.cameras[i] : undefined;
+                                            const streamUrl = buildCameraStreamUrl(cam);
+                                            return (
+                                                <div key={i} style={{ position: 'relative', background: '#0d0d0d', overflow: 'hidden' }}>
+                                                    {streamUrl ? (
+                                                        <WebRTCPlayer url={streamUrl} />
+                                                    ) : (
+                                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.35)', fontSize: '11px' }}>
+                                                            {cam ? 'Stream mavjud emas' : 'Kamera yo\'q'}
+                                                        </div>
+                                                    )}
+                                                    {cam && (
+                                                        <span style={{ position: 'absolute', top: '4px', left: '5px', background: 'rgba(0,0,0,0.7)', color: '#ccc', fontSize: '10px', padding: '2px 6px', borderRadius: '3px' }}>
+                                                            {cam.label || cam.name || cam.modelUz || cam.model || `Kamera ${i + 1}`}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            )}
                         </div>
+
+                        {/* Footer */}
 
                     </div>
                 </div>

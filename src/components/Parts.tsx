@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import HrAnalitikaDetail from "../Parts/HrAnalitika/HrAnalitikaDetail";
 import Esg from "../Parts/ESG/ESG";
 import Finance from "../Parts/Finance/Finance";
+import Investing from "../Parts/Investing/Investing";
 
 const Parts = () => {
     const navigate = useNavigate();
@@ -138,6 +139,13 @@ const Parts = () => {
                 </div>
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/new-hr-detail')}
+                    >
+                        HR NEW
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
                             onClick={() => navigate('/main/hr-bi-detail')}
                     >
                         HR BI DETAIL
@@ -181,6 +189,20 @@ const Parts = () => {
                             onClick={() => navigate('/main/finance')}
                     >
                         Finance
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/finance-new')}
+                    >
+                        Finance 2 new
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/investing')}
+                    >
+                        Investing
                     </button>
                 </div>
                 <div className="col-md-2">
