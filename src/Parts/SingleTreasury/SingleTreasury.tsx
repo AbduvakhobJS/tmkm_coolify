@@ -293,7 +293,7 @@ const SingleTreasury: React.FC = () => {
                 {/* Kelishuv holati */}
                 <div style={{
                     background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`,
-                    borderRadius: 13, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12, minWidth: 0,
+                    borderRadius: 13, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12, minWidth: 0, height: "100%"
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                         <NeonIcon color="#4fb3d9" size={26}><IconPieChart /></NeonIcon>
@@ -308,7 +308,7 @@ const SingleTreasury: React.FC = () => {
                 {/* Muddati o'tgan zayavkalar */}
                 <div style={{
                     background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`,
-                    borderRadius: 13, padding: '14px 16px', display: 'flex', flexDirection: 'column', minWidth: 0, height:"100%"
+                    borderRadius: 13, padding: '14px 16px', display: 'flex', flexDirection: 'column', minWidth: 0,
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
