@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, axis, centerText } from '../../components/dashboardUI';
 import { useSituationSummary } from '../../hooks/hr';
 import hrDemoData from './hrDemoData.json';
+import axios from "axios";
 
 /* ── Neon ikonkalar ── */
 
@@ -220,6 +221,19 @@ function usePaged<T>(items: T[], page: number) {
 const DEMO_HR = hrDemoData as unknown as HrData;
 
 const HrAnalitikaDetail: React.FC = () => {
+
+
+    useEffect(() =>{
+
+        axios.get('http://xxx.xxx.uz/api/v1/summary', {headers: {Authorization: `Bearer ${localStorage.getItem("tmk-token")}`}})
+            .then((res) => {
+                console.log(res)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+
+    }, [])
     const { data, isSuccess } = useSituationSummary();
 
     const [unitsPage, setUnitsPage] = useState(1);

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { C } from '../../components/dashboardUI';
 import investingData from './investingDemoData.json';
+import {useGetAllInvesting} from "../../hooks/investing";
 
 /* ── Professional dumaloq ikonka (gradient fon + glow, "badge" uslubi) ── */
 
@@ -161,6 +162,7 @@ const QuarterBar: React.FC<{ value: number; max: number; color: string }> = ({ v
 
 /* ── Asosiy komponent ── */
 const Investing: React.FC = () => {
+    const { data: hrSituation } = useGetAllInvesting();
     const maxQuarter = useMemo(() => Math.max(...DATA.projects.flatMap((p) => p.quarters)), []);
 
     return (
