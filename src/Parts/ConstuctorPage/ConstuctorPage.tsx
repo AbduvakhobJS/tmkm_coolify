@@ -85,14 +85,16 @@ const WIDGETS: Widget[] = [
     { key: 'hse', title: 'HSE контроль и SLA', desc: 'Производственная безопасность, случаи, SLA и статусы', route: '/main/hse-big', color: '#4fb3d9', icon: <IconShield /> },
     { key: 'marketing', title: 'Маркетинг', desc: 'Бренд, соцсети, инвесторы и репутация', route: '/main/marketing', color: '#a855f7', icon: <IconBarChart /> },
     { key: 'prmedia', title: 'PR / Медиа', desc: 'Публикации, СМИ, тональность и охваты', route: '/main/pr-media', color: '#ec4899', icon: <IconMegaphone /> },
-    { key: 'hr', title: 'HR Аналитика', desc: 'Численность, движение персонала, HR-фокус', route: '/main/hr-bi-main', color: '#22c55e', icon: <IconUsers /> },
+    { key: 'hr', title: 'HR Аналитика', desc: 'Численность, движение персонала, HR-фокус', route: '/main/hr-bi-main', color: '#146775', icon: <IconUsers /> },
+    { key: 'hrnew', title: 'HR New', desc: '', route: '/main/new-hr-detail', color: '#1061a3', icon: <IconUsers /> },
     { key: 'contacthub', title: 'ContactHub', desc: 'Международные контакты, встречи и заметки', route: '/main/contact-hub', color: '#0ea8c7', icon: <IconBookOpen /> },
     { key: 'esg', title: 'ESG', desc: 'Экология, соцответственность и governance', route: '/main/esg', color: '#eab308', icon: <IconLeaf /> },
     { key: 'map', title: 'Map', desc: 'Map', route: '/main/4', color: '#ea08cc', icon: <IconShield /> },
     { key: 'events', title: 'Events', desc: 'Events', route: '/main/7', color: '#ea0808', icon: <IconUsers /> },
     { key: 'resurs', title: 'Resurs', desc: 'Resurs', route: '/main/9', color: '#8391d6', icon: <IconBarChart /> },
-    { key: 'finance', title: 'finance', desc: 'finance', route: '/main/fin' +
-            'ance', color: '#33d80f', icon: <IconBarChart /> },
+    { key: 'finance', title: 'finance', desc: 'finance', route: '/main/finance', color: '#33d80f', icon: <IconBarChart /> },
+    { key: 'financenew', title: 'financenew', desc: 'financenew', route: '/main/finance-new', color: '#2a51a5', icon: <IconBarChart /> },
+    { key: 'singletreasury', title: 'single-treasury', desc: 'single-treasury', route: '/main/single-treasury', color: '#103b5e', icon: <IconBarChart /> },
 ];
 
 const WIDGET_MAP: Record<string, Widget> = Object.fromEntries(WIDGETS.map((w) => [w.key, w]));
@@ -204,35 +206,52 @@ const ConstuctorPage: React.FC = () => {
     };
 
     return (
-        <div style={{ background: C.bg, minHeight: '100vh', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ background: C.bg,
+            minHeight: '100vh',
+            // padding: 14,
+            boxSizing: 'border-box',
+            fontFamily: '"Segoe UI", system-ui, sans-serif',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12 }}>
 
             {/* Sarlavha */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <NeonIcon color="#4fb3d9" size={34}><IconLayoutGrid /></NeonIcon>
-                <div>
-                    <div style={{ color: '#4fb3d9', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Конструктор дашборда</div>
-                    <div style={{ color: C.sub, fontSize: 11.5, marginTop: 1 }}>Соберите свою сводку из 6 доступных виджетов — выбор сохраняется автоматически</div>
-                </div>
-            </div>
+            {/*<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>*/}
+            {/*    <NeonIcon color="#4fb3d9" size={34}><IconLayoutGrid /></NeonIcon>*/}
+            {/*    <div>*/}
+            {/*        <div style={{ color: '#4fb3d9', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Конструктор дашборда</div>*/}
+            {/*        <div style={{ color: C.sub, fontSize: 11.5, marginTop: 1 }}>Соберите свою сводку из 6 доступных виджетов — выбор сохраняется автоматически</div>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
             {/* 6 ta katak */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', gap: 12, flex: 1, minHeight: 0 }}>
+            <div style={{ display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateRows: 'repeat(2, 1fr)',
+                gap: 12, flex: 1, minHeight: 0 }}>
                 {layout.map((slotKey, index) => {
                     const widget = slotKey ? WIDGET_MAP[slotKey] : null;
                     return (
                         <div
                             key={index}
                             style={{
-                                position: 'relative', background: C.card, border: `1px solid ${widget ? C.border : 'rgba(79,179,217,0.25)'}`,
-                                borderStyle: widget ? 'solid' : 'dashed', borderRadius: 14, overflow: 'hidden',
+                                position: 'relative',
+                                background: C.card,
+                                border: `1px solid ${widget ? C.border : 'rgba(79,179,217,0.25)'}`,
+                                borderStyle: widget ? 'solid' : 'dashed',
+                                borderRadius: 14,
+                                overflow: 'hidden',
                                 minHeight: 340, display: 'flex', flexDirection: 'column',
                             }}
                         >
                             {widget ? (
                                 <>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
-                                        <NeonIcon color={widget.color} size={22}>{widget.icon}</NeonIcon>
-                                        <span style={{ color: C.text, fontSize: 11.5, fontWeight: 700, flex: 1 }}>{widget.title}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8,
+                                        // padding: '8px 10px',
+                                        borderBottom: `1px solid ${C.border}`,
+                                        flexShrink: 0 }}>
+                                        {/*<NeonIcon color={widget.color} size={22}>{widget.icon}</NeonIcon>*/}
+                                        {/*<span style={{ color: C.text, fontSize: 11.5, fontWeight: 700, flex: 1 }}>{widget.title}</span>*/}
                                     </div>
                                     <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
                                         <iframe
@@ -246,8 +265,10 @@ const ConstuctorPage: React.FC = () => {
                                         onClick={() => handleRemove(index)}
                                         title="Убрать виджет"
                                         style={{
-                                            position: 'absolute', top: 8, right: 8, width: 24, height: 24, borderRadius: '50%',
-                                            background: `${C.down}22`, border: `1px solid ${C.down}66`, color: C.down, cursor: 'pointer',
+                                            position: 'absolute',
+                                            top: 8, right: 8, width: 24, height: 24, borderRadius: '50%',
+                                            background: "rgb(223 7 7 / 0.45)",
+                                            border: `1px solid ${C.down}66`, color: C.down, cursor: 'pointer',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5,
                                             boxShadow: '0 4px 10px rgba(0,0,0,0.35)', transition: 'transform 0.15s ease',
                                         }}
@@ -255,6 +276,24 @@ const ConstuctorPage: React.FC = () => {
                                         onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}
                                     >
                                         <IconMinus />
+                                    </button>
+                                    <button
+                                        onClick={() => setModalSlot(index)}
+                                        title="Убрать виджет"
+                                        style={{
+                                            position: 'absolute',
+                                            top: 8, right: 38, width: 24, height: 24, borderRadius: '50%',
+                                            background: "rgb(7 216 223 / 0.45)",
+                                            border: `1px solid ${C.down}66`,
+                                            color: "cyan",
+                                            cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5,
+                                            boxShadow: '0 4px 10px rgba(0,0,0,0.35)', transition: 'transform 0.15s ease',
+                                        }}
+                                        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+                                        onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}
+                                    >
+                                        <IconPlus />
                                     </button>
                                 </>
                             ) : (

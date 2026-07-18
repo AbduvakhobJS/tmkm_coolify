@@ -225,7 +225,7 @@ const HrAnalitikaDetail: React.FC = () => {
 
     useEffect(() =>{
 
-        axios.get('http://xxx.xxx.uz/api/v1/summary', {headers: {Authorization: `Bearer ${localStorage.getItem("tmk-token")}`}})
+        axios.get('https://situation.uzkmt.uz/api/v1/summary', {headers: {Authorization: `Bearer ${localStorage.getItem("tmk-token")}`}})
             .then((res) => {
                 console.log(res)
             })
