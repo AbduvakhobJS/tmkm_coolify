@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "title": "ГРР портфели — қисқача",
+    "subtitle": "Геология-қидирув ишлари бўйича умумий кўриниш",
+    "dateRange": "2025 йил"
+  },
+  "kpis": [
+    { "label": "ПРОЕКТОВ В ПОРТФЕЛЕ", "value": "20", "icon": "folder", "color": "#3b82f6", "trend": [12, 14, 15, 17, 18, 20] },
+    { "label": "АКТИВНЫЕ ПРОЕКТЫ", "value": "8", "icon": "pulse", "color": "#22c55e", "trend": [4, 5, 5, 6, 7, 8] },
+    { "label": "ПОДГОТОВКА PFS", "value": "5", "icon": "check", "color": "#06b6d4", "trend": [2, 2, 3, 3, 4, 5] },
+    { "label": "ПОИСКОВАЯ СТАДИЯ", "value": "7", "icon": "search", "color": "#06b6d4", "trend": [9, 8, 8, 7, 7, 7] },
+    { "label": "БЮДЖЕТ ПОРТФЕЛЯ", "value": "1,84 млрд долл.", "icon": "coins", "color": "#06b6d4", "trend": [1.2, 1.4, 1.5, 1.6, 1.7, 1.84] },
+    { "label": "IRR ПОРТФЕЛЯ", "value": "24,7%", "icon": "trend", "color": "#06b6d4", "trend": [18, 19, 21, 22, 23, 24.7] }
+  ],
+  "priorityProjects": [
+    { "num": 1, "name": "Тын-Канта", "readiness": 78, "risk": "low" },
+    { "num": 2, "name": "Караауна", "readiness": 64, "risk": "low" },
+    { "num": 3, "name": "Джетыгиташ", "readiness": 61, "risk": "medium" },
+    { "num": 4, "name": "Нуракта", "readiness": 57, "risk": "medium" },
+    { "num": 5, "name": "Шабулкак", "readiness": 42, "risk": "high" }
+  ],
+  "portfolioStructure": [
+    { "label": "В проработке", "count": 8, "color": "#3b82f6" },
+    { "label": "PFS (ПТЭО)", "count": 5, "color": "#22c55e" },
+    { "label": "Поисковая стадия", "count": 7, "color": "#f59e0b" }
+  ],
+  "valueIndicators": [
+    { "label": "ОСВОЕНО", "value": "784 млн долл.", "icon": "coins", "color": "#3b82f6" },
+    { "label": "ОЖИДАЕМАЯ ВЫРУЧКА", "value": "2,15 млрд долл.", "icon": "bars", "color": "#22c55e" },
+    { "label": "NPV ПРОЕКТОВ", "value": "2 412", "icon": "trend", "color": "#06b6d4" },
+    { "label": "СРЕДНИЙ РИСК ПОРТФЕЛЯ", "value": "СРЕДНИЙ", "icon": "gauge", "color": "#eab308" }
+  ],
+  "resourceDistribution": [
+    { "label": "Базовые и цветные металлы", "pct": 27, "color": "#3b82f6" },
+    { "label": "Аккумуляторные металлы", "pct": 23, "color": "#06b6d4" },
+    { "label": "Редкие и редкоземельные элементы", "pct": 28, "color": "#f59e0b" },
+    { "label": "Благородные металлы", "pct": 14, "color": "#a855f7" },
+    { "label": "Неметаллы и спец. сырьё", "pct": 8, "color": "#38bdf8" }
+  ],
+  "averageContent": [
+    { "label": "Cu", "value": 0.42, "color": "#f97316" },
+    { "label": "Zn", "value": 0.61, "color": "#06b6d4" },
+    { "label": "Li2O", "value": 0.19, "color": "#a855f7" },
+    { "label": "WO3", "value": 1.28, "color": "#22c55e" },
+    { "label": "REE", "value": 0.81, "color": "#ef4444" }
+  ],
+  "keyFindings": [
+    { "icon": "scale", "text": "Портфель сбалансирован по группам сырья", "color": "#3b82f6" },
+    { "icon": "star", "text": "Лидеры по ценности: Тын-Канта, Караауна, Джетыгиташ", "color": "#eab308" },
+    { "icon": "warning", "text": "Зона внимания: Шабулкак и Алтынтау — ускорить переход к PFS", "color": "#ef4444" }
+  ],
+  "overallStatus": { "label": "ОБЩИЙ СТАТУС", "value": "УДОВЛЕТВОРИТЕЛЬНО", "tone": "ok" }
+}

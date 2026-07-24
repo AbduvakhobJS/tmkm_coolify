@@ -153,17 +153,19 @@ const Parts = () => {
                     </button>
                 </div>
 
-
-            </div>
-            <div className="row  d-flex " style={{marginTop: "10px"}} >
-
-            <div className="col-md-2">
+                <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
                             onClick={() => navigate('/main/contact-hub')}
                     >
                         Contact hub
                     </button>
                 </div>
+                
+
+            </div>
+            <div className="row  d-flex " style={{marginTop: "10px"}} >
+
+
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
                             onClick={() => navigate('/main/contact-hub-detail')}
@@ -204,6 +206,20 @@ const Parts = () => {
                             onClick={() => navigate('/main/investing')}
                     >
                         Investing
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/grr')}
+                    >
+                        GRR
+                    </button>
+                </div>
+                <div className="col-md-2">
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/grr-detail')}
+                    >
+                        GRR Detail
                     </button>
                 </div>
                 <div className="col-md-2">
