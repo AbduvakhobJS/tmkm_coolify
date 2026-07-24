@@ -112,9 +112,9 @@ const RowFoyda: React.FC = () => {
                 </div>
             </div>
 
-            <Card title="Контроль месячного бюджета" accent={C.warn} icon={<IconClipboard />} style={{ flex: 1 }}>
-                {budget.items.map(it => <ProgressItem key={it.label} label={it.label} pct={it.pct} color={it.pct > 100 ? C.warn : C.cost} value={it.value} />)}
-            </Card>
+            {/*<Card title="Контроль месячного бюджета" accent={C.warn} icon={<IconClipboard />} style={{ flex: 1 }}>*/}
+            {/*    {budget.items.map(it => <ProgressItem key={it.label} label={it.label} pct={it.pct} color={it.pct > 100 ? C.warn : C.cost} value={it.value} />)}*/}
+            {/*</Card>*/}
         </div>
     );
 };

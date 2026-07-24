@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import TopCenterNew, {TopCenterItem} from "./TopCenterNew";
+import Map3D from "../Parts/Map/Map3d";
 
 /* ── TMK Schema data ── */
 const stages = [
@@ -60,8 +61,14 @@ const defaultItems: TopCenterItem[] = [
 ];
 
 
-const TopCenter = () => {
-    const [activeTab, setActiveTab] = useState(3);
+const TopCenter = ({
+                       highlightIndex,
+                       setHighlightIndex,
+                   }: {
+    highlightIndex: number;
+    setHighlightIndex: React.Dispatch<React.SetStateAction<number>>;
+}) => {
+    const [activeTab, setActiveTab] = useState(4);
 
 
     // Har bir qavat uchun widgetlar (piramida ko'rinishida)
@@ -130,6 +137,12 @@ const TopCenter = () => {
                     onClick={() => setActiveTab(3)}
                 >
                     Tab 3
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 4 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(4)}
+                >
+                    Map
                 </button>
             </div>
 
@@ -410,6 +423,18 @@ const TopCenter = () => {
               //     />
               // </div>
                 <img src="/imgs/tab3.png" style={{width:'100%', height:'100%'}} alt=""/>
+
+            )}
+            {activeTab === 4 && (
+              //   <div style={{ width: "100%", height: "47.5vh" }}>
+              //     <TopCenterNew
+              //         items={defaultItems}
+              //         backgroundImage=""
+              //         // pedestalImage="/imgs/item2.png"
+              //     />
+              // </div>
+                <Map3D highlightIndex={highlightIndex} setHighlightIndex={setHighlightIndex} />
+
 
             )}
         </div>

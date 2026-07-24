@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
@@ -41,6 +41,7 @@ import SingleTreasury from "./Parts/SingleTreasury/SingleTreasury";
 import Grr from "./Parts/GRR/GRR";
 import GrrDetail from "./Parts/GRR/GrrDetail";
 import ConstuctorPageFour from "./Parts/ConstuctorPage/ConstuctorPageFour";
+import FactoryModel from "./Parts/FactoryModel/FactoryModel";
 SciChartSurface.setRuntimeLicenseKey("NbX+2XP9JhtSxLiFXWZHRkPfQJz1ladswS9bZa9nR+HQYgAvAQ+qGVaNrxbIHiFYjIkf7WbsQcgKkk5dIOar27oI78ndSaTKtUGcIg3QG1LphEcW7+M3az5rma0vDbjxz3MX4dN3r3+HnYK50ErzErnLx7kzUYYZRmZOgPiMIP/bnVLp1I07eKJv4J7pHGbf2/5Sz/+staHCf8OscRw0lOaodXWOybw9gigzKZpp9QBJbJr9b2YINi6sRikakhwRQ5RnW838qqTvxbbcPaRLjqp7+0tZlU3KQ2351+Hz96EMFZwKN2TdRYCZO1ARHp57eck+8M+9fUDcSEo0NzgdCTe3bZ6tXepsOyUIgwMFY8s9WWwvRScewcS2pFG1DCun2HvSC/G5rCaoAjFYuXhi3zx/Znx8qY5YNCGRI6uuBgHqJDDuZflM2Ot2XSl5PtatddhWogw97AeFUEbNAO3WNuUyPweKYSFAfhdlzfRof+3ZRxCtI7Wv6M269RGDToZJniFgn9Pw6mf+d3DVnz+RSj4/16eCI4ZUDeQJg/dfD/kefdNpa/+B22DexowqOjtjmR7ECgBktFN0Pq46enu+6Z0b9WphqUt7i62+9PD7ctHFJYqLfzwaHBrOG0VdpGRX7hoBHv4L9RaqEJ8kzEUswRuKkyKnwghr");
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
@@ -55,7 +56,6 @@ root.render(
           <Route path="/main/full" element={<PrivateRoute><App /></PrivateRoute>} />
           <Route path="/main/1" element={<PrivateRoute><Part1 /></PrivateRoute>} />
           <Route path="/main/2" element={<PrivateRoute><Part2 /></PrivateRoute>} />
-          <Route path="/main/3" element={<PrivateRoute><Part3 /></PrivateRoute>} />
           <Route path="/main/4" element={<PrivateRoute><Part4 /></PrivateRoute>} />
           <Route path="/main/5" element={<PrivateRoute><ProjectDashboard /></PrivateRoute>} />
           <Route path="/main/6" element={<PrivateRoute><Part5 /></PrivateRoute>} />
@@ -81,6 +81,7 @@ root.render(
           <Route path="/main/single-treasury" element={<PrivateRoute><SingleTreasury /></PrivateRoute>} />
           <Route path="/main/grr" element={<PrivateRoute><Grr /></PrivateRoute>} />
           <Route path="/main/grr-detail" element={<PrivateRoute><GrrDetail /></PrivateRoute>} />
+          <Route path="/main/factory-model" element={<PrivateRoute><FactoryModel /></PrivateRoute>} />
           <Route path="/main/constructor" element={<PrivateRoute><ConstuctorPage /></PrivateRoute>} />
           <Route path="/main/constructor-four" element={<PrivateRoute><ConstuctorPageFour /></PrivateRoute>} />
         </Routes>

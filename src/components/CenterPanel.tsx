@@ -5,6 +5,10 @@ import {MapChartComponent} from "./charts/MapChartComponent";
 import Map3D from "../Parts/Map/Map3d";
 import TopCenter from "./TopCenter";
 import Part3 from "./Part3";
+import Esg from "../Parts/ESG/ESG";
+import Marketing from "../Parts/Marketing/Marketing";
+import Investing from "../Parts/Investing/Investing";
+import FinanceNew from "../Parts/Finance/FinanceNew";
 
 const CenterPanel: React.FC<{highlightIndex: number, setHighlightIndex: React.Dispatch<React.SetStateAction<number>>}> = ({highlightIndex, setHighlightIndex}) => {
   return (
@@ -12,13 +16,14 @@ const CenterPanel: React.FC<{highlightIndex: number, setHighlightIndex: React.Di
         <div className="center-top-bottom">
             <div className="center-top-height">
                 {/*<TopCenter/>*/}
-                <Part3/>
+                <Part3 highlightIndex={highlightIndex} setHighlightIndex={setHighlightIndex} />
             </div>
 
 
             <div className="center-bottom-height">
-                <Map3D highlightIndex={highlightIndex} setHighlightIndex={setHighlightIndex} />
+                {/*<Map3D highlightIndex={highlightIndex} setHighlightIndex={setHighlightIndex} />*/}
 
+                <FinanceNew />
             </div>
         </div>
 
