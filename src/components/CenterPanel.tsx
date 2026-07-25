@@ -20,7 +20,7 @@ const CenterPanel: React.FC<{highlightIndex: number, setHighlightIndex: React.Di
             </div>
 
 
-            <div className="center-bottom-height">
+            <div className="center-bottom-height" style={{paddingTop: 10}}>
                 {/*<Map3D highlightIndex={highlightIndex} setHighlightIndex={setHighlightIndex} />*/}
 
                 <FinanceNew />

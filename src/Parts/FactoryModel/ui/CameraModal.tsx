@@ -41,7 +41,7 @@ const CameraModal: React.FC<CameraModalProps> = ({ marker, stream, onClose }) =>
                     transition={{ duration: 0.2 }}
                 >
                     <motion.div
-                        className="fm-modal"
+                        className="fm-modal fm-modal--full"
                         onClick={(e) => e.stopPropagation()}
                         initial={{ opacity: 0, scale: 0.92, y: 24 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -73,24 +73,26 @@ const CameraModal: React.FC<CameraModalProps> = ({ marker, stream, onClose }) =>
                             </div>
                         </div>
 
-                        <div className="fm-modal__stream">
-                            {stream ? (
-                                <WebRTCPlayer url={stream.streamUrl} />
-                            ) : (
-                                <div
-                                    style={{
-                                        position: "absolute",
-                                        inset: 0,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        color: "#5f8496",
-                                        fontSize: 13,
-                                    }}
-                                >
-                                    Connecting to stream…
-                                </div>
-                            )}
+                        <div className="fm-modal__content" style={{ padding: 0 }}>
+                            <div className="fm-modal__stream" style={{ height: "100%", aspectRatio: "unset" }}>
+                                {stream ? (
+                                    <WebRTCPlayer url={stream.streamUrl} />
+                                ) : (
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "#5f8496",
+                                            fontSize: 13,
+                                        }}
+                                    >
+                                        Connecting to stream…
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="fm-modal__footer">

@@ -16,6 +16,8 @@ export interface CameraStream {
 /** 3D world position expressed as a tuple, ready to spread into three.js props. */
 export type Vec3 = [x: number, y: number, z: number];
 
+export type MarkerType = "scada" | "camera" | "energy" | "production" | "staff";
+
 /** Static description of a building marker floating above the factory model. */
 export interface BuildingMarker {
     /** stable id, e.g. "bld-01" */
@@ -28,6 +30,8 @@ export interface BuildingMarker {
     position: Vec3;
     /** index (0-based) into the resolved camera-stream array this marker maps to */
     streamIndex: number;
+    /** type of the marker determining which modal to open */
+    type: MarkerType;
 }
 
 /** A single readout rendered inside a glass dashboard widget. */

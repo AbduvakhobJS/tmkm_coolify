@@ -1,14 +1,23 @@
 import React, { useCallback } from "react";
 import { Html } from "@react-three/drei";
-import { FiVideo } from "react-icons/fi";
-import { LuCamera } from "react-icons/lu";
+import { FiActivity, FiUsers, FiCpu, FiVideo, FiZap } from "react-icons/fi";
 import { MARKER_DISTANCE_FACTOR } from "../constants";
-import type { BuildingMarker } from "../types";
+import type { BuildingMarker, MarkerType } from "../types";
 
 interface CameraMarkerProps {
     marker: BuildingMarker;
     onSelect: (marker: BuildingMarker) => void;
 }
+
+const getMarkerIcon = (type: MarkerType) => {
+    switch (type) {
+        case "scada": return <FiCpu size={16} />;
+        case "energy": return <FiZap size={16} />;
+        case "production": return <FiActivity size={16} />;
+        case "staff": return <FiUsers size={16} />;
+        default: return <FiVideo size={16} />;
+    }
+};
 
 /**
  * A billboard CCTV marker anchored in 3D space. It always faces the camera
@@ -22,16 +31,16 @@ const CameraMarker: React.FC<CameraMarkerProps> = ({ marker, onSelect }) => {
         <group position={marker.position}>
             <Html center sprite distanceFactor={MARKER_DISTANCE_FACTOR} zIndexRange={[10, 0]}>
                 <div
-                    className="fm-marker"
+                    className={`fm-marker fm-marker--${marker.type}`}
                     role="button"
                     tabIndex={0}
-                    aria-label={`${marker.building} — ${marker.cameraName}`}
+                    aria-label={`${marker.building} — ${marker.type}`}
                     onClick={handleSelect}
                     onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleSelect()}
                 >
                     <span className="fm-marker__ring" />
                     <span className="fm-marker__btn">
-                        <FiVideo size={16} />
+                        {getMarkerIcon(marker.type)}
                     </span>
                     <span className="fm-marker__label">{marker.building}</span>
                 </div>

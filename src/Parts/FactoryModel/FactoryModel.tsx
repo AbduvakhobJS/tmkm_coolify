@@ -11,6 +11,10 @@ import { useCameraStreams } from "./hooks/useCameraStreams";
 import type { BuildingMarker } from "./types";
 import { useClock } from "../../hooks/useClock";
 import CameraModal from "./ui/CameraModal";
+import ScadaModal from "./ui/ScadaModal";
+import EnergyModal from "./ui/EnergyModal";
+import ProductionModal from "./ui/ProductionModal";
+import StaffModal from "./ui/StaffModal";
 import SidePanel from "./ui/SidePanel";
 import SceneLoader from "./scene/SceneLoader";
 import "./factoryModel.css";
@@ -78,8 +82,22 @@ const FactoryModel: React.FC = () => {
 
             <SceneLoader />
 
-            {/* ── Live camera modal ────────────────────────────────────────── */}
-            <CameraModal marker={selected} stream={selectedStream} onClose={handleClose} />
+            {/* ── Contextual modals based on marker type ────────────────────── */}
+            {selected?.type === "camera" && (
+                <CameraModal marker={selected} stream={selectedStream} onClose={handleClose} />
+            )}
+            {selected?.type === "scada" && (
+                <ScadaModal marker={selected} onClose={handleClose} />
+            )}
+            {selected?.type === "energy" && (
+                <EnergyModal marker={selected} onClose={handleClose} />
+            )}
+            {selected?.type === "production" && (
+                <ProductionModal marker={selected} onClose={handleClose} />
+            )}
+            {selected?.type === "staff" && (
+                <StaffModal marker={selected} onClose={handleClose} />
+            )}
         </div>
     );
 };
