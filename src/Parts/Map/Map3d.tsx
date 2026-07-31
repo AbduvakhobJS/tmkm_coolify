@@ -77,6 +77,15 @@ const IMPORTANCE_COLORS: Record<string, string> = {
     LOW: '#7aa5cc',
 };
 
+// Markerlarni "declutter" (ustma-ustlikni yashirish) uchun piksellardagi radiuslar.
+// Ikki marker markazi orasidagi ekran masofasi (r1 + r2) dan kichik bo'lsa —
+// ustuvorroq (avval kelgan) marker ko'rinib qoladi, ikkinchisi yashiriladi.
+// Kartani yaqinlashtirsangiz masofa oshadi => ko'proq marker ochiladi,
+// uzoqlashtirsangiz => yaqinlari birlashib, bittasi qoladi. Cluster ikonkasi yo'q.
+// Qiymatlarni ko'paytirsangiz kamroq, kamaytirsangiz ko'proq marker ko'rinadi.
+const FACTORY_CLUSTER_R = 58;   // fabrika markeri katta (pin + sarlavha qutisi)
+const MINERAL_CLUSTER_R = 12;   // mineral markeri kichik (14px shakl)
+
 // /factory/:id javobidagi "cameras" massivi elementidan WebRTC stream URL yasaydi.
 // Kamera obyektining aniq maydon nomlari docs'da berilmagan — shuning uchun bir nechta
 // mumkin bo'lgan maydon nomini sinab ko'ramiz (global /cameras endpointi bilan bir xil shakl deb taxmin qilinadi).
@@ -365,6 +374,61 @@ const Map3D = ({
     // O'zbekiston chegara neon animatsiyasi uchun state yoki ref
     const animationFrameRef = useRef<number>();
 
+    // Markerlarni declutter qilish (bir freymda faqat bir marta ishlashi uchun rAF throttle)
+    const declutterRafRef = useRef<number | null>(null);
+
+    // Ekran koordinatalari bo'yicha yaqin markerlarni yashirib, faqat bittasini qoldiradi.
+    // Faqat visibility'ni almashtiradi — marker/data/dizaynga tegmaydi.
+    // Vehicle (transport) markerlari bu yerga QO'SHILMAYDI: ular real-time yangilanadi.
+    const declutterMarkers = useCallback(() => {
+        const mapInstance = map.current;
+        if (!mapInstance) return;
+
+        type Item = { el: HTMLElement; lngLat: maplibregl.LngLat; r: number };
+        const items: Item[] = [];
+
+        // 1) Fabrika markerlari — ustuvor (avval joy egallaydi)
+        Object.values(markersRef.current).forEach((m) => {
+            items.push({ el: m.getElement(), lngLat: m.getLngLat(), r: FACTORY_CLUSTER_R });
+        });
+        // 2) Mineral markerlari — keyin (fabrika yonida bo'lsa yashiriladi)
+        mineralMarkersRef.current.forEach((m) => {
+            items.push({ el: m.getElement(), lngLat: m.getLngLat(), r: MINERAL_CLUSTER_R });
+        });
+
+        const shown: { x: number; y: number; r: number }[] = [];
+
+        for (const { el, lngLat, r } of items) {
+            const p = mapInstance.project(lngLat);
+            let collides = false;
+            for (let i = 0; i < shown.length; i++) {
+                const s = shown[i];
+                const dx = s.x - p.x;
+                const dy = s.y - p.y;
+                const minDist = s.r + r;
+                if (dx * dx + dy * dy < minDist * minDist) {
+                    collides = true;
+                    break;
+                }
+            }
+            if (collides) {
+                if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden';
+            } else {
+                if (el.style.visibility === 'hidden') el.style.visibility = '';
+                shown.push({ x: p.x, y: p.y, r });
+            }
+        }
+    }, []);
+
+    // Karta harakati/zoom paytida ko'p marta chaqirilmasligi uchun rAF bilan throttle
+    const scheduleDeclutter = useCallback(() => {
+        if (declutterRafRef.current != null) return;
+        declutterRafRef.current = requestAnimationFrame(() => {
+            declutterRafRef.current = null;
+            declutterMarkers();
+        });
+    }, [declutterMarkers]);
+
     useEffect(() => {
         if (!mapContainer.current) return;
 
@@ -381,6 +445,9 @@ const Map3D = ({
             pitch: 45,
             fadeDuration: 0
         });
+
+        // Karta har harakat/zoom qilinganda markerlarni qayta declutter qilish
+        map.current.on('move', scheduleDeclutter);
 
         map.current.on('load', async () => {
             if (!map.current) return;
@@ -476,6 +543,7 @@ const Map3D = ({
 
         return () => {
             if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+            if (declutterRafRef.current != null) cancelAnimationFrame(declutterRafRef.current);
             mineralMarkersRef.current.forEach(m => m.remove());
             map.current?.remove();
         };
@@ -542,6 +610,9 @@ const Map3D = ({
                 .addTo(map.current!);
             mineralMarkersRef.current.push(marker);
         });
+
+        // Mineral markerlari qo'shilgach declutter (fabrikalar bilan birga)
+        scheduleDeclutter();
     };
     const formatText = (text = "", count: number) => {
         if (!text) return "";
@@ -616,6 +687,9 @@ const Map3D = ({
         });
 
         updateVehicleMarkers();
+
+        // Yangi chizilgan markerlarni darhol declutter qilish (ustma-ustlikni yashirish)
+        scheduleDeclutter();
     };
 
     const updateVehicleMarkers = () => {

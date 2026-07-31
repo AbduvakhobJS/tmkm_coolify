@@ -38,7 +38,7 @@
   --font-mono:    'Share Tech Mono', monospace;
   --font-body:    'Exo 2', var(--gc-font);
 
-  --header-h: 60px;
+  --header-h: 140px;
   --footer-h: 36px;
 }
 
@@ -163,7 +163,7 @@ body {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   color: var(--text-secondary);
-  text-align: right;
+  text-align: center;
   letter-spacing: 0.1em;
 }
 
@@ -189,7 +189,7 @@ body {
 #dashboard {
   display: grid;
   grid-template-columns: 32% 36% 32%;
-  height: calc(100vh - var(--header-h) - var(--footer-h));
+  height: calc(100% - var(--header-h) - var(--footer-h));
   gap: 0;
   position: relative;
   z-index: 2;

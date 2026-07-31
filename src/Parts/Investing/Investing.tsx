@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { C } from '../../components/dashboardUI';
 import investingData from './investingDemoData.json';
-import {useGetAllInvesting} from "../../hooks/investing";
+import { useGetAllInvesting } from '../../hooks/investing';
 
 /* ── Professional dumaloq ikonka (gradient fon + glow, "badge" uslubi) ── */
 
@@ -62,6 +62,13 @@ const IconChartBar = () => (
         <rect x="16.4" y="4.5" width="3.6" height="15.5" rx="1" fill="currentColor" opacity="0.7" />
     </svg>
 );
+const IconTarget = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="12" cy="12" r="4.6" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+    </svg>
+);
 const IconCalendar = () => (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="3" y="4.5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.7" />
@@ -117,22 +124,29 @@ const FUNDING_ICONS: Record<string, React.ReactNode> = { wallet: <IconWallet />,
 
 /* ── Ma'lumot turlari ── */
 type FundingSource = { label: string; value: number; pct: number; icon: string; color: string };
-type Project = { id: number; name: string; icon: string; color: string; totalValue: number; yearPlan: number; quarters: number[]; actual: number };
+type Funding = { own: number; foreign: number; fund: number };
+type Project = {
+    id: number; name: string; region: string; district: string; capacity: string; term: string;
+    icon: string; color: string; funding: Funding;
+    totalValue: number; yearPlan: number; quartersPlan: number[]; quartersActual: number[];
+};
 type InvestingData = typeof investingData;
 const DATA = investingData as InvestingData;
+const FUND_COLORS = DATA.fundingColors;
 
 /* ── Yordamchi funksiyalar ── */
 const fmt1 = (n: number): string => n.toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 /* ── UI blok komponentlari ── */
-const KpiCard: React.FC<{ label: string; value: string; unit?: string; icon: React.ReactNode; color: string; style?: React.CSSProperties }> = ({ label, value, unit, icon, color, style }) => (
-    <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, minWidth: 0, ...style }}>
+const KpiCard: React.FC<{ label: string; value: string; unit?: string; sub?: string; icon: React.ReactNode; color: string }> = ({ label, value, unit, sub, icon, color }) => (
+    <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
         <NeonIcon color={color} size={46}>{icon}</NeonIcon>
         <div style={{ minWidth: 0 }}>
-            <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>{label}</div>
-            <div style={{ color: C.text, fontSize: 24, fontWeight: 700, lineHeight: 1 }}>
+            <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 4 }}>{label}</div>
+            <div style={{ color: C.text, fontSize: 23, fontWeight: 700, lineHeight: 1 }}>
                 {value}{unit && <span style={{ color: C.sub, fontSize: 12, fontWeight: 500, marginLeft: 6 }}>{unit}</span>}
             </div>
+            {sub && <div style={{ color: C.sub, fontSize: 10.5, marginTop: 5 }}>{sub}</div>}
         </div>
     </div>
 );
@@ -141,38 +155,78 @@ const FundingRow: React.FC<{ item: FundingSource }> = ({ item }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
         <NeonIcon color={item.color} size={30}>{FUNDING_ICONS[item.icon]}</NeonIcon>
         <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ color: C.sub, fontSize: 9.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
+            <div style={{ color: C.sub, fontSize: 9.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={item.label}>{item.label}</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                 <span style={{ color: item.color, fontSize: 16, fontWeight: 700 }}>{fmt1(item.value)}</span>
-                <span style={{ color: C.sub, fontSize: 9.5 }}>млн доллар</span>
+                <span style={{ color: C.sub, fontSize: 9.5 }}>млн $</span>
                 <span style={{ color: C.sub, fontSize: 9.5 }}>({fmt1(item.pct)}%)</span>
+            </div>
+            <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginTop: 4 }}>
+                <div style={{ height: '100%', width: `${item.pct}%`, background: item.color, borderRadius: 2 }} />
             </div>
         </div>
     </div>
 );
 
-const QuarterBar: React.FC<{ value: number; max: number; color: string }> = ({ value, max, color }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', minWidth: 30 }}>
-            <div style={{ height: '100%', width: `${max ? (value / max) * 100 : 0}%`, background: color, borderRadius: 3, boxShadow: `0 0 6px ${color}88` }} />
+/* Loyiha qiymatining moliялаштириш манбалари бўйича тақсимланиши (segmentli бар) */
+const FundingSplit: React.FC<{ f: Funding; total: number }> = ({ f, total }) => {
+    const segs = [
+        { v: f.own, c: FUND_COLORS.own, t: 'Ўз маблағлари' },
+        { v: f.foreign, c: FUND_COLORS.foreign, t: 'Хорижий инвестиция ва кредитлар' },
+        { v: f.fund, c: FUND_COLORS.fund, t: 'Тикланиш ва тараққиёт жамғармаси' },
+    ].filter((s) => s.v > 0);
+    return (
+        <div style={{ display: 'flex', height: 5, borderRadius: 3, overflow: 'hidden', background: 'rgba(255,255,255,0.06)', marginTop: 6, width: 132 }}>
+            {segs.map((s, i) => (
+                <div key={i} title={`${s.t}: ${fmt1(s.v)} млн $`} style={{ width: `${(s.v / total) * 100}%`, background: s.c }} />
+            ))}
         </div>
-        <span style={{ color: C.text, fontSize: 11, fontWeight: 600, width: 30, textAlign: 'right', flexShrink: 0 }}>{fmt1(value)}</span>
-    </div>
-);
+    );
+};
+
+/* Фоиз (факт/режа) ранги */
+const pctColor = (p: number): string => (p >= 100 ? '#22c55e' : p >= 80 ? '#84cc16' : p >= 50 ? '#eab308' : p > 0 ? '#f97316' : '#64748b');
+
+/* Chorak katagi — режа ҳар доим 100% (бутун бар), факт эса режага нисбатан
+   бажарилган қисми. Прогрессбар икки алоҳида қийматни эмас, бир бутун
+   "режа = 100%" шкаласи ичида фактнинг улушини кўрсатади. */
+const QuarterCell: React.FC<{ plan: number; fact: number; color: string }> = ({ plan, fact, color }) => {
+    const pct = plan ? (fact / plan) * 100 : (fact > 0 ? 100 : 0);
+    const factW = Math.min(pct, 100);
+    const over = pct > 100;
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 116 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 6 }}>
+                <span style={{ fontSize: 9.5, color: C.sub }}>реж <b style={{ color: C.text, fontWeight: 600 }}>{fmt1(plan)}</b></span>
+                <span style={{ fontSize: 9.5, color: C.sub }}>факт <b style={{ color: fact ? color : C.sub, fontWeight: 700 }}>{fmt1(fact)}</b></span>
+            </div>
+            <div style={{ position: 'relative', height: 7, borderRadius: 4, background: `${color}28`, overflow: 'hidden' }}>
+                {/* режа = бутун барнинг ўзи (100% база), факт — унинг ичидаги тўлдирма */}
+                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${factW}%`, background: color, borderRadius: 4, boxShadow: fact ? `0 0 6px ${color}88` : 'none' }} />
+                {over && <div style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: 3, background: '#22c55e' }} />}
+            </div>
+            <div style={{ textAlign: 'right', fontSize: 10.5, fontWeight: 700, color: pctColor(pct) }}>{plan ? `${fmt1(pct)}%` : (fact ? `${fmt1(pct)}%` : '—')}</div>
+        </div>
+    );
+};
 
 /* ── Asosiy komponent ── */
 const Investing: React.FC = () => {
-    const { data: hrSituation } = useGetAllInvesting();
-    const maxQuarter = useMemo(() => Math.max(...DATA.projects.flatMap((p) => p.quarters)), []);
+    useGetAllInvesting();
+    const projects = DATA.projects as Project[];
+    const execPct = DATA.totals.yearFact / DATA.totals.yearPlan * 100;
+
+    const th: React.CSSProperties = { color: C.sub, fontWeight: 600, padding: '7px 8px', borderBottom: `1px solid ${C.border}` };
+    const td: React.CSSProperties = { padding: '9px 8px', borderBottom: `1px solid ${C.border}` };
 
     return (
         <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
-                <div style={{ maxWidth: 900 }}>
+                <div style={{ maxWidth: 960 }}>
                     <div style={{ color: '#4fb3d9', fontSize: 18, fontWeight: 700, lineHeight: 1.35 }}>{DATA.meta.titleLine1}</div>
-                    <div style={{ color: '#4fb3d9', fontSize: 18, fontWeight: 700, lineHeight: 1.35 }}>{DATA.meta.titleLine2}</div>
+                    <div style={{ color: C.text, fontSize: 13.5, fontWeight: 500, lineHeight: 1.35, marginTop: 2 }}>{DATA.meta.titleLine2}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 9, padding: '8px 13px', flexShrink: 0 }}>
                     <NeonIcon color="#4fb3d9" size={22}><IconCalendar /></NeonIcon>
@@ -184,69 +238,85 @@ const Investing: React.FC = () => {
             </div>
 
             {/* KPI qatori */}
-            <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1fr 2fr 1fr', gap: 10, alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '0.85fr 1fr 1fr 1.15fr 2fr', gap: 10, alignItems: 'stretch' }}>
                 <KpiCard label="Лойиҳалар сони" value={String(DATA.kpi.projectsCount)} unit="та" icon={<IconFileText />} color="#3b82f6" />
-                <KpiCard label="Лойиҳаларнинг умумий қиймати" value={fmt1(DATA.kpi.totalValue)} unit={DATA.meta.unit} icon={<IconCoinsStack />} color="#22c55e" />
+                <KpiCard label="Умумий қиймат" value={fmt1(DATA.kpi.totalValue)} unit={DATA.meta.unit} icon={<IconCoinsStack />} color="#22c55e" />
+                <KpiCard label="2026 йил ўзлаштириш режаси" value={fmt1(DATA.kpi.yearPlan)} unit={DATA.meta.unit} icon={<IconChartBar />} color="#f97316" />
+                <KpiCard label="Факт (август ҳолатига)" value={fmt1(DATA.kpi.yearFact)} unit={DATA.meta.unit} sub={`Йиллик режанинг ${fmt1(execPct)} фоизи бажарилди`} icon={<IconTarget />} color="#22c55e" />
 
-                <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
-                    <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>Лойиҳалар қиймати манбалари</div>
+                <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 9, minWidth: 0 }}>
+                    <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Лойиҳалар қиймати манбалари</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
                         {DATA.fundingSources.map((f) => <FundingRow key={f.label} item={f as FundingSource} />)}
                     </div>
                 </div>
-
-                <KpiCard label="2026 йилга жами ўзлаштириш режаси" value={fmt1(DATA.kpi.yearPlan)} unit={DATA.meta.unit} icon={<IconChartBar />} color="#f97316" />
             </div>
 
             {/* Loyihalar jadvali */}
             <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '14px 16px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                <div style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 10 }}>
-                    2026 йилга лойиҳалар бўйича ўзлаштириш режалари ва амалда ўзлаштирилган кўрсаткичлар <span style={{ color: C.sub, fontWeight: 400, textTransform: 'none' }}>({DATA.meta.unit})</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+                    <div style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                        Лойиҳалар бўйича ўзлаштириш: режа ва факт (ҳар чоракда) <span style={{ color: C.sub, fontWeight: 400, textTransform: 'none' }}>(2026 йил, {DATA.meta.unit})</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ color: C.sub, fontSize: 10 }}><span style={{ display: 'inline-block', width: 16, height: 7, borderRadius: 3, background: 'rgba(79,179,217,0.30)', marginRight: 4, verticalAlign: 'middle' }} />режа (соя)</span>
+                        <span style={{ color: C.sub, fontSize: 10 }}><span style={{ display: 'inline-block', width: 16, height: 7, borderRadius: 3, background: '#4fb3d9', marginRight: 4, verticalAlign: 'middle' }} />факт (бажарилган)</span>
+                        <span style={{ color: C.sub, fontSize: 10 }}>% — факт/режа</span>
+                    </div>
                 </div>
 
                 <div style={{ overflowX: 'auto', flex: 1 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5, minWidth: 980 }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5, minWidth: 1080 }}>
                         <thead>
                             <tr>
-                                <th style={{ textAlign: 'left', color: C.sub, fontWeight: 600, padding: '6px 8px', borderBottom: `1px solid ${C.border}`, minWidth: 260 }}>Лойиҳа номи</th>
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '6px 8px', borderBottom: `1px solid ${C.border}` }}>Лойиҳа умумий қиймати</th>
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '6px 8px', borderBottom: `1px solid ${C.border}` }}>2026 йил ўзлаштириш режаси</th>
-                                {DATA.quarterLabels.map((q) => (
-                                    <th key={q} style={{ textAlign: 'left', color: C.sub, fontWeight: 600, padding: '6px 8px', borderBottom: `1px solid ${C.border}`, minWidth: 110 }}>{q}</th>
+                                <th style={{ ...th, textAlign: 'left', minWidth: 300 }}>Лойиҳа номи ва тавсифи</th>
+                                <th style={{ ...th, textAlign: 'right', minWidth: 96 }}>Умумий қиймати</th>
+                                <th style={{ ...th, textAlign: 'right', minWidth: 84 }}>2026 йил режаси</th>
+                                {DATA.quarterLabels.map((q, i) => (
+                                    <th key={q} style={{ ...th, textAlign: 'left', minWidth: 116 }}>
+                                        {q}<div style={{ fontWeight: 400, fontSize: 9, color: C.sub }}>{DATA.quarterSubLabels[i]}</div>
+                                    </th>
                                 ))}
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '6px 8px', borderBottom: `1px solid ${C.border}` }}>Амалда ўзлаштирилган (янв-мар)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {DATA.projects.map((p) => (
+                            {projects.map((p) => (
                                 <tr key={p.id}>
-                                    <td style={{ padding: '7px 8px', borderBottom: `1px solid ${C.border}` }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                                            <NeonIcon color={(p as Project).color} size={28}>{PROJECT_ICONS[p.icon]}</NeonIcon>
-                                            <span style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{p.id}</span>
-                                            <span style={{ color: C.text }}>{p.name}</span>
+                                    <td style={{ ...td }}>
+                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                                            <NeonIcon color={p.color} size={30}>{PROJECT_ICONS[p.icon]}</NeonIcon>
+                                            <div style={{ minWidth: 0 }}>
+                                                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                                                    <span style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{p.id}.</span>
+                                                    <span style={{ color: C.text, fontWeight: 500 }}>{p.name}</span>
+                                                </div>
+                                                <div style={{ color: C.sub, fontSize: 9.5, marginTop: 3 }}>
+                                                    {p.region} · {p.district} · {p.capacity} · {p.term}
+                                                </div>
+                                                <FundingSplit f={p.funding} total={p.totalValue} />
+                                            </div>
                                         </div>
                                     </td>
-                                    <td style={{ textAlign: 'right', color: C.text, fontWeight: 600, padding: '7px 8px', borderBottom: `1px solid ${C.border}` }}>{fmt1(p.totalValue)}</td>
-                                    <td style={{ textAlign: 'right', color: C.text, fontWeight: 600, padding: '7px 8px', borderBottom: `1px solid ${C.border}` }}>{fmt1(p.yearPlan)}</td>
-                                    {p.quarters.map((q, i) => (
-                                        <td key={i} style={{ padding: '7px 8px', borderBottom: `1px solid ${C.border}` }}>
-                                            <QuarterBar value={q} max={maxQuarter} color={DATA.quarterColors[i]} />
+                                    <td style={{ ...td, textAlign: 'right', color: C.text, fontWeight: 700 }}>{fmt1(p.totalValue)}</td>
+                                    <td style={{ ...td, textAlign: 'right', color: '#f97316', fontWeight: 700 }}>{fmt1(p.yearPlan)}</td>
+                                    {p.quartersPlan.map((q, i) => (
+                                        <td key={i} style={{ ...td }}>
+                                            <QuarterCell plan={q} fact={p.quartersActual[i]} color={DATA.quarterColors[i]} />
                                         </td>
                                     ))}
-                                    <td style={{ textAlign: 'right', color: '#22c55e', fontWeight: 700, padding: '7px 8px', borderBottom: `1px solid ${C.border}` }}>{fmt1(p.actual)}</td>
                                 </tr>
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr>
-                                <td style={{ color: C.text, fontWeight: 700, padding: '10px 8px' }}>ЖАМИ:</td>
-                                <td style={{ textAlign: 'right', color: C.text, fontWeight: 700, padding: '10px 8px' }}>{fmt1(DATA.totals.totalValue)}</td>
-                                <td style={{ textAlign: 'right', color: C.text, fontWeight: 700, padding: '10px 8px' }}>{fmt1(DATA.totals.yearPlan)}</td>
-                                {DATA.totals.quarters.map((q, i) => (
-                                    <td key={i} style={{ textAlign: 'right', color: DATA.quarterColors[i], fontWeight: 700, padding: '10px 8px' }}>{fmt1(q)}</td>
+                            <tr style={{ borderTop: `2px solid ${C.border}` }}>
+                                <td style={{ color: C.text, fontWeight: 800, padding: '11px 8px' }}>ЖАМИ:</td>
+                                <td style={{ textAlign: 'right', color: C.text, fontWeight: 800, padding: '11px 8px' }}>{fmt1(DATA.totals.totalValue)}</td>
+                                <td style={{ textAlign: 'right', color: '#f97316', fontWeight: 800, padding: '11px 8px' }}>{fmt1(DATA.totals.yearPlan)}</td>
+                                {DATA.totals.quartersPlan.map((q, i) => (
+                                    <td key={i} style={{ padding: '11px 8px' }}>
+                                        <QuarterCell plan={q} fact={DATA.totals.quartersActual[i]} color={DATA.quarterColors[i]} />
+                                    </td>
                                 ))}
-                                <td style={{ textAlign: 'right', color: '#22c55e', fontWeight: 700, padding: '10px 8px' }}>{fmt1(DATA.totals.actual)}</td>
                             </tr>
                         </tfoot>
                     </table>

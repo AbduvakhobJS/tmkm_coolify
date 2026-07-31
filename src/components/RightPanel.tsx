@@ -8,6 +8,8 @@ import KpiCard from "./KpiCard";
 import {EnergyChart, RealtimeChart} from "./Charts";
 import EnterExit from "./EnterExit";
 import * as THREE from 'three';
+import EnterExitMain from "./EnterExitMain";
+import ESG from "../Parts/ESG/ESG";
 
 
 // 1. RIGHTPANEL VIEW MODEL (Modal uchun 3D model)
@@ -124,17 +126,16 @@ const RightPanel: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) =>
       <div style={{ 
         flex: 1, 
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr', 
-        gridTemplateRows: '1fr 1fr', 
+        // gridTemplateColumns: '1fr 1fr',
+        gridTemplateRows: '1fr 1fr',
         gap: '10px',
         minHeight: 0
       }}>
 
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo1.glb" factoryTitle={currentFactoryTitle} index={0} />
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo2.glb"  factoryTitle={currentFactoryTitle} index={1} />
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo2.glb"  factoryTitle={currentFactoryTitle} index={2} />
-        <GeoModelCard title="3D МОДЕЛЬ МЕСТОРОЖДЕНИЯ" model="/models/Geo3.glb"  factoryTitle={currentFactoryTitle} index={3} />
 
+          <EnterExitMain />
+
+          <ESG />
       </div>
 
 

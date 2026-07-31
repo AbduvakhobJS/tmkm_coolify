@@ -1,0 +1,156 @@
+/* ============================================================
+   NewNavbar — tayyor HUD ramka rasmi fon sifatida.
+   Ramka butun kenglikni egallaydi, o'rta hex qismi bo'sh
+   qoladi va dinamik cho'ziladi. Tugmalar chap/o'ng bandda.
+   ============================================================ */
+
+.nnav {
+    /* --nnav-h berilmasa, rasm nisbati (aspect-ratio) balandlikni belgilaydi */
+    --nnav-h: auto;
+    --nnav-ar: 1900 / 235;   /* ramka rasm nisbati — kerak bo'lsa sozlang */
+
+    height: 140px;
+    --cyan: #37e1ff;
+    --cyan-soft: rgba(55, 225, 255, 0.55);
+    --cyan-dim: #1c86ad;
+    --txt: #b7c9d8;
+    --txt-active: #eafaff;
+
+    position: relative;
+    width: 100%;
+    /*height: var(--nnav-h);*/
+    aspect-ratio: var(--nnav-ar);
+
+    /* TAYYOR RAMKA RASMI — public/imgs/navbar-frame.png ga saqlang */
+    background-color: #02060c;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;   /* butun kenglikka cho'ziladi */
+
+    font-family: "Rajdhani", "Segoe UI", Arial, sans-serif;
+    color: var(--txt);
+    user-select: none;
+    overflow: hidden;
+}
+
+/* ---- tugmalar joylashadigan band (ramka ichidagi tekis qism) ---- */
+.nnav-main {
+    position: absolute;
+    left: 0;
+    right: 0;
+    /* rasmning tekis bandiga to'g'rilash — foizlar bilan sozlanadi */
+    top: 16%;
+    bottom: 16%;
+    display: flex;
+    align-items: center;
+    min-height: 0;
+}
+
+.nnav-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 2.2%;
+}
+.nnav-group.left  { justify-content: flex-start;
+    width: 35%;}
+.nnav-group.right { justify-content: flex-end;width: 35%; }
+
+/* markaz — bo'sh (fon hex ko'rinadi), dinamik cho'ziladi */
+.nnav-center {
+    flex: 1 1 auto;
+    width: 30%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ---- menyu tugmasi ---- */
+.nnav-btn {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 46px;
+    padding: 0 14px;
+    background: transparent;
+    border: none;
+    color: var(--txt);
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    clip-path: polygon(
+        10px 0, 100% 0, 100% calc(100% - 10px),
+        calc(100% - 10px) 100%, 0 100%, 0 10px
+    );
+    transition: color 0.18s ease;
+}
+/* tugma ramkasi (nozik ko'k chegara) */
+.nnav-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(24,64,94,0.75), rgba(10,26,42,0.75));
+    clip-path: inherit;
+    z-index: -2;
+}
+/* ichki qorong'i to'ldiruvchi (1px chegara effekti) */
+.nnav-btn::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    background: linear-gradient(180deg, rgba(10,24,38,0.55) 0%, rgba(6,15,26,0.55) 100%);
+    clip-path: polygon(
+        9px 0, 100% 0, 100% calc(100% - 9px),
+        calc(100% - 9px) 100%, 0 100%, 0 9px
+    );
+    z-index: -1;
+}
+
+.nnav-btn:hover { color: var(--txt-active); }
+.nnav-btn:hover::before {
+    background: linear-gradient(180deg, rgba(40,110,150,0.85), rgba(14,36,56,0.85));
+}
+
+/* faol tugma — porlaydigan cyan */
+.nnav-btn.active { color: var(--txt-active); }
+.nnav-btn.active::before {
+    background: linear-gradient(180deg, var(--cyan) 0%, var(--cyan-dim) 100%);
+    box-shadow: 0 0 14px var(--cyan-soft);
+}
+.nnav-btn.active::after {
+    background: linear-gradient(180deg, #0c2c40 0%, #071824 100%);
+}
+
+/* ikonka */
+.nnav-btn .nnav-ico {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    color: var(--cyan);
+    filter: drop-shadow(0 0 3px rgba(55,225,255,0.35));
+}
+.nnav-btn.active .nnav-ico {
+    color: #eafaff;
+    filter: drop-shadow(0 0 5px var(--cyan));
+}
+
+/* matn */
+.nnav-btn .nnav-label {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.02;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+/* tor ekranlarda faqat ikonka */
+@media (max-width: 1200px) {
+    .nnav-btn .nnav-label { display: none; }
+    .nnav-btn { padding: 0 10px; }
+}

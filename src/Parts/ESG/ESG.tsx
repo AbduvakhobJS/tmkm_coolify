@@ -1,8 +1,40 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText } from '../../components/dashboardUI';
 import esgData from './esgDemoData.json';
+
+/* ▼▼▼ ADDED-SCALE: shu blokni (useAutoScale + BASE_W/BASE_H) olib tashlasangiz
+   va pastdagi ikkita "ADDED-SCALE" belgili joyni asl holatiga qaytarsangiz,
+   komponent avvalgi (scale'siz) holatiga qaytadi. ── */
+const ESG_BASE_W = 1920;
+const ESG_BASE_H = 1080;
+
+function useAutoScale(baseW: number, baseH: number) {
+    const hostRef = useRef<HTMLDivElement>(null);
+    const [scale, setScale] = useState({ x: 1, y: 1 });
+
+    useEffect(() => {
+        const el = hostRef.current;
+        if (!el) return;
+        const update = () => {
+            const { width, height } = el.getBoundingClientRect();
+            if (width === 0 || height === 0) return;
+            setScale({ x: width / baseW, y: height / baseH });
+        };
+        update();
+        const ro = new ResizeObserver(update);
+        ro.observe(el);
+        window.addEventListener('resize', update);
+        return () => {
+            ro.disconnect();
+            window.removeEventListener('resize', update);
+        };
+    }, [baseW, baseH]);
+
+    return { hostRef, scale };
+}
+/* ▲▲▲ ADDED-SCALE: tugadi ▲▲▲ */
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
@@ -211,6 +243,8 @@ const donutOptions = { ...chartBase, cutout: '68%', ...noLegend } as any;
 
 const ESG: React.FC = () => {
     const navigate = useNavigate();
+    /* ADDED-SCALE: ota konteynerni width:100%/height:100% to'liq to'ldirish uchun */
+    const { hostRef, scale } = useAutoScale(ESG_BASE_W, ESG_BASE_H);
     const sentimentTotal = useMemo(() => DATA.sentiment.reduce((s, x) => s + x.value, 0), []);
 
     const sentimentDonut = useMemo(() => ({
@@ -222,7 +256,14 @@ const ESG: React.FC = () => {
     const kpiColor: Record<string, string> = { esgRating: '#4fb3d9', irma: '#22c55e', hseIndex: '#a855f7', co2: '#94a3b8', water: '#3b82f6', violations: C.down };
 
     return (
-        <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        /* ▼▼▼ ADDED-SCALE: host (ota o'lchamiga 100%/100% moslashadi) + design
+           box (BASE_W x BASE_H, scaleX/scaleY bilan cho'ziladi). Olib tashlash
+           uchun shu ikkita <div>ni (va pastdagi ikkita yopilish tegini) o'chiring,
+           height:'100%'ni qaytadan height:'100vh'ga qaytaring. ▼▼▼ */
+        <div ref={hostRef} style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: ESG_BASE_W, height: ESG_BASE_H, flexShrink: 0, transform: `scale(${scale.x}, ${scale.y})`, transformOrigin: 'center center' }}>
+        {/* ▲▲▲ ADDED-SCALE: tugadi — pastdan asl komponent boshlanadi ▲▲▲ */}
+        <div style={{ background: C.bg, height: '100%' /* ADDED-SCALE: edi '100vh' */, overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -334,6 +375,10 @@ const ESG: React.FC = () => {
                     {generated.toLocaleDateString('ru-RU')} {generated.toLocaleTimeString('ru-RU').slice(0, 5)}
                 </div>
             </div>
+        </div>
+        {/* ADDED-SCALE: design box yopilishi */}
+        </div>
+        {/* ADDED-SCALE: host yopilishi */}
         </div>
     );
 };
