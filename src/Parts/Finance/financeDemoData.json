@@ -1,49 +1,49 @@
 {
     "meta": {
-        "company": "\"ТЕХНОЛОГИК МЕТАЛЛАР КОМБИНАТИ\" АКЦИЯДОРЛИК ЖАМИЯТИ",
-        "title": "МОЛИЯВИЙ ДАШБОРД",
-        "period": "2026 йил, Май",
-        "comparePeriod": "Апрель 2026",
-        "periodEndLabel": "2026-йил 31-майда якунланган давр учун",
-        "currency": "минг сўм",
+        "company": "\"TEXNOLOGIK METALLAR KOMBINATI\" AKSIYADORLIK JAMIYATI",
+        "title": "MOLIYAVIY DASHBORD",
+        "period": "2026 yil, May",
+        "comparePeriod": "Aprel 2026",
+        "periodEndLabel": "2026-yil 31-mayda yakunlangan davr uchun",
+        "currency": "ming so'm",
         "exchangeRate": 12009.29,
         "generatedAt": "31.05.2026 18:30"
     },
     "balanceSheet": {
         "longTermAssets": [
             {
-                "label": "Асосий воситалар",
+                "label": "Asosiy vositalar",
                 "value": 26266358
             },
             {
-                "label": "Шўъба корхоналарга инвестициялар",
+                "label": "Sho'ba korxonalarga investitsiyalar",
                 "value": 138094284
             },
             {
-                "label": "Тугалланмаган қурилиш",
+                "label": "Tugallanmagan qurilish",
                 "value": 143323545
             },
             {
-                "label": "Бошқа узоқ муддатли активлар",
+                "label": "Boshqa uzoq muddatli aktivlar",
                 "value": 296857
             }
         ],
         "longTermAssetsTotal": 307981044,
         "currentAssets": [
             {
-                "label": "Товар-моддий захиралар",
+                "label": "Tovar-moddiy zaxiralar",
                 "value": 123454858
             },
             {
-                "label": "Савдо дебиторлик қарзлари ва олдиндан тўловлар",
+                "label": "Savdo debitorlik qarzlari va oldindan to'lovlar",
                 "value": 233648303
             },
             {
-                "label": "Пул маблағлари ва уларнинг эквивалентлари",
+                "label": "Pul mablag'lari va ularning ekvivalentlari",
                 "value": 98683974
             },
             {
-                "label": "Бошқа жорий активлар",
+                "label": "Boshqa joriy aktivlar",
                 "value": 77992379
             }
         ],
@@ -51,33 +51,33 @@
         "totalAssets": 841760559,
         "capital": [
             {
-                "label": "Устав капитали",
+                "label": "Ustav kapitali",
                 "value": 447459109
             },
             {
-                "label": "Бошқа захиралар",
+                "label": "Boshqa zaxiralar",
                 "value": 18535947
             },
             {
-                "label": "Тақсимланмаган фойда",
+                "label": "Taqsimlanmagan foyda",
                 "value": 131960995
             }
         ],
         "capitalTotal": 597956051,
         "longTermLiabilities": [
             {
-                "label": "Узоқ муддатли мажбуриятлар",
+                "label": "Uzoq muddatli majburiyatlar",
                 "value": 142097785
             }
         ],
         "longTermLiabilitiesTotal": 142097785,
         "currentLiabilities": [
             {
-                "label": "Бошқа кредиторлик қарзлари",
+                "label": "Boshqa kreditorlik qarzlari",
                 "value": 143982906
             },
             {
-                "label": "Жорий мажбуриятлар",
+                "label": "Joriy majburiyatlar",
                 "value": 47723817
             }
         ],
@@ -98,15 +98,15 @@
             "total": 16532468,
             "items": [
                 {
-                    "label": "Фоиз даромадлари",
+                    "label": "Foiz daromadlari",
                     "value": 2913726
                 },
                 {
-                    "label": "Валюта курси бўйича фойдалар",
+                    "label": "Valyuta kursi bo'yicha foydalar",
                     "value": 13550913
                 },
                 {
-                    "label": "Бошқа молиявий даромадлар",
+                    "label": "Boshqa moliyaviy daromadlar",
                     "value": 67829
                 }
             ]
@@ -115,15 +115,15 @@
             "total": -21811973,
             "items": [
                 {
-                    "label": "Фоиз харажатлари",
+                    "label": "Foiz xarajatlari",
                     "value": -6904647
                 },
                 {
-                    "label": "Валюта курси бўйича зарарлар",
+                    "label": "Valyuta kursi bo'yicha zararlar",
                     "value": -11263436
                 },
                 {
-                    "label": "Бошқа молиявий харажатлар",
+                    "label": "Boshqa moliyaviy xarajatlar",
                     "value": -3643891
                 }
             ]
@@ -134,11 +134,11 @@
     },
     "trend": {
         "labels": [
-            "Янв 2026",
-            "Фев 2026",
-            "Мар 2026",
-            "Апр 2026",
-            "Май 2026"
+            "Yanv 2026",
+            "Fev 2026",
+            "Mar 2026",
+            "Apr 2026",
+            "May 2026"
         ],
         "revenue": [
             102541250,
@@ -333,61 +333,61 @@
     "banks": {
         "accounts": [
             {
-                "name": "Миллий банк",
+                "name": "Milliy bank",
                 "sum": 64891510,
                 "usd": 115195,
                 "sumEquivalent": 1448302873
             },
             {
-                "name": "Миллий банк FIRU",
+                "name": "Milliy bank FIRU",
                 "sum": 131828,
                 "usd": 0,
                 "sumEquivalent": 131828
             },
             {
-                "name": "Ипотека банк",
+                "name": "Ipoteka bank",
                 "sum": 1266693,
                 "usd": 0,
                 "sumEquivalent": 1266693
             },
             {
-                "name": "Асака банк",
+                "name": "Asaka bank",
                 "sum": 12765352,
                 "usd": 0,
                 "sumEquivalent": 12765352
             },
             {
-                "name": "Капитал банк",
+                "name": "Kapital bank",
                 "sum": 1207366625,
                 "usd": 2000,
                 "sumEquivalent": 1231385205
             },
             {
-                "name": "КДБ банк",
+                "name": "KDB bank",
                 "sum": 1105653216,
                 "usd": 562,
                 "sumEquivalent": 6744898
             },
             {
-                "name": "Асака банк кредит",
+                "name": "Asaka bank kredit",
                 "sum": 1105653216,
                 "usd": 0,
                 "sumEquivalent": 1105653216
             },
             {
-                "name": "Миллий банк кредит",
+                "name": "Milliy bank kredit",
                 "sum": 1252089,
                 "usd": 0,
                 "sumEquivalent": 1252089
             },
             {
-                "name": "Капитал банк кредит",
+                "name": "Kapital bank kredit",
                 "sum": 0,
                 "usd": 0,
                 "sumEquivalent": 0
             },
             {
-                "name": "Депозит",
+                "name": "Depozit",
                 "sum": 22000000000,
                 "usd": 0,
                 "sumEquivalent": 22000000000

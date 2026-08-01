@@ -3,12 +3,12 @@ import { Line, Bar } from 'react-chartjs-2';
 import {
     C, MONTHS, MONTHS_SHORT, baseOpts, wrap, twoCol, colFlex,
     SectionHeader, Card, KpiRow, badge, NeonIcon,
-    MiniLine, DonutChart, GaugeChart, ProgressItem,
-    IconDollar, IconGauge, IconCloud, IconClipboard, IconChip, IconFactory,
+    MiniLine, DonutChart, GaugeChart,
+    IconDollar, IconGauge, IconCloud, IconChip, IconFactory,
 } from './ResourceDashboard';
 import PD from './resourceProfitDemoData.json';
 
-/* ── Foyda/samaradorlik KPI kartasi (reja/факт taqqoslash bilan) ── */
+/* ── Foyda/samaradorlik KPI kartasi (reja/fakt taqqoslash bilan) ── */
 const ProfitKpiTile: React.FC<{ label: string; value: string; plan: string; delta: number; up: boolean }> = ({ label, value, plan, delta, up }) => (
     <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 10px', minWidth: 0 }}>
         <div style={{ fontSize: 9, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 4 }}>{label}</div>
@@ -16,23 +16,23 @@ const ProfitKpiTile: React.FC<{ label: string; value: string; plan: string; delt
             <span style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{value}</span>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: up ? C.ok : C.crit }}>{up ? '▲' : '▼'} {Math.abs(delta)}%</span>
         </div>
-        <div style={{ fontSize: 9.5, color: C.sub, marginTop: 2 }}>план: {plan}</div>
+        <div style={{ fontSize: 9.5, color: C.sub, marginTop: 2 }}>reja: {plan}</div>
     </div>
 );
 
 /* ══════════════════════════════════════════
-   ROW A — Самарадорлик (KPI) | Фойда ва бюджет назорати
+   ROW A — Samaradorlik (KPI) | Foyda va byudjet nazorati
 ══════════════════════════════════════════ */
 const RowSamaradorlik: React.FC = () => {
     const eff = PD.efficiency;
     return (
         <div style={colFlex}>
-            <SectionHeader title="Самарадорлик KPI" color={C.eff} icon={<IconGauge />} />
+            <SectionHeader title="Samaradorlik KPI" color={C.eff} icon={<IconGauge />} />
 
-            <Card title="Индекс эффективности завода, %" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, eff.index.badge)}>
+            <Card title="Zavod samaradorlik indeksi, %" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, eff.index.badge)}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <div style={{ flex: '0 0 110px', position: 'relative' }}>
-                        <GaugeChart value={eff.index.value} color={C.eff} label="Текущий индекс" height={90} />
+                        <GaugeChart value={eff.index.value} color={C.eff} label="Joriy indeks" height={140} />
                     </div>
                     <div style={{ flex: 1 }}>
                         {MONTHS_SHORT.map((m, i) => {
@@ -52,7 +52,7 @@ const RowSamaradorlik: React.FC = () => {
             </Card>
             <div style={{ display: 'flex', width: '100%', gap: '8px' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    <Card title="Энергия на 1 тонну, кВт·ч/т" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, 'Улучшение ↓')} style={{ height: '100%' }}>
+                    <Card title="1 tonnaga energiya, kVt·soat/t" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, 'Yaxshilanish ↓')} style={{ height: '100%' }}>
                         <KpiRow value={eff.energyPerTon.value} unit={eff.energyPerTon.unit} color={C.eff} trend={eff.energyPerTon.deltaText} up={eff.energyPerTon.up}
                             sub={eff.energyPerTon.sub}
                             right={<div style={{ textAlign: 'right', background: `${C.crit}11`, borderRadius: '8px', padding: '6px 8px', border: `1px solid ${C.crit}33` }}>
@@ -62,7 +62,7 @@ const RowSamaradorlik: React.FC = () => {
                     </Card>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    <Card title="Выбросы CO₂, тонн/сутки" accent={C.co2} icon={<IconCloud />} extra={badge(C.crit, eff.co2.badge)} style={{ height: '100%' }}>
+                    <Card title="CO₂ chiqindisi, tonna/sutka" accent={C.co2} icon={<IconCloud />} extra={badge(C.crit, eff.co2.badge)} style={{ height: '100%' }}>
                         <KpiRow value={eff.co2.value} unit={eff.co2.unit} color={C.co2} trend={eff.co2.deltaText} up={eff.co2.up}
                             right={<div style={{ textAlign: 'right', background: `${C.co2}11`, borderRadius: '8px', padding: '6px 8px', border: `1px solid ${C.co2}33` }}>
                                 <div style={{ fontSize: '18px', fontWeight: 700, color: C.co2 }}>{eff.co2.worstLabel}</div>
@@ -85,12 +85,11 @@ const RowSamaradorlik: React.FC = () => {
 
 const RowFoyda: React.FC = () => {
     const p = PD.profit;
-    const budget = PD.budgetControl;
     return (
         <div style={colFlex}>
-            <SectionHeader title="Фойда ва бюджет назорати" color={C.cost} icon={<IconDollar />} right={badge(C.ok, `Маржа: ${p.kpi[3].value}`)} />
+            <SectionHeader title="Foyda va byudjet nazorati" color={C.cost} icon={<IconDollar />} right={badge(C.ok, `Marja: ${p.kpi[3].value}`)} />
 
-            <Card title="Ключевые показатели прибыли завода" accent={C.cost} icon={<IconDollar />}>
+            <Card title="Zavod foyda asosiy ko'rsatkichlari" accent={C.cost} icon={<IconDollar />}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '6px' }}>
                     {p.kpi.map(k => <ProfitKpiTile key={k.label} label={k.label} value={k.value} plan={k.plan} delta={k.delta} up={k.up} />)}
                 </div>
@@ -98,7 +97,7 @@ const RowFoyda: React.FC = () => {
 
             <div style={{ display: 'flex', width: '100%', gap: '8px' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    <Card title="Структура себестоимости" accent={C.cost} icon={<IconChip />} extra={badge(C.cost, p.costDistribution.badge)} style={{ height: '100%' }}>
+                    <Card title="Tannarx tarkibi" accent={C.cost} icon={<IconChip />} extra={badge(C.cost, p.costDistribution.badge)} style={{ height: '100%' }}>
                         <DonutChart data={p.costDistribution.data} labels={p.costDistribution.labels} colors={[C.electric, C.gas, C.water, C.chemical]} height={110} flex />
                     </Card>
                 </div>
@@ -111,25 +110,21 @@ const RowFoyda: React.FC = () => {
                     </Card>
                 </div>
             </div>
-
-            {/*<Card title="Контроль месячного бюджета" accent={C.warn} icon={<IconClipboard />} style={{ flex: 1 }}>*/}
-            {/*    {budget.items.map(it => <ProgressItem key={it.label} label={it.label} pct={it.pct} color={it.pct > 100 ? C.warn : C.cost} value={it.value} />)}*/}
-            {/*</Card>*/}
         </div>
     );
 };
 
 /* ══════════════════════════════════════════
-   ROW B — Динамика выручки, себестоимости и прибыли
+   ROW B — Tushum, tannarx va foyda dinamikasi
 ══════════════════════════════════════════ */
 const ProfitDynamics: React.FC = () => {
     const p = PD.profit;
     const chartData = useMemo(() => ({
         labels: MONTHS,
         datasets: [
-            { label: 'Выручка, $тыс', data: p.monthly.revenue, backgroundColor: `${C.electric}bb`, borderRadius: 4 },
-            { label: 'Себестоимость, $тыс', data: p.monthly.cost, backgroundColor: `${C.crit}bb`, borderRadius: 4 },
-            { label: 'Прибыль, $тыс', data: p.monthly.profit, backgroundColor: `${C.eff}bb`, borderRadius: 4 },
+            { label: "Tushum, $ming", data: p.monthly.revenue, backgroundColor: `${C.electric}bb`, borderRadius: 4 },
+            { label: "Tannarx, $ming", data: p.monthly.cost, backgroundColor: `${C.crit}bb`, borderRadius: 4 },
+            { label: "Foyda, $ming", data: p.monthly.profit, backgroundColor: `${C.eff}bb`, borderRadius: 4 },
         ],
     }), [p.monthly]);
     return (
@@ -137,9 +132,9 @@ const ProfitDynamics: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <NeonIcon color={C.cost} size={22}><IconFactory /></NeonIcon>
-                    <span style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>Динамика выручки, себестоимости и прибыли</span>
+                    <span style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>Tushum, tannarx va foyda dinamikasi</span>
                 </div>
-                <span style={{ color: C.sub, fontSize: 9.5 }}>$ тыс / мес</span>
+                <span style={{ color: C.sub, fontSize: 9.5 }}>$ ming / oy</span>
             </div>
             <div style={wrap(200)}>
                 <Bar data={chartData} options={baseOpts('bottom') as any} />
@@ -149,7 +144,7 @@ const ProfitDynamics: React.FC = () => {
 };
 
 /* ══════════════════════════════════════════
-   ИТОГИ МЕСЯЦА
+   OY YAKUNLARI
 ══════════════════════════════════════════ */
 const MonthlySummary: React.FC = () => {
     const s = PD.monthlySummary;
@@ -186,7 +181,7 @@ const ResourceDashboardPart2: React.FC = () => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: -4 }}>
             <NeonIcon color={C.cost} size={30}><IconDollar /></NeonIcon>
             <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '2px', color: '#4fb3d9', textTransform: 'uppercase' }}>
-                Самарадорлик ва фойда KPI
+                Samaradorlik va foyda KPI
             </div>
         </div>
         <div style={twoCol}>

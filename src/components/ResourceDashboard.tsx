@@ -175,7 +175,7 @@ export const DetailButton: React.FC<{ onClick: () => void; color: string }> = ({
             color, fontSize: 10.5, fontWeight: 600, padding: '5px 10px',
         }}
     >
-        <IconEye />Батафсил
+        <IconEye />Batafsil
     </button>
 );
 
@@ -311,7 +311,7 @@ export const ProgressItem: React.FC<{ label: string; pct: number; color: string;
                 <div style={{ height: '6px', background: 'rgba(255,255,255,0.07)', borderRadius: '3px', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${Math.min(pct, 100)}%`, background: over ? C.crit : color, borderRadius: '3px', boxShadow: `0 0 6px ${(over ? C.crit : color)}77`, transition: 'width 1s ease' }} />
                 </div>
-                <div style={{ textAlign: 'right', fontSize: '9px', color: over ? C.crit : C.sub, marginTop: '1px' }}>{pct}%{over && ' · лимит превышен'}</div>
+                <div style={{ textAlign: 'right', fontSize: '9px', color: over ? C.crit : C.sub, marginTop: '1px' }}>{pct}%{over && ' · limit oshib ketdi'}</div>
             </div>
         );
     };
@@ -371,7 +371,7 @@ export const PeakHeatmap: React.FC = () => {
                 </div>
             ))}
             <div style={{ display: 'flex', gap: '8px', marginTop: '4px', justifyContent: 'flex-end' }}>
-                {[[`${C.crit}bb`, 'Высокая'], [`${C.gas}bb`, 'Средняя'], [`${C.solar}bb`, 'Норма'], [`${C.electric}22`, 'Низкая']].map(([c, l]) => (
+                {[[`${C.crit}bb`, "Yuqori"], [`${C.gas}bb`, "O'rta"], [`${C.solar}bb`, 'Norma'], [`${C.electric}22`, 'Past']].map(([c, l]) => (
                     <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                         <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: c }} />
                         <span style={{ fontSize: '9px', color: C.sub }}>{l}</span>
@@ -390,7 +390,7 @@ const miniBox = (label: string, value: string, col: string) => (
 );
 
 /* ══════════════════════════════
-   Компактная карточка ресурса (bir xil "view-model" uslubidagi mustaqil card,
+   Kompakt resurs kartasi (bir xil "view-model" uslubidagi mustaqil card,
    RightPanel.tsx dagi GeoModelCard bilan bir xil dizaynda)
 ══════════════════════════════ */
 const resourceCardStyle: React.CSSProperties = {
@@ -445,11 +445,11 @@ const CompactTrendCard: React.FC<{
     );
 };
 
-export const ElectricResourceCard: React.FC = () => {
+export const    ElectricResourceCard: React.FC = () => {
     const d = DATA.electric;
     return (
         <CompactTrendCard
-            title="Электроэнергия" color={C.electric} icon={<IconBolt />}
+            title="Elektr energiyasi" color={C.electric} icon={<IconBolt />}
             value={d.today.value} unit={d.today.unit} deltaText={d.today.deltaText.replace(/^[+-]\s*/, '')} up={d.today.up}
             trendData={d.monthlyTrend.data} stats={d.miniStats}
         />
@@ -460,8 +460,8 @@ export const SolarResourceCard: React.FC = () => {
     const d = DATA.solar;
     return (
         <CompactTrendCard
-            title="Солнечная энергия" color={C.solar} icon={<IconSun />}
-            value={String(d.current.shareOfTotal)} unit="% от общего" deltaText={d.monthlyShare.badge} up
+            title="Quyosh energiyasi" color={C.solar} icon={<IconSun />}
+            value={String(d.current.shareOfTotal)} unit="% umumiydan" deltaText={d.monthlyShare.badge} up
             trendData={d.monthlyShare.data} stats={d.current.stats} statsCols={2}
         />
     );
@@ -471,7 +471,7 @@ export const GasResourceCard: React.FC = () => {
     const d = DATA.gas;
     return (
         <CompactTrendCard
-            title="Расход газа" color={C.gas} icon={<IconFlame />}
+            title="Gaz sarfi" color={C.gas} icon={<IconFlame />}
             value={d.today.value} unit={d.today.unit} deltaText={d.today.deltaText.replace(/^[+-]\s*/, '')} up={d.today.up}
             trendData={d.monthly.data} stats={d.miniStats}
         />
@@ -482,7 +482,7 @@ export const WaterResourceCard: React.FC = () => {
     const d = DATA.water;
     return (
         <CompactTrendCard
-            title="Расход воды" color={C.water} icon={<IconDroplet />}
+            title="Suv sarfi" color={C.water} icon={<IconDroplet />}
             value={d.realtime.value} unit={d.realtime.unit} deltaText={d.realtime.deltaText.replace(/^[+-]\s*/, '')} up={d.realtime.up}
             trendData={d.monthly.data} warnIdx={d.monthly.warnIdx} refLine={d.monthly.refLine} stats={d.miniStats}
         />
@@ -490,8 +490,24 @@ export const WaterResourceCard: React.FC = () => {
 };
 
 /* ══════════════════════════════
-   MAIN — mustaqil marshrut (/main/9) uchun to'liq sahifa,
-   LeftPanel.tsx da esa yuqoridagi 4 ta kartochka alohida-alohida ishlatiladi
+   ResourceCardsGrid — yuqoridagi 4 ta resurs kartasini (Elektr, Quyosh,
+   Gaz, Suv) bitta yaxlit komponentga birlashtiradi — 2x2 to'r ichida.
+   ResourceDashboard va LeftPanel shu bitta komponentni chaqiradi;
+   EnergyModal.tsx alohida tartibda ishlatgani uchun 4 tasi ham
+   alohida eksport bo'lib qolaveradi.
+══════════════════════════════ */
+export const ResourceCardsGrid: React.FC = () => (
+    <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '10px', minHeight: 0, width: '100%', height: '100%' }}>
+        <ElectricResourceCard />
+        <SolarResourceCard />
+        <GasResourceCard />
+        <WaterResourceCard />
+    </div>
+);
+
+/* ══════════════════════════════
+   MAIN — mustaqil marshrut (/main/9) uchun to'liq sahifa.
+   Resurs kartalari endi yaxlit ResourceCardsGrid orqali chiqadi.
 ══════════════════════════════ */
 const ResourceDashboard: React.FC = () => {
     return (
@@ -499,15 +515,10 @@ const ResourceDashboard: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0 }}>
                 <NeonIcon color={C.electric} size={30}><IconGauge /></NeonIcon>
                 <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '2px', color: '#4fb3d9', textTransform: 'uppercase' }}>
-                    Мониторинг расхода ресурсов
+                    Resurs sarfi monitoringi
                 </div>
             </div>
-            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '10px', minHeight: 0 }}>
-                <ElectricResourceCard />
-                <SolarResourceCard />
-                <GasResourceCard />
-                <WaterResourceCard />
-            </div>
+            <ResourceCardsGrid />
             <div style={{ height: '50%', flexShrink: 0 }}>
                 <div style={{ width: '100%', height: '100%', padding: '10px', background: 'var(--gc-panel-bg)', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1px solid rgba(14,168,199,0.2)' }}>
                     <ResourceDashboardPart2 />

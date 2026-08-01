@@ -1,0 +1,38 @@
+{
+    "meta": {
+        "company": "Sotuv va bozor tahlili",
+        "subtitle": "Mahsulot sotuvi · jahon bozori narxlari · eksport tahlili",
+        "period": "2026 May",
+        "comparePeriod": "Aprel 2026",
+        "currency": "ming so'm",
+        "exchangeRate": "12 009,29",
+        "generatedAt": "31.05 18:30"
+    },
+    "trendLabels": ["Yanv", "Fev", "Mar", "Apr", "May"],
+    "vitals": [
+        { "label": "Sotuvdan jami tushum", "value": 133670868, "delta": 12.4, "trend": [102541250, 130202183, 129792977, 128570607, 133670868] },
+        { "label": "Eksport ulushi", "value": 64.8, "isPct": true, "delta": 3.2, "trend": [56.4, 59.1, 61.0, 62.7, 64.8] },
+        { "label": "Realizatsiya indeksi (jahon narxiga)", "value": 96.4, "isPct": true, "delta": 1.8, "trend": [92.0, 93.5, 94.8, 95.1, 96.4] },
+        { "label": "Sotilgan umumiy hajm", "value": 7853, "unit": "t", "delta": 3.2, "trend": [6650, 6980, 7420, 7610, 7853] }
+    ],
+    "salesByProduct": [
+        { "label": "Mis kontsentrati", "tonnage": 1725, "revenue": 70634240, "worldPrice": 9850, "realizedPrice": 3420, "priceUnit": "$/t", "cashCost": 2650, "marginPct": 22.5, "delta": 8.4, "color": "#f97316" },
+        { "label": "Volfram kontsentrati (65% WO₃)", "tonnage": 119, "revenue": 29401700, "worldPrice": 20670, "realizedPrice": 19850, "priceUnit": "$/t", "cashCost": 15200, "marginPct": 23.4, "delta": 6.1, "color": "#3b82f6" },
+        { "label": "Molibden kontsentrati", "tonnage": 68, "revenue": 18716000, "worldPrice": 23650, "realizedPrice": 22910, "priceUnit": "$/t", "cashCost": 17400, "marginPct": 24.0, "delta": 5.3, "color": "#22c55e" },
+        { "label": "Kukun metallurgiyasi mahsulotlari", "tonnage": 81, "revenue": 8020000, "worldPrice": null, "realizedPrice": 8200, "priceUnit": "$/t", "cashCost": 6100, "marginPct": 25.6, "delta": 9.8, "color": "#a855f7" },
+        { "label": "Sulfat kislotasi", "tonnage": 5860, "revenue": 6683000, "worldPrice": 95, "realizedPrice": 87, "priceUnit": "$/t", "cashCost": 61, "marginPct": 29.9, "delta": 2.1, "color": "#eab308" }
+    ],
+    "marketPrices": [
+        { "label": "Mis (Cu), LME", "unit": "$/t", "color": "#f97316", "trend": [8720, 9080, 9340, 9610, 9850] },
+        { "label": "Volfram kontsentrati (APT)", "unit": "$/mtu WO₃", "color": "#3b82f6", "trend": [292, 298, 305, 312, 318] },
+        { "label": "Molibden oksidi", "unit": "$/funt", "color": "#22c55e", "trend": [19.2, 19.8, 20.6, 21.1, 21.5] },
+        { "label": "Sulfat kislotasi", "unit": "$/t", "color": "#eab308", "trend": [82, 85, 88, 91, 95] }
+    ],
+    "exportMarkets": [
+        { "label": "Xitoy", "pct": 30.5, "color": "coral" },
+        { "label": "Evropa", "pct": 18.2, "color": "blue" },
+        { "label": "MDH (Rossiya, Qozog'iston)", "pct": 16.1, "color": "purple" },
+        { "label": "Mahalliy bozor", "pct": 35.2, "color": "teal" }
+    ],
+    "marketNote": "So'nggi 5 oyda mis va volfram jahon narxlari izchil o'sishda — bu kompaniyaning realizatsiya indeksini yaxshilashga xizmat qilmoqda. Molibden oksidi narxi ham barqaror ko'tarilib bormoqda, bu esa marjani kengaytirishga imkon bermoqda."
+}

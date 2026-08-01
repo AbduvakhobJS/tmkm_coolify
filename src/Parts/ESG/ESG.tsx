@@ -1,40 +1,8 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText } from '../../components/dashboardUI';
 import esgData from './esgDemoData.json';
-
-/* ▼▼▼ ADDED-SCALE: shu blokni (useAutoScale + BASE_W/BASE_H) olib tashlasangiz
-   va pastdagi ikkita "ADDED-SCALE" belgili joyni asl holatiga qaytarsangiz,
-   komponent avvalgi (scale'siz) holatiga qaytadi. ── */
-const ESG_BASE_W = 1920;
-const ESG_BASE_H = 1080;
-
-function useAutoScale(baseW: number, baseH: number) {
-    const hostRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState({ x: 1, y: 1 });
-
-    useEffect(() => {
-        const el = hostRef.current;
-        if (!el) return;
-        const update = () => {
-            const { width, height } = el.getBoundingClientRect();
-            if (width === 0 || height === 0) return;
-            setScale({ x: width / baseW, y: height / baseH });
-        };
-        update();
-        const ro = new ResizeObserver(update);
-        ro.observe(el);
-        window.addEventListener('resize', update);
-        return () => {
-            ro.disconnect();
-            window.removeEventListener('resize', update);
-        };
-    }, [baseW, baseH]);
-
-    return { hostRef, scale };
-}
-/* ▲▲▲ ADDED-SCALE: tugadi ▲▲▲ */
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
@@ -243,8 +211,6 @@ const donutOptions = { ...chartBase, cutout: '68%', ...noLegend } as any;
 
 const ESG: React.FC = () => {
     const navigate = useNavigate();
-    /* ADDED-SCALE: ota konteynerni width:100%/height:100% to'liq to'ldirish uchun */
-    const { hostRef, scale } = useAutoScale(ESG_BASE_W, ESG_BASE_H);
     const sentimentTotal = useMemo(() => DATA.sentiment.reduce((s, x) => s + x.value, 0), []);
 
     const sentimentDonut = useMemo(() => ({
@@ -256,14 +222,7 @@ const ESG: React.FC = () => {
     const kpiColor: Record<string, string> = { esgRating: '#4fb3d9', irma: '#22c55e', hseIndex: '#a855f7', co2: '#94a3b8', water: '#3b82f6', violations: C.down };
 
     return (
-        /* ▼▼▼ ADDED-SCALE: host (ota o'lchamiga 100%/100% moslashadi) + design
-           box (BASE_W x BASE_H, scaleX/scaleY bilan cho'ziladi). Olib tashlash
-           uchun shu ikkita <div>ni (va pastdagi ikkita yopilish tegini) o'chiring,
-           height:'100%'ni qaytadan height:'100vh'ga qaytaring. ▼▼▼ */
-        <div ref={hostRef} style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: ESG_BASE_W, height: ESG_BASE_H, flexShrink: 0, transform: `scale(${scale.x}, ${scale.y})`, transformOrigin: 'center center' }}>
-        {/* ▲▲▲ ADDED-SCALE: tugadi — pastdan asl komponent boshlanadi ▲▲▲ */}
-        <div style={{ background: C.bg, height: '100%' /* ADDED-SCALE: edi '100vh' */, overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -282,7 +241,7 @@ const ESG: React.FC = () => {
                     onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
                     onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}
                 >
-                    Подробнее<IconArrowRight />
+                    Batafsil<IconArrowRight />
                 </button>
             </div>
 
@@ -296,7 +255,7 @@ const ESG: React.FC = () => {
                         </div>
                         <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{k.value}<span style={{ color: C.sub, fontSize: 11, fontWeight: 400, marginLeft: 3 }}>{k.unit}</span></div>
                         <div style={{ color: k.delta >= 0 ? '#22c55e' : C.down, fontSize: 10 }}>
-                            {k.delta >= 0 ? '▲' : '▼'} {Math.abs(k.delta)}% к прошлому периоду
+                            {k.delta >= 0 ? '▲' : '▼'} {Math.abs(k.delta)}% oldingi davrga nisbatan
                         </div>
                     </div>
                 ))}
@@ -304,13 +263,13 @@ const ESG: React.FC = () => {
 
             {/* 1-qator: Ekologiya / ijtimoiy blok / HSE-Governance */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Экология" icon={<IconLeaf />} iconColor="#22c55e">
+                <SectionCard title="Ekologiya" icon={<IconLeaf />} iconColor="#22c55e">
                     {DATA.ecology.map((item) => (
                         <MiniStatRow key={item.label} item={item} color="#22c55e" />
                     ))}
                 </SectionCard>
 
-                <SectionCard title="Социальный блок" icon={<IconUsers />} iconColor="#3b82f6">
+                <SectionCard title="Ijtimoiy blok" icon={<IconUsers />} iconColor="#3b82f6">
                     {DATA.social.map((item) => (
                         <MiniStatRow key={item.label} item={item} color="#3b82f6" />
                     ))}
@@ -333,7 +292,7 @@ const ESG: React.FC = () => {
 
             {/* 2-qator: KPI bajarilishi / Tonallik */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Выполнение KPI" icon={<IconTarget />}>
+                <SectionCard title="KPI bajarilishi" icon={<IconTarget />}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, flex: 1 }}>
                         {DATA.kpiExecution.map((item) => (
                             <ProgressTile key={item.label} item={item} />
@@ -341,10 +300,10 @@ const ESG: React.FC = () => {
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Тональность ESG" icon={<IconPieChart />}>
+                <SectionCard title="ESG tonalligi" icon={<IconPieChart />}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 }}>
                         <div style={{ width: 100, height: 100, flexShrink: 0 }}>
-                            <Doughnut data={sentimentDonut} options={donutOptions} plugins={[centerText(String(sentimentTotal), 'всего')]} />
+                            <Doughnut data={sentimentDonut} options={donutOptions} plugins={[centerText(String(sentimentTotal), 'jami')]} />
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
                             {DATA.sentiment.map((s) => (
@@ -363,22 +322,18 @@ const ESG: React.FC = () => {
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#22c55e14', border: '1px solid #22c55e44', borderRadius: 12, padding: '9px 14px' }}>
                     <NeonIcon color="#22c55e" size={26}><IconShield /></NeonIcon>
-                    <span style={{ color: C.sub, fontSize: 11 }}>Статус:</span>
+                    <span style={{ color: C.sub, fontSize: 11 }}>Holat:</span>
                     <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 700, textTransform: 'uppercase' }}>{DATA.status}</span>
                 </div>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '9px 14px', minWidth: 0 }}>
                     <NeonIcon color="#4fb3d9" size={26}><IconFlag /></NeonIcon>
-                    <span style={{ color: C.sub, fontSize: 11 }}>Цель:</span>
+                    <span style={{ color: C.sub, fontSize: 11 }}>Maqsad:</span>
                     <span style={{ color: C.text, fontSize: 11.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{DATA.goal}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', color: C.sub, fontSize: 11, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '9px 14px' }}>
                     {generated.toLocaleDateString('ru-RU')} {generated.toLocaleTimeString('ru-RU').slice(0, 5)}
                 </div>
             </div>
-        </div>
-        {/* ADDED-SCALE: design box yopilishi */}
-        </div>
-        {/* ADDED-SCALE: host yopilishi */}
         </div>
     );
 };

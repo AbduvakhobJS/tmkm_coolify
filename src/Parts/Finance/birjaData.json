@@ -1,0 +1,43 @@
+{
+    "meta": {
+        "title": "Kritik minerallar birjasi",
+        "subtitle": "Bugungi jahon bozori narxlari — 1 tonna uchun",
+        "unit": "$/t",
+        "updatedAt": "Bugun, 09:41",
+        "source": "LME / Fastmarkets / USGS etalon narxlari asosida"
+    },
+    "minerals": [
+        { "symbol": "Sc", "name": "Skandiy", "price": 3333, "form": "METALL", "changePct": 0.24, "critical": false },
+        { "symbol": "Al", "name": "Alyuminiy", "price": 3184, "form": "METALL", "changePct": -0.36, "critical": true },
+        { "symbol": "B", "name": "Bor", "price": 4795, "form": "METALL", "changePct": null, "critical": false },
+        { "symbol": "Bi", "name": "Vismut", "price": 50710, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "Be", "name": "Berilliy", "price": 1023, "form": "METALL", "changePct": 0.24, "critical": false },
+        { "symbol": "Rb", "name": "Rubidiy", "price": 1124, "form": "KUKUN", "changePct": 0.24, "critical": false },
+        { "symbol": "Hf", "name": "Gafniy", "price": 13750, "form": "METALL", "changePct": null, "critical": false },
+        { "symbol": "Sb", "name": "Surma", "price": 21000, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "Ga", "name": "Galliy", "price": 3075, "form": "METALL", "changePct": null, "critical": false },
+        { "symbol": "V", "name": "Vanadiy", "price": 26550, "form": "METALL", "changePct": -1.30, "critical": true },
+        { "symbol": "Co", "name": "Kobalt", "price": 57760, "form": "METALL", "changePct": -0.30, "critical": true },
+        { "symbol": "Mg", "name": "Magniy", "price": 2650, "form": "METALL", "changePct": 1.13, "critical": true },
+        { "symbol": "Mn", "name": "Marganets", "price": 2780, "form": "METALL", "changePct": -0.54, "critical": true },
+        { "symbol": "Zr", "name": "Sirkoniy", "price": 3820, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "Cd", "name": "Kadmiy", "price": 3858, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "Ti", "name": "Titan", "price": 5930, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "C", "name": "Grafit", "price": 1125, "form": "KUKUN", "changePct": null, "critical": true },
+        { "symbol": "Ge", "name": "Germaniy", "price": 7025, "form": "KUKUN", "changePct": null, "critical": false },
+        { "symbol": "Si", "name": "Kremniy", "price": 1773, "form": "METALL", "changePct": 1.29, "critical": true },
+        { "symbol": "Li", "name": "Litiy", "price": 19000, "form": "KUKUN", "changePct": -0.78, "critical": true },
+        { "symbol": "Ta", "name": "Tantal", "price": 830000, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "Nb", "name": "Niobiy", "price": 50250, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "Ni", "name": "Nikel", "price": 17249, "form": "METALL", "changePct": -0.12, "critical": true },
+        { "symbol": "Cs", "name": "Seziy", "price": 248380, "form": "KUKUN", "changePct": 0.24, "critical": true },
+        { "symbol": "Mo", "name": "Molibden", "price": 75000, "form": "METALL", "changePct": 1.15, "critical": true },
+        { "symbol": "W", "name": "Volfram", "price": 187500, "form": "METALL", "changePct": -3.85, "critical": true },
+        { "symbol": "Re", "name": "Reniy", "price": 6173, "form": "METALL", "changePct": null, "critical": false },
+        { "symbol": "Se", "name": "Selen", "price": 28660, "form": "METALL", "changePct": -3.70, "critical": true },
+        { "symbol": "Te", "name": "Tellur", "price": 102500, "form": "METALL", "changePct": null, "critical": true },
+        { "symbol": "Pt", "name": "Platina", "price": 51538, "form": "METALL", "changePct": 2.60, "critical": false },
+        { "symbol": "Pd", "name": "Palladiy", "price": 40901, "form": "METALL", "changePct": 3.14, "critical": false },
+        { "symbol": "In", "name": "Indiy", "price": 865000, "form": "METALL", "changePct": 2.37, "critical": true }
+    ]
+}

@@ -38,7 +38,7 @@
   --font-mono:    'Share Tech Mono', monospace;
   --font-body:    'Exo 2', var(--gc-font);
 
-  --header-h: 140px;
+  --header-h: 100px;
   --footer-h: 36px;
 }
 
@@ -208,11 +208,11 @@ body {
 }
 
 .left-panel {
-  border-right: 1px solid var(--border-glow);
-  background: var(--gc-panel-bg); /* global color: katta panel bg */
+  /*border-right: 1px solid var(--border-glow);*/
+  /*background: var(--gc-panel-bg); !* global color: katta panel bg *!*/
 }
 .right-panel {
-  border-left: 1px solid var(--border-glow);
+  /*border-left: 1px solid var(--border-glow);*/
   background: var(--gc-panel-bg); /* global color: katta panel bg */
 }
 
@@ -736,11 +736,11 @@ body {
 }
 
 .center-top-bottom .center-top-height{
-  height: 46vh;
+  height: 40vh;
 }
 
 .center-top-bottom .center-bottom-height{
-  height: 44vh;
+  height: 50vh;
 }
 
 /* ── TOP CENTER WRAPPER & TABS ── */

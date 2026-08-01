@@ -1,15 +1,15 @@
 {
-    "months": ["Январь", "Февраль", "Март", "Апрель"],
-    "monthsShort": ["Янв", "Фев", "Мар", "Апр"],
+    "months": ["Yanvar", "Fevral", "Mart", "Aprel"],
+    "monthsShort": ["Yanv", "Fev", "Mar", "Apr"],
     "electric": {
-        "today": { "value": "1.2", "unit": "ГВт·ч", "deltaText": "+9% к вчера", "up": false, "sub": "Вчера: 1.1 ГВт·ч  |  Средн. за неделю: 1.15 ГВт·ч", "peakLabel": "Пиковый час", "peakValue": "380 МВт", "peakSub": "18:00–20:00" },
+        "today": { "value": "1.2", "unit": "GVt·soat", "deltaText": "+9% kechagiga nisbatan", "up": false, "sub": "Kecha: 1.1 GVt·soat  |  Hafta o'rtachasi: 1.15 GVt·soat", "peakLabel": "Eng yuqori soat", "peakValue": "380 MVt", "peakSub": "18:00–20:00" },
         "miniStats": [
-            { "label": "Средн. мощность", "value": "290 МВт" },
-            { "label": "Минимум", "value": "180 МВт" },
-            { "label": "Экономия", "value": "-18 МВт·ч" }
+            { "label": "O'rtacha quvvat", "value": "290 MVt" },
+            { "label": "Minimum", "value": "180 MVt" },
+            { "label": "Tejamkorlik", "value": "-18 MVt·soat" }
         ],
         "byFactory": {
-            "badge": "Март: 57 ГВт·ч",
+            "badge": "Mart: 57 GVt·soat",
             "series": [
                 { "label": "A+B", "data": [18, 16, 21, 19] },
                 { "label": "C+D", "data": [12, 11, 15, 13] },
@@ -17,29 +17,29 @@
                 { "label": "G–J", "data": [8, 8, 9, 9] }
             ]
         },
-        "monthlyTrend": { "data": [24, 28, 35, 33], "badge": "Март: +25%" }
+        "monthlyTrend": { "data": [24, 28, 35, 33], "badge": "Mart: +25%" }
     },
     "solar": {
         "current": {
             "shareOfTotal": 12,
             "stats": [
-                { "label": "Выработано", "value": "320 кВт·ч" },
-                { "label": "Мощность", "value": "45 кВт" },
-                { "label": "Панельные блоки", "value": "10 шт" },
-                { "label": "КПД", "value": "94%" }
+                { "label": "Ishlab chiqarildi", "value": "320 kVt·soat" },
+                { "label": "Quvvat", "value": "45 kVt" },
+                { "label": "Panel bloklari", "value": "10 dona" },
+                { "label": "FIK", "value": "94%" }
             ]
         },
-        "sourceMix": { "data": [70, 20, 10], "labels": ["Сеть: 70%", "Солнце: 20%", "Генератор: 10%"], "badge": "Солнце: 20%" },
+        "sourceMix": { "data": [70, 20, 10], "labels": ["Tarmoq: 70%", "Quyosh: 20%", "Generator: 10%"], "badge": "Quyosh: 20%" },
         "monthlyShare": { "data": [5, 7, 12, 10], "badge": "5%→12% ↑" }
     },
     "gas": {
-        "today": { "value": "2.4", "unit": "млн м³", "deltaText": "+8% к среднему", "up": false, "sub": "1т стали = 85 м³  |  Норматив: 2.22 млн м³", "badge": "2.4 млн м³" },
+        "today": { "value": "2.4", "unit": "mln m³", "deltaText": "+8% o'rtachaga nisbatan", "up": false, "sub": "1t po'lat = 85 m³  |  Norma: 2.22 mln m³", "badge": "2.4 mln m³" },
         "miniStats": [
-            { "label": "Печи", "value": "1.4М м³" },
-            { "label": "Котлы", "value": "0.6М м³" },
-            { "label": "Прочее", "value": "0.4М м³" }
+            { "label": "Pechlar", "value": "1.4M m³" },
+            { "label": "Qozonlar", "value": "0.6M m³" },
+            { "label": "Boshqa", "value": "0.4M m³" }
         ],
-        "monthly": { "data": [2.1, 2.0, 2.6, 2.3], "badge": "Март: пик" },
+        "monthly": { "data": [2.1, 2.0, 2.6, 2.3], "badge": "Mart: cho'qqi" },
         "correlation": {
             "r": 0.94,
             "energy": [25, 28, 27, 29],
@@ -47,14 +47,14 @@
         }
     },
     "water": {
-        "realtime": { "value": "720", "unit": "м³/ч", "deltaText": "+44% от нормы", "up": false, "sub": "Норма: 500 м³/ч  |  Макс. допуск: 600 м³/ч", "badge": "+44% от нормы" },
+        "realtime": { "value": "720", "unit": "m³/soat", "deltaText": "+44% normadan", "up": false, "sub": "Norma: 500 m³/soat  |  Maks. ruxsat: 600 m³/soat", "badge": "+44% normadan" },
         "miniStats": [
-            { "label": "Охлаждение", "value": "420 м³/ч" },
-            { "label": "Технологич.", "value": "180 м³/ч" },
-            { "label": "Бытовое", "value": "120 м³/ч" }
+            { "label": "Sovutish", "value": "420 m³/soat" },
+            { "label": "Texnologik", "value": "180 m³/soat" },
+            { "label": "Maishiy", "value": "120 m³/soat" }
         ],
-        "composition": { "data": [420, 180, 120], "labels": ["Охлаждение: 420", "Технологич.: 180", "Бытовое: 120"], "badge": "720 м³/ч" },
-        "monthly": { "data": [15, 14.5, 18, 16], "warnIdx": 2, "refLine": 16, "badge": "Март: +20%" }
+        "composition": { "data": [420, 180, 120], "labels": ["Sovutish: 420", "Texnologik: 180", "Maishiy: 120"], "badge": "720 m³/soat" },
+        "monthly": { "data": [15, 14.5, 18, 16], "warnIdx": 2, "refLine": 16, "badge": "Mart: +20%" }
     },
     "chemistry": {
         "badge": "Март: +30%",
@@ -155,7 +155,7 @@
     },
     "peakHeatmap": {
         "hours": ["06", "09", "12", "15", "18", "21", "00", "03"],
-        "days": ["Пн", "Вт", "Ср", "Чт", "Пт"],
+        "days": ["Du", "Se", "Cho", "Pay", "Ju"],
         "values": [
             [0.3, 0.4, 0.6, 0.7, 0.95, 0.85, 0.3, 0.2],
             [0.3, 0.45, 0.65, 0.75, 0.98, 0.82, 0.25, 0.18],

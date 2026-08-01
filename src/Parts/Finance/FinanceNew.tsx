@@ -382,7 +382,7 @@ const Waterfall: React.FC<{ steps: { label: string; value: number; kind: string 
                 layout: { padding: { right: 55 } },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: (ctx: any) => `${ctx.chart.data.datasets[0].displayValues[ctx.dataIndex]} млн сўм` } },
+                    tooltip: { callbacks: { label: (ctx: any) => `${ctx.chart.data.datasets[0].displayValues[ctx.dataIndex]} mln so'm` } },
                 },
                 scales: axis({
                     x: { ticks: { color: C.sub, font: { size: 9 }, callback: (v: any) => fmtNum(Number(v) / 1000) } },
@@ -428,7 +428,7 @@ const CashBridge: React.FC<{ items: { label: string; value: number; total?: bool
                 layout: { padding: { top: 26 } },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: (ctx: any) => `${ctx.chart.data.datasets[0].displayValues[ctx.dataIndex]} млн сўм` } },
+                    tooltip: { callbacks: { label: (ctx: any) => `${ctx.chart.data.datasets[0].displayValues[ctx.dataIndex]} mln so'm` } },
                 },
                 scales: axis({ y: { ticks: { color: C.sub, font: { size: 9 }, callback: (v: any) => fmtNum(Number(v) / 1000) } } }),
             },
@@ -468,13 +468,13 @@ const FinanceNew: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.text, fontSize: 11.5 }}>
-                        <IconCalendar />Давр: {DATA.meta.period}
+                        <IconCalendar />Davr: {DATA.meta.period}
                     </div>
-                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Солиштириш: {DATA.meta.comparePeriod}</div>
-                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Валюта: {DATA.meta.currency}</div>
-                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Курс: {DATA.meta.exchangeRate} сўм</div>
+                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Solishtirish: {DATA.meta.comparePeriod}</div>
+                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Valyuta: {DATA.meta.currency}</div>
+                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Kurs: {DATA.meta.exchangeRate} so'm</div>
                     <div style={{ textAlign: 'right' }}>
-                        <div style={{ color: C.sub, fontSize: 10 }}>Янгиланган:</div>
+                        <div style={{ color: C.sub, fontSize: 10 }}>Yangilangan:</div>
                         <div style={{ color: C.text, fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{DATA.meta.generatedAt} <span style={{ color: '#4fb3d9' }}><IconRefresh /></span></div>
                     </div>
                 </div>
@@ -482,28 +482,28 @@ const FinanceNew: React.FC = () => {
 
             {/* Vitals */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <KpiTile label="Тушум" value={fmtNum(DATA.vitals[0].value)} icon={<IconDollar />} color="#3b82f6"
+                <KpiTile label="Tushum" value={fmtNum(DATA.vitals[0].value)} icon={<IconDollar />} color="#3b82f6"
                     delta={DATA.vitals[0].delta} trend={DATA.vitals[0].trend} />
-                <KpiTile label="Ҳисобот даври фойдаси" value={fmtNum(DATA.vitals[1].value)} icon={<IconWalletFilled />} color="#0ea8c7"
+                <KpiTile label="Hisobot davri foydasi" value={fmtNum(DATA.vitals[1].value)} icon={<IconWalletFilled />} color="#0ea8c7"
                     delta={DATA.vitals[1].delta} trend={DATA.vitals[1].trend} valueTone={valueColor(DATA.vitals[1].value)} />
-                <KpiTile label="Соф фойда маржаси" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color="#f59e0b"
-                    delta={DATA.vitals[2].delta} deltaUnit=" п.п." trend={DATA.vitals[2].trend} valueTone={valueColor(DATA.vitals[2].value)} fmtV={fmtPct} />
-                <KpiTile label="Соф пул оқими" value={fmtNum(DATA.vitals[3].value)} icon={<IconArrowUpDown />} color="#22c55e"
+                <KpiTile label="Sof foyda marjasi" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color="#f59e0b"
+                    delta={DATA.vitals[2].delta} deltaUnit=" p.p." trend={DATA.vitals[2].trend} valueTone={valueColor(DATA.vitals[2].value)} fmtV={fmtPct} />
+                <KpiTile label="Sof pul oqimi" value={fmtNum(DATA.vitals[3].value)} icon={<IconArrowUpDown />} color="#22c55e"
                     note={(DATA.vitals[3] as any).note} trend={DATA.vitals[3].trend} />
             </div>
 
             {/* Legenda */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', fontSize: 11, color: C.sub, padding: '9px 14px', background: C.card, border: `1px solid ${C.border}`, borderRadius: 8 }}>
-                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#22c55e', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />яхши натижа</span>
-                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#ef4444', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />ёмон натижа</span>
-                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#94a3b8', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />нейтрал</span>
-                <span style={{ marginLeft: 'auto', color: C.sub }}>▲ ▼ = ўзгариш йўналиши · ранг = бизнесга таъсири</span>
+                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#22c55e', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />yaxshi natija</span>
+                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#ef4444', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />yomon natija</span>
+                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#94a3b8', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />neytral</span>
+                <span style={{ marginLeft: 'auto', color: C.sub }}>▲ ▼ = o'zgarish yo'nalishi · rang = biznesga ta'siri</span>
             </div>
 
-            {/* 01. Рентабеллик */}
-            <SectionTitle index={1} title="Рентабеллик" icon={<IconChartBars />} color="#eab308" hint="Тушумдан соф натижагача" />
+            {/* 01. Rentabellik */}
+            <SectionTitle index={1} title="Rentabellik" icon={<IconChartBars />} color="#eab308" hint="" />
             <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Фойда шаклланиши (waterfall)" icon={<IconChartBars />} hint={DATA.waterfall.unit}>
+                <SectionCard title="Foyda shakllanishi (waterfall)" icon={<IconChartBars />} hint={DATA.waterfall.unit}>
                     <Waterfall steps={DATA.waterfall.steps} />
                     <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, lineHeight: 1.5 }}>{DATA.waterfall.note}</div>
                 </SectionCard>
@@ -513,7 +513,7 @@ const FinanceNew: React.FC = () => {
                             <RatioTile key={m.label} label={m.label} value={fmtPct(m.value)} delta={m.delta} icon={<IconPercentBadge />} color={m.up ? '#22c55e' : '#ef4444'} />
                         ))}
                     </div>
-                    <SectionCard title="Даромадлилик кўрсаткичлари" icon={<IconChartUp />} iconColor="#a855f7">
+                    <SectionCard title="Daromadlilik ko'rsatkichlari" icon={<IconChartUp />} iconColor="#a855f7">
                         <div style={{ display: 'grid', gap: 8 }}>
                             {DATA.profitability.map((p) => (
                                 <div key={p.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '9px 12px', background: C.cardAlt, borderRadius: 8, border: `1px solid ${C.border}` }}>
@@ -530,9 +530,9 @@ const FinanceNew: React.FC = () => {
                             ))}
                         </div>
                     </SectionCard>
-                    <SectionCard title="Асосий омиллар" icon={<IconAlertTriangle />} iconColor="#eab308" style={{ flex: 1 }}>
+                    <SectionCard title="Asosiy omillar" icon={<IconAlertTriangle />} iconColor="#eab308" style={{ flex: 1 }}>
                         <div style={{ color: C.sub, fontSize: 11, lineHeight: 1.5, marginBottom: 8 }}>
-                            Тушум ялпи фойдани ҳосил қилади, лекин операцион ва молиявий харажатлар уни соф зарарга айлантиради.
+                            Tushum yalpi foydani hosil qiladi, lekin operatsion va moliyaviy xarajatlar uni sof zararga aylantiradi.
                         </div>
                         <div style={{ display: 'grid', gap: 6 }}>
                             {topCostDrivers.map((d) => (
@@ -547,10 +547,10 @@ const FinanceNew: React.FC = () => {
             </div>
 
             {/* 02. Moliyaviy holat */}
-            <SectionTitle index={2} title="Молиявий ҳолат" icon={<IconLayers />} color="#a855f7" hint="таркиб · улуш бўйича" />
+            <SectionTitle index={2} title="Moliyaviy holat" icon={<IconLayers />} color="#a855f7" hint="tarkib · ulush bo'yicha" />
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#eab308', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: 8, padding: '10px 13px' }}>
                 <NeonIcon color="#eab308" size={24}><IconAlertTriangle /></NeonIcon>
-                <span>Баланс тенг эмас: жами активлар ({fmtNum(DATA.balanceAlert.assets)}) ≠ капитал + мажбуриятлар ({fmtNum(DATA.balanceAlert.capitalPlusLiabilities)}). Фарқ ≈ {DATA.balanceAlert.diffApprox} — манбани текшириш керак.</span>
+                <span>Balans teng emas: jami aktivlar ({fmtNum(DATA.balanceAlert.assets)}) ≠ kapital + majburiyatlar ({fmtNum(DATA.balanceAlert.capitalPlusLiabilities)}). Farq ≈ {DATA.balanceAlert.diffApprox} — manbani tekshirish kerak.</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
                 {DATA.composition.map((item) => <CompositionTile key={item.label} item={item} />)}
@@ -560,9 +560,9 @@ const FinanceNew: React.FC = () => {
             </div>
 
             {/* 03. Likvidlik va pul */}
-            <SectionTitle index={3} title="Ликвидлик ва пул" icon={<IconArrowUpDown />} color="#22c55e" hint="оқим кўприги · банк қолдиқлари" />
+            <SectionTitle index={3} title="Likvidlik va pul" icon={<IconArrowUpDown />} color="#22c55e" hint="oqim ko'prigi · bank qoldiqlari" />
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 8 }}>
-                <SectionCard title="Пул оқими кўприги" icon={<IconArrowUpDown />} iconColor="#0ea8c7" hint={DATA.meta.currency}>
+                <SectionCard title="Pul oqimi ko'prigi" icon={<IconArrowUpDown />} iconColor="#0ea8c7" hint={DATA.meta.currency}>
                     <CashBridge items={DATA.cashBridge.items} />
                     <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8 }}>{DATA.cashBridge.note}</div>
                 </SectionCard>
@@ -573,16 +573,16 @@ const FinanceNew: React.FC = () => {
                 </div>
             </div>
 
-            <SectionCard title="Банк ҳисоблари — тури бўйича гуруҳланган" icon={<IconBank />} iconColor="#eab308">
+            <SectionCard title="Bank hisoblari — turi bo'yicha guruhlangan" icon={<IconBank />} iconColor="#eab308">
                 <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
                         <colgroup><col style={{ width: '32%' }} /><col style={{ width: '23%' }} /><col style={{ width: '14%' }} /><col style={{ width: '31%' }} /></colgroup>
                         <thead>
                             <tr>
-                                <th style={{ textAlign: 'left', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>Банк</th>
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>Сўм</th>
+                                <th style={{ textAlign: 'left', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>Bank</th>
+                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>So'm</th>
                                 <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>USD</th>
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>Сўм эквив.</th>
+                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>So'm ekviv.</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -600,7 +600,7 @@ const FinanceNew: React.FC = () => {
                                         </tr>
                                     ))}
                                     <tr>
-                                        <td style={{ padding: '6px 8px', color: C.text, fontWeight: 700 }}>Оралиқ жами</td>
+                                        <td style={{ padding: '6px 8px', color: C.text, fontWeight: 700 }}>Oraliq jami</td>
                                         <td />
                                         <td />
                                         <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: C.text }}>{g.subtotal}</td>

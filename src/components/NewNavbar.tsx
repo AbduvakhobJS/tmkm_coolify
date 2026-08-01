@@ -14,30 +14,30 @@ import {
 } from 'react-icons/tb';
 import './NewNavbar.css';
 import {useClock} from "../hooks/useClock";
+import {useNavigate} from "react-router-dom";
 
 interface NavItem {
     id: string;
     icon: IconType;
     /** har bir element — alohida qator */
     label: string[];
+    url: string ;
 }
-
 const leftItems: NavItem[] = [
-    { id: 'main', icon: TbHome, label: ['ГЛАВНЫЙ ЭКРАН'] },
-    { id: 'production', icon: TbBuildingFactory2, label: ['ПРОИЗВОДСТВА'] },
-    { id: 'finance', icon: TbChartBar, label: ['ФИНАНСЫ'] },
-    { id: 'transport', icon: TbTruck, label: ['ТРАНСПОРТ'] },
-    { id: 'asodu', icon: TbSitemap, label: ['АСОДУ'] },
+    { id: 'main', icon: TbHome, label: ['BOSH SAHIFA'], url: "/main/full" },
+    { id: 'production', icon: TbBuildingFactory2, label: ['ISHLAB CHIQARISH'], url: "/main/grr" },
+    { id: 'finance', icon: TbChartBar, label: ['MOLIYA'], url: "/main/finance-new" },
+    { id: 'transport', icon: TbTruck, label: ['TRANSPORT'], url: "/main/grr" },
+    { id: 'asodu', icon: TbSitemap, label: ['ASODU'], url: "/main/9" },
 ];
 
 const rightItems: NavItem[] = [
-    { id: 'ecology', icon: TbLeaf, label: ['ЭКОЛОГИЯ'] },
-    { id: 'safety', icon: TbShieldCheck, label: ['ТЕХНИКА', 'БЕЗОПАСНОСТИ'] },
-    { id: 'marketing', icon: TbSpeakerphone, label: ['МАРКЕТИНГ'] },
-    { id: 'video', icon: TbCamera, label: ['ВИДЕОАНАЛИТИКА'] },
-    { id: 'geology', icon: TbMountain, label: ['ГЕОЛОГИЯ', 'И РАЗВЕДКА'] },
+    { id: 'ecology', icon: TbLeaf, label: ['EKOLOGIYA'], url: "/main/esg" },
+    { id: 'safety', icon: TbShieldCheck, label: ['MEHNAT', 'XAVFSIZLIGI'], url: "/main/hse-big" },
+    { id: 'marketing', icon: TbSpeakerphone, label: ['MARKETING'], url: "/main/marketing" },
+    { id: 'video', icon: TbCamera, label: ['VIDEOANALITIKA'], url: "/main/7" },
+    { id: 'geology', icon: TbMountain, label: ['GEOLOGIYA', 'VA QIDIRUV'], url: "/main/grr" },
 ];
-
 interface NewNavbarProps {
     defaultActive?: string;
     onSelect?: (id: string) => void;
@@ -52,9 +52,11 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
 }) => {
     const [active, setActive] = useState(defaultActive);
 
-    const handleClick = (id: string) => {
+    const navigate = useNavigate();
+    const handleClick = (id: string, url: string) => {
         setActive(id);
         onSelect?.(id);
+        navigate(url)
     };
     const { time, date } = useClock();
 
@@ -65,7 +67,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                 key={item.id}
                 type="button"
                 className={`nnav-btn${active === item.id ? ' active' : ''}`}
-                onClick={() => handleClick(item.id)}
+                onClick={() => handleClick(item.id, item.url)}
             >
                 <Icon className="nnav-ico" />
                 <span className="nnav-label">
@@ -89,7 +91,7 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
 
                 {/* markaz — bo'sh hex qismi (fon rasmda), dinamik cho'ziladi */}
                 <div className="nnav-center" >
-                    <h1>СИТУАЦИОННЫЙ ЦЕНТР ТМК</h1>
+                    <h1>TMK SITUATSION MARKAZI</h1>
                     <div className="top-right">
                         <div className="clock-block">
                             <div className="live-time">{time}</div>

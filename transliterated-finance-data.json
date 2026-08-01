@@ -1,0 +1,465 @@
+{
+    "meta": {
+        "company": "Moliyaviy vaziyat markazi",
+        "subtitle": "",
+        "period": "2026 May",
+        "comparePeriod": "Aprel 2026",
+        "currency": "ming so'm",
+        "exchangeRate": "12 009,29",
+        "generatedAt": "31.05 18:30"
+    },
+    "trendLabels": [
+        "Yanv",
+        "Fev",
+        "Mar",
+        "Apr",
+        "May"
+    ],
+    "vitals": [
+        {
+            "label": "Tushum",
+            "value": 133670868,
+            "delta": 12.4,
+            "unit": "%",
+            "up": true,
+            "tone": "good",
+            "trend": [
+                102541250,
+                130202183,
+                129792977,
+                128570607,
+                133670868
+            ]
+        },
+        {
+            "label": "Hisobot davri foydasi",
+            "value": -66021935,
+            "delta": -11.1,
+            "unit": "%",
+            "up": false,
+            "tone": "bad",
+            "trend": [
+                -81474345,
+                -85419437,
+                -70433747,
+                -62781994,
+                -66021935
+            ]
+        },
+        {
+            "label": "Sof foyda marjasi",
+            "value": -49.4,
+            "isPct": true,
+            "delta": -6.2,
+            "unit": "p.p.",
+            "up": false,
+            "tone": "bad",
+            "trend": [
+                -55.39,
+                -53.39,
+                -52.57,
+                -48.56,
+                -49.39
+            ]
+        },
+        {
+            "label": "Sof pul oqimi",
+            "value": 272958,
+            "note": "nol atrofida",
+            "tone": "neutral",
+            "trend": [
+                2245858,
+                -9172762,
+                -1945969,
+                3569492,
+                272958
+            ]
+        }
+    ],
+    "waterfall": {
+        "unit": "ming so'm",
+        "note": "Tushum yalpi foydani hosil qiladi, lekin operatsion va moliyaviy xarajatlar uni sof zararga aylantiradi. Asosiy bosim: sotish tannarxi va ma'muriy xarajatlar.",
+        "steps": [
+            {
+                "label": "Tushum",
+                "value": 133670868,
+                "kind": "start"
+            },
+            {
+                "label": "Sotish tannarxi",
+                "value": -82073151,
+                "kind": "cost"
+            },
+            {
+                "label": "Yalpi foyda",
+                "value": 51597717,
+                "kind": "sub"
+            },
+            {
+                "label": "Sotish va tarqatish xarajat.",
+                "value": -4701166,
+                "kind": "cost"
+            },
+            {
+                "label": "Ma'muriy xarajatlar",
+                "value": -59033894,
+                "kind": "cost"
+            },
+            {
+                "label": "Boshqa operatsion xarajat.",
+                "value": -43656468,
+                "kind": "cost"
+            },
+            {
+                "label": "Operatsion daromadlar",
+                "value": 761838,
+                "kind": "inc"
+            },
+            {
+                "label": "Operatsion foyda",
+                "value": -55031973,
+                "kind": "sub"
+            },
+            {
+                "label": "Moliyaviy daromad",
+                "value": 16532468,
+                "kind": "inc"
+            },
+            {
+                "label": "Moliyaviy xarajatlar",
+                "value": -21811973,
+                "kind": "cost"
+            },
+            {
+                "label": "Foyda solig'idan oldingi",
+                "value": -60311478,
+                "kind": "sub"
+            },
+            {
+                "label": "Foyda solig'i xarajati",
+                "value": -5710457,
+                "kind": "cost"
+            },
+            {
+                "label": "Hisobot davri foydasi",
+                "value": -66021935,
+                "kind": "res"
+            }
+        ]
+    },
+    "margins": [
+        {
+            "label": "Yalpi",
+            "value": 38.6,
+            "delta": 2.1,
+            "up": true
+        },
+        {
+            "label": "Operatsion",
+            "value": -41.2,
+            "delta": -7.8,
+            "up": false
+        },
+        {
+            "label": "Sof",
+            "value": -49.4,
+            "delta": -6.2,
+            "up": false
+        }
+    ],
+    "profitability": [
+        {
+            "label": "Aktivlar rentabelligi (ROA)",
+            "value": "-7,8%",
+            "deltaValue": 2.1,
+            "up": false
+        },
+        {
+            "label": "Kapital rentabelligi (ROE)",
+            "value": "-11,0%",
+            "deltaValue": 2.4,
+            "up": false
+        },
+        {
+            "label": "EBITDA",
+            "value": "-38 422 117",
+            "deltaValue": null,
+            "up": null
+        }
+    ],
+    "balanceAlert": {
+        "assets": 841760559,
+        "capitalPlusLiabilities": 931760559,
+        "diffApprox": "90 mlrd"
+    },
+    "composition": [
+        {
+            "label": "Jami aktivlar",
+            "value": "841 760 559",
+            "segs": [
+                {
+                    "label": "Joriy aktivlar",
+                    "pct": 63,
+                    "color": "blue"
+                },
+                {
+                    "label": "Uzoq muddatli aktivlar",
+                    "pct": 37,
+                    "color": "purple"
+                }
+            ]
+        },
+        {
+            "label": "Jami majburiyatlar",
+            "value": "333 804 508",
+            "segs": [
+                {
+                    "label": "Joriy majburiyatlar",
+                    "pct": 57,
+                    "color": "coral"
+                },
+                {
+                    "label": "Uzoq muddatli majburiyatlar",
+                    "pct": 43,
+                    "color": "amber"
+                }
+            ]
+        },
+        {
+            "label": "Kapital va majburiyatlar",
+            "value": "931 760 559",
+            "segs": [
+                {
+                    "label": "Jami kapital",
+                    "pct": 64,
+                    "color": "teal"
+                },
+                {
+                    "label": "Jami majburiyatlar",
+                    "pct": 36,
+                    "color": "coral"
+                }
+            ]
+        },
+        {
+            "label": "Uzoq muddatli aktivlar",
+            "value": "307 981 044",
+            "segs": [
+                {
+                    "label": "Tugallanmagan qurilish",
+                    "pct": 47,
+                    "color": "amber"
+                },
+                {
+                    "label": "Sho''ba korx. invest.",
+                    "pct": 45,
+                    "color": "purple"
+                },
+                {
+                    "label": "Asosiy vositalar",
+                    "pct": 9,
+                    "color": "blue"
+                },
+                {
+                    "label": "Boshqa",
+                    "pct": 0,
+                    "color": "gray"
+                }
+            ]
+        },
+        {
+            "label": "Joriy aktivlar",
+            "value": "533 779 514",
+            "segs": [
+                {
+                    "label": "Debitorlik va to'lovlar",
+                    "pct": 44,
+                    "color": "blue"
+                },
+                {
+                    "label": "Tovar-moddiy zaxiralar",
+                    "pct": 23,
+                    "color": "teal"
+                },
+                {
+                    "label": "Pul mablag'lari",
+                    "pct": 18,
+                    "color": "amber"
+                },
+                {
+                    "label": "Boshqa",
+                    "pct": 15,
+                    "color": "gray"
+                }
+            ]
+        },
+        {
+            "label": "Jami kapital",
+            "value": "597 956 051",
+            "segs": [
+                {
+                    "label": "Ustav kapitali",
+                    "pct": 75,
+                    "color": "teal"
+                },
+                {
+                    "label": "Taqsimlanmagan foyda",
+                    "pct": 22,
+                    "color": "blue"
+                },
+                {
+                    "label": "Boshqa zaxiralar",
+                    "pct": 3,
+                    "color": "gray"
+                }
+            ]
+        }
+    ],
+    "ratios": [
+        {
+            "label": "Joriy likvidlik koeffitsienti",
+            "value": "2,78",
+            "deltaValue": 0.09,
+            "up": true,
+            "tag": "Kuchli likvidlik (>2)"
+        },
+        {
+            "label": "Qarz / kapital koeffitsienti",
+            "value": "0,56",
+            "deltaValue": 0.02,
+            "up": true,
+            "tag": "Past leveraj"
+        }
+    ],
+    "cashBridge": {
+        "note": "-41,3 mlrd operatsion tanqislik moliyaviy oqim bilan qoplangan -> sof oqim deyarli nol (mln so'm)",
+        "items": [
+            {
+                "label": "Operatsion",
+                "value": -41268912
+            },
+            {
+                "label": "Investitsion",
+                "value": -26753440
+            },
+            {
+                "label": "Moliyaviy",
+                "value": 68295310
+            },
+            {
+                "label": "Sof oqim",
+                "value": 272958,
+                "total": true
+            }
+        ]
+    },
+    "cashMetrics": [
+        {
+            "label": "Pul mablag'lari va ekviv.",
+            "value": "98 683 974",
+            "deltaValue": 6.3,
+            "deltaUnit": "%",
+            "up": true
+        },
+        {
+            "label": "Operatsion pul oqimi",
+            "value": "-41 268 912",
+            "deltaValue": null,
+            "up": false
+        },
+        {
+            "label": "Investitsion pul oqimi",
+            "value": "-26 753 440",
+            "deltaValue": null,
+            "up": null
+        },
+        {
+            "label": "Moliyaviy pul oqimi",
+            "value": "68 295 310",
+            "deltaValue": null,
+            "up": true
+        }
+    ],
+    "bankGroups": [
+        {
+            "name": "Operatsion hisoblar",
+            "rows": [
+                {
+                    "name": "Milliy bank",
+                    "sum": "64 891 510",
+                    "usd": "115 195",
+                    "sumEq": "1 448 302 873"
+                },
+                {
+                    "name": "Milliy bank FIRU",
+                    "sum": "131 828",
+                    "usd": "-",
+                    "sumEq": "131 828"
+                },
+                {
+                    "name": "Ipoteka bank",
+                    "sum": "1 266 693",
+                    "usd": "-",
+                    "sumEq": "1 266 693"
+                },
+                {
+                    "name": "Asaka bank",
+                    "sum": "12 765 352",
+                    "usd": "-",
+                    "sumEq": "12 765 352"
+                },
+                {
+                    "name": "Kapital bank",
+                    "sum": "1 207 366 625",
+                    "usd": "2 000",
+                    "sumEq": "1 231 385 205"
+                },
+                {
+                    "name": "KDB bank",
+                    "sum": "1 105 653 216",
+                    "usd": "562",
+                    "sumEq": "6 744 898",
+                    "flag": true
+                }
+            ],
+            "subtotal": "2 700 596 849"
+        },
+        {
+            "name": "Kredit liniyalari",
+            "rows": [
+                {
+                    "name": "Asaka bank kredit",
+                    "sum": "1 105 653 216",
+                    "usd": "-",
+                    "sumEq": "1 105 653 216"
+                },
+                {
+                    "name": "Milliy bank kredit",
+                    "sum": "1 252 089",
+                    "usd": "-",
+                    "sumEq": "1 252 089"
+                },
+                {
+                    "name": "Kapital bank kredit",
+                    "sum": "-",
+                    "usd": "-",
+                    "sumEq": "-"
+                }
+            ],
+            "subtotal": "1 106 905 305"
+        },
+        {
+            "name": "Depozit",
+            "rows": [
+                {
+                    "name": "Depozit",
+                    "sum": "22 000 000 000",
+                    "usd": "-",
+                    "sumEq": "22 000 000 000"
+                }
+            ],
+            "subtotal": "22 000 000 000"
+        }
+    ],
+    "bankFlagNote": "KDB bank so'm qoldig'i (1 105 653 216) undagi USD ekvivalentiga (6,7 mln) mos emas va Asaka kredit qatori bilan bir xil - ehtimol nusxalash xatosi."
+}

@@ -10,6 +10,8 @@ import EnterExit from "./EnterExit";
 import * as THREE from 'three';
 import EnterExitMain from "./EnterExitMain";
 import ESG from "../Parts/ESG/ESG";
+import FinanceNewMain from "../Parts/Finance/FinanceNewMain";
+import FinanceNew from "../Parts/Finance/FinanceNew";
 
 
 // 1. RIGHTPANEL VIEW MODEL (Modal uchun 3D model)
@@ -123,29 +125,46 @@ const RightPanel: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) =>
 
   return (
     <div className="right-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '10px' }}>
-      <div style={{ 
-        flex: 1, 
+      <div style={{
+        flex: 1,
         display: 'grid',
-        // gridTemplateColumns: '1fr 1fr',
-        gridTemplateRows: '1fr 1fr',
+        // gridTemplateRows: '1fr 1fr',
         gap: '10px',
         minHeight: 0
       }}>
 
-
-          <EnterExitMain />
-
-          <ESG />
-      </div>
-
-
-
-      <div className="view-model-right-model" style={{ height: '50%' }}>
-        <div className="view-model" style={{ width: '100%', height: '100%', padding: "10px", background: 'var(--gc-panel-bg)', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1px solid rgba(14,168,199,0.2)' }}>
-          {/*<StreamGrid />*/}
-          <EnterExit />
+        <div style={{ height: '100%', minHeight: 0, overflow: 'auto' ,  border: '1px solid rgba(14,168,199,0.2)',  borderRadius: '12px'}}>
+            {/*<FinanceNewMain/>*/}
+            <FinanceNew />
         </div>
       </div>
+
+
+
+        <div style={{
+            flex: 1,
+            display: 'grid',
+            gridTemplateRows: '1fr 1fr',
+            gap: '10px',
+            minHeight: 0
+        }}>
+
+            <div style={{ height: '100%', minHeight: 0, overflow: 'auto' ,  border: '1px solid rgba(14,168,199,0.2)',  borderRadius: '12px'}}>
+                <EnterExitMain />
+            </div>
+
+            <div style={{ height: '100%', minHeight: 0, overflow: 'auto',   border: '1px solid rgba(14,168,199,0.2)',  borderRadius: '12px' }}>
+                <ESG />
+            </div>
+        </div>
+
+
+      {/*<div className="view-model-right-model" style={{ height: '50%' }}>*/}
+      {/*  <div className="view-model" style={{ width: '100%', height: '100%', padding: "10px", background: 'var(--gc-panel-bg)', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1px solid rgba(14,168,199,0.2)' }}>*/}
+      {/*    /!*<StreamGrid />*!/*/}
+      {/*    <EnterExit />*/}
+      {/*  </div>*/}
+      {/*</div>*/}
     </div>
   );
 };

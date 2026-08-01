@@ -9,7 +9,7 @@
     --nnav-h: auto;
     --nnav-ar: 1900 / 235;   /* ramka rasm nisbati — kerak bo'lsa sozlang */
 
-    height: 140px;
+    height: 100px;
     --cyan: #37e1ff;
     --cyan-soft: rgba(55, 225, 255, 0.55);
     --cyan-dim: #1c86ad;
@@ -73,7 +73,7 @@
     display: flex;
     align-items: center;
     gap: 9px;
-    height: 46px;
+    height: 38px;
     padding: 0 14px;
     background: transparent;
     border: none;

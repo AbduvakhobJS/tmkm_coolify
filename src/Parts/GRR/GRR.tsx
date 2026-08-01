@@ -156,7 +156,7 @@ const SectionCard: React.FC<{
 );
 
 const RISK_COLORS: Record<string, string> = { low: '#22c55e', medium: '#eab308', high: '#ef4444' };
-const RISK_LABELS: Record<string, string> = { low: 'Низкий', medium: 'Средний', high: 'Высокий' };
+const RISK_LABELS: Record<string, string> = { low: 'Past', medium: "O'rta", high: 'Yuqori' };
 
 const readinessColor = (v: number) => (v >= 60 ? C.up : v >= 40 ? '#eab308' : C.down);
 
@@ -187,24 +187,24 @@ const GRR: React.FC = () => {
     const reservesData = {
         labels: reservesChart.labels,
         datasets: [
-            { label: 'Разведанные запасы', data: reservesChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
-            { label: 'Ресурсы', data: reservesChart.resources, backgroundColor: '#3b82f6', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
+            { label: "Razvedka qilingan zaxiralar", data: reservesChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
+            { label: 'Resurslar', data: reservesChart.resources, backgroundColor: '#3b82f6', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
         ],
     };
 
     const elementData = {
         labels: elementContentChart.labels,
         datasets: [
-            { label: 'Разведанные запасы', data: elementContentChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
-            { label: 'Ресурсы', data: elementContentChart.resources, backgroundColor: '#3b82f6', borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
+            { label: "Razvedka qilingan zaxiralar", data: elementContentChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
+            { label: 'Resurslar', data: elementContentChart.resources, backgroundColor: '#3b82f6', borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
         ],
     };
 
     const budgetData = {
         labels: budgetRemainderChart.labels,
         datasets: [
-            { label: 'Освоено', data: budgetRemainderChart.used, backgroundColor: C.up, stack: 's', borderRadius: 2, barPercentage: 0.7 },
-            { label: 'Остаток', data: budgetRemainderChart.remaining, backgroundColor: '#3b82f6', stack: 's', borderRadius: 2, barPercentage: 0.7 },
+            { label: "O'zlashtirildi", data: budgetRemainderChart.used, backgroundColor: C.up, stack: 's', borderRadius: 2, barPercentage: 0.7 },
+            { label: 'Qoldiq', data: budgetRemainderChart.remaining, backgroundColor: '#3b82f6', stack: 's', borderRadius: 2, barPercentage: 0.7 },
         ],
     };
 
@@ -255,10 +255,10 @@ const GRR: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.6fr 1fr', gap: 8, minHeight: 380 }}>
 
                 {/* Portfel loyihalari */}
-                <SectionCard title="Портфель проектов" icon={<IconFolder />}>
+                <SectionCard title="Loyihalar portfeli" icon={<IconFolder />}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, paddingBottom: 6, borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
-                        <span>Проект</span>
-                        <span>Готовность / Риск</span>
+                        <span>Loyiha</span>
+                        <span>Tayyorlik / Xavf</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 9, overflowY: 'auto', flex: 1, paddingTop: 8, minHeight: 0 }}>
                         {projects.map((p) => (
@@ -283,14 +283,14 @@ const GRR: React.FC = () => {
                         ))}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, color: '#4fb3d9', fontSize: 11, fontWeight: 600, paddingTop: 9, marginTop: 6, borderTop: `1px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}>
-                        Смотреть все проекты <IconArrowRight />
+                        Barcha loyihalarni ko'rish <IconArrowRight />
                     </div>
                 </SectionCard>
 
                 {/* 3D geologik model */}
-                <SectionCard title="3D геологическая модель" icon={<IconCube />} bodyStyle={{ gap: 8 }}>
+                <SectionCard title="3D geologik model" icon={<IconCube />} bodyStyle={{ gap: 8 }}>
                     <div style={{ position: 'relative', flex: 1, minHeight: 0, borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.border}` }}>
-                        <img src="/imgs/r6.jpg" alt="3D геологическая модель" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'saturate(1.05) brightness(0.85)' }} />
+                        <img src="/imgs/r6.jpg" alt="3D geologik model" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'saturate(1.05) brightness(0.85)' }} />
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,15,29,0.15) 0%, rgba(10,15,29,0.05) 45%, rgba(10,15,29,0.75) 100%)' }} />
 
                         {/* Zonalar mineralizatsiyasi legendasi */}
@@ -300,7 +300,7 @@ const GRR: React.FC = () => {
                             border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px',
                         }}>
                             <div style={{ color: '#4fb3d9', fontSize: 9, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', borderBottom: `1px solid ${C.border}`, paddingBottom: 5, marginBottom: 6 }}>
-                                Зоны минерализации
+                                Mineralizatsiya zonalari
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                 {mineralZones.map((m) => (
@@ -315,7 +315,7 @@ const GRR: React.FC = () => {
                         {/* Hudud yorlig'i */}
                         <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '5px 10px' }}>
                             <span style={{ color: '#4fb3d9' }}><IconMapPin /></span>
-                            <span style={{ color: C.text, fontSize: 10.5, fontWeight: 600 }}>Минералы худуди</span>
+                            <span style={{ color: C.text, fontSize: 10.5, fontWeight: 600 }}>Minerallar hududi</span>
                         </div>
 
                         {/* Pastki dekorativ asboblar paneli */}
@@ -324,13 +324,13 @@ const GRR: React.FC = () => {
                                 <IconCube /><IconLayers /><IconGrid /><IconExpand /><IconRotate />
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 9.5 }}>
-                                Срезы:
+                                Kesimlar:
                                 {['X', 'Y', 'Z'].map((ax) => (
                                     <span key={ax} style={{ width: 18, height: 18, borderRadius: 4, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.text, fontSize: 9.5, fontWeight: 700 }}>{ax}</span>
                                 ))}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 9.5 }}>
-                                Прозрачность:
+                                Shaffoflik:
                                 <div style={{ width: 70, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', position: 'relative' }}>
                                     <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '60%', borderRadius: 2, background: '#4fb3d9' }} />
                                 </div>
@@ -340,8 +340,8 @@ const GRR: React.FC = () => {
                     </div>
                 </SectionCard>
 
-                {/* Svodka po proektam */}
-                <SectionCard title="Сводка по проектам" icon={<IconBars />} bodyStyle={{ overflowY: 'auto' }}>
+                {/* Loyihalar bo'yicha xulosa */}
+                <SectionCard title="Loyihalar bo'yicha xulosa" icon={<IconBars />} bodyStyle={{ overflowY: 'auto' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, flexShrink: 0, marginBottom: 10 }}>
                         {summary.stageCounts.map((s) => (
                             <div key={s.label} style={{ textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 4px' }}>
@@ -353,12 +353,12 @@ const GRR: React.FC = () => {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 11.5, marginBottom: 10 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: C.sub }}>Бюджет портфеля:</span>
+                            <span style={{ color: C.sub }}>Portfel byudjeti:</span>
                             <span style={{ color: C.text, fontWeight: 700 }}>{summary.budget.total}</span>
                         </div>
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: C.sub }}>Освоено ({summary.budget.usedPct}%):</span>
+                                <span style={{ color: C.sub }}>O'zlashtirildi ({summary.budget.usedPct}%):</span>
                                 <span style={{ color: C.text, fontWeight: 700 }}>{summary.budget.used}</span>
                             </div>
                             <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 4 }}>
@@ -366,21 +366,21 @@ const GRR: React.FC = () => {
                             </div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: C.sub }}>Ожидаемая выручка:</span>
+                            <span style={{ color: C.sub }}>Kutilayotgan tushum:</span>
                             <span style={{ color: C.text, fontWeight: 700 }}>{summary.revenue.expected}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: C.sub }}>Приведённая выручка:</span>
+                            <span style={{ color: C.sub }}>Diskontlangan tushum:</span>
                             <span style={{ color: C.text, fontWeight: 700 }}>{summary.revenue.discounted}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: C.sub }}>Ожидаемый NPV (8%):</span>
+                            <span style={{ color: C.sub }}>Kutilayotgan NPV (8%):</span>
                             <span style={{ color: C.up, fontWeight: 700 }}>{summary.revenue.npv8}</span>
                         </div>
                     </div>
 
                     <div style={{ color: '#4fb3d9', fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>
-                        Средневзвешенный состав портфеля
+                        Portfelning o'rtacha vaznli tarkibi
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 4, marginBottom: 12 }}>
                         {summary.composition.map((c, i) => (
@@ -390,21 +390,21 @@ const GRR: React.FC = () => {
 
                     <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                         <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 4px' }}>
-                            <div style={{ color: C.sub, fontSize: 9 }}>Оценка проектов (NPV10%, млн долл.)</div>
+                            <div style={{ color: C.sub, fontSize: 9 }}>Loyihalar bahosi (NPV10%, mln dollar)</div>
                             <div style={{ color: C.text, fontSize: 18, fontWeight: 700, marginTop: 3 }}>{summary.npv10}</div>
                         </div>
                         <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 4px' }}>
-                            <div style={{ color: C.sub, fontSize: 9 }}>IRR портфеля</div>
+                            <div style={{ color: C.sub, fontSize: 9 }}>Portfel IRR</div>
                             <div style={{ color: C.up, fontSize: 18, fontWeight: 700, marginTop: 3 }}>{summary.irr}</div>
                         </div>
                     </div>
 
                     <div style={{ color: '#4fb3d9', fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 }}>
-                        Этапы проектов
+                        Loyiha bosqichlari
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 84, height: 84, flexShrink: 0 }}>
-                            <Doughnut data={stagesDonut} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[centerText(`${projects.length}`, 'проектов')]} />
+                            <Doughnut data={stagesDonut} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[centerText(`${projects.length}`, 'loyiha')]} />
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
                             {summary.stages.map((s) => (
@@ -422,19 +422,19 @@ const GRR: React.FC = () => {
 
             {/* Pastki grafiklar qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, height: 450 }}>
-                <SectionCard title="Запасы и ресурсы по проектам, млн т" icon={<IconLayers />} iconColor="#22c55e">
+                <SectionCard title="Loyihalar bo'yicha zaxira va resurslar, mln t" icon={<IconLayers />} iconColor="#22c55e">
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={reservesData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } }, scales: axis({ x: { ticks: { font: { size: 8.5 } } }, y: { beginAtZero: true } }) } as any} />
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Среднее содержание по группам элементов" icon={<IconGauge />} iconColor="#a855f7">
+                <SectionCard title="Element guruhlari bo'yicha o'rtacha tarkib" icon={<IconGauge />} iconColor="#a855f7">
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={elementData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } }, scales: axis({ y: { beginAtZero: true } }) } as any} />
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Остаток бюджета по проектам, млн долл." icon={<IconCoins />} iconColor="#06b6d4">
+                <SectionCard title="Loyihalar bo'yicha byudjet qoldig'i, mln dollar" icon={<IconCoins />} iconColor="#06b6d4">
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={budgetData} options={{
                             ...chartBase, indexAxis: 'y' as const,
@@ -444,10 +444,10 @@ const GRR: React.FC = () => {
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Распределение ресурсов по группам" icon={<IconPie />} iconColor="#f59e0b">
+                <SectionCard title="Guruhlar bo'yicha resurslar taqsimoti" icon={<IconPie />} iconColor="#f59e0b">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minHeight: 0 }}>
                         <div style={{ width: 108, height: 108, flexShrink: 0 }}>
-                            <Doughnut data={resourceDonut} options={{ ...chartBase, cutout: '62%', ...noLegend } as any} plugins={[centerText('100%', 'ресурсы')]} />
+                            <Doughnut data={resourceDonut} options={{ ...chartBase, cutout: '62%', ...noLegend } as any} plugins={[centerText('100%', 'resurslar')]} />
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
                             {resourceDistribution.map((r) => (

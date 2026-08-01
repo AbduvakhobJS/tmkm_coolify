@@ -277,8 +277,8 @@ function EventRow({type,time,person,location,onClick}:{
             borderBottom:`1px solid rgba(255,255,255,0.05)`,
             cursor: onClick?'pointer':'default', transition:'background .12s',
         }}
-        onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.04)'}
-        onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+             onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.04)'}
+             onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
             <div style={{
                 width:26, height:26, borderRadius:'50%',
                 background:`${dotColor}15`, border:`1.5px solid ${dotColor}44`,
@@ -327,44 +327,9 @@ function PanelHead({title,icon,right}:{title:string;icon?:React.ReactNode;right?
 }
 
 /* ─────────────────────────────────────────────────────────
-   AUTO-SCALE: komponent ota konteynerni HAR DOIM width:100%,
-   height:100% to'liq to'ldiradi — X va Y alohida scale qilinadi
-   (scaleX = w/BASE_W, scaleY = h/BASE_H), shuning uchun yon
-   tomonlarda bo'sh joy qolmaydi.
-───────────────────────────────────────────────────────── */
-const BASE_W = 1280;
-const BASE_H = 720;
-
-function useAutoScale(baseW: number, baseH: number) {
-    const hostRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState({ x: 1, y: 1 });
-
-    useEffect(() => {
-        const el = hostRef.current;
-        if (!el) return;
-        const update = () => {
-            const { width, height } = el.getBoundingClientRect();
-            if (width === 0 || height === 0) return;
-            setScale({ x: width / baseW, y: height / baseH });
-        };
-        update();
-        const ro = new ResizeObserver(update);
-        ro.observe(el);
-        window.addEventListener('resize', update);
-        return () => {
-            ro.disconnect();
-            window.removeEventListener('resize', update);
-        };
-    }, [baseW, baseH]);
-
-    return { hostRef, scale };
-}
-
-/* ─────────────────────────────────────────────────────────
    MAIN COMPONENT
 ───────────────────────────────────────────────────────── */
 export default function EnterExitMain() {
-    const { hostRef, scale } = useAutoScale(BASE_W, BASE_H);
     const [data,        setData]        = useState<Dash>(D0);
     const [loading,     setLoading]     = useState(true);
     const [wsOk,        setWsOk]        = useState(false);
@@ -452,18 +417,16 @@ export default function EnterExitMain() {
     /* ── Device type cards ── */
     const devItems=[
         {label:'Keldi',     count:cards.arrived.count,     color:T.green,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
+            icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
         {label:'Kech keldi',count:cards.late.count,        color:T.amber,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>},
+            icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>},
         {label:'Ketdi',     count:cards.left.count,        color:T.muted,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M10 17l5-5-5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 12H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
+            icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M10 17l5-5-5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 12H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
         {label:'Topilmagan',count:cards.not_found.count,   color:T.red,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.8"/><path d="M12 9v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>},
+            icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.8"/><path d="M12 9v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>},
     ];
 
     return (
-        <div ref={hostRef} style={{ width:'100%', height:'100%', overflow:'hidden', position:'relative', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ width:BASE_W, height:BASE_H, flexShrink:0, transform:`scale(${scale.x}, ${scale.y})`, transformOrigin:'center center' }}>
         <div style={{
             width:'100%',
             height:'100%',
@@ -473,7 +436,8 @@ export default function EnterExitMain() {
             gridTemplateRows:'100%',
             gap:6,
             padding:'6px 8px',
-            overflow:'hidden',
+            overflowX:'hidden',
+            overflowY:'auto',
             position:'relative',
             color:T.text,
             fontSize:13,
@@ -487,246 +451,244 @@ export default function EnterExitMain() {
                 ::-webkit-scrollbar-thumb{background:${T.b0};border-radius:2px}
             `}</style>
 
-            {/* ══ CHAP: KIRISH-CHIQISH NAZORAT TIZIMI ══ */}
-            <div style={{
-                display:'grid',
-                gridTemplateRows:'auto auto 1fr auto',
-                gap:6,
-                minHeight:0,
-                overflow:'hidden',
-            }}>
+                    {/* ══ CHAP: KIRISH-CHIQISH NAZORAT TIZIMI ══ */}
+                    <div style={{
+                        display:'grid',
+                        gridTemplateRows:'auto auto 1fr auto',
+                        gap:6,
+                        minHeight:0,
+                        overflow:'visible',
+                    }}>
 
-                {/* Sarlavha */}
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
-                    <div style={{display:'flex',alignItems:'center',gap:9}}>
-                        <div style={{width:30,height:30,background:`${T.cyan}15`,border:`1px solid ${T.cyan}35`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                                <rect x="3" y="11" width="18" height="11" rx="2" stroke={T.cyan} strokeWidth="1.8"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={T.cyan} strokeWidth="1.8" strokeLinecap="round"/>
-                                <circle cx="12" cy="16.5" r="1.5" fill={T.cyan}/>
-                            </svg>
-                        </div>
-                        <span style={{fontSize:11,fontWeight:700, letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
+                        {/* Sarlavha */}
+                        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+                            <div style={{display:'flex',alignItems:'center',gap:9}}>
+                                <div style={{width:30,height:30,background:`${T.cyan}15`,border:`1px solid ${T.cyan}35`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" stroke={T.cyan} strokeWidth="1.8"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={T.cyan} strokeWidth="1.8" strokeLinecap="round"/>
+                                        <circle cx="12" cy="16.5" r="1.5" fill={T.cyan}/>
+                                    </svg>
+                                </div>
+                                <span style={{fontSize:11,fontWeight:700, letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
                             XAVFSIZLIK NAZORAT MARKAZI
                         </span>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',gap:8}}>
-                        <div style={{display:'flex',alignItems:'center',gap:5,background:'rgba(255,255,255,0.05)',border:`1px solid ${T.border}`,borderRadius:7,padding:'4px 10px'}}>
-                            <div style={{width:6,height:6,borderRadius:'50%',background:wsOk?T.green:T.amber,boxShadow:`0 0 6px ${wsOk?T.green:T.amber}`,animation:'blink 1.2s infinite'}}/>
-                            <span style={{fontSize:10,color:T.muted,letterSpacing:.5}}>{wsOk?'Jonli':'Ulanmoqda'}</span>
-                        </div>
-                        {cards.not_found.count>0&&(
-                            <div style={{display:'flex',alignItems:'center',gap:5,background:`${T.red}14`,border:`1px solid ${T.red}40`,borderRadius:7,padding:'4px 10px',animation:'alertPulse 2s ease-in-out infinite'}}>
-                                <div style={{width:6,height:6,borderRadius:'50%',background:T.red,animation:'blink .7s infinite'}}/>
-                                <span style={{fontSize:10,color:T.red,fontWeight:600}}>⚠ {cards.not_found.count} hodisa</span>
                             </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* 4 ta yuqori kartochkalar */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,flexShrink:0}}>
-                    <TopCard label="Jami xodimlar"       count={data.total_users}          change={0}                               accent={T.cyan2}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.7"/><path d="M2 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="18" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.6"/><path d="M20 20c0-2.5-1.8-4.5-4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>}
-                    />
-                    <TopCard label="Hhozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.7"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="currentColor"/></svg>}
-                    />
-                    <TopCard label="Bugun kelganlar"     count={cards.arrived.count}        change={cards.arrived.change_percent}       accent={T.green}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>}
-                    />
-                    <TopCard label="Aniqlanmagan"        count={cards.not_found.count}      change={cards.not_found.change_percent}     accent={cards.not_found.count>0?T.red:T.amber}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.7"/><path d="M12 9v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>}
-                    />
-                </div>
-
-                {/* O'rta: 2 ustun */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,minHeight:0,overflow:'hidden'}}>
-
-                    {/* So'nggi kirish hodisalari — faqat kelgan + ketgan */}
-                    <Panel style={{minHeight:0,overflow:'hidden'}}>
-                        <PanelHead
-                            title="So'nggi kirish hodisalari"
-                            icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8"/><polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/></svg>}
-                            right={<span style={{fontSize:9,color:T.muted}}>{EVENTS.length} ta yozuv</span>}
-                        />
-                        <div style={{display:'grid',gridTemplateColumns:'28px 50px 1fr auto',gap:8,padding:'4px 12px',borderBottom:`1px solid rgba(255,255,255,0.05)`,flexShrink:0}}>
-                            {['','Vaqt','Xodim / Ob\'yekt','Holat'].map((h,i)=>(
-                                <span key={i} style={{fontSize:9,color:T.dim,textTransform:'uppercase',letterSpacing:.7}}>{h}</span>
-                            ))}
-                        </div>
-                        <div style={{flex:1,overflowY:'auto'}}>
-                            {loading&&EVENTS.length===0?(
-                                <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                    <span style={{fontSize:10,color:T.muted}}>Yuklanmoqda…</span>
+                            <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                <div style={{display:'flex',alignItems:'center',gap:5,background:'rgba(255,255,255,0.05)',border:`1px solid ${T.border}`,borderRadius:7,padding:'4px 10px'}}>
+                                    <div style={{width:6,height:6,borderRadius:'50%',background:wsOk?T.green:T.amber,boxShadow:`0 0 6px ${wsOk?T.green:T.amber}`,animation:'blink 1.2s infinite'}}/>
+                                    <span style={{fontSize:10,color:T.muted,letterSpacing:.5}}>{wsOk?'Jonli':'Ulanmoqda'}</span>
                                 </div>
-                            ):EVENTS.length===0?(
-                                <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                    <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
-                                </div>
-                            ):EVENTS?.slice(0, 6)?.map((ev,i)=>(
-                                <EventRow key={i} type={ev.type} time={ev.time} person={ev.person} location={ev.location}/>
-                            ))}
+                                {cards.not_found.count>0&&(
+                                    <div style={{display:'flex',alignItems:'center',gap:5,background:`${T.red}14`,border:`1px solid ${T.red}40`,borderRadius:7,padding:'4px 10px',animation:'alertPulse 2s ease-in-out infinite'}}>
+                                        <div style={{width:6,height:6,borderRadius:'50%',background:T.red,animation:'blink .7s infinite'}}/>
+                                        <span style={{fontSize:10,color:T.red,fontWeight:600}}>⚠ {cards.not_found.count} hodisa</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </Panel>
 
-                    {/* O'ng: Donut + Qurilmalar */}
-                    <div style={{display:'flex',flexDirection:'column',gap:6,minHeight:0,overflow:'auto'}}>
-
-                        {/* Donut — chap: pie chart, o'ng: labellar column */}
-                        <Panel style={{flex:1,minHeight:140,display:'flex',flexDirection:'column'}}>
-                            <PanelHead
-                                title="Kirish nuqtalari holati"
-                                right={<span style={{fontSize:10,color:T.muted}}>Jami: <span style={{color:'#fff',fontWeight:600}}><Counter to={data.total_users}/></span></span>}
+                        {/* 4 ta yuqori kartochkalar */}
+                        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,flexShrink:0}}>
+                            <TopCard label="Jami xodimlar"       count={data.total_users}          change={0}                               accent={T.cyan2}
+                                     icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.7"/><path d="M2 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="18" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.6"/><path d="M20 20c0-2.5-1.8-4.5-4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>}
                             />
+                            <TopCard label="Hhozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
+                                     icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.7"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="currentColor"/></svg>}
+                            />
+                            <TopCard label="Bugun kelganlar"     count={cards.arrived.count}        change={cards.arrived.change_percent}       accent={T.green}
+                                     icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>}
+                            />
+                            <TopCard label="Aniqlanmagan"        count={cards.not_found.count}      change={cards.not_found.change_percent}     accent={cards.not_found.count>0?T.red:T.amber}
+                                     icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.7"/><path d="M12 9v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>}
+                            />
+                        </div>
 
-                            {/* Body: chap — donut, o'ng — labellar */}
-                            <div style={{flex:1,display:'flex',flexDirection:'row',minHeight:0,padding:'6px 8px 8px',gap:8}}>
+                        {/* O'rta: 2 ustun */}
+                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,minHeight:0,overflow:'hidden'}}>
 
-                                {/* CHAP: Donut canvas — square */}
-                                <div style={{position:'relative',flexShrink:0,width:'55%',minHeight:0}}>
-                                    <Doughnut data={donutData} options={{
-                                        responsive:true, maintainAspectRatio:false, cutout:'62%',
-                                        animation:{duration:800},
-                                        plugins:{
-                                            legend:{ display:false },
-                                            tooltip:{
+                            {/* So'nggi kirish hodisalari — faqat kelgan + ketgan */}
+                            <Panel style={{minHeight:0,overflow:'hidden'}}>
+                                <PanelHead
+                                    title="So'nggi kirish hodisalari"
+                                    icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8"/><polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/></svg>}
+                                    right={<span style={{fontSize:9,color:T.muted}}>{EVENTS.length} ta yozuv</span>}
+                                />
+                                <div style={{display:'grid',gridTemplateColumns:'28px 50px 1fr auto',gap:8,padding:'4px 12px',borderBottom:`1px solid rgba(255,255,255,0.05)`,flexShrink:0}}>
+                                    {['','Vaqt','Xodim / Ob\'yekt','Holat'].map((h,i)=>(
+                                        <span key={i} style={{fontSize:9,color:T.dim,textTransform:'uppercase',letterSpacing:.7}}>{h}</span>
+                                    ))}
+                                </div>
+                                <div style={{flex:1,overflowY:'auto'}}>
+                                    {loading&&EVENTS.length===0?(
+                                        <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
+                                            <span style={{fontSize:10,color:T.muted}}>Yuklanmoqda…</span>
+                                        </div>
+                                    ):EVENTS.length===0?(
+                                        <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
+                                            <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
+                                        </div>
+                                    ):EVENTS?.slice(0, 6)?.map((ev,i)=>(
+                                        <EventRow key={i} type={ev.type} time={ev.time} person={ev.person} location={ev.location}/>
+                                    ))}
+                                </div>
+                            </Panel>
+
+                            {/* O'ng: Donut + Qurilmalar */}
+                            <div style={{display:'flex',flexDirection:'column',gap:6,minHeight:0,overflow:'auto'}}>
+
+                                {/* Donut — chap: pie chart, o'ng: labellar column */}
+                                <Panel style={{flex:1,minHeight:140,display:'flex',flexDirection:'column'}}>
+                                    <PanelHead
+                                        title="Kirish nuqtalari holati"
+                                        right={<span style={{fontSize:10,color:T.muted}}>Jami: <span style={{color:'#fff',fontWeight:600}}><Counter to={data.total_users}/></span></span>}
+                                    />
+
+                                    {/* Body: chap — donut, o'ng — labellar */}
+                                    <div style={{flex:1,display:'flex',flexDirection:'row',minHeight:0,padding:'6px 8px 8px',gap:8}}>
+
+                                        {/* CHAP: Donut canvas — square */}
+                                        <div style={{position:'relative',flexShrink:0,width:'55%',minHeight:0}}>
+                                            <Doughnut data={donutData} options={{
+                                                responsive:true, maintainAspectRatio:false, cutout:'62%',
+                                                animation:{duration:800},
+                                                plugins:{
+                                                    legend:{ display:false },
+                                                    tooltip:{
+                                                        enabled:true,
+                                                        backgroundColor:'rgba(13,17,23,0.96)',
+                                                        borderColor:T.b0,borderWidth:1,
+                                                        titleColor:T.text,bodyColor:T.muted,padding:9,
+                                                        callbacks:{label:(c:any)=>` ${c.label}: ${(c.parsed as number).toLocaleString('ru-RU')} nafar`},
+                                                    },
+                                                },
+                                            } as any}/>
+                                            {/* Jami son — donut o'rtasida */}
+                                            <div style={{
+                                                position:'absolute',top:'50%',left:'50%',
+                                                transform:'translate(-50%,-50%)',
+                                                textAlign:'center',pointerEvents:'none',
+                                            }}>
+                                                <div style={{fontSize:8,color:'#64748b',letterSpacing:.5,marginBottom:2}}>JAMI</div>
+                                                <div style={{fontSize:16,fontWeight:700,color:'#ffffff',lineHeight:1}}>
+                                                    <Counter to={data.total_users}/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* O'NG: labellar — column */}
+                                        <div style={{
+                                            flex:1,display:'flex',flexDirection:'column',
+                                            justifyContent:'center',gap:7,minWidth:0,
+                                        }}>
+                                            {donutData.labels.map((lbl,i)=>{
+                                                const cnt  = donutData.datasets[0].data[i];
+                                                const bg   = (donutData.datasets[0].backgroundColor as string[])[i];
+                                                const tot  = (donutData.datasets[0].data as number[]).reduce((a,b)=>a+b,0)||1;
+                                                const pct  = Math.round(cnt/tot*100);
+                                                return (
+                                                    <div key={lbl as string} style={{display:'flex',alignItems:'center',gap:7,minWidth:0}}>
+                                                        {/* rang belgisi */}
+                                                        <div style={{width:8,height:8,borderRadius:2,background:bg,flexShrink:0}}/>
+                                                        {/* label + son */}
+                                                        <div style={{flex:1,minWidth:0}}>
+                                                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:4}}>
+                                                        <span style={{fontSize:9,color:'#e2e8f0',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                                                            {lbl as string}
+                                                        </span>
+                                                                <span style={{fontSize:9,color:'#94a3b8',flexShrink:0,fontVariantNumeric:'tabular-nums'}}>
+                                                            {cnt.toLocaleString('ru-RU')}
+                                                        </span>
+                                                            </div>
+                                                            {/* mini progress bar */}
+                                                            <div style={{height:2,borderRadius:2,background:'rgba(255,255,255,0.07)',marginTop:2}}>
+                                                                <div style={{height:'100%',width:`${pct}%`,borderRadius:2,background:bg,transition:'width 1s ease'}}/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </Panel>
+
+                                {/* Qurilma turlari */}
+                                <Panel style={{flexShrink:0}}>
+                                    <PanelHead title="Qurilma turlari"/>
+                                    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,padding:'8px 10px'}}>
+                                        {devItems.map(({label,count,color,icon})=>(
+                                            <div key={label} style={{
+                                                display:'flex',flexDirection:'column',alignItems:'center',gap:5,
+                                                padding:'8px 4px',background:'rgba(255,255,255,0.03)',
+                                                border:`1px solid ${color}20`,borderRadius:9,
+                                            }}>
+                                                <div style={{color,opacity:.8}}>{icon}</div>
+                                                <div style={{fontSize:16,fontWeight:700,color,lineHeight:1}}>
+                                                    <Counter to={count}/>
+                                                </div>
+                                                <div style={{fontSize:9,color:T.muted,textAlign:'center'}}>{label}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Panel>
+                            </div>
+                        </div>
+
+                        {/* Pastki: 2 grafik */}
+                        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,minHeight:120,maxHeight:160,overflow:'hidden'}}>
+
+                            {/* Chiziqli grafik */}
+                            <Panel>
+                                <PanelHead title="Kirish faolligi (bugun)"
+                                           right={<span style={{fontSize:9,color:T.muted}}>soat bo'yicha</span>}
+                                />
+                                <div style={{flex:1,padding:'4px 10px 8px',minHeight:0}}>
+                                    <Line data={lineData} options={{
+                                        responsive:true,maintainAspectRatio:false,animation:{duration:700},
+                                        plugins:{legend:{display:false},tooltip:{
                                                 enabled:true,
                                                 backgroundColor:'rgba(13,17,23,0.96)',
                                                 borderColor:T.b0,borderWidth:1,
                                                 titleColor:T.text,bodyColor:T.muted,padding:9,
-                                                callbacks:{label:(c:any)=>` ${c.label}: ${(c.parsed as number).toLocaleString('ru-RU')} nafar`},
-                                            },
+                                                callbacks:{label:(c:any)=>` Kirish: ${c.parsed.y} ta`},
+                                            }},
+                                        scales:{
+                                            x:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"}},border:{color:T.b0}},
+                                            y:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"},stepSize:1},border:{color:T.b0},min:0},
                                         },
                                     } as any}/>
-                                    {/* Jami son — donut o'rtasida */}
-                                    <div style={{
-                                        position:'absolute',top:'50%',left:'50%',
-                                        transform:'translate(-50%,-50%)',
-                                        textAlign:'center',pointerEvents:'none',
-                                    }}>
-                                        <div style={{fontSize:8,color:'#64748b',letterSpacing:.5,marginBottom:2}}>JAMI</div>
-                                        <div style={{fontSize:16,fontWeight:700,color:'#ffffff',lineHeight:1}}>
-                                            <Counter to={data.total_users}/>
-                                        </div>
-                                    </div>
                                 </div>
+                            </Panel>
 
-                                {/* O'NG: labellar — column */}
-                                <div style={{
-                                    flex:1,display:'flex',flexDirection:'column',
-                                    justifyContent:'center',gap:7,minWidth:0,
-                                }}>
-                                    {donutData.labels.map((lbl,i)=>{
-                                        const cnt  = donutData.datasets[0].data[i];
-                                        const bg   = (donutData.datasets[0].backgroundColor as string[])[i];
-                                        const tot  = (donutData.datasets[0].data as number[]).reduce((a,b)=>a+b,0)||1;
-                                        const pct  = Math.round(cnt/tot*100);
+                            {/* Zonalar */}
+                            <Panel>
+                                <PanelHead title="Zonalar bo'yicha taqsimot"
+                                           right={<span style={{fontSize:9,color:T.muted}}>bo'limlar</span>}
+                                />
+                                <div style={{flex:1,overflowY:'auto',padding:'7px 14px 10px',display:'flex',flexDirection:'column',gap:6}}>
+                                    {zones.length===0?(
+                                        <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
+                                            <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
+                                        </div>
+                                    ):zones.map(([dept,cnt],i)=>{
+                                        const col=ZONE_COLS[i%ZONE_COLS.length];
+                                        const pct=Math.round(cnt/(data.employees.length||1)*100);
                                         return (
-                                            <div key={lbl as string} style={{display:'flex',alignItems:'center',gap:7,minWidth:0}}>
-                                                {/* rang belgisi */}
-                                                <div style={{width:8,height:8,borderRadius:2,background:bg,flexShrink:0}}/>
-                                                {/* label + son */}
-                                                <div style={{flex:1,minWidth:0}}>
-                                                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:4}}>
-                                                        <span style={{fontSize:9,color:'#e2e8f0',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                                                            {lbl as string}
-                                                        </span>
-                                                        <span style={{fontSize:9,color:'#94a3b8',flexShrink:0,fontVariantNumeric:'tabular-nums'}}>
-                                                            {cnt.toLocaleString('ru-RU')}
-                                                        </span>
-                                                    </div>
-                                                    {/* mini progress bar */}
-                                                    <div style={{height:2,borderRadius:2,background:'rgba(255,255,255,0.07)',marginTop:2}}>
-                                                        <div style={{height:'100%',width:`${pct}%`,borderRadius:2,background:bg,transition:'width 1s ease'}}/>
-                                                    </div>
+                                            <div key={dept}>
+                                                <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                                                    <span style={{fontSize:10,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{dept}</span>
+                                                    <span style={{fontSize:10,color:col,fontWeight:600,flexShrink:0}}>{cnt.toLocaleString('ru-RU')} <span style={{color:T.muted,fontWeight:400}}>({pct}%)</span></span>
+                                                </div>
+                                                <div style={{height:4,borderRadius:3,background:'rgba(255,255,255,0.07)'}}>
+                                                    <div style={{height:'100%',width:`${(cnt/zoneMax)*100}%`,background:`linear-gradient(90deg,${col}77,${col})`,borderRadius:3,transition:'width 1s ease'}}/>
                                                 </div>
                                             </div>
                                         );
                                     })}
                                 </div>
-                            </div>
-                        </Panel>
-
-                        {/* Qurilma turlari */}
-                        <Panel style={{flexShrink:0}}>
-                            <PanelHead title="Qurilma turlari"/>
-                            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,padding:'8px 10px'}}>
-                                {devItems.map(({label,count,color,icon})=>(
-                                    <div key={label} style={{
-                                        display:'flex',flexDirection:'column',alignItems:'center',gap:5,
-                                        padding:'8px 4px',background:'rgba(255,255,255,0.03)',
-                                        border:`1px solid ${color}20`,borderRadius:9,
-                                    }}>
-                                        <div style={{color,opacity:.8}}>{icon}</div>
-                                        <div style={{fontSize:16,fontWeight:700,color,lineHeight:1}}>
-                                            <Counter to={count}/>
-                                        </div>
-                                        <div style={{fontSize:9,color:T.muted,textAlign:'center'}}>{label}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </Panel>
+                            </Panel>
+                        </div>
                     </div>
                 </div>
-
-                {/* Pastki: 2 grafik */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,minHeight:120,maxHeight:160,overflow:'hidden'}}>
-
-                    {/* Chiziqli grafik */}
-                    <Panel>
-                        <PanelHead title="Kirish faolligi (bugun)"
-                            right={<span style={{fontSize:9,color:T.muted}}>soat bo'yicha</span>}
-                        />
-                        <div style={{flex:1,padding:'4px 10px 8px',minHeight:0}}>
-                            <Line data={lineData} options={{
-                                responsive:true,maintainAspectRatio:false,animation:{duration:700},
-                                plugins:{legend:{display:false},tooltip:{
-                                    enabled:true,
-                                    backgroundColor:'rgba(13,17,23,0.96)',
-                                    borderColor:T.b0,borderWidth:1,
-                                    titleColor:T.text,bodyColor:T.muted,padding:9,
-                                    callbacks:{label:(c:any)=>` Kirish: ${c.parsed.y} ta`},
-                                }},
-                                scales:{
-                                    x:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"}},border:{color:T.b0}},
-                                    y:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"},stepSize:1},border:{color:T.b0},min:0},
-                                },
-                            } as any}/>
-                        </div>
-                    </Panel>
-
-                    {/* Zonalar */}
-                    <Panel>
-                        <PanelHead title="Zonalar bo'yicha taqsimot"
-                            right={<span style={{fontSize:9,color:T.muted}}>bo'limlar</span>}
-                        />
-                        <div style={{flex:1,overflowY:'auto',padding:'7px 14px 10px',display:'flex',flexDirection:'column',gap:6}}>
-                            {zones.length===0?(
-                                <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                    <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
-                                </div>
-                            ):zones.map(([dept,cnt],i)=>{
-                                const col=ZONE_COLS[i%ZONE_COLS.length];
-                                const pct=Math.round(cnt/(data.employees.length||1)*100);
-                                return (
-                                    <div key={dept}>
-                                        <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
-                                            <span style={{fontSize:10,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{dept}</span>
-                                            <span style={{fontSize:10,color:col,fontWeight:600,flexShrink:0}}>{cnt.toLocaleString('ru-RU')} <span style={{color:T.muted,fontWeight:400}}>({pct}%)</span></span>
-                                        </div>
-                                        <div style={{height:4,borderRadius:3,background:'rgba(255,255,255,0.07)'}}>
-                                            <div style={{height:'100%',width:`${(cnt/zoneMax)*100}%`,background:`linear-gradient(90deg,${col}77,${col})`,borderRadius:3,transition:'width 1s ease'}}/>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </Panel>
-                </div>
-            </div>
-        </div>
-        </div>
-        </div>
     );
 }
