@@ -74,9 +74,9 @@ const Parts = () => {
 
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
-                            onClick={() => navigate('/main/5')}
+                            onClick={() => navigate('/main/factory-model')}
                     >
-                        5/6
+                        Model
                     </button>
                 </div>
                 <div className="col-md-2">
