@@ -15,7 +15,7 @@ import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "..
 // Zavod modallari uchun 3D model yo'llari — har bir zavod uchun real model ma'lumoti
 // bo'lmagani sababli, modal ochilganda shu ro'yxatdan tasodifiy biri tanlanadi.
 const factoryModels = [
-    '/models/factory.glb',
+    // '/models/factory.glb',
     '/models/factory2.glb',
     '/models/factory3.glb'
 ];

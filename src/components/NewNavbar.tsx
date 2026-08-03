@@ -25,10 +25,10 @@ interface NavItem {
 }
 const leftItems: NavItem[] = [
     { id: 'main', icon: TbHome, label: ['BOSH SAHIFA'], url: "/main/full" },
-    { id: 'production', icon: TbBuildingFactory2, label: ['ISHLAB CHIQARISH'], url: "/main/grr" },
-    { id: 'finance', icon: TbChartBar, label: ['MOLIYA'], url: "/main/finance-new" },
-    { id: 'transport', icon: TbTruck, label: ['TRANSPORT'], url: "/main/grr" },
-    { id: 'asodu', icon: TbSitemap, label: ['ASODU'], url: "/main/9" },
+    { id: 'production', icon: TbBuildingFactory2, label: ['MOLIYA'], url: "/main/finance-new" },
+    { id: 'finance', icon: TbChartBar, label: ['INVESTITSIYALAR'], url: "/main/investing" },
+    { id: 'transport', icon: TbTruck, label: ['TRANSPORT'], url: "/main/logistics" },
+    { id: 'rasxod', icon: TbSitemap, label: ['XARAJAT'], url: "/main/9" },
 ];
 
 const rightItems: NavItem[] = [

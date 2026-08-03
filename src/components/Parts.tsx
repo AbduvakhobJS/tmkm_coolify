@@ -10,6 +10,7 @@ const Parts = () => {
     const navigate = useNavigate();
 
     return (
+
         <div className=" d-flex  align-items-center justify-content-center flex-wrap" style={{height: "100vh", flexDirection: "column"}}>
             <div className="row  d-flex" >
                 <div className="col-md-2">
@@ -168,7 +169,7 @@ const Parts = () => {
                         Contact hub
                     </button>
                 </div>
-                
+
 
             </div>
             <div className="row  d-flex " style={{marginTop: "10px"}} >
