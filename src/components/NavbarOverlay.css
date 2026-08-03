@@ -12,5 +12,8 @@
 }
 
 .navbar-overlay-content {
-    margin-top: 100px;
+    height: 100%;
+    width: 100%;
+    padding-top: 100px;
+    box-sizing: border-box;
 }
