@@ -323,3 +323,1960 @@ src\index.tsx
 
 webpack compiled with [1m[33m2 warnings[39m[22m
 No issues found.
+Compiling...
+Compiled with warnings.
+
+Failed to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: Error: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'
+
+[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 645:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 704:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 947:8:    React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 974:11:   'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1030:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 645:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 704:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 947:8:    React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 974:11:   'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1030:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m2 warnings[39m[22m
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled with warnings.
+
+Failed to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: Error: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'
+
+[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 645:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 652:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 653:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 687:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 704:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 947:8:    React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 974:11:   'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1030:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 645:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 652:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 653:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 687:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 704:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 947:8:    React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 974:11:   'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1030:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m2 warnings[39m[22m
+No issues found.
+Compiling...
+Compiled with warnings.
+
+Failed to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: Error: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'
+
+[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 8:32:     'uzbekistanBorder' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  Line 645:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 652:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 653:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 687:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 704:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 947:8:    React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 974:11:   'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1030:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 8:32:     'uzbekistanBorder' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  Line 645:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 652:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 653:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 687:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 704:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 947:8:    React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 974:11:   'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1030:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m2 warnings[39m[22m
+No issues found.
+Compiling...
+Compiled with warnings.
+
+Failed to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: Error: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'
+
+[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 8:32:     'uzbekistanBorder' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  Line 242:7:    'buildBorderChecker' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 735:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 742:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 743:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 777:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 794:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 1037:8:   React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 1064:11:  'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1120:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 8:32:     'uzbekistanBorder' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  Line 242:7:    'buildBorderChecker' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 735:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 742:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 743:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 777:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 794:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 1037:8:   React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 1064:11:  'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1120:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m2 warnings[39m[22m
+Compiling...
+Compiled with warnings.
+
+Failed to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: Error: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'
+
+[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 735:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 742:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 743:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 777:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 794:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 1032:8:   React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 1059:11:  'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1115:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 735:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 742:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 743:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 777:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 794:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 1032:8:   React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 1059:11:  'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1115:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m2 warnings[39m[22m
+No issues found.
+Compiling...
+Compiled with warnings.
+
+Failed to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: Error: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'
+
+[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 735:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 742:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 743:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 777:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 794:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 1032:8:   React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 1059:11:  'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1115:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'D:\projects\tmkm_coolify\node_modules\@mediapipe\tasks-vision\vision_bundle_mjs.js.map'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m[eslint] 
+src\App.tsx
+  Line 2:8:  'Header' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\FactoryModel.tsx
+  Line 3:10:   'TbBuildingFactory2' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 35:13:  'time' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:19:  'date' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\scene\FactoryScene.tsx
+  Line 21:5:  'FOG_COLOR' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 22:5:  'FOG_FAR' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 23:5:  'FOG_NEAR' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 26:5:  'ORBIT_MAX_POLAR_ANGLE' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 28:5:  'SCENE_BACKGROUND' is defined but never used       @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\EnergyModal.tsx
+  Line 3:10:   'FiZap' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 19:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\ProductionModal.tsx
+  Line 3:10:   'FiActivity' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\SidePanel.tsx
+  Line 6:8:  'CamerasWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\StaffModal.tsx
+  Line 3:10:   'FiUsers' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 14:13:  'time' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\ResourcesWidget.tsx
+  Line 3:51:  'FiGlobe' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\FactoryModel\ui\widgets\WeatherWidget.tsx
+  Line 3:17:  'FiMapPin' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNew.tsx
+  Line 84:7:  'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 90:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\Finance\FinanceNewMain.tsx
+  Line 99:7:   'IconCalendar' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 105:7:  'IconRefresh' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+src\Parts\GRR\GRR.tsx
+  Line 3:40:  'barLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\HrAnalitika\NewHrDetail.tsx
+  Line 158:7:  'IconGear' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Hse\HseSlaBig.tsx
+  Line 122:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\Parts\Logistics\Logistics.tsx
+  Line 735:12:   'isManual' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  Line 742:29:   'setProjectCategory' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+  Line 743:30:   'setObjectTypeFilter' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 777:11:   'objectTypeOptions' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 794:8:    React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array    react-hooks/exhaustive-deps
+  Line 1032:8:   React Hook useEffect has a missing dependency: 'scheduleDeclutter'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 1059:11:  'addMineralMarkers' is assigned a value but never used                                                                @typescript-eslint/no-unused-vars
+  Line 1115:11:  'updateMarkers' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+src\Parts\Map\Map3d.tsx
+  Line 8:10:    'uzbekistanBorder' is defined but never used                                                                                                    @typescript-eslint/no-unused-vars
+  Line 313:12:  'isManual' is assigned a value but never used                                                                                                   @typescript-eslint/no-unused-vars
+  Line 372:8:   React Hook useMemo has an unnecessary dependency: 'openDetailId'. Either exclude it or remove the dependency array                              react-hooks/exhaustive-deps
+  Line 550:8:   React Hook useEffect has missing dependencies: 'addMineralMarkers' and 'scheduleDeclutter'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 964:8:   React Hook useEffect has a missing dependency: 'updateMarkers'. Either include it or remove the dependency array                                react-hooks/exhaustive-deps
+
+src\Parts\PrMedia\PrMediaDetail.tsx
+  Line 265:12:  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\CenterPanel.tsx
+  Line 2:8:   'PipelineSection' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 3:8:   'MapSection' is defined but never used         @typescript-eslint/no-unused-vars
+  Line 4:9:   'MapChartComponent' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 5:8:   'Map3D' is defined but never used              @typescript-eslint/no-unused-vars
+  Line 6:8:   'TopCenter' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 8:8:   'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 9:8:   'Marketing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 10:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 11:8:  'FinanceNew' is defined but never used         @typescript-eslint/no-unused-vars
+
+src\components\EnterExit.tsx
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\EnterExitMain.tsx
+  Line 7:8:     'StreamGrid' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 148:10:  'CameraInfoCards' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 392:11:  'donutTotal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExpensesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\ExtractionDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\MetalsDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\PTZControls.tsx
+  Line 155:12:  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part4.tsx
+  Line 3:8:  'Part3' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\Part5.tsx
+  Line 4:9:    'EnergyChart' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 4:22:   'ProductionLineChart' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:43:   'RealtimeChart' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 4:58:   'RegionalBarChart' is defined but never used     @typescript-eslint/no-unused-vars
+  Line 6:8:    'AlertsSection' is defined but never used        @typescript-eslint/no-unused-vars
+  Line 7:8:    'ProjectsSection' is defined but never used      @typescript-eslint/no-unused-vars
+  Line 57:11:  'metrics' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+src\components\Parts.tsx
+  Line 3:8:  'HrAnalitikaDetail' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 4:8:  'Esg' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 5:8:  'Finance' is defined but never used            @typescript-eslint/no-unused-vars
+  Line 6:8:  'Investing' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 7:8:  'SingleTreasury' is defined but never used     @typescript-eslint/no-unused-vars
+
+src\components\RightPanel.tsx
+  Line 4:10:   'FactoryViewer' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 6:8:    'StreamGrid' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 7:8:    'KpiCard' is defined but never used                       @typescript-eslint/no-unused-vars
+  Line 8:9:    'EnergyChart' is defined but never used                   @typescript-eslint/no-unused-vars
+  Line 8:22:   'RealtimeChart' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 9:8:    'EnterExit' is defined but never used                     @typescript-eslint/no-unused-vars
+  Line 13:8:   'FinanceNewMain' is defined but never used                @typescript-eslint/no-unused-vars
+  Line 39:7:   'GeoModelCard' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  Line 124:9:  'currentFactoryTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src\components\SalesDashboard.tsx
+  Line 6:46:  'DashFooter' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\components\TopCenter.tsx
+  Line 2:8:     'TopCenterNew' is defined but never used           @typescript-eslint/no-unused-vars
+  Line 53:7:    'defaultItems' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 111:11:  'items' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+src\components\VideoStream.tsx
+  Line 107:7:  'Player' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  Line 172:8:  React Hook useEffect has a missing dependency: 'focusedId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src\hooks\useClock.ts
+  Line 2:10:  'DAYS' is defined but never used          @typescript-eslint/no-unused-vars
+  Line 2:16:  'MONTHS_SHORT' is defined but never used  @typescript-eslint/no-unused-vars
+
+src\index.tsx
+  Line 1:16:  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+  Line 10:8:  'Part3' is defined but never used     @typescript-eslint/no-unused-vars
+
+[39m[22m
+
+webpack compiled with [1m[33m2 warnings[39m[22m
+No issues found.

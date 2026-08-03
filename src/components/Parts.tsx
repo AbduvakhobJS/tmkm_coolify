@@ -65,9 +65,9 @@ const Parts = () => {
 
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
-                            onClick={() => navigate('/main/71')}
+                            onClick={() => navigate('/main/logistics')}
                     >
-                        5.2 main /6
+                        Logistics
                     </button>
                 </div>
 

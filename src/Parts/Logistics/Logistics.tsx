@@ -5,7 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment, ContactShadows, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { io, Socket } from 'socket.io-client';
-import { loadUzbekistanBorder } from '../../components/uzbekistanBorder';
+import { loadUzbekistanBorder, uzbekistanBorder } from '../../components/uzbekistanBorder';
 import ProjectDashboard from '../../components/ProjectDashboard';
 import WebRTCPlayer from '../../components/WebRTCPlayer';
 import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "../../hooks/map";
@@ -197,22 +197,158 @@ const applyCyberLogisticsBaseStyle = (mapInstance: maplibregl.Map) => {
     ]);
 };
 
-const createLogisticsRouteData = () => {
+// --- Chegaradan chiqmaslik tekshiruvi -----------------------------------------
+// Marshrut chiziqlari O'zbekiston chegara poligonidan tashqariga chiqmasligi kerak.
+// Ray-casting algoritmi bilan berilgan nuqta poligon (yoki multipoligon) ichida
+// ekanini tekshiramiz.
+type Ring = [number, number][];
+
+const rayCastInRing = (point: [number, number], ring: Ring): boolean => {
+    const [x, y] = point;
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i][0], yi = ring[i][1];
+        const xj = ring[j][0], yj = ring[j][1];
+        const intersect = ((yi > y) !== (yj > y)) &&
+            (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+};
+
+const isPointInPolygonRings = (point: [number, number], rings: Ring[]): boolean => {
+    if (!rings.length) return false;
+    if (!rayCastInRing(point, rings[0])) return false;
+    for (let i = 1; i < rings.length; i++) {
+        if (rayCastInRing(point, rings[i])) return false; // teshik (hole) ichida
+    }
+    return true;
+};
+
+const isPointInsideGeometry = (point: [number, number], geometry: any): boolean => {
+    if (!geometry) return true;
+    if (geometry.type === 'Polygon') {
+        return isPointInPolygonRings(point, geometry.coordinates);
+    }
+    if (geometry.type === 'MultiPolygon') {
+        return geometry.coordinates.some((rings: Ring[]) => isPointInPolygonRings(point, rings));
+    }
+    return true;
+};
+
+// borderData — /data/countries.geojson dan yuklangan O'zbekiston Feature'i (yoki fetch
+// muvaffaqiyatsiz bo'lsa, komponent ichidagi taxminiy statik chegara). Natija — berilgan
+// [lng, lat] nuqta chegara ichidami yo'qmi tekshiradigan funksiya.
+const buildBorderChecker = (borderData: any): ((point: [number, number]) => boolean) => {
+    const geometry = borderData?.features?.[0]?.geometry;
+    if (!geometry) return () => true;
+    return (point: [number, number]) => isPointInsideGeometry(point, geometry);
+};
+
+// --- Yo'l-ko'rinishidagi (road-like) egri segmentlar ----------------------------
+// Har bir "chiziqcha" (2 nuqta orasidagi segment) uchun kvadratik Bezier egri chizig'i
+// yasaladi — to'g'ri chiziq o'rtasiga perpendikulyar tomonga siljigan nazorat nuqtasi bilan.
+// Agar hosil bo'lgan egri chiziq O'zbekiston chegarasidan tashqariga chiqsa, siljish
+// miqdori chegara ichiga tushguncha asta-sekin kamaytiriladi (охир-oqibat to'g'ri chiziqqa qaytadi).
+const buildRoadLikeEdge = (
+    a: [number, number],
+    b: [number, number],
+    isInsideBorder: (point: [number, number]) => boolean,
+    bulgeSign: number,
+    segments = 20
+): [number, number][] => {
+    const dx = b[0] - a[0];
+    const dy = b[1] - a[1];
+    const length = Math.hypot(dx, dy);
+    if (length === 0) return [a, b];
+
+    const nx = -dy / length;
+    const ny = dx / length;
+
+    const sampleCurve = (amp: number): [number, number][] => {
+        const control: [number, number] = [
+            (a[0] + b[0]) / 2 + nx * amp * bulgeSign,
+            (a[1] + b[1]) / 2 + ny * amp * bulgeSign,
+        ];
+        const pts: [number, number][] = [];
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const it = 1 - t;
+            pts.push([
+                it * it * a[0] + 2 * it * t * control[0] + t * t * b[0],
+                it * it * a[1] + 2 * it * t * control[1] + t * t * b[1],
+            ]);
+        }
+        return pts;
+    };
+
+    let amplitude = length * 0.16;
+    let curve = sampleCurve(amplitude);
+    let attempts = 0;
+    while (attempts < 6 && !curve.every(isInsideBorder)) {
+        amplitude *= 0.5;
+        curve = sampleCurve(amplitude);
+        attempts++;
+    }
+    if (!curve.every(isInsideBorder)) {
+        curve = [a, b];
+    }
+
+    return curve;
+};
+
+// Har bir marshrutdagi 2 nuqta oralig'i (segment) alohida "chiziqcha" sifatida
+// chiziladi va navbatma-navbat har xil neon rangga bo'yaladi.
+const NEON_ROUTE_PALETTE = [
+    '#39ff14', // neon yashil
+    '#00f5ff', // neon firuza
+    '#2979ff', // neon ko'k
+    '#7dfcff', // neon havorang
+    '#00ffa3', // neon zumrad-yashil
+    '#aefc03', // neon laym
+    '#18e0c9', // neon aqua
+];
+
+const createLogisticsRouteData = (isInsideBorder: (point: [number, number]) => boolean) => {
     const pointByName = new Map(LOGISTICS_ROUTE_POINTS.map((point) => [point.name, point]));
+
+    const edgeFeatures: any[] = [];
+    let edgeIndex = 0;
+
+    LOGISTICS_ROUTES.forEach((route) => {
+        for (let i = 0; i < route.length - 1; i++) {
+            const a = pointByName.get(route[i]);
+            const b = pointByName.get(route[i + 1]);
+            if (!a || !b) continue;
+
+            const bulgeSign = edgeIndex % 2 === 0 ? 1 : -1;
+            const coordinates = buildRoadLikeEdge(
+                a.coords as [number, number],
+                b.coords as [number, number],
+                isInsideBorder,
+                bulgeSign
+            );
+
+            edgeFeatures.push({
+                type: 'Feature',
+                properties: {
+                    id: edgeIndex + 1,
+                    color: NEON_ROUTE_PALETTE[edgeIndex % NEON_ROUTE_PALETTE.length],
+                },
+                geometry: {
+                    type: 'LineString',
+                    coordinates,
+                },
+            });
+
+            edgeIndex++;
+        }
+    });
 
     return {
         routes: {
             type: 'FeatureCollection',
-            features: LOGISTICS_ROUTES.map((route, index) => ({
-                type: 'Feature',
-                properties: { id: index + 1 },
-                geometry: {
-                    type: 'LineString',
-                    coordinates: route
-                        .map((name) => pointByName.get(name)?.coords)
-                        .filter(Boolean),
-                },
-            })),
+            features: edgeFeatures,
         },
         points: {
             type: 'FeatureCollection',
@@ -231,8 +367,30 @@ const createLogisticsRouteData = () => {
     };
 };
 
-const addLogisticsRouteLayers = (mapInstance: maplibregl.Map) => {
-    const { routes, points } = createLogisticsRouteData();
+// Mapbox/MapLibre'da "line-dasharray"ni har freymda almashtirish orqali hosil
+// qilinadigan standart "yurayotgan chiziqchalar" (marching dashes) animatsiyasi.
+const LOGISTICS_DASH_SEQUENCE: number[][] = [
+    [0, 4, 3],
+    [0.5, 4, 2.5],
+    [1, 4, 2],
+    [1.5, 4, 1.5],
+    [2, 4, 1],
+    [2.5, 4, 0.5],
+    [3, 4, 0],
+    [0, 0.5, 3, 3.5],
+    [0, 1, 3, 3],
+    [0, 1.5, 3, 2.5],
+    [0, 2, 3, 2],
+    [0, 2.5, 3, 1.5],
+    [0, 3, 3, 1],
+    [0, 3.5, 3, 0.5],
+];
+
+const addLogisticsRouteLayers = (
+    mapInstance: maplibregl.Map,
+    isInsideBorder: (point: [number, number]) => boolean
+) => {
+    const { routes, points } = createLogisticsRouteData(isInsideBorder);
 
     mapInstance.addSource('logistics-routes', {
         type: 'geojson',
@@ -250,10 +408,10 @@ const addLogisticsRouteLayers = (mapInstance: maplibregl.Map) => {
         type: 'line',
         source: 'logistics-routes',
         paint: {
-            'line-color': '#ff9f1c',
-            'line-width': 10,
-            'line-blur': 10,
-            'line-opacity': 0.36,
+            'line-color': ['get', 'color'],
+            'line-width': 8,
+            'line-blur': 8,
+            'line-opacity': 0.32,
         },
     });
 
@@ -262,10 +420,10 @@ const addLogisticsRouteLayers = (mapInstance: maplibregl.Map) => {
         type: 'line',
         source: 'logistics-routes',
         paint: {
-            'line-color': '#ffd166',
-            'line-width': 4,
-            'line-blur': 3,
-            'line-opacity': 0.72,
+            'line-color': ['get', 'color'],
+            'line-width': 3,
+            'line-blur': 2.5,
+            'line-opacity': 0.6,
         },
     });
 
@@ -274,31 +432,10 @@ const addLogisticsRouteLayers = (mapInstance: maplibregl.Map) => {
         type: 'line',
         source: 'logistics-routes',
         paint: {
-            'line-color': '#ffb02e',
-            'line-width': 1.5,
+            'line-color': ['get', 'color'],
+            'line-width': 2,
             'line-opacity': 0.95,
-            'line-dasharray': [0.6, 1.2],
-        },
-    });
-
-    mapInstance.addLayer({
-        id: 'logistics-route-runner',
-        type: 'line',
-        source: 'logistics-routes',
-        paint: {
-            'line-width': 5,
-            'line-blur': 1.5,
-            'line-opacity': 1,
-            'line-gradient': [
-                'interpolate',
-                ['linear'],
-                ['line-progress'],
-                0, 'rgba(255, 170, 35, 0)',
-                0.44, 'rgba(255, 170, 35, 0)',
-                0.5, 'rgba(255, 255, 210, 1)',
-                0.56, 'rgba(255, 170, 35, 0)',
-                1, 'rgba(255, 170, 35, 0)',
-            ],
+            'line-dasharray': LOGISTICS_DASH_SEQUENCE[0],
         },
     });
 
@@ -861,33 +998,28 @@ const Logistics = () => {
                 animateNeon();
             }
 
-            addLogisticsRouteLayers(map.current);
+            // Marshrut chiziqlari O'zbekiston chegarasidan chiqmasligi uchun,
+            // real chegara poligoni (yoki fetch muvaffaqiyatsiz bo'lsa taxminiy statik chegara) asosida tekshiruvchi tuziladi.
+            const isInsideBorder = buildBorderChecker(uzbekistanData ?? uzbekistanBorder);
+            addLogisticsRouteLayers(map.current, isInsideBorder);
 
-            let routeStep = 0;
-            const animateLogisticsRoutes = () => {
-                routeStep += 0.006;
-                const phase = 0.1 + (routeStep % 1) * 0.8;
-                const tail = phase - 0.08;
-                const head = phase + 0.08;
-                const pulse = 13 + Math.abs(Math.sin(routeStep * 8)) * 4;
+            // "Chiziqcha-chiziqcha" (marching dashes) harakat animatsiyasi + tugun halosining pulsi
+            let dashStep = 0;
+            const animateLogisticsRoutes = (timestamp: number) => {
+                if (!map.current || !map.current.getLayer('logistics-route-core')) return;
 
-                if (map.current && map.current.getLayer('logistics-route-runner')) {
-                    map.current.setPaintProperty('logistics-route-runner', 'line-gradient', [
-                        'interpolate',
-                        ['linear'],
-                        ['line-progress'],
-                        0, 'rgba(255, 170, 35, 0)',
-                        tail, 'rgba(255, 170, 35, 0)',
-                        phase, 'rgba(255, 255, 214, 1)',
-                        head, 'rgba(255, 170, 35, 0)',
-                        1, 'rgba(255, 170, 35, 0)',
-                    ]);
-                    map.current.setPaintProperty('logistics-node-halo', 'circle-radius', pulse);
-
-                    logisticsAnimationFrameRef.current = requestAnimationFrame(animateLogisticsRoutes);
+                const newStep = Math.floor((timestamp / 60) % LOGISTICS_DASH_SEQUENCE.length);
+                if (newStep !== dashStep) {
+                    map.current.setPaintProperty('logistics-route-core', 'line-dasharray', LOGISTICS_DASH_SEQUENCE[newStep]);
+                    dashStep = newStep;
                 }
+
+                const pulse = 13 + Math.abs(Math.sin(timestamp / 250)) * 4;
+                map.current.setPaintProperty('logistics-node-halo', 'circle-radius', pulse);
+
+                logisticsAnimationFrameRef.current = requestAnimationFrame(animateLogisticsRoutes);
             };
-            animateLogisticsRoutes();
+            logisticsAnimationFrameRef.current = requestAnimationFrame(animateLogisticsRoutes);
         });
 
         return () => {
@@ -1381,55 +1513,55 @@ const Logistics = () => {
                 </div>
 
                 {/* Loyiha kategoriyasi */}
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    {[
-                        { value: '', label: 'Barchasi', color: 'var(--gc-title)' },
-                        { value: 'factory', label: 'Metall', color: '#ff1493' },
-                        { value: 'mine', label: 'Kon', color: '#32cd32' },
-                        { value: 'mine-cart', label: 'Market', color: '#ffa500' },
-                    ].map(opt => (
-                        <button
-                            key={opt.value}
-                            onClick={() => setProjectCategory(opt.value)}
-                            style={{
-                                fontSize: '11px',
-                                fontWeight: 'bold',
-                                padding: '5px 10px',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                color: projectCategory === opt.value ? '#020B18' : opt.color,
-                                background: projectCategory === opt.value ? opt.color : 'transparent',
-                                border: `1px solid ${opt.color}`,
-                                transition: 'all 0.2s',
-                            }}
-                        >
-                            {opt.label}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Obyekt turi */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>Obyekt turi:</span>
-                    <select
-                        value={objectTypeFilter}
-                        onChange={(e) => setObjectTypeFilter(e.target.value)}
-                        style={{
-                            fontSize: '11px',
-                            background: 'rgba(2, 11, 24, 0.8)',
-                            color: 'white',
-                            border: '1px solid rgba(0,245,255,0.4)',
-                            borderRadius: '4px',
-                            padding: '5px 8px',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <option value="">Barchasi</option>
-                        {objectTypeOptions.map((opt: any, i: number) => (
-                            <option key={`${opt.value}-${i}`} value={opt.value}>{opt.label}</option>
-                        ))}
-                    </select>
-                </div>
+                {/*<div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>*/}
+                {/*    {[*/}
+                {/*        { value: '', label: 'Barchasi', color: 'var(--gc-title)' },*/}
+                {/*        { value: 'factory', label: 'Metall', color: '#ff1493' },*/}
+                {/*        { value: 'mine', label: 'Kon', color: '#32cd32' },*/}
+                {/*        { value: 'mine-cart', label: 'Market', color: '#ffa500' },*/}
+                {/*    ].map(opt => (*/}
+                {/*        <button*/}
+                {/*            key={opt.value}*/}
+                {/*            onClick={() => setProjectCategory(opt.value)}*/}
+                {/*            style={{*/}
+                {/*                fontSize: '11px',*/}
+                {/*                fontWeight: 'bold',*/}
+                {/*                padding: '5px 10px',*/}
+                {/*                borderRadius: '4px',*/}
+                {/*                cursor: 'pointer',*/}
+                {/*                color: projectCategory === opt.value ? '#020B18' : opt.color,*/}
+                {/*                background: projectCategory === opt.value ? opt.color : 'transparent',*/}
+                {/*                border: `1px solid ${opt.color}`,*/}
+                {/*                transition: 'all 0.2s',*/}
+                {/*            }}*/}
+                {/*        >*/}
+                {/*            {opt.label}*/}
+                {/*        </button>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
+                
+                {/*/!* Obyekt turi *!/*/}
+                {/*<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>*/}
+                {/*    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>Obyekt turi:</span>*/}
+                {/*    <select*/}
+                {/*        value={objectTypeFilter}*/}
+                {/*        onChange={(e) => setObjectTypeFilter(e.target.value)}*/}
+                {/*        style={{*/}
+                {/*            fontSize: '11px',*/}
+                {/*            background: 'rgba(2, 11, 24, 0.8)',*/}
+                {/*            color: 'white',*/}
+                {/*            border: '1px solid rgba(0,245,255,0.4)',*/}
+                {/*            borderRadius: '4px',*/}
+                {/*            padding: '5px 8px',*/}
+                {/*            cursor: 'pointer',*/}
+                {/*        }}*/}
+                {/*    >*/}
+                {/*        <option value="">Barchasi</option>*/}
+                {/*        {objectTypeOptions.map((opt: any, i: number) => (*/}
+                {/*            <option key={`${opt.value}-${i}`} value={opt.value}>{opt.label}</option>*/}
+                {/*        ))}*/}
+                {/*    </select>*/}
+                {/*</div>*/}
 
                 {/* Transport holati */}
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
