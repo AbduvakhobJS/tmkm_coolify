@@ -290,7 +290,9 @@ export const DonutChart: React.FC<{ data: number[]; labels: string[]; colors: st
 export const GaugeChart: React.FC<{ value: number; color: string; label: string; height?: number }> =
     ({ value, color, label, height = 90 }) => (
         <div style={{ ...wrap(height), display: 'flex', justifyContent: 'center' }}>
-            <Doughnut data={{ datasets: [{ data: [value, 100 - value], backgroundColor: [color, 'rgba(255,255,255,0.07)'], borderWidth: 0, circumference: 180, rotation: 270 }] }}
+            <Doughnut data={{ datasets: [{ data: [value, 100 - value], backgroundColor: [
+                color, 'rgba(255,255,255,0.07)'],
+                    borderWidth: 0, circumference: 180, rotation: 270 }] }}
                 options={{ responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } as any} />
             <div style={{ position: 'absolute', bottom: '6px', width: '100%', textAlign: 'center', pointerEvents: 'none' }}>
                 <div style={{ fontSize: '22px', fontWeight: 700, color }}>{value}%</div>

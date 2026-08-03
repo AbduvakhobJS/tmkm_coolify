@@ -219,9 +219,13 @@ const GRR: React.FC = () => {
     };
 
     return (
-        <div style={{ background: C.bg,
+        <div style={{
+            // background: C.bg,
             width: '100%', height: '100%', minHeight: 0,
-            overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            overflowY: 'auto', padding: 14, boxSizing: 'border-box',
+            fontFamily: '"Segoe UI", system-ui, sans-serif',
+            display: 'flex',
+            flexDirection: 'column', gap: 10 }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>

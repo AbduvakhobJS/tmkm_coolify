@@ -32,7 +32,7 @@ const RowSamaradorlik: React.FC = () => {
             <Card title="Zavod samaradorlik indeksi, %" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, eff.index.badge)}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <div style={{ flex: '0 0 110px', position: 'relative' }}>
-                        <GaugeChart value={eff.index.value} color={C.eff} label="Joriy indeks" height={140} />
+                        <GaugeChart value={eff.index.value} color={C.eff} label="Joriy indeks" height={138} />
                     </div>
                     <div style={{ flex: 1 }}>
                         {MONTHS_SHORT.map((m, i) => {
@@ -98,7 +98,7 @@ const RowFoyda: React.FC = () => {
             <div style={{ display: 'flex', width: '100%', gap: '8px' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                     <Card title="Tannarx tarkibi" accent={C.cost} icon={<IconChip />} extra={badge(C.cost, p.costDistribution.badge)} style={{ height: '100%' }}>
-                        <DonutChart data={p.costDistribution.data} labels={p.costDistribution.labels} colors={[C.electric, C.gas, C.water, C.chemical]} height={110} flex />
+                        <DonutChart data={p.costDistribution.data} labels={p.costDistribution.labels} colors={[C.electric, C.gas, C.water, C.chemical]} height={150} flex />
                     </Card>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -178,12 +178,12 @@ const MonthlySummary: React.FC = () => {
 ══════════════════════════════════════════ */
 const ResourceDashboardPart2: React.FC = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%', overflowY: 'auto', overflowX: 'hidden', paddingRight: 2 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: -4 }}>
-            <NeonIcon color={C.cost} size={30}><IconDollar /></NeonIcon>
-            <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '2px', color: '#4fb3d9', textTransform: 'uppercase' }}>
-                Samaradorlik va foyda KPI
-            </div>
-        </div>
+        {/*<div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: -4 }}>*/}
+        {/*    <NeonIcon color={C.cost} size={30}><IconDollar /></NeonIcon>*/}
+        {/*    <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '2px', color: '#4fb3d9', textTransform: 'uppercase' }}>*/}
+        {/*        Samaradorlik va foyda KPI*/}
+        {/*    </div>*/}
+        {/*</div>*/}
         <div style={twoCol}>
             <RowSamaradorlik />
             <RowFoyda />

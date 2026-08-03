@@ -455,7 +455,14 @@ const FinanceNew: React.FC = () => {
     ), []);
 
     return (
-        <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{
+            // background: C.bg,
+            height: '100vh',
+            overflowY: 'auto',
+            padding: 14,
+            boxSizing: 'border-box',
+            fontFamily: '"Segoe UI", system-ui, sans-serif',
+            display: 'flex', flexDirection: 'column', gap: 10 }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
@@ -466,18 +473,18 @@ const FinanceNew: React.FC = () => {
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{DATA.meta.subtitle}</div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.text, fontSize: 11.5 }}>
-                        <IconCalendar />Davr: {DATA.meta.period}
-                    </div>
-                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Solishtirish: {DATA.meta.comparePeriod}</div>
-                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Valyuta: {DATA.meta.currency}</div>
-                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Kurs: {DATA.meta.exchangeRate} so'm</div>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ color: C.sub, fontSize: 10 }}>Yangilangan:</div>
-                        <div style={{ color: C.text, fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{DATA.meta.generatedAt} <span style={{ color: '#4fb3d9' }}><IconRefresh /></span></div>
-                    </div>
-                </div>
+                {/*<div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>*/}
+                {/*    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.text, fontSize: 11.5 }}>*/}
+                {/*        <IconCalendar />Davr: {DATA.meta.period}*/}
+                {/*    </div>*/}
+                {/*    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Solishtirish: {DATA.meta.comparePeriod}</div>*/}
+                {/*    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Valyuta: {DATA.meta.currency}</div>*/}
+                {/*    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Kurs: {DATA.meta.exchangeRate} so'm</div>*/}
+                {/*    <div style={{ textAlign: 'right' }}>*/}
+                {/*        <div style={{ color: C.sub, fontSize: 10 }}>Yangilangan:</div>*/}
+                {/*        <div style={{ color: C.text, fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{DATA.meta.generatedAt} <span style={{ color: '#4fb3d9' }}><IconRefresh /></span></div>*/}
+                {/*    </div>*/}
+                {/*</div>*/}
             </div>
 
             {/* Vitals */}
@@ -493,12 +500,12 @@ const FinanceNew: React.FC = () => {
             </div>
 
             {/* Legenda */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', fontSize: 11, color: C.sub, padding: '9px 14px', background: C.card, border: `1px solid ${C.border}`, borderRadius: 8 }}>
-                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#22c55e', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />yaxshi natija</span>
-                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#ef4444', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />yomon natija</span>
-                <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#94a3b8', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />neytral</span>
-                <span style={{ marginLeft: 'auto', color: C.sub }}>▲ ▼ = o'zgarish yo'nalishi · rang = biznesga ta'siri</span>
-            </div>
+            {/*<div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', fontSize: 11, color: C.sub, padding: '9px 14px', background: C.card, border: `1px solid ${C.border}`, borderRadius: 8 }}>*/}
+            {/*    <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#22c55e', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />yaxshi natija</span>*/}
+            {/*    <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#ef4444', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />yomon natija</span>*/}
+            {/*    <span><span style={{ width: 9, height: 9, borderRadius: 3, background: '#94a3b8', display: 'inline-block', marginRight: 6, verticalAlign: -1 }} />neytral</span>*/}
+            {/*    <span style={{ marginLeft: 'auto', color: C.sub }}>▲ ▼ = o'zgarish yo'nalishi · rang = biznesga ta'siri</span>*/}
+            {/*</div>*/}
 
             {/* 01. Rentabellik */}
             <SectionTitle index={1} title="Rentabellik" icon={<IconChartBars />} color="#eab308" hint="" />
