@@ -2078,6 +2078,7 @@ const Logistics = () => {
                                             3D Model
                                         </div>
                                         <Canvas shadows camera={{ position: [0, 2, 5], fov: 40 }}>
+
                                             <ambientLight intensity={0.8} />
                                             <pointLight position={[10, 10, 10]} intensity={1.5} />
                                             <Suspense fallback={<Html center><div style={{ color: 'var(--gc-title)', fontSize: '11px' }}>Model yuklanmoqda...</div></Html>}>
@@ -2087,7 +2088,7 @@ const Logistics = () => {
                                                     zoom={0.06}
                                                 />
                                                 <Environment preset="city" />
-                                                <ContactShadows position={[0, -1.5, 0]} opacity={0.6} scale={15} blur={3} />
+                                                <ContactShadows frames={1} position={[0, -1.5, 0]} opacity={0.6} scale={15} blur={3} />
                                             </Suspense>
                                             <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={25} />
                                         </Canvas>

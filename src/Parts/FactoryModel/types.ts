@@ -53,3 +53,21 @@ export interface WidgetGroup {
     icon: IconType;
     metrics: WidgetMetric[];
 }
+
+/** A CCTV point that plays a local demo clip in a popup above its marker. */
+export interface VideoMarker {
+    id: string;
+    position: Vec3;
+    /** Path to the video file (public/videos/*.mp4). */
+    url: string;
+    label: string;
+}
+
+/** A hazard/notice point that opens a small animated notice panel. */
+export interface WarningMarker {
+    id: string;
+    position: Vec3;
+    text: string;
+    /** Optional illustration; when absent the panel falls back to text-only. */
+    image?: string;
+}

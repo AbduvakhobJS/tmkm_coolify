@@ -10,7 +10,7 @@ import {
     FiZap,
 } from "react-icons/fi";
 import { TbBuildingFactory2, TbGauge } from "react-icons/tb";
-import type { BuildingMarker, WidgetGroup } from "./types";
+import type { BuildingMarker, Vec3, VideoMarker, WarningMarker, WidgetGroup } from "./types";
 
 /* ─── Backend / stream config ──────────────────────────────────────────────── */
 
@@ -45,11 +45,18 @@ export const CAMERA_INITIAL_POSITION: [number, number, number] = [18, 12, 22];
 export const CAMERA_NEAR = 0.1;
 export const CAMERA_FAR = 500;
 
+/**
+ * Sky dome half-extent must stay well inside CAMERA_FAR, otherwise its faces sit
+ * beyond the camera's far clipping plane and get culled entirely — the exact
+ * cause of the black void that used to appear once the orbit zoomed out.
+ */
+export const SKY_DISTANCE = 400;
+
 export const ORBIT_MIN_DISTANCE = 6;
 export const ORBIT_MAX_DISTANCE = 70;
 /** Keep the orbit from dipping under the ground plane. */
 export const ORBIT_MAX_POLAR_ANGLE = Math.PI / 2.05;
-export const ORBIT_DAMPING = 0.08;
+export const ORBIT_DAMPING = 0.12;
 
 /* ─── FPS walk (WASD) ──────────────────────────────────────────────────────── */
 
@@ -76,9 +83,18 @@ export const MARKER_DISTANCE_FACTOR = 9;
 /* ─── Environment ──────────────────────────────────────────────────────────── */
 
 export const FOG_COLOR = "#0a1428";
-export const FOG_NEAR = 45;
-export const FOG_FAR = 130;
+export const FOG_NEAR = 30;
+export const FOG_FAR = 160;
 export const SCENE_BACKGROUND = "#050b1a";
+
+/**
+ * Real ground disc, lit by the scene lights and faded out by fog. Without this,
+ * anywhere the camera looks past the (tiny, ~22-unit) model resolves to empty
+ * space — the near-black sky/fog colour — which reads as a solid black slab
+ * once the orbit zooms out past the model's footprint.
+ */
+export const GROUND_RADIUS = 40;
+export const GROUND_COLOR = "#0b1626";
 
 export const BLOOM_INTENSITY = 0.55;
 export const BLOOM_LUMINANCE_THRESHOLD = 0.35;
@@ -92,16 +108,75 @@ export const BLOOM_LUMINANCE_SMOOTHING = 0.9;
 const MARKER_HEIGHT = 0.6;
 
 export const BUILDING_MARKERS: BuildingMarker[] = [
-    { id: "bld-01", building: "Production",   cameraName: "CAM-01 · Smelter",    position: [-5, MARKER_HEIGHT, -4.9], streamIndex: 0, type: "production" },
-    { id: "bld-02", building: "Electrolysis Plant",  cameraName: "CAM-02 · Electro",    position: [-3, MARKER_HEIGHT, -8.1], streamIndex: 1, type: "scada" },
-    { id: "bld-03", building: "Production",    cameraName: "CAM-03 · Casting",    position: [3,  MARKER_HEIGHT, -8.1], streamIndex: 2, type: "production" },
-    { id: "bld-04", building: "Power Substation",    cameraName: "CAM-04 · Power",      position: [6.5,  MARKER_HEIGHT, -1], streamIndex: 2, type: "energy" },
-    { id: "bld-05", building: "Warehouse North",     cameraName: "CAM-05 · WH-North",   position: [7,  MARKER_HEIGHT, 5],  streamIndex: 0, type: "staff" },
-    { id: "bld-06", building: "Logistics Terminal",  cameraName: "CAM-06 · Logistics",  position: [1,  MARKER_HEIGHT, -1],  streamIndex: 1, type: "staff" },
-    { id: "bld-07", building: "Chemical Storage",    cameraName: "CAM-07 · Chemicals",  position: [-5, MARKER_HEIGHT, 3.4],  streamIndex: 2, type: "camera" },
-    { id: "bld-08", building: "Control Center",      cameraName: "CAM-08 · Control",    position: [-5, MARKER_HEIGHT, -1.2],  streamIndex: 3, type: "scada" },
-    { id: "bld-09", building: "Refinery Unit",       cameraName: "CAM-09 · Refinery",   position: [-5, MARKER_HEIGHT, -3.1],  streamIndex: 0, type: "energy" },
-    { id: "bld-10", building: "Quality Lab",         cameraName: "CAM-10 · QC Lab",     position: [3,  MARKER_HEIGHT, 1],  streamIndex: 1, type: "camera" },
+    { id: "bld-01", building: "Production",   cameraName: "Shourm tashkil etish",    position: [6.5, MARKER_HEIGHT, -0.5], streamIndex: 0, type: "production" },
+    { id: "bld-02", building: "Electrolysis Plant",  cameraName: "Ma'muriy bino",    position: [6, MARKER_HEIGHT, 1], streamIndex: 1, type: "scada" },
+    { id: "bld-03", building: "Production",    cameraName: "Kutubxona",    position: [7,  MARKER_HEIGHT, -1.5], streamIndex: 2, type: "production" },
+    { id: "bld-04", building: "Power Substation",    cameraName: "O‘tkazish nazorat punkti",      position: [7,  MARKER_HEIGHT, 4], streamIndex: 2, type: "energy" },
+    { id: "bld-05", building: "Warehouse North",     cameraName: "O‘tkazish nazorat punkti (avtotransport)",   position: [7,  MARKER_HEIGHT, 5.5],  streamIndex: 0, type: "staff" },
+    { id: "bld-06", building: "Logistics Terminal",  cameraName: '"R&D PARK" MChJ',  position: [2,  MARKER_HEIGHT, -4],  streamIndex: 1, type: "staff" },
+    { id: "bld-07", building: "Chemical Storage",    cameraName: '"SMART POWDER" MChJ',  position: [-3, MARKER_HEIGHT, -1],  streamIndex: 2, type: "camera" },
+    { id: "bld-08", building: "Control Center",      cameraName: "Oshxona",    position: [-1, MARKER_HEIGHT, 0.8],  streamIndex: 3, type: "scada" },
+    { id: "bld-09", building: "Refinery Unit",       cameraName: "Kompozit materiallar va qotishmalar sexi",   position: [3, MARKER_HEIGHT, -1],  streamIndex: 0, type: "energy" },
+    { id: "bld-10", building: "Quality Lab",         cameraName: "Molibden p. s. o‘tga chidamli buyumlar  sexi",     position: [3,  MARKER_HEIGHT, 1],  streamIndex: 1, type: "camera" },
+    { id: "bld-11", building: "Quality Lab",         cameraName: "Molibden ishlab chiqaruvchi pirometallurgiya sexi",     position: [3,  MARKER_HEIGHT, 3.25],  streamIndex: 1, type: "camera" },
+    { id: "bld-20", building: "Quality Lab",         cameraName: "Ta'mirlash-mexanik uchastka",     position: [3,  MARKER_HEIGHT, 5.2],  streamIndex: 1, type: "camera" },
+    { id: "bld-12", building: "Quality Lab",         cameraName: "Energiya bilan ta'minlash sexi (kompressorxona)",     position: [2.5,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
+    { id: "bld-13", building: "Quality Lab",         cameraName: "Qozonxona",     position: [3.5,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
+    { id: "bld-14", building: "Quality Lab",         cameraName: "Nasosxona",     position: [4.2,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
+    { id: "bld-15", building: "Quality Lab",         cameraName: "Energiya bilan ta'minlash (nimstansiya)",     position: [0,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
+    { id: "bld-16", building: "Quality Lab",         cameraName: "O‘tga chidamli buyumlar ishlab chiqarish sexi",     position: [-2,  MARKER_HEIGHT, 5.2],  streamIndex: 1, type: "camera" },
+    { id: "bld-17", building: "Quality Lab",         cameraName: "Asbob-uskunalar va texnologik jihozlar ishlab chiqarish sexi",     position: [-4,  MARKER_HEIGHT, 5.4],  streamIndex: 1, type: "camera" },
+    { id: "bld-18", building: "Quality Lab",         cameraName: "Volfram ishlab chiqaruvchi pirometallurgiya sexi",     position: [-5,  MARKER_HEIGHT, -4.8],  streamIndex: 1, type: "camera" },
+    { id: "bld-19", building: "Quality Lab",         cameraName: "Nodir metallarni chuqur qayta ishlash sexi",     position: [-3,  MARKER_HEIGHT, -3],  streamIndex: 1, type: "camera" },
+];
+
+/* ─── Video markers ────────────────────────────────────────────────────────────
+ * 20 demo CCTV points scattered across the footprint in a 5×4 grid. Each cycles
+ * through the 4 sample clips in public/videos/ (m1–m4.mp4).
+ * ---------------------------------------------------------------------------- */
+
+const VIDEO_MARKER_HEIGHT = 0.3;
+const VIDEO_CLIPS = ["/videos/m1.mp4", "/videos/m2.mp4", "/videos/m3.mp4", "/videos/m4.mp4"];
+const VIDEO_GRID_X = [-7.5, -4, -1.5, 5, 7.5];
+const VIDEO_GRID_Z = [-4.7, -1.1, 3.1, 5.5];
+
+export const VIDEO_MARKERS: VideoMarker[] = VIDEO_GRID_Z.flatMap((z, row) =>
+    VIDEO_GRID_X.map((x, col) => {
+        const index = row * VIDEO_GRID_X.length + col;
+        return {
+            id: `vid-${String(index + 1).padStart(2, "0")}`,
+            position: [x, VIDEO_MARKER_HEIGHT, z] as Vec3,
+            url: VIDEO_CLIPS[index % VIDEO_CLIPS.length],
+            label: `CAM-${String(index + 1).padStart(2, "0")}`,
+        };
+    })
+);
+
+/* ─── Warning markers ──────────────────────────────────────────────────────────
+ * 3 hazard/notice points. Two carry an illustration, one is text-only to
+ * exercise the no-image fallback layout.
+ * ---------------------------------------------------------------------------- */
+
+const WARNING_MARKER_HEIGHT = 0.7;
+
+export const WARNING_MARKERS: WarningMarker[] = [
+    {
+        id: "warn-01",
+        position: [-3, WARNING_MARKER_HEIGHT, -8],
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        image: "/imgs/f1.png",
+    },
+    {
+        id: "warn-02",
+        position: [3, WARNING_MARKER_HEIGHT, -6.5],
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+    },
+    {
+        id: "warn-03",
+        position: [0, WARNING_MARKER_HEIGHT, 6],
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse.",
+        image: "/imgs/re1.jpg",
+    },
 ];
 
 /* ─── Dashboard widgets ────────────────────────────────────────────────────── */

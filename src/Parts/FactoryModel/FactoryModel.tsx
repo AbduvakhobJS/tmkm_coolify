@@ -1,14 +1,14 @@
 import React, { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { TbBuildingFactory2 } from "react-icons/tb";
 import {
     CAMERA_FAR,
     CAMERA_FOV,
     CAMERA_INITIAL_POSITION,
     CAMERA_NEAR,
+    VIDEO_MARKERS,
 } from "./constants";
 import { useCameraStreams } from "./hooks/useCameraStreams";
-import type { BuildingMarker } from "./types";
+import type { BuildingMarker, VideoMarker, WarningMarker } from "./types";
 import { useClock } from "../../hooks/useClock";
 import CameraModal from "./ui/CameraModal";
 import ScadaModal from "./ui/ScadaModal";
@@ -16,6 +16,9 @@ import EnergyModal from "./ui/EnergyModal";
 import ProductionModal from "./ui/ProductionModal";
 import StaffModal from "./ui/StaffModal";
 import SidePanel from "./ui/SidePanel";
+import SceneToggles from "./ui/SceneToggles";
+import VideoFullscreenModal from "./ui/VideoFullscreenModal";
+import WarningModal from "./ui/WarningModal";
 import SceneLoader from "./scene/SceneLoader";
 import "./factoryModel.css";
 
@@ -23,21 +26,47 @@ import "./factoryModel.css";
 // main bundle; it only loads when this route is visited.
 const FactoryScene = lazy(() => import("./scene/FactoryScene"));
 
-/**
- * FactoryModel — a premium Situational Center / Smart-Factory monitoring view.
- *
- * A normalised GLB factory sits at the centre of an HDRI-lit, bloom-enhanced 3D
- * scene. Ten billboard CCTV markers float over the buildings; clicking one opens
- * a live WebRTC stream modal. Glassmorphism widget panels flank the model, and
- * the camera supports both OrbitControls and smooth WASD free-roam.
- */
 const FactoryModel: React.FC = () => {
     const { time, date } = useClock();
     const { streams } = useCameraStreams();
     const [selected, setSelected] = useState<BuildingMarker | null>(null);
 
+    // ── Video markers: per-id open state + the master "Camera" toggle ───────
+    const [openVideos, setOpenVideos] = useState<Record<string, boolean>>({});
+    const [camerasOn, setCamerasOn] = useState(false);
+    const [expandedVideo, setExpandedVideo] = useState<VideoMarker | null>(null);
+
+    // ── Warning markers: per-id open state ───────────────────────────────────
+    const [openWarnings, setOpenWarnings] = useState<Record<string, boolean>>({});
+    const [expandedWarning, setExpandedWarning] = useState<WarningMarker | null>(null);
+
+    // ── Left/right dashboard panels: hidden by default ───────────────────────
+    const [panelsOn, setPanelsOn] = useState(false);
+
     const handleSelect = useCallback((marker: BuildingMarker) => setSelected(marker), []);
     const handleClose = useCallback(() => setSelected(null), []);
+
+    const handleToggleCameras = useCallback((next: boolean) => {
+        setCamerasOn(next);
+        setOpenVideos(() => {
+            const all: Record<string, boolean> = {};
+            VIDEO_MARKERS.forEach((m) => {
+                all[m.id] = next;
+            });
+            return all;
+        });
+    }, []);
+    const handleToggleVideo = useCallback((marker: VideoMarker) => {
+        setOpenVideos((prev) => ({ ...prev, [marker.id]: !prev[marker.id] }));
+    }, []);
+    const handleExpandVideo = useCallback((marker: VideoMarker) => setExpandedVideo(marker), []);
+    const handleCloseVideo = useCallback(() => setExpandedVideo(null), []);
+
+    const handleToggleWarning = useCallback((marker: WarningMarker) => {
+        setOpenWarnings((prev) => ({ ...prev, [marker.id]: !prev[marker.id] }));
+    }, []);
+    const handleExpandWarning = useCallback((marker: WarningMarker) => setExpandedWarning(marker), []);
+    const handleCloseWarning = useCallback(() => setExpandedWarning(null), []);
 
     // Map the selected marker → its live stream (streams cycle through 4 feeds).
     const selectedStream = useMemo(() => {
@@ -47,20 +76,15 @@ const FactoryModel: React.FC = () => {
 
     return (
         <div className="fm-root">
-            {/* ── Top status bar ───────────────────────────────────────────── */}
-            {/*<header className="fm-topbar">*/}
-            {/*    <div className="fm-topbar__title">*/}
-            {/*        <TbBuildingFactory2 size={20} />*/}
-            {/*        Smart Factory · Situational Center*/}
-            {/*    </div>*/}
-            {/*    <div className="fm-topbar__clock">*/}
-            {/*        {date} · {time}*/}
-            {/*    </div>*/}
-            {/*</header>*/}
+            {panelsOn && <SidePanel side="left" />}
+            {panelsOn && <SidePanel side="right" />}
 
-            {/* ── Glass side panels ────────────────────────────────────────── */}
-            <SidePanel side="left" />
-            <SidePanel side="right" />
+            <SceneToggles
+                camerasOn={camerasOn}
+                onToggleCameras={handleToggleCameras}
+                panelsOn={panelsOn}
+                onTogglePanels={setPanelsOn}
+            />
 
             {/* ── 3D scene ─────────────────────────────────────────────────── */}
             <Canvas
@@ -76,7 +100,15 @@ const FactoryModel: React.FC = () => {
                 }}
             >
                 <Suspense fallback={null}>
-                    <FactoryScene onSelectMarker={handleSelect} />
+                    <FactoryScene
+                        onSelectMarker={handleSelect}
+                        openVideos={openVideos}
+                        onToggleVideo={handleToggleVideo}
+                        onExpandVideo={handleExpandVideo}
+                        openWarnings={openWarnings}
+                        onToggleWarning={handleToggleWarning}
+                        onExpandWarning={handleExpandWarning}
+                    />
                 </Suspense>
             </Canvas>
 
@@ -98,6 +130,9 @@ const FactoryModel: React.FC = () => {
             {selected?.type === "staff" && (
                 <StaffModal marker={selected} onClose={handleClose} />
             )}
+
+            <VideoFullscreenModal marker={expandedVideo} onClose={handleCloseVideo} />
+            <WarningModal marker={expandedWarning} onClose={handleCloseWarning} />
         </div>
     );
 };

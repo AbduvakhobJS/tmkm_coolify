@@ -661,3 +661,371 @@
         display: none;
     }
 }
+
+.fm-technopark {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.fm-technopark__row-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.fm-technopark__label {
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.fm-technopark__value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.fm-technopark__value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.fm-technopark__unit {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.fm-technopark__bar {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.fm-technopark__bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+
+/* ─── Plain-text building markers ───────────────────────────────────────── */
+
+.fm-text-marker {
+    --marker-color: var(--fm-cyan);
+    position: relative;
+    transform: translate(-50%, -50%);
+    padding: 5px 11px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    color: #eafaff;
+    background: rgba(var(--marker-color), 0.5);
+    border: 1px solid rgba(var(--marker-color), 0.9);
+    border-radius: 7px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fm-text-marker:hover {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 14px rgba(var(--marker-color), 0.5);
+}
+
+/* ─── Video (CCTV) markers ───────────────────────────────────────────────── */
+
+.fm-video-marker {
+    position: relative;
+    transform: translate(-50%, -50%);
+}
+.fm-video-marker__dot {
+    width: 42px;
+    height: 42px;
+
+    position: relative;
+    overflow: hidden;
+
+    /* Tomchi shakli */
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+
+    background: radial-gradient(
+            circle at 35% 30%,
+            rgb(132 212 228 / 0.9),
+            rgb(50 94 110 / 0.9)
+    );
+
+    border: 2px solid rgba(14, 168, 199, 0.9);
+
+    box-shadow:
+            0 0 12px rgba(14, 168, 199, 0.6),
+            0 0 24px rgba(14, 168, 199, 0.35);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fm-video-marker__dot:hover {
+    transform: rotate(-45deg) scale(1.08);
+    box-shadow:
+            0 0 18px rgba(14, 168, 199, 0.8),
+            0 0 30px rgba(14, 168, 199, 0.45);
+}
+
+.fm-video-marker__dot img,
+.fm-video-marker__dot svg {
+    width: 60%;
+    height: 70%;
+    object-fit: contain;
+
+    /* Ikonka to'g'ri turishi uchun */
+    transform: rotate(45deg);
+
+    pointer-events: none;
+}
+
+.fm-video-marker__dot--active {
+    box-shadow: 0 0 16px rgba(14, 168, 199, 0.9), 0 0 0 3px rgba(14, 168, 199, 0.22);
+}
+
+.fm-video-popup {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+    width: 168px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(14, 168, 199, 0.5);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    background: #000;
+}
+
+.fm-video-popup video {
+    width: 100%;
+    height: 94px;
+    object-fit: cover;
+    display: block;
+}
+
+.fm-video-popup__label {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    z-index: 1;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: #eafaff;
+    background: rgba(3, 13, 34, 0.65);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* ─── Warning markers ────────────────────────────────────────────────────── */
+
+.fm-warning-marker {
+    position: relative;
+    transform: translate(-50%, -50%);
+}
+
+/*.fm-warning-marker__dot img {*/
+/*    width: 100%;*/
+/*}*/
+/*.fm-warning-marker__dot {*/
+/*    width: 18px;*/
+/*    height: 18px;*/
+/*    border-radius: 50%;*/
+/*    background: radial-gradient(circle at 35% 30%, rgba(244, 63, 94, 0.95), rgba(90, 10, 20, 0.95));*/
+/*    border: 2px solid rgba(244, 63, 94, 0.9);*/
+/*    box-shadow: 0 0 12px rgba(244, 63, 94, 0.6);*/
+/*    cursor: pointer;*/
+/*    animation: fm-warning-pulse 1.6s ease-in-out infinite;*/
+/*}*/
+
+
+.fm-warning-marker__dot {
+    width: 42px;
+    height: 42px;
+
+    position: relative;
+    overflow: hidden;
+
+    transform: rotate(-45deg);
+
+    border-radius: 50% 50% 50% 0;
+
+    background: radial-gradient(
+            circle at 35% 30%,
+            rgb(244 63 94 / 0.4),
+            rgb(90 10 20 / 0.5)
+    );
+
+    border: 2px solid rgb(241 82 109 / 0.9);
+    box-shadow:
+            0 0 12px rgba(244, 63, 94, 0.6),
+            0 0 25px rgba(244, 63, 94, 0.35);
+
+    cursor: pointer;
+    animation: fm-warning-pulse 1.6s ease-in-out infinite;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.fm-warning-marker__dot img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+
+    transform: rotate(45deg);
+    margin-top: -4px;
+    margin-right: -4px;
+
+    pointer-events: none;
+}
+
+
+@keyframes fm-warning-pulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(244, 63, 94, 0.95); }
+}
+
+.fm-warning-panel {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 12px;
+    width: 230px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(40, 8, 14, 0.78);
+    border: 1px solid rgba(244, 63, 94, 0.5);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+
+.fm-warning-panel::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.fm-warning-panel__image {
+    float: left;
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 0 8px 4px 0;
+    border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+.fm-warning-panel__text {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #ffe3e7;
+}
+
+.fm-warning-panel__caret {
+    display: inline-block;
+    width: 2px;
+    height: 11px;
+    margin-left: 1px;
+    background: #ffe3e7;
+    vertical-align: -1px;
+    animation: fm-caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes fm-caret-blink {
+    50% { opacity: 0; }
+}
+
+/* ─── Top scene toggles ──────────────────────────────────────────────────── */
+
+.fm-toggles {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+    display: flex;
+    gap: 10px;
+    padding: 7px 10px;
+    background: rgba(3, 13, 34, 0.55);
+    border: 1px solid rgba(var(--fm-cyan), 0.25);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+}
+
+.fm-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #cfe9f2;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.18s ease;
+}
+
+.fm-toggle:hover {
+    background: rgba(var(--fm-cyan), 0.1);
+}
+
+.fm-toggle__switch {
+    position: relative;
+    width: 32px;
+    height: 17px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(var(--fm-cyan), 0.3);
+    transition: background 0.2s ease;
+}
+
+.fm-toggle__switch::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #cfe9f2;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.fm-toggle--on .fm-toggle__switch {
+    background: rgba(var(--fm-cyan), 0.55);
+    border-color: rgba(var(--fm-cyan), 0.7);
+}
+
+.fm-toggle--on .fm-toggle__switch::after {
+    transform: translateX(15px);
+    background: #ffffff;
+}

@@ -8,6 +8,14 @@ import {
 } from "../constants";
 
 const MODEL_URL = "/models/factory_model.glb";
+/**
+ * factory_model.glb is exported Draco-compressed (from Blender). drei's
+ * useGLTF defaults to fetching the Draco decoder from Google's CDN
+ * (gstatic.com) — fine on the open internet, but this app is self-hosted via
+ * Coolify and may run somewhere without a route to Google, silently hanging
+ * the model load forever. Self-host the decoder instead.
+ */
+const DRACO_DECODER_PATH = "/draco/";
 
 interface FactoryModelMeshProps {
     /** Receives the fully-transformed group so other systems (collision) can ray-test it. */
@@ -20,7 +28,7 @@ interface FactoryModelMeshProps {
  * on every mesh for the contact-shadow / directional-light setup.
  */
 const FactoryModelMesh: React.FC<FactoryModelMeshProps> = ({ onReady }) => {
-    const { scene } = useGLTF(MODEL_URL);
+    const { scene } = useGLTF(MODEL_URL, DRACO_DECODER_PATH);
 
     // Clone so the cached GLTF is never mutated (safe across remounts / HMR).
     const model = useMemo(() => scene.clone(true), [scene]);
@@ -73,6 +81,6 @@ const FactoryModelMesh: React.FC<FactoryModelMeshProps> = ({ onReady }) => {
     );
 };
 
-useGLTF.preload(MODEL_URL);
+useGLTF.preload(MODEL_URL, DRACO_DECODER_PATH);
 
 export default FactoryModelMesh;
