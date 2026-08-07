@@ -8,19 +8,23 @@ import {
     PAVILION_FLY_DURATION,
 } from "../constants";
 import type { MachineMarker } from "../types";
+import { easeOutCubic } from "./easing";
 
 interface PavilionCameraRigProps {
     controlsRef: React.MutableRefObject<OrbitControlsImpl | null>;
     /** The machine the camera should glide to; null leaves the camera where it is. */
     activeMachine: MachineMarker | null;
+    /** Called once the fly-in lands, so the info panel can appear only after arrival. */
+    onArrive?: (machine: MachineMarker) => void;
 }
 
 /**
  * Smoothly flies the camera (and the OrbitControls look-at target) to the
  * selected machine's pulled-back viewpoint over {@link PAVILION_FLY_DURATION}
- * seconds, eased out so the arrival feels cinematic rather than snapping.
+ * seconds, eased straight into the shot — no overshoot past the machine and
+ * pulling back — so the arrival feels like a clean descend-and-settle.
  */
-const PavilionCameraRig: React.FC<PavilionCameraRigProps> = ({ controlsRef, activeMachine }) => {
+const PavilionCameraRig: React.FC<PavilionCameraRigProps> = ({ controlsRef, activeMachine, onArrive }) => {
     const { camera } = useThree();
 
     const anim = useRef({
@@ -64,12 +68,15 @@ const PavilionCameraRig: React.FC<PavilionCameraRigProps> = ({ controlsRef, acti
         if (!anim.active || !controls) return;
 
         anim.t = Math.min(1, anim.t + delta / PAVILION_FLY_DURATION);
-        const ease = 1 - Math.pow(1 - anim.t, 3);
+        const ease = easeOutCubic(anim.t);
 
         camera.position.lerpVectors(anim.fromPos, anim.toPos, ease);
         controls.target.lerpVectors(anim.fromTarget, anim.toTarget, ease);
 
-        if (anim.t >= 1) anim.active = false;
+        if (anim.t >= 1) {
+            anim.active = false;
+            if (activeMachine) onArrive?.(activeMachine);
+        }
     });
 
     return null;

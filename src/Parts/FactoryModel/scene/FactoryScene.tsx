@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
     AdaptiveEvents,
     BakeShadows,
@@ -33,6 +33,7 @@ import CameraMarker from "./CameraMarker";
 import FactoryModelMesh from "./FactoryModelMesh";
 import FpsControls from "./FpsControls";
 import IntroFlyThrough from "./IntroFlyThrough";
+import MarkerFlyRig from "./MarkerFlyRig";
 import VideoMarkerMesh from "./VideoMarkerMesh";
 import WarningMarkerMesh from "./WarningMarkerMesh";
 
@@ -67,6 +68,29 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
     const modelRef = useRef<THREE.Group | null>(null);
     // One-shot cinematic on mount: descend to walking height, tour the model, return to the overview.
     const [introPlaying, setIntroPlaying] = useState(true);
+
+    // Clicking an "into" marker first zooms/dips the camera in close to it;
+    // the modal itself only opens once that flight lands (see MarkerFlyRig's onArrive below).
+    const [flyingMarker, setFlyingMarker] = useState<BuildingMarker | null>(null);
+    const handleMarkerClick = useCallback(
+        (marker: BuildingMarker) => {
+            if (marker.type === "into") {
+                setFlyingMarker(marker);
+            } else {
+                onSelectMarker(marker);
+            }
+        },
+        [onSelectMarker]
+    );
+    const handleMarkerArrive = useCallback(
+        (marker: BuildingMarker) => {
+            setFlyingMarker(null);
+            onSelectMarker(marker);
+        },
+        [onSelectMarker]
+    );
+
+    const controlsLocked = paused || introPlaying || !!flyingMarker;
 
     return (
         <>
@@ -156,7 +180,7 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
 
             {/* ── Building markers ─────────────────────────────────────────── */}
             {BUILDING_MARKERS.map((marker) => (
-                <CameraMarker key={marker.id} marker={marker} onSelect={onSelectMarker} />
+                <CameraMarker key={marker.id} marker={marker} onSelect={handleMarkerClick} />
             ))}
 
             {/* ── Video (CCTV) markers ─────────────────────────────────────── */}
@@ -184,7 +208,7 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
             {/* ── Camera controls ──────────────────────────────────────────── */}
             <OrbitControls
                 ref={controlsRef}
-                enabled={!paused && !introPlaying}
+                enabled={!controlsLocked}
                 enableDamping
                 dampingFactor={ORBIT_DAMPING}
                 enablePan
@@ -201,10 +225,11 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
                 backgroundBlurriness={0.25}
                 environmentIntensity={0.8}
             />
-            <FpsControls controlsRef={controlsRef} modelRef={modelRef} paused={paused || introPlaying} />
+            <FpsControls controlsRef={controlsRef} modelRef={modelRef} paused={controlsLocked} />
             {introPlaying && (
                 <IntroFlyThrough controlsRef={controlsRef} onDone={() => setIntroPlaying(false)} />
             )}
+            <MarkerFlyRig controlsRef={controlsRef} target={flyingMarker} onArrive={handleMarkerArrive} />
         </>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ContactShadows, Environment, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -24,6 +24,15 @@ interface PavilionSceneProps {
 const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMachine }) => {
     const controlsRef = useRef<OrbitControlsImpl | null>(null);
     const modelRef = useRef<THREE.Group | null>(null);
+
+    // The info panel only appears once the camera has actually landed on the
+    // machine — kept separate from `activeMachine` (the fly-to target) so the
+    // popup doesn't pop up mid-flight. Closing (activeMachine -> null) hides
+    // it immediately, no flight needed.
+    const [panelMachine, setPanelMachine] = useState<MachineMarker | null>(null);
+    useEffect(() => {
+        if (!activeMachine) setPanelMachine(null);
+    }, [activeMachine]);
 
     return (
         <>
@@ -60,7 +69,8 @@ const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMa
                 <MachineMarkerMesh
                     key={machine.id}
                     marker={machine}
-                    isActive={activeMachine?.id === machine.id}
+                    isSelected={activeMachine?.id === machine.id}
+                    isPanelOpen={panelMachine?.id === machine.id}
                     onSelect={onSelectMachine}
                 />
             ))}
@@ -90,7 +100,11 @@ const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMa
                 makeDefault
             />
             <FpsControls controlsRef={controlsRef} modelRef={modelRef} />
-            <PavilionCameraRig controlsRef={controlsRef} activeMachine={activeMachine} />
+            <PavilionCameraRig
+                controlsRef={controlsRef}
+                activeMachine={activeMachine}
+                onArrive={setPanelMachine}
+            />
         </>
     );
 };

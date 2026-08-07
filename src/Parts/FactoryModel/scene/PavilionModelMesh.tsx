@@ -1,10 +1,9 @@
 import React, { useLayoutEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { PAVILION_TARGET_SIZE } from "../constants";
+import { DRACO_DECODER_PATH, PAVILION_MODEL_URL, PAVILION_TARGET_SIZE } from "../constants";
 
-const MODEL_URL = "/models/det.glb";
-const DRACO_DECODER_PATH = "/draco/";
+const MODEL_URL = PAVILION_MODEL_URL;
 
 interface PavilionModelMeshProps {
     /** Receives the fully-transformed group so other systems (collision) can ray-test it. */

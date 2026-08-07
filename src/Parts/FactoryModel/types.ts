@@ -72,13 +72,30 @@ export interface WarningMarker {
     image?: string;
 }
 
+export type MachineStatus = "running" | "idle" | "maintenance" | "warning";
+
+/** One labelled readout row (with its own icon) inside a machine's info panel. */
+export interface MachineSpec {
+    icon: IconType;
+    label: string;
+    value: string;
+}
+
 /** One of the 10 machines inside the pavilion-interior walkthrough. */
 export interface MachineMarker {
     id: string;
     /** Display number shown on its button (1–10). */
     number: number;
-    /** Shown in the info panel when this machine is selected. */
+    /** Machine/unit name shown as the info panel's title. */
+    name: string;
+    /** Icon representing the machine's category (furnace, mill, switchgear...). */
+    icon: IconType;
+    /** Current operating status — drives the panel's status badge colour. */
+    status: MachineStatus;
+    /** One-line summary shown under the title. */
     description: string;
+    /** Detailed readouts (temperature, throughput, consumption...) shown as an icon grid. */
+    specs: MachineSpec[];
     /** World-space anchor of the machine, in the pavilion model's normalised local space. */
     position: Vec3;
 }

@@ -1089,26 +1089,38 @@
     font-size: 13px;
     font-weight: 700;
     font-family: inherit;
-    color: #cfe9f2;
-    background: rgba(var(--fm-cyan), 0.16);
-    border: 1.5px solid rgba(var(--fm-cyan), 0.45);
-    box-shadow: 0 0 12px rgba(var(--fm-cyan), 0.35);
+    color: #eafdff;
+    background: rgba(var(--fm-cyan), 0.32);
+    border: 1.5px solid rgba(var(--fm-cyan), 0.75);
+    box-shadow: 0 0 16px rgba(var(--fm-cyan), 0.6), 0 0 3px rgba(255, 255, 255, 0.5) inset;
     cursor: pointer;
+    animation: fm-marker-glow 2.4s ease-in-out infinite;
     transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease,
         border-color 0.18s ease;
 }
 
+@keyframes fm-marker-glow {
+    0%,
+    100% {
+        box-shadow: 0 0 16px rgba(var(--fm-cyan), 0.6), 0 0 3px rgba(255, 255, 255, 0.5) inset;
+    }
+    50% {
+        box-shadow: 0 0 24px rgba(var(--fm-cyan), 0.9), 0 0 5px rgba(255, 255, 255, 0.7) inset;
+    }
+}
+
 .fm-pavilion-marker__btn:hover {
-    transform: scale(1.12);
-    background: rgba(var(--fm-cyan), 0.28);
-    box-shadow: 0 0 18px rgba(var(--fm-cyan), 0.55);
+    transform: scale(1.14);
+    background: rgba(var(--fm-cyan), 0.48);
+    box-shadow: 0 0 26px rgba(var(--fm-cyan), 0.85);
 }
 
 .fm-pavilion-marker__btn--active {
     color: #04141a;
     background: rgb(var(--fm-cyan));
-    border-color: rgb(var(--fm-cyan));
-    box-shadow: 0 0 0 3px rgba(var(--fm-cyan), 0.25), 0 0 22px rgba(var(--fm-cyan), 0.7);
+    border-color: #eafdff;
+    animation: none;
+    box-shadow: 0 0 0 3px rgba(var(--fm-cyan), 0.3), 0 0 26px rgba(var(--fm-cyan), 0.85);
 }
 
 .fm-pavilion-marker-panel {
@@ -1117,10 +1129,10 @@
     left: 50%;
     transform: translateX(-50%);
     margin-bottom: 12px;
-    width: 240px;
-    padding: 12px 14px;
+    width: 300px;
+    padding: 14px 16px;
     border-radius: 12px;
-    background: linear-gradient(160deg, rgba(8, 24, 48, 0.92), rgba(3, 13, 34, 0.96));
+    background: linear-gradient(160deg, rgba(8, 24, 48, 0.94), rgba(3, 13, 34, 0.97));
     border: 1px solid rgba(var(--fm-cyan), 0.45);
     box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6), 0 0 30px rgba(var(--fm-cyan), 0.15);
     backdrop-filter: blur(10px);
@@ -1129,24 +1141,117 @@
 
 .fm-pavilion-marker-panel__head {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    align-items: flex-start;
     gap: 10px;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
     border-bottom: 1px solid rgba(var(--fm-cyan), 0.2);
+}
+
+.fm-pavilion-marker-panel__head-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    color: rgb(var(--fm-cyan));
+    background: rgba(var(--fm-cyan), 0.16);
+    border: 1px solid rgba(var(--fm-cyan), 0.35);
+}
+
+.fm-pavilion-marker-panel__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
 }
 
 .fm-pavilion-marker-panel__title {
     font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
+    line-height: 1.3;
     color: #eafaff;
 }
 
+.fm-pavilion-marker-panel__status {
+    align-self: flex-start;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 20px;
+}
+
+.fm-pavilion-marker-panel__status--running {
+    color: #7cf5b0;
+    background: rgba(34, 197, 94, 0.16);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.fm-pavilion-marker-panel__status--idle {
+    color: #cbd5e1;
+    background: rgba(148, 163, 184, 0.16);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.fm-pavilion-marker-panel__status--maintenance {
+    color: #93c5fd;
+    background: rgba(59, 130, 246, 0.16);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.fm-pavilion-marker-panel__status--warning {
+    color: #fcd34d;
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
 .fm-pavilion-marker-panel__text {
-    margin: 0;
+    margin: 0 0 10px;
     font-size: 11.5px;
     line-height: 1.6;
     color: #bfe0ec;
+}
+
+.fm-pavilion-marker-panel__specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.fm-pavilion-marker-panel__spec {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 7px 8px;
+    border-radius: 8px;
+    background: rgba(var(--fm-cyan), 0.07);
+    border: 1px solid rgba(var(--fm-cyan), 0.18);
+}
+
+.fm-pavilion-marker-panel__spec-icon {
+    display: flex;
+    align-items: center;
+    color: rgb(var(--fm-cyan));
+    opacity: 0.9;
+}
+
+.fm-pavilion-marker-panel__spec-label {
+    font-size: 9.5px;
+    letter-spacing: 0.2px;
+    color: #8fb4c2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fm-pavilion-marker-panel__spec-value {
+    font-size: 12px;
+    font-weight: 700;
+    color: #eafaff;
 }

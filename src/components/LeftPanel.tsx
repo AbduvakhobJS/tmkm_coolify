@@ -2,12 +2,13 @@ import React from 'react';
 import { ResourceCardsGrid } from './ResourceDashboard';
 import ResourceDashboardPart2 from "./ResourceDashboardPart2";
 import MetalsDashboard from "./MetalsDashboard";
+import MetalsDashboardMain from "./MetalsDashboardMain";
 
 const LeftPanel: React.FC = () => {
   return (
       <div className="left-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '10px' }}>
         {/*<ResourceCardsGrid />*/}
-          <MetalsDashboard />
+          <MetalsDashboardMain />
 
           <div className="view-model-right-model" style={{ height: '50%' }}>
           <div className="view-model" style={{ width: '100%', height: '100%', padding: "10px", background: 'var(--gc-panel-bg)',

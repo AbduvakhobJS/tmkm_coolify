@@ -1,10 +1,13 @@
-import React, { Suspense, lazy, useCallback, useMemo, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import { useGLTF, useProgress } from "@react-three/drei";
 import {
     CAMERA_FAR,
     CAMERA_FOV,
     CAMERA_INITIAL_POSITION,
     CAMERA_NEAR,
+    DRACO_DECODER_PATH,
+    PAVILION_MODEL_URL,
     VIDEO_MARKERS,
 } from "./constants";
 import { useCameraStreams } from "./hooks/useCameraStreams";
@@ -43,6 +46,23 @@ const FactoryModel: React.FC = () => {
 
     // ── Left/right dashboard panels: hidden by default ───────────────────────
     const [panelsOn, setPanelsOn] = useState(false);
+
+    // Once the main factory scene has finished loading (drei's global loading
+    // manager goes idle again after having been active), warm up the pavilion
+    // walkthrough in the background — both its 30 MB det.glb and its
+    // code-split JS chunk — so FactoryIntoModal's 3D view is instant on open
+    // instead of only starting that fetch once the modal is clicked.
+    const { active: sceneLoading } = useProgress();
+    const hasLoadedOnce = useRef(false);
+    const pavilionPreloaded = useRef(false);
+    useEffect(() => {
+        if (sceneLoading) hasLoadedOnce.current = true;
+        if (!sceneLoading && hasLoadedOnce.current && !pavilionPreloaded.current) {
+            pavilionPreloaded.current = true;
+            useGLTF.preload(PAVILION_MODEL_URL, DRACO_DECODER_PATH);
+            import("./scene/PavilionScene");
+        }
+    }, [sceneLoading]);
 
     const handleSelect = useCallback((marker: BuildingMarker) => setSelected(marker), []);
     const handleClose = useCallback(() => setSelected(null), []);

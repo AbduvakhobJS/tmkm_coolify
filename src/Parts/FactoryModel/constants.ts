@@ -1,6 +1,7 @@
 import {
     FiActivity,
     FiAlertTriangle,
+    FiClock,
     FiCpu,
     FiDroplet,
     FiShield,
@@ -9,6 +10,15 @@ import {
     FiVideo,
     FiZap,
 } from "react-icons/fi";
+import {
+    GiCircuitry,
+    GiFurnace,
+    GiGears,
+    GiPowerButton,
+    GiSpeedometer,
+    GiSunbeams,
+    GiWeightScale,
+} from "react-icons/gi";
 import { TbBuildingFactory2, TbGauge } from "react-icons/tb";
 import type { BuildingMarker, MachineMarker, Vec3, VideoMarker, WarningMarker, WidgetGroup } from "./types";
 
@@ -37,6 +47,14 @@ export const MODEL_TARGET_SIZE = 22;
 /** Extra lift so the model sits cleanly on the contact-shadow plane. */
 export const MODEL_GROUND_OFFSET = 0;
 export const MODEL_ROTATION_Y = 0;
+
+/**
+ * Shared with PavilionModelMesh AND the idle-preload trigger in FactoryModel.tsx —
+ * all three must reference the exact same URL/path pair so drei's GLTF cache
+ * actually hits instead of re-fetching det.glb when the pavilion modal opens.
+ */
+export const PAVILION_MODEL_URL = "/models/det.glb";
+export const DRACO_DECODER_PATH = "/draco/";
 
 /* ─── Camera / controls ────────────────────────────────────────────────────── */
 
@@ -83,6 +101,18 @@ export const ORBIT_MAX_DISTANCE = 70;
 export const ORBIT_MAX_POLAR_ANGLE = Math.PI / 2.05;
 export const ORBIT_DAMPING = 0.12;
 
+/* ─── Marker fly-in (main scene, plays before FactoryIntoModal opens) ────────
+ * Clicking a building marker zooms/dips the camera in close to it first;
+ * only once that flight lands does the pavilion modal actually open.
+ * ---------------------------------------------------------------------------- */
+
+/** Seconds for the camera to glide into a clicked marker. */
+export const MARKER_FLY_DURATION = 1.4;
+/** How far back from the marker the camera stops (world units), approaching from wherever it currently is. */
+export const MARKER_APPROACH_DISTANCE = 4;
+/** Camera eye height above the marker's own y once parked in front of it — well below the overview height, for the "descend in" feel. */
+export const MARKER_APPROACH_HEIGHT = 2.4;
+
 /* ─── FPS walk (WASD) ──────────────────────────────────────────────────────── */
 
 /** Units per second at full speed. */
@@ -110,15 +140,38 @@ export const INTRO_LOOP_DURATION = 10;
 /** Seconds to ease down from the overview into the loop, and back up again at the end. */
 export const INTRO_TRANSITION_DURATION = 1.3;
 
+export const INTRO_FLY_POINTS: Vec3[] = [
+    [INTRO_LOOP_RADIUS * 1.0000, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.0000],   // 0°
+    [INTRO_LOOP_RADIUS * 0.9457, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.3247],   // 18.95°
+    [INTRO_LOOP_RADIUS * 0.7891, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.6142],   // 37.89°
+    [INTRO_LOOP_RADIUS * 0.5469, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.8371],   // 56.84°
+    [INTRO_LOOP_RADIUS * 0.2455, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.9694],   // 75.79°
+    [INTRO_LOOP_RADIUS * -0.0824, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.9966],  // 94.74°
+    [INTRO_LOOP_RADIUS * -0.4017, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.9158],  // 113.68°
+    [INTRO_LOOP_RADIUS * -0.6773, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.7357],  // 132.63°
+    [INTRO_LOOP_RADIUS * -0.8794, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.4759],  // 151.58°
+    [INTRO_LOOP_RADIUS * -0.9863, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.1650],  // 170.53°
+    [INTRO_LOOP_RADIUS * -0.9863, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.1650], // 189.47°
+    [INTRO_LOOP_RADIUS * -0.8794, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.4759], // 208.42°
+    [INTRO_LOOP_RADIUS * -0.6773, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.7357], // 227.37°
+    [INTRO_LOOP_RADIUS * -0.4017, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.9158], // 246.32°
+    [INTRO_LOOP_RADIUS * -0.0824, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.9966], // 265.26°
+    [INTRO_LOOP_RADIUS * 0.2455, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.9694],  // 284.21°
+    [INTRO_LOOP_RADIUS * 0.5469, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.8371],  // 303.16°
+    [INTRO_LOOP_RADIUS * 0.7891, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.6142],  // 322.11°
+    [INTRO_LOOP_RADIUS * 0.9457, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * -0.3247],  // 341.05°
+    [INTRO_LOOP_RADIUS * 1.0000, INTRO_WALK_HEIGHT, INTRO_LOOP_RADIUS * 0.0000],   // 360° = 0° (loop yopiladi)
+];
+
 /** 20 waypoints circling the model at walking height; point 20 (index 19) lands back on point 1, closing the loop. */
-export const INTRO_FLY_POINTS: Vec3[] = Array.from({ length: 20 }, (_, i) => {
-    const angle = (i / 19) * Math.PI * 2;
-    return [
-        Math.cos(angle) * INTRO_LOOP_RADIUS,
-        INTRO_WALK_HEIGHT,
-        Math.sin(angle) * INTRO_LOOP_RADIUS,
-    ] as Vec3;
-});
+// export const INTRO_FLY_POINTS: Vec3[] = Array.from({ length: 20 }, (_, i) => {
+//     const angle = (i / 19) * Math.PI * 2;
+//     return [
+//         Math.cos(angle) * INTRO_LOOP_RADIUS,
+//         INTRO_WALK_HEIGHT,
+//         Math.sin(angle) * INTRO_LOOP_RADIUS,
+//     ] as Vec3;
+// });
 
 /* ─── Marker visuals ───────────────────────────────────────────────────────── */
 
@@ -298,23 +351,165 @@ export const PAVILION_APPROACH_DISTANCE = 5;
 /** Camera eye height above the machine's own y when parked in front of it. */
 export const PAVILION_APPROACH_HEIGHT = 2.2;
 
-const MACHINE_LOREM =
-    "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.";
-
-/** Positions are placeholders — hand-tune each machine's (x, y, z) once the real layout is known. */
+/**
+ * 10 machines laid out in two facing rows: #1–3 are identical CNC processing
+ * units, #4–6 are the three parallel tungsten-reduction furnaces, #7–8 are
+ * the second-stage (sintering) furnace pair, #9 is the drying chamber that
+ * follows them, and #10 is the section's electrical switchgear.
+ */
 export const MACHINE_MARKERS: MachineMarker[] = [
-    { id: "machine-1", number: 1, description: MACHINE_LOREM, position: [1, 1, 1] },
-    { id: "machine-2", number: 2, description: MACHINE_LOREM, position: [1, 1, -7] },
-    { id: "machine-3", number: 3, description: MACHINE_LOREM, position: [1, 1, -15] },
+    {
+        id: "machine-1",
+        number: 1,
+        name: "CNC qayta ishlash stanogi №1",
+        icon: GiGears,
+        status: "running",
+        description: "Volfram sterjenlarini aylantirib qayta ishlaydigan CNC stanogi.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
+            { icon: GiSpeedometer, label: "Aylanish tezligi", value: "1 450 aylanma/daq" },
+            { icon: GiWeightScale, label: "Yuklama", value: "78%" },
+            { icon: FiThermometer, label: "Shpindel harorati", value: "42 °C" },
+        ],
+        position: [1, 1, 1],
+    },
+    {
+        id: "machine-2",
+        number: 2,
+        name: "CNC qayta ishlash stanogi №2",
+        icon: GiGears,
+        status: "running",
+        description: "Volfram sterjenlarini aylantirib qayta ishlaydigan CNC stanogi.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
+            { icon: GiSpeedometer, label: "Aylanish tezligi", value: "1 390 aylanma/daq" },
+            { icon: GiWeightScale, label: "Yuklama", value: "84%" },
+            { icon: FiThermometer, label: "Shpindel harorati", value: "45 °C" },
+        ],
+        position: [1, 1, -7],
+    },
+    {
+        id: "machine-3",
+        number: 3,
+        name: "CNC qayta ishlash stanogi №3",
+        icon: GiGears,
+        status: "maintenance",
+        description: "Volfram sterjenlarini aylantirib qayta ishlaydigan CNC stanogi.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Texnik xizmatda" },
+            { icon: GiSpeedometer, label: "Aylanish tezligi", value: "0 aylanma/daq" },
+            { icon: GiWeightScale, label: "Yuklama", value: "0%" },
+            { icon: FiClock, label: "To‘xtab turgan vaqt", value: "2 soat 15 daq" },
+        ],
+        position: [1, 1, -15],
+    },
 
-    { id: "machine-4", number: 4, description: MACHINE_LOREM, position: [-2.5, 1, -4.8] },
-    { id: "machine-5", number: 5, description: MACHINE_LOREM, position: [-4, 1, -4.8] },
-    { id: "machine-6", number: 6, description: MACHINE_LOREM, position: [-5.8, 1, -4.8] },
+    {
+        id: "machine-4",
+        number: 4,
+        name: "Volfram qaytarish pechi №1",
+        icon: GiFurnace,
+        status: "running",
+        description: "Vodorod muhitida volfram oksidini metall kukunigacha qaytaruvchi pech.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
+            { icon: FiThermometer, label: "Pech harorati", value: "1 150 °C" },
+            { icon: GiWeightScale, label: "Volfram kukuni chiqishi", value: "38 kg/soat" },
+            { icon: FiZap, label: "Energiya sarfi", value: "62 kWh" },
+        ],
+        position: [-2.5, 1, -4.8],
+    },
+    {
+        id: "machine-5",
+        number: 5,
+        name: "Volfram qaytarish pechi №2",
+        icon: GiFurnace,
+        status: "running",
+        description: "Vodorod muhitida volfram oksidini metall kukunigacha qaytaruvchi pech.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
+            { icon: FiThermometer, label: "Pech harorati", value: "1 180 °C" },
+            { icon: GiWeightScale, label: "Volfram kukuni chiqishi", value: "41 kg/soat" },
+            { icon: FiZap, label: "Energiya sarfi", value: "65 kWh" },
+        ],
+        position: [-4, 1, -4.8],
+    },
+    {
+        id: "machine-6",
+        number: 6,
+        name: "Volfram qaytarish pechi №3",
+        icon: GiFurnace,
+        status: "warning",
+        description: "Vodorod muhitida volfram oksidini metall kukunigacha qaytaruvchi pech.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Haroratdan ogish" },
+            { icon: FiThermometer, label: "Pech harorati", value: "1 240 °C" },
+            { icon: GiWeightScale, label: "Volfram kukuni chiqishi", value: "33 kg/soat" },
+            { icon: FiZap, label: "Energiya sarfi", value: "70 kWh" },
+        ],
+        position: [-5.8, 1, -4.8],
+    },
 
-    { id: "machine-7", number: 7, description: MACHINE_LOREM, position: [-5.5, 1, 6.5] },
-    { id: "machine-8", number: 8, description: MACHINE_LOREM, position: [-3.5, 1, 6.5] },
-    { id: "machine-9", number: 9, description: MACHINE_LOREM, position: [2.4, 1, 7.6] },
-    { id: "machine-10", number: 10, description: MACHINE_LOREM, position: [5.5, 2, 11.6] },
+    {
+        id: "machine-7",
+        number: 7,
+        name: "2-etap pechi №1",
+        icon: GiSunbeams,
+        status: "running",
+        description: "Volfram kukunini yuqori haroratda spekaydigan ikkinchi bosqich pechi.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
+            { icon: FiThermometer, label: "Pech harorati", value: "2 300 °C" },
+            { icon: GiSpeedometer, label: "Sikl davomiyligi", value: "5 soat 40 daq" },
+            { icon: FiZap, label: "Energiya sarfi", value: "118 kWh" },
+        ],
+        position: [-5.5, 1, 6.5],
+    },
+    {
+        id: "machine-8",
+        number: 8,
+        name: "2-etap pechi №2",
+        icon: GiSunbeams,
+        status: "running",
+        description: "Volfram kukunini yuqori haroratda spekaydigan ikkinchi bosqich pechi.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
+            { icon: FiThermometer, label: "Pech harorati", value: "2 280 °C" },
+            { icon: GiSpeedometer, label: "Sikl davomiyligi", value: "5 soat 55 daq" },
+            { icon: FiZap, label: "Energiya sarfi", value: "121 kWh" },
+        ],
+        position: [-3.5, 1, 6.5],
+    },
+    {
+        id: "machine-9",
+        number: 9,
+        name: "Quritish kamerasi",
+        icon: FiDroplet,
+        status: "running",
+        description: "Spekangan volfram sterjenlarini keyingi bosqichdan oldin quritadigan kamera.",
+        specs: [
+            { icon: FiActivity, label: "Holati", value: "Quritilmoqda" },
+            { icon: FiThermometer, label: "Kamera harorati", value: "180 °C" },
+            { icon: FiDroplet, label: "Namlik darajasi", value: "6%" },
+            { icon: FiClock, label: "Quritish vaqti", value: "1 soat 20 daq" },
+        ],
+        position: [2.4, 1, 7.6],
+    },
+    {
+        id: "machine-10",
+        number: 10,
+        name: "Elektr shchiti",
+        icon: GiCircuitry,
+        status: "running",
+        description: "Sexning barcha pech va stanoklarini quvvat bilan ta'minlovchi asosiy taqsimot shchiti.",
+        specs: [
+            { icon: GiPowerButton, label: "Holati", value: "Nazoratda" },
+            { icon: FiZap, label: "Kuchlanish", value: "380 V" },
+            { icon: FiActivity, label: "Tok yuklamasi", value: "72%" },
+            { icon: FiShield, label: "Himoya tizimi", value: "Faol" },
+        ],
+        position: [5.5, 2, 11.6],
+    },
 ];
 
 export const RIGHT_WIDGETS: WidgetGroup[] = [

@@ -9,6 +9,14 @@ import {
 
 const MODEL_URL = "/models/factory_model.glb";
 /**
+ * Daraxtlar.glb (the surrounding trees) was authored in the same Blender
+ * scene / coordinate space as factory_model.glb, just exported separately.
+ * It must share the exact same normalising transform (not one recomputed
+ * from its own bounding box) so the two line up in world space instead of
+ * drifting apart.
+ */
+const TREES_MODEL_URL = "/models/Daraxtlar.glb";
+/**
  * factory_model.glb is exported Draco-compressed (from Blender). drei's
  * useGLTF defaults to fetching the Draco decoder from Google's CDN
  * (gstatic.com) — fine on the open internet, but this app is self-hosted via
@@ -22,16 +30,35 @@ interface FactoryModelMeshProps {
     onReady?: (group: THREE.Group) => void;
 }
 
+const enableShadows = (model: THREE.Object3D) => {
+    model.traverse((obj) => {
+        if ((obj as THREE.Mesh).isMesh) {
+            const mesh = obj as THREE.Mesh;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            const mat = mesh.material as THREE.MeshStandardMaterial;
+            if (mat && "envMapIntensity" in mat) {
+                mat.envMapIntensity = 1.1;
+            }
+        }
+    });
+};
+
 /**
- * Loads factory_model.glb, then centres it on the origin and uniformly scales it
- * so its largest dimension equals {@link MODEL_TARGET_SIZE}. Shadows are enabled
- * on every mesh for the contact-shadow / directional-light setup.
+ * Loads factory_model.glb and Daraxtlar.glb (trees), then centres the
+ * factory model on the origin and uniformly scales it so its largest
+ * dimension equals {@link MODEL_TARGET_SIZE}. The trees model is rendered
+ * inside the same group, sharing that exact transform, so both models
+ * stay aligned. Shadows are enabled on every mesh for the contact-shadow /
+ * directional-light setup.
  */
 const FactoryModelMesh: React.FC<FactoryModelMeshProps> = ({ onReady }) => {
     const { scene } = useGLTF(MODEL_URL, DRACO_DECODER_PATH);
+    const { scene: treesScene } = useGLTF(TREES_MODEL_URL, DRACO_DECODER_PATH);
 
     // Clone so the cached GLTF is never mutated (safe across remounts / HMR).
     const model = useMemo(() => scene.clone(true), [scene]);
+    const treesModel = useMemo(() => treesScene.clone(true), [treesScene]);
 
     // Compute the normalising transform once per model instance.
     const { scale, offset } = useMemo(() => {
@@ -56,18 +83,9 @@ const FactoryModelMesh: React.FC<FactoryModelMeshProps> = ({ onReady }) => {
     }, [model]);
 
     useLayoutEffect(() => {
-        model.traverse((obj) => {
-            if ((obj as THREE.Mesh).isMesh) {
-                const mesh = obj as THREE.Mesh;
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                const mat = mesh.material as THREE.MeshStandardMaterial;
-                if (mat && "envMapIntensity" in mat) {
-                    mat.envMapIntensity = 1.1;
-                }
-            }
-        });
-    }, [model]);
+        enableShadows(model);
+        enableShadows(treesModel);
+    }, [model, treesModel]);
 
     return (
         <group
@@ -77,10 +95,12 @@ const FactoryModelMesh: React.FC<FactoryModelMeshProps> = ({ onReady }) => {
             ref={(g) => g && onReady?.(g)}
         >
             <primitive object={model} />
+            <primitive position={[-290, 0, 309]} object={treesModel} />
         </group>
     );
 };
 
 useGLTF.preload(MODEL_URL, DRACO_DECODER_PATH);
+useGLTF.preload(TREES_MODEL_URL, DRACO_DECODER_PATH);
 
 export default FactoryModelMesh;
