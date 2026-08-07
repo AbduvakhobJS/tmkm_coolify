@@ -120,6 +120,7 @@
 .fm-marker--production { --marker-color: 16, 185, 129; }
 .fm-marker--staff { --marker-color: 244, 63, 94; }
 .fm-marker--camera { --marker-color: 14, 168, 199; }
+.fm-marker--into { --marker-color: 56, 189, 248; }
 
 .fm-marker__ring {
     position: absolute;
@@ -1028,4 +1029,124 @@
 .fm-toggle--on .fm-toggle__switch::after {
     transform: translateX(15px);
     background: #ffffff;
+}
+
+/* ─── Pavilion interior modal (FactoryIntoModal) ─────────────────────────── */
+
+.fm-pavilion {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    overflow: hidden;
+    background: #04070d;
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    color: #e6f3f8;
+}
+
+.fm-pavilion__close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: #eafaff;
+    background: rgba(3, 13, 34, 0.65);
+    border: 1px solid rgba(var(--fm-cyan), 0.4);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.fm-pavilion__close:hover {
+    background: rgba(255, 84, 112, 0.2);
+    color: #ff8095;
+    border-color: rgba(255, 84, 112, 0.5);
+}
+
+.fm-pavilion__hint {
+    z-index: 30;
+}
+
+/* ─── In-scene machine markers (round number buttons anchored per machine) ── */
+
+.fm-pavilion-marker {
+    position: relative;
+    transform: translate(-50%, -50%);
+}
+
+.fm-pavilion-marker__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    color: #cfe9f2;
+    background: rgba(var(--fm-cyan), 0.16);
+    border: 1.5px solid rgba(var(--fm-cyan), 0.45);
+    box-shadow: 0 0 12px rgba(var(--fm-cyan), 0.35);
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.fm-pavilion-marker__btn:hover {
+    transform: scale(1.12);
+    background: rgba(var(--fm-cyan), 0.28);
+    box-shadow: 0 0 18px rgba(var(--fm-cyan), 0.55);
+}
+
+.fm-pavilion-marker__btn--active {
+    color: #04141a;
+    background: rgb(var(--fm-cyan));
+    border-color: rgb(var(--fm-cyan));
+    box-shadow: 0 0 0 3px rgba(var(--fm-cyan), 0.25), 0 0 22px rgba(var(--fm-cyan), 0.7);
+}
+
+.fm-pavilion-marker-panel {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 12px;
+    width: 240px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(160deg, rgba(8, 24, 48, 0.92), rgba(3, 13, 34, 0.96));
+    border: 1px solid rgba(var(--fm-cyan), 0.45);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6), 0 0 30px rgba(var(--fm-cyan), 0.15);
+    backdrop-filter: blur(10px);
+    cursor: default;
+}
+
+.fm-pavilion-marker-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(var(--fm-cyan), 0.2);
+}
+
+.fm-pavilion-marker-panel__title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: #eafaff;
+}
+
+.fm-pavilion-marker-panel__text {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: #bfe0ec;
 }

@@ -10,7 +10,7 @@ import {
     FiZap,
 } from "react-icons/fi";
 import { TbBuildingFactory2, TbGauge } from "react-icons/tb";
-import type { BuildingMarker, Vec3, VideoMarker, WarningMarker, WidgetGroup } from "./types";
+import type { BuildingMarker, MachineMarker, Vec3, VideoMarker, WarningMarker, WidgetGroup } from "./types";
 
 /* ─── Backend / stream config ──────────────────────────────────────────────── */
 
@@ -41,9 +41,34 @@ export const MODEL_ROTATION_Y = 0;
 /* ─── Camera / controls ────────────────────────────────────────────────────── */
 
 export const CAMERA_FOV = 42;
-export const CAMERA_INITIAL_POSITION: [number, number, number] = [18, 12, 22];
 export const CAMERA_NEAR = 0.1;
 export const CAMERA_FAR = 500;
+
+/**
+ * The default view used to open ~45° off from how the scene actually reads,
+ * so it always needed a manual orbit-drag to the left to look right. Rather
+ * than rotate the model itself (building markers are positioned in world
+ * space, independently of the model's own rotation group, and would drift
+ * out of alignment if the model turned), the default camera position is
+ * pre-rotated by this offset instead — same fix, no marker side effects.
+ * Positive = counter-clockwise (viewed from above). Flip the sign if this
+ * ends up turning the wrong way.
+ */
+const CAMERA_INITIAL_ROTATION_OFFSET = Math.PI / 3;
+
+const rotateAroundY = (
+    [x, y, z]: [number, number, number],
+    theta: number
+): [number, number, number] => {
+    const cos = Math.cos(theta);
+    const sin = Math.sin(theta);
+    return [x * cos + z * sin, y, -x * sin + z * cos];
+};
+
+export const CAMERA_INITIAL_POSITION: [number, number, number] = rotateAroundY(
+    [18, 12, 22],
+    CAMERA_INITIAL_ROTATION_OFFSET
+);
 
 /**
  * Sky dome half-extent must stay well inside CAMERA_FAR, otherwise its faces sit
@@ -71,6 +96,30 @@ export const FPS_COLLISION_BUFFER = 1.6;
 /** Clamp horizontal roaming to this radius from the model centre. */
 export const FPS_MAX_RADIUS = 60;
 
+/* ─── Intro camera fly-through (main scene, plays once on mount) ─────────────
+ * Dips the camera down to walking height, tours a closed loop of 20 points
+ * around the 10-building complex, then eases back to CAMERA_INITIAL_POSITION.
+ * ---------------------------------------------------------------------------- */
+
+/** Eye height while circling the model — matches a person walking, not the overview shot. */
+export const INTRO_WALK_HEIGHT = 1.8;
+/** Radius of the tour loop around the (centred, normalised) model — kept well clear of the buildings. */
+export const INTRO_LOOP_RADIUS = 26;
+/** Seconds to travel the full 20-point loop (excludes the descend-in / return-out transitions). */
+export const INTRO_LOOP_DURATION = 10;
+/** Seconds to ease down from the overview into the loop, and back up again at the end. */
+export const INTRO_TRANSITION_DURATION = 1.3;
+
+/** 20 waypoints circling the model at walking height; point 20 (index 19) lands back on point 1, closing the loop. */
+export const INTRO_FLY_POINTS: Vec3[] = Array.from({ length: 20 }, (_, i) => {
+    const angle = (i / 19) * Math.PI * 2;
+    return [
+        Math.cos(angle) * INTRO_LOOP_RADIUS,
+        INTRO_WALK_HEIGHT,
+        Math.sin(angle) * INTRO_LOOP_RADIUS,
+    ] as Vec3;
+});
+
 /* ─── Marker visuals ───────────────────────────────────────────────────────── */
 
 export const MARKER_BASE_SCALE = 1;
@@ -93,8 +142,8 @@ export const SCENE_BACKGROUND = "#050b1a";
  * space — the near-black sky/fog colour — which reads as a solid black slab
  * once the orbit zooms out past the model's footprint.
  */
-export const GROUND_RADIUS = 40;
-export const GROUND_COLOR = "#0b1626";
+export const GROUND_RADIUS = 240;
+export const GROUND_COLOR = "#345116";
 
 export const BLOOM_INTENSITY = 0.55;
 export const BLOOM_LUMINANCE_THRESHOLD = 0.35;
@@ -108,26 +157,27 @@ export const BLOOM_LUMINANCE_SMOOTHING = 0.9;
 const MARKER_HEIGHT = 0.6;
 
 export const BUILDING_MARKERS: BuildingMarker[] = [
-    { id: "bld-01", building: "Production",   cameraName: "Shourm tashkil etish",    position: [6.5, MARKER_HEIGHT, -0.5], streamIndex: 0, type: "production" },
-    { id: "bld-02", building: "Electrolysis Plant",  cameraName: "Ma'muriy bino",    position: [6, MARKER_HEIGHT, 1], streamIndex: 1, type: "scada" },
-    { id: "bld-03", building: "Production",    cameraName: "Kutubxona",    position: [7,  MARKER_HEIGHT, -1.5], streamIndex: 2, type: "production" },
-    { id: "bld-04", building: "Power Substation",    cameraName: "O‘tkazish nazorat punkti",      position: [7,  MARKER_HEIGHT, 4], streamIndex: 2, type: "energy" },
-    { id: "bld-05", building: "Warehouse North",     cameraName: "O‘tkazish nazorat punkti (avtotransport)",   position: [7,  MARKER_HEIGHT, 5.5],  streamIndex: 0, type: "staff" },
-    { id: "bld-06", building: "Logistics Terminal",  cameraName: '"R&D PARK" MChJ',  position: [2,  MARKER_HEIGHT, -4],  streamIndex: 1, type: "staff" },
-    { id: "bld-07", building: "Chemical Storage",    cameraName: '"SMART POWDER" MChJ',  position: [-3, MARKER_HEIGHT, -1],  streamIndex: 2, type: "camera" },
-    { id: "bld-08", building: "Control Center",      cameraName: "Oshxona",    position: [-1, MARKER_HEIGHT, 0.8],  streamIndex: 3, type: "scada" },
-    { id: "bld-09", building: "Refinery Unit",       cameraName: "Kompozit materiallar va qotishmalar sexi",   position: [3, MARKER_HEIGHT, -1],  streamIndex: 0, type: "energy" },
-    { id: "bld-10", building: "Quality Lab",         cameraName: "Molibden p. s. o‘tga chidamli buyumlar  sexi",     position: [3,  MARKER_HEIGHT, 1],  streamIndex: 1, type: "camera" },
-    { id: "bld-11", building: "Quality Lab",         cameraName: "Molibden ishlab chiqaruvchi pirometallurgiya sexi",     position: [3,  MARKER_HEIGHT, 3.25],  streamIndex: 1, type: "camera" },
-    { id: "bld-20", building: "Quality Lab",         cameraName: "Ta'mirlash-mexanik uchastka",     position: [3,  MARKER_HEIGHT, 5.2],  streamIndex: 1, type: "camera" },
-    { id: "bld-12", building: "Quality Lab",         cameraName: "Energiya bilan ta'minlash sexi (kompressorxona)",     position: [2.5,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
-    { id: "bld-13", building: "Quality Lab",         cameraName: "Qozonxona",     position: [3.5,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
-    { id: "bld-14", building: "Quality Lab",         cameraName: "Nasosxona",     position: [4.2,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
-    { id: "bld-15", building: "Quality Lab",         cameraName: "Energiya bilan ta'minlash (nimstansiya)",     position: [0,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "camera" },
-    { id: "bld-16", building: "Quality Lab",         cameraName: "O‘tga chidamli buyumlar ishlab chiqarish sexi",     position: [-2,  MARKER_HEIGHT, 5.2],  streamIndex: 1, type: "camera" },
-    { id: "bld-17", building: "Quality Lab",         cameraName: "Asbob-uskunalar va texnologik jihozlar ishlab chiqarish sexi",     position: [-4,  MARKER_HEIGHT, 5.4],  streamIndex: 1, type: "camera" },
-    { id: "bld-18", building: "Quality Lab",         cameraName: "Volfram ishlab chiqaruvchi pirometallurgiya sexi",     position: [-5,  MARKER_HEIGHT, -4.8],  streamIndex: 1, type: "camera" },
-    { id: "bld-19", building: "Quality Lab",         cameraName: "Nodir metallarni chuqur qayta ishlash sexi",     position: [-3,  MARKER_HEIGHT, -3],  streamIndex: 1, type: "camera" },
+    { id: "bld-01", building: "Production",   cameraName: "Shourm tashkil etish",    position: [6.5, MARKER_HEIGHT, -0.5], streamIndex: 0, type: "into" },
+    { id: "bld-02", building: "Electrolysis Plant",  cameraName: "Ma'muriy bino",    position: [6, MARKER_HEIGHT, 1], streamIndex: 1, type: "into" },
+    { id: "bld-03", building: "Production",    cameraName: "Kutubxona",    position: [7,  MARKER_HEIGHT, -1.5], streamIndex: 2, type: "into" },
+    { id: "bld-04", building: "Power Substation",    cameraName: "O‘tkazish nazorat punkti",      position: [7,  MARKER_HEIGHT, 4], streamIndex: 2, type: "into" },
+    { id: "bld-05", building: "Warehouse North",     cameraName: "O‘tkazish nazorat punkti (avtotransport)",   position: [7,  MARKER_HEIGHT, 5.5],  streamIndex: 0, type: "into" },
+    { id: "bld-06", building: "Logistics Terminal",  cameraName: '"R&D PARK" MChJ',  position: [2,  MARKER_HEIGHT, -4],  streamIndex: 1, type: "into" },
+    { id: "bld-07", building: "Chemical Storage",    cameraName: '"SMART POWDER" MChJ',  position: [-3, MARKER_HEIGHT, -1],  streamIndex: 2, type: "into" },
+    { id: "bld-08", building: "Control Center",      cameraName: "Oshxona",    position: [-1, MARKER_HEIGHT, 0.8],  streamIndex: 3, type: "into" },
+    { id: "bld-09", building: "Refinery Unit",       cameraName: "Kompozit materiallar va qotishmalar sexi",   position: [3, MARKER_HEIGHT, -1],  streamIndex: 0, type: "into" },
+    { id: "bld-10", building: "Quality Lab",         cameraName: "Molibden p. s. o‘tga chidamli buyumlar  sexi",     position: [3,  MARKER_HEIGHT, 1],  streamIndex: 1, type: "into" },
+    { id: "bld-11", building: "Quality Lab",         cameraName: "Molibden ishlab chiqaruvchi pirometallurgiya sexi",     position: [3,  MARKER_HEIGHT, 3.25],  streamIndex: 1, type: "into" },
+    { id: "bld-20", building: "Quality Lab",         cameraName: "Ta'mirlash-mexanik uchastka",     position: [3,  MARKER_HEIGHT, 5.2],  streamIndex: 1, type: "into" },
+    { id: "bld-12", building: "Quality Lab",         cameraName: "Energiya bilan ta'minlash sexi (kompressorxona)",     position: [2.5,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "into" },
+    { id: "bld-13", building: "Quality Lab",         cameraName: "Qozonxona",     position: [3.5,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "into" },
+    { id: "bld-14", building: "Quality Lab",         cameraName: "Nasosxona",     position: [4.2,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "into" },
+    { id: "bld-15", building: "Quality Lab",         cameraName: "Energiya bilan ta'minlash (nimstansiya)",     position: [0,  MARKER_HEIGHT, 6.6],  streamIndex: 1, type: "into" },
+    { id: "bld-16", building: "Quality Lab",         cameraName: "O‘tga chidamli buyumlar ishlab chiqarish sexi",     position: [-2,  MARKER_HEIGHT, 5.2],  streamIndex: 1, type: "into" },
+    { id: "bld-17", building: "Quality Lab",         cameraName: "Asbob-uskunalar va texnologik jihozlar ishlab chiqarish sexi",     position: [-4,  MARKER_HEIGHT, 5.4],  streamIndex: 1, type: "into" },
+    { id: "bld-18", building: "Quality Lab",         cameraName: "Volfram ishlab chiqaruvchi pirometallurgiya sexi",     position: [-5,  MARKER_HEIGHT, -4.8],  streamIndex: 1, type: "into" },
+    { id: "bld-19", building: "Quality Lab",         cameraName: "Nodir metallarni chuqur qayta ishlash sexi",     position: [-3,  MARKER_HEIGHT, -3],  streamIndex: 1, type: "into" },
+    // { id: "bld-into-01", building: "Pavilion #1",    cameraName: "Pavilion ichki ko‘rinishi",     position: [-4,  MARKER_HEIGHT, 1.6],  streamIndex: 0, type: "into" },
 ];
 
 /* ─── Video markers ────────────────────────────────────────────────────────────
@@ -228,6 +278,43 @@ export const LEFT_WIDGETS: WidgetGroup[] = [
             { id: "energy-peak", icon: TbGauge, label: "Peak", value: "11.2", unit: "MW", tone: "warning" },
         ],
     },
+];
+
+/* ─── Pavilion interior (FactoryIntoModal) ────────────────────────────────────
+ * Fullscreen up-close walkthrough of a single pavilion (det.glb) with 10
+ * machines laid out in two facing rows either side of a centre aisle.
+ * ---------------------------------------------------------------------------- */
+
+/** Largest bounding-box dimension the pavilion model is normalised to. Bigger
+ * than {@link MODEL_TARGET_SIZE} since this view is meant to feel walkable/up-close. */
+export const PAVILION_TARGET_SIZE = 40;
+export const PAVILION_GROUND_RADIUS = 30;
+export const PAVILION_CAMERA_FOV = 50;
+export const PAVILION_CAMERA_INITIAL_POSITION: [number, number, number] = [0, 6, 22];
+/** Seconds for the camera to glide to a selected machine's viewpoint. */
+export const PAVILION_FLY_DURATION = 1.1;
+/** How far back from the machine the camera stops (world units), approaching from wherever it currently is. */
+export const PAVILION_APPROACH_DISTANCE = 5;
+/** Camera eye height above the machine's own y when parked in front of it. */
+export const PAVILION_APPROACH_HEIGHT = 2.2;
+
+const MACHINE_LOREM =
+    "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.";
+
+/** Positions are placeholders — hand-tune each machine's (x, y, z) once the real layout is known. */
+export const MACHINE_MARKERS: MachineMarker[] = [
+    { id: "machine-1", number: 1, description: MACHINE_LOREM, position: [1, 1, 1] },
+    { id: "machine-2", number: 2, description: MACHINE_LOREM, position: [1, 1, -7] },
+    { id: "machine-3", number: 3, description: MACHINE_LOREM, position: [1, 1, -15] },
+
+    { id: "machine-4", number: 4, description: MACHINE_LOREM, position: [-2.5, 1, -4.8] },
+    { id: "machine-5", number: 5, description: MACHINE_LOREM, position: [-4, 1, -4.8] },
+    { id: "machine-6", number: 6, description: MACHINE_LOREM, position: [-5.8, 1, -4.8] },
+
+    { id: "machine-7", number: 7, description: MACHINE_LOREM, position: [-5.5, 1, 6.5] },
+    { id: "machine-8", number: 8, description: MACHINE_LOREM, position: [-3.5, 1, 6.5] },
+    { id: "machine-9", number: 9, description: MACHINE_LOREM, position: [2.4, 1, 7.6] },
+    { id: "machine-10", number: 10, description: MACHINE_LOREM, position: [5.5, 2, 11.6] },
 ];
 
 export const RIGHT_WIDGETS: WidgetGroup[] = [

@@ -16,16 +16,16 @@ import "./factoryModel.css";
 const MARKER_HEIGHT = 0.6;
 
 const BUILDING_MARKERS: BuildingMarker[] = [
-    { id: "bld-01", building: "Production", cameraName: "CAM-01 · Smelter", position: [-5, MARKER_HEIGHT, -4.9], streamIndex: 0, type: "production" },
-    { id: "bld-02", building: "Electrolysis Plant", cameraName: "CAM-02 · Electro", position: [-3, MARKER_HEIGHT, -8.1], streamIndex: 1, type: "scada" },
-    { id: "bld-03", building: "Production", cameraName: "CAM-03 · Casting", position: [3, MARKER_HEIGHT, -8.1], streamIndex: 2, type: "production" },
-    { id: "bld-04", building: "Power Substation", cameraName: "CAM-04 · Power", position: [6.5, MARKER_HEIGHT, -1], streamIndex: 2, type: "energy" },
-    { id: "bld-05", building: "Warehouse North", cameraName: "CAM-05 · WH-North", position: [7, MARKER_HEIGHT, 5], streamIndex: 0, type: "staff" },
-    { id: "bld-06", building: "Logistics Terminal", cameraName: "CAM-06 · Logistics", position: [1, MARKER_HEIGHT, -1], streamIndex: 1, type: "staff" },
-    { id: "bld-07", building: "Chemical Storage", cameraName: "CAM-07 · Chemicals", position: [-5, MARKER_HEIGHT, 3.4], streamIndex: 2, type: "camera" },
-    { id: "bld-08", building: "Control Center", cameraName: "CAM-08 · Control", position: [-5, MARKER_HEIGHT, -1.2], streamIndex: 3, type: "scada" },
-    { id: "bld-09", building: "Refinery Unit", cameraName: "CAM-09 · Refinery", position: [-5, MARKER_HEIGHT, -3.1], streamIndex: 0, type: "energy" },
-    { id: "bld-10", building: "Quality Lab", cameraName: "CAM-10 · QC Lab", position: [3, MARKER_HEIGHT, 1], streamIndex: 1, type: "camera" },
+    { id: "bld-01", building: "Production", cameraName: "CAM-01 · Smelter", position: [-5, MARKER_HEIGHT, -4.9], streamIndex: 0, type: "into" },
+    { id: "bld-02", building: "Electrolysis Plant", cameraName: "CAM-02 · Electro", position: [-3, MARKER_HEIGHT, -8.1], streamIndex: 1, type: "into" },
+    { id: "bld-03", building: "Production", cameraName: "CAM-03 · Casting", position: [3, MARKER_HEIGHT, -8.1], streamIndex: 2, type: "into" },
+    { id: "bld-04", building: "Power Substation", cameraName: "CAM-04 · Power", position: [6.5, MARKER_HEIGHT, -1], streamIndex: 2, type: "into" },
+    { id: "bld-05", building: "Warehouse North", cameraName: "CAM-05 · WH-North", position: [7, MARKER_HEIGHT, 5], streamIndex: 0, type: "into" },
+    { id: "bld-06", building: "Logistics Terminal", cameraName: "CAM-06 · Logistics", position: [1, MARKER_HEIGHT, -1], streamIndex: 1, type: "into" },
+    { id: "bld-07", building: "Chemical Storage", cameraName: "CAM-07 · Chemicals", position: [-5, MARKER_HEIGHT, 3.4], streamIndex: 2, type: "into" },
+    { id: "bld-08", building: "Control Center", cameraName: "CAM-08 · Control", position: [-5, MARKER_HEIGHT, -1.2], streamIndex: 3, type: "into" },
+    { id: "bld-09", building: "Refinery Unit", cameraName: "CAM-09 · Refinery", position: [-5, MARKER_HEIGHT, -3.1], streamIndex: 0, type: "into" },
+    { id: "bld-10", building: "Quality Lab", cameraName: "CAM-10 · QC Lab", position: [3, MARKER_HEIGHT, 1], streamIndex: 1, type: "into" },
 ];
 
 const MARKER_COLOR: Record<MarkerType, string> = {
@@ -34,6 +34,7 @@ const MARKER_COLOR: Record<MarkerType, string> = {
     production: "#10b981",
     staff: "#f43f5e",
     camera: "#0ea8c7",
+    into: "#0ea8c7",
 };
 
 const Marker: React.FC<{ marker: BuildingMarker }> = ({ marker }) => (

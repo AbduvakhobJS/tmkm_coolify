@@ -11,8 +11,8 @@ const METALS = [
     { name: 'Molibden', symbol: 'Mo', color: '#3b82f6', value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, quality: 98.6, dyn: [812, 828, 845, 872, 918, 895] },
     { name: 'Volfram', symbol: 'W', color: '#22c55e', value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, quality: 97.9, dyn: [602, 624, 641, 663, 701, 688] },
     { name: 'Titan', symbol: 'Ti', color: '#f59e0b', value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, quality: 96.4, dyn: [378, 388, 398, 408, 421, 414] },
-    { name: 'Tantal', symbol: 'Ta', color: '#a855f7', value: 987.3, pct: 12.0, delta: 5.1, plan: 950, quality: 98.1, dyn: [148, 153, 159, 164, 171, 167] },
-    { name: 'Niobiy', symbol: 'Nb', color: '#06b6d4', value: 521.1, pct: 6.3, delta: -4.3, plan: 550, quality: 97.2, dyn: [84, 87, 89, 92, 96, 93] },
+    // { name: 'Tantal', symbol: 'Ta', color: '#a855f7', value: 987.3, pct: 12.0, delta: 5.1, plan: 950, quality: 98.1, dyn: [148, 153, 159, 164, 171, 167] },
+    // { name: 'Niobiy', symbol: 'Nb', color: '#06b6d4', value: 521.1, pct: 6.3, delta: -4.3, plan: 550, quality: 97.2, dyn: [84, 87, 89, 92, 96, 93] },
     { name: 'Boshqalar', symbol: '•••', color: '#94a3b8', value: 277.4, pct: 3.4, delta: -6.8, plan: 300, quality: 95.3, dyn: [44, 45, 46, 47, 49, 48] },
 ];
 const TOTAL = 8247.5;

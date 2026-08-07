@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
     AdaptiveEvents,
     BakeShadows,
@@ -32,6 +32,7 @@ import type { BuildingMarker, VideoMarker, WarningMarker } from "../types";
 import CameraMarker from "./CameraMarker";
 import FactoryModelMesh from "./FactoryModelMesh";
 import FpsControls from "./FpsControls";
+import IntroFlyThrough from "./IntroFlyThrough";
 import VideoMarkerMesh from "./VideoMarkerMesh";
 import WarningMarkerMesh from "./WarningMarkerMesh";
 
@@ -43,6 +44,8 @@ interface FactorySceneProps {
     openWarnings: Record<string, boolean>;
     onToggleWarning: (marker: WarningMarker) => void;
     onExpandWarning: (marker: WarningMarker) => void;
+    /** Suspends orbit + WASD navigation while a fullscreen modal (e.g. the pavilion walkthrough) sits on top. */
+    paused?: boolean;
 }
 
 /**
@@ -58,9 +61,12 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
     openWarnings,
     onToggleWarning,
     onExpandWarning,
+    paused,
 }) => {
     const controlsRef = useRef<OrbitControlsImpl | null>(null);
     const modelRef = useRef<THREE.Group | null>(null);
+    // One-shot cinematic on mount: descend to walking height, tour the model, return to the overview.
+    const [introPlaying, setIntroPlaying] = useState(true);
 
     return (
         <>
@@ -130,7 +136,7 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
 
             {/* ── Ground ───────────────────────────────────────────────────── */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-                <circleGeometry args={[GROUND_RADIUS, 64]} />
+                <circleGeometry args={[GROUND_RADIUS, 512]} />
                 <meshStandardMaterial color={GROUND_COLOR} roughness={0.95} metalness={0.05} />
             </mesh>
 
@@ -178,6 +184,7 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
             {/* ── Camera controls ──────────────────────────────────────────── */}
             <OrbitControls
                 ref={controlsRef}
+                enabled={!paused && !introPlaying}
                 enableDamping
                 dampingFactor={ORBIT_DAMPING}
                 enablePan
@@ -194,7 +201,10 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
                 backgroundBlurriness={0.25}
                 environmentIntensity={0.8}
             />
-            <FpsControls controlsRef={controlsRef} modelRef={modelRef} />
+            <FpsControls controlsRef={controlsRef} modelRef={modelRef} paused={paused || introPlaying} />
+            {introPlaying && (
+                <IntroFlyThrough controlsRef={controlsRef} onDone={() => setIntroPlaying(false)} />
+            )}
         </>
     );
 };

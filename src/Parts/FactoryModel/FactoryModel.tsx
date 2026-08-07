@@ -20,6 +20,7 @@ import SceneToggles from "./ui/SceneToggles";
 import VideoFullscreenModal from "./ui/VideoFullscreenModal";
 import WarningModal from "./ui/WarningModal";
 import SceneLoader from "./scene/SceneLoader";
+import FactoryIntoModal from "./ui/FactoryIntoModal";
 import "./factoryModel.css";
 
 // Code-split the heavy 3D scene (three.js + drei + postprocessing) out of the
@@ -108,6 +109,7 @@ const FactoryModel: React.FC = () => {
                         openWarnings={openWarnings}
                         onToggleWarning={handleToggleWarning}
                         onExpandWarning={handleExpandWarning}
+                        paused={selected?.type === "into"}
                     />
                 </Suspense>
             </Canvas>
@@ -130,9 +132,14 @@ const FactoryModel: React.FC = () => {
             {selected?.type === "staff" && (
                 <StaffModal marker={selected} onClose={handleClose} />
             )}
+            {selected?.type === "into" && (
+                <FactoryIntoModal isOpen={selected?.type === "into"} onClose={handleClose} />
+
+            )}
 
             <VideoFullscreenModal marker={expandedVideo} onClose={handleCloseVideo} />
             <WarningModal marker={expandedWarning} onClose={handleCloseWarning} />
+
         </div>
     );
 };

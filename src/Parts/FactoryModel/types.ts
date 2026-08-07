@@ -16,7 +16,7 @@ export interface CameraStream {
 /** 3D world position expressed as a tuple, ready to spread into three.js props. */
 export type Vec3 = [x: number, y: number, z: number];
 
-export type MarkerType = "scada" | "camera" | "energy" | "production" | "staff";
+export type MarkerType = "scada" | "camera" | "energy" | "production" | "staff" | "into";
 
 /** Static description of a building marker floating above the factory model. */
 export interface BuildingMarker {
@@ -70,4 +70,15 @@ export interface WarningMarker {
     text: string;
     /** Optional illustration; when absent the panel falls back to text-only. */
     image?: string;
+}
+
+/** One of the 10 machines inside the pavilion-interior walkthrough. */
+export interface MachineMarker {
+    id: string;
+    /** Display number shown on its button (1–10). */
+    number: number;
+    /** Shown in the info panel when this machine is selected. */
+    description: string;
+    /** World-space anchor of the machine, in the pavilion model's normalised local space. */
+    position: Vec3;
 }

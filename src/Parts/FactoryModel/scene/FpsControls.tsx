@@ -15,6 +15,8 @@ interface FpsControlsProps {
     controlsRef: React.MutableRefObject<OrbitControlsImpl | null>;
     /** The factory model group, ray-tested to stop the camera walking through walls. */
     modelRef: React.MutableRefObject<THREE.Group | null>;
+    /** When true, movement is suspended (e.g. another scene/modal is active on top). */
+    paused?: boolean;
 }
 
 type MoveKey = "forward" | "backward" | "left" | "right";
@@ -36,7 +38,7 @@ const KEY_MAP: Record<string, MoveKey> = {
  * cinematic feel, ground-clamped and blocked by raycast collision against the
  * factory so the camera never clips inside a building.
  */
-const FpsControls: React.FC<FpsControlsProps> = ({ controlsRef, modelRef }) => {
+const FpsControls: React.FC<FpsControlsProps> = ({ controlsRef, modelRef, paused }) => {
     const { camera } = useThree();
 
     const keys = useRef<Record<MoveKey, boolean>>({
@@ -78,9 +80,17 @@ const FpsControls: React.FC<FpsControlsProps> = ({ controlsRef, modelRef }) => {
         };
     }, []);
 
+    // Drop any held keys and kill residual velocity the instant this pauses,
+    // so movement doesn't silently continue while it's hidden behind a modal.
+    useEffect(() => {
+        if (!paused) return;
+        keys.current = { forward: false, backward: false, left: false, right: false };
+        velocity.current.set(0, 0, 0);
+    }, [paused]);
+
     useFrame((_, delta) => {
         const controls = controlsRef.current;
-        if (!controls) return;
+        if (!controls || paused) return;
 
         const k = keys.current;
 
