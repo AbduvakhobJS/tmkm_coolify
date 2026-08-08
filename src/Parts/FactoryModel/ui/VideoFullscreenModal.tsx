@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiVideo, FiX } from "react-icons/fi";
 import type { VideoMarker } from "../types";
+import WebRTCPlayer from "../../../components/WebRTCPlayer";
 
 interface VideoFullscreenModalProps {
     marker: VideoMarker | null;
@@ -51,15 +52,7 @@ const VideoFullscreenModal: React.FC<VideoFullscreenModalProps> = ({ marker, onC
                         </div>
 
                         <div className="fm-modal__content" style={{ padding: 0 }}>
-                            <video
-                                key={marker.id}
-                                src={marker.url}
-                                controls
-                                autoPlay
-                                muted
-                                loop
-                                style={{ width: "100%", height: "100%", objectFit: "contain", background: "#000" }}
-                            />
+                            <WebRTCPlayer key={marker.id} url={marker.url} />
                         </div>
                     </motion.div>
                 </motion.div>

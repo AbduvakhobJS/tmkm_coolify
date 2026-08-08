@@ -54,11 +54,11 @@ export interface WidgetGroup {
     metrics: WidgetMetric[];
 }
 
-/** A CCTV point that plays a local demo clip in a popup above its marker. */
+/** A CCTV point that plays a live WebRTC feed in a popup above its marker. */
 export interface VideoMarker {
     id: string;
     position: Vec3;
-    /** Path to the video file (public/videos/*.mp4). */
+    /** WebRTC negotiation URL (see components/WebRTCPlayer.tsx). */
     url: string;
     label: string;
 }

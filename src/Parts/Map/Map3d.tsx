@@ -1011,7 +1011,7 @@ const Map3D = ({
             {/* Filter Panel — top-left, horizontal row */}
             <div style={{
                 position: 'absolute',
-                top: '2%',
+                top: '6%',
                 left: '2%',
                 maxWidth: 'calc(100% - 260px)',
                 width: 'fit-content',

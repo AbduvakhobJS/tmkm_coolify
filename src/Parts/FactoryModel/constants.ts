@@ -234,26 +234,65 @@ export const BUILDING_MARKERS: BuildingMarker[] = [
 ];
 
 /* ─── Video markers ────────────────────────────────────────────────────────────
- * 20 demo CCTV points scattered across the footprint in a 5×4 grid. Each cycles
- * through the 4 sample clips in public/videos/ (m1–m4.mp4).
+ * 18 real CCTV feeds, laid out across the same 5×4 footprint grid the earlier
+ * demo-clip version used (20 slots, first 18 filled). Each plays over WebRTC
+ * from WEBRTC_SERVER using its own stream_uuid — see components/WebRTCPlayer.tsx
+ * for the SDP-negotiation client and components/VideoStream.tsx for the same
+ * URL pattern used elsewhere in the app.
  * ---------------------------------------------------------------------------- */
 
 const VIDEO_MARKER_HEIGHT = 0.3;
-const VIDEO_CLIPS = ["/videos/m1.mp4", "/videos/m2.mp4", "/videos/m3.mp4", "/videos/m4.mp4"];
+const WEBRTC_SERVER = "https://tmkstream.bgs.uz";
 const VIDEO_GRID_X = [-7.5, -4, -1.5, 5, 7.5];
 const VIDEO_GRID_Z = [-4.7, -1.1, 3.1, 5.5];
 
-export const VIDEO_MARKERS: VideoMarker[] = VIDEO_GRID_Z.flatMap((z, row) =>
-    VIDEO_GRID_X.map((x, col) => {
-        const index = row * VIDEO_GRID_X.length + col;
-        return {
-            id: `vid-${String(index + 1).padStart(2, "0")}`,
-            position: [x, VIDEO_MARKER_HEIGHT, z] as Vec3,
-            url: VIDEO_CLIPS[index % VIDEO_CLIPS.length],
-            label: `CAM-${String(index + 1).padStart(2, "0")}`,
-        };
-    })
+const VIDEO_GRID_POSITIONS: Vec3[] = VIDEO_GRID_Z.flatMap((z) =>
+    VIDEO_GRID_X.map((x) => [x, VIDEO_MARKER_HEIGHT, z] as Vec3)
 );
+
+interface RawCamera {
+    id: string;
+    ip: string;
+    name: string;
+}
+
+
+const CAMERAS: RawCamera[] = [
+    { id: "c8673b0d-56d6-4f1a-98cb-373508568503", ip: "10.50.10.155", name: "KPP-2 ploshadka" },
+    { id: "11f5bcb2-2d3d-42c8-8876-aa2a8b802a6c", ip: "10.50.10.154", name: "Camera 0112" },
+    { id: "97ae3643-255b-482d-b23c-9ad1d7ca5760", ip: "10.50.10.105", name: "1-sex pech" },
+    { id: "9c908439-8e83-4c22-b156-e10e049c4593", ip: "10.50.10.102", name: "2-uchastka pech" },
+    { id: "cbb32e29-4fa2-481f-927b-8179d5fd59f2", ip: "10.50.10.101", name: "2-uchastka" },
+    { id: "97ae3643-255b-482d-b23c-9ad1d7ca5760", ip: "10.50.10.105", name: "1-sex pech" },
+    { id: "11f5bcb2-2d3d-42c8-8876-aa2a8b802a6c", ip: "10.50.10.154", name: "Camera 0112" },
+    { id: "11f5bcb2-2d3d-42c8-8876-aa2a8b802a6c", ip: "10.50.10.154", name: "Camera 0112" },
+    { id: "cbb32e29-4fa2-481f-927b-8179d5fd59f2", ip: "10.50.10.101", name: "2-uchastka" },
+    { id: "97ae3643-255b-482d-b23c-9ad1d7ca5760", ip: "10.50.10.105", name: "1-sex pech" },
+    { id: "9c908439-8e83-4c22-b156-e10e049c4593", ip: "10.50.10.102", name: "2-uchastka pech" },
+    { id: "cbb32e29-4fa2-481f-927b-8179d5fd59f2", ip: "10.50.10.101", name: "2-uchastka" },
+    { id: "97ae3643-255b-482d-b23c-9ad1d7ca5760", ip: "10.50.10.105", name: "1-sex pech" },
+    { id: "97ae3643-255b-482d-b23c-9ad1d7ca5760", ip: "10.50.10.105", name: "1-sex pech" },
+    { id: "11f5bcb2-2d3d-42c8-8876-aa2a8b802a6c", ip: "10.50.10.154", name: "Camera 0112" },
+    { id: "9c908439-8e83-4c22-b156-e10e049c4593", ip: "10.50.10.102", name: "2-uchastka pech" },
+    { id: "97ae3643-255b-482d-b23c-9ad1d7ca5760", ip: "10.50.10.105", name: "1-sex pech" },
+    { id: "9c908439-8e83-4c22-b156-e10e049c4593", ip: "10.50.10.102", name: "2-uchastka pech" },
+    { id: "cbb32e29-4fa2-481f-927b-8179d5fd59f2", ip: "10.50.10.101", name: "2-uchastka" },
+    { id: "97ae3643-255b-482d-b23c-9ad1d7ca5760", ip: "10.50.10.105", name: "1-sex pech" },
+
+
+
+    { id: "9d494f37-3516-46eb-9aa8-1ed6ac632144", ip: "10.50.10.122", name: "прекурсор" },
+];
+
+const buildVideoStreamUrl = (uuid: string): string =>
+    `${WEBRTC_SERVER}/stream/${uuid}/channel/1/webrtc?uuid=${uuid}&channel=1`;
+
+export const VIDEO_MARKERS: VideoMarker[] = CAMERAS.map((cam, index) => ({
+    id: `vid-${String(index + 1).padStart(2, "0")}`,
+    position: VIDEO_GRID_POSITIONS[index],
+    url: buildVideoStreamUrl(cam.id),
+    label: cam.name,
+}));
 
 /* ─── Warning markers ──────────────────────────────────────────────────────────
  * 3 hazard/notice points. Two carry an illustration, one is text-only to

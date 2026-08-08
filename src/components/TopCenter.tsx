@@ -124,25 +124,37 @@ const TopCenter = ({
                     className={`top-center-tab${activeTab === 1 ? ' active' : ''}`}
                     onClick={() => setActiveTab(1)}
                 >
-                    Tab 1
+                    STRUKTURA 1
                 </button>
                 <button
                     className={`top-center-tab${activeTab === 2 ? ' active' : ''}`}
                     onClick={() => setActiveTab(2)}
                 >
-                    Tab 2
+                    STRUKTURA 1
                 </button>
                 <button
                     className={`top-center-tab${activeTab === 3 ? ' active' : ''}`}
                     onClick={() => setActiveTab(3)}
                 >
-                    Tab 3
+                    STRUKTURA 3
                 </button>
                 <button
                     className={`top-center-tab${activeTab === 4 ? ' active' : ''}`}
                     onClick={() => setActiveTab(4)}
                 >
-                    Map
+                    XARITA
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 5 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(5)}
+                >
+                    ZANJIR 1
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 6 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(6)}
+                >
+                    ZANJIR 2
                 </button>
             </div>
 
@@ -435,6 +447,30 @@ const TopCenter = ({
               // </div>
                 <Map3D highlightIndex={highlightIndex} setHighlightIndex={setHighlightIndex} />
 
+
+            )}
+
+            {activeTab === 5 && (
+                //   <div style={{ width: "100%", height: "47.5vh" }}>
+                //     <TopCenterNew
+                //         items={defaultItems}
+                //         backgroundImage=""
+                //         // pedestalImage="/imgs/item2.png"
+                //     />
+                // </div>
+                <img src="/imgs/GS3.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
+
+            )}
+
+            {activeTab === 6 && (
+                //   <div style={{ width: "100%", height: "47.5vh" }}>
+                //     <TopCenterNew
+                //         items={defaultItems}
+                //         backgroundImage=""
+                //         // pedestalImage="/imgs/item2.png"
+                //     />
+                // </div>
+                <img src="/imgs/GS7.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
 
             )}
         </div>

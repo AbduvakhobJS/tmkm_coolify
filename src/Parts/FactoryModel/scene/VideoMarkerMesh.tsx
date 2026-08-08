@@ -3,6 +3,7 @@ import { Html } from "@react-three/drei";
 import { AnimatePresence, motion } from "framer-motion";
 import { MARKER_DISTANCE_FACTOR } from "../constants";
 import type { VideoMarker } from "../types";
+import WebRTCPlayer from "../../../components/WebRTCPlayer";
 
 interface VideoMarkerMeshProps {
     marker: VideoMarker;
@@ -41,7 +42,9 @@ const VideoMarkerMesh: React.FC<VideoMarkerMeshProps> = ({ marker, isOpen, onTog
                                 transition={{ duration: 0.18 }}
                             >
                                 <span className="fm-video-popup__label">{marker.label}</span>
-                                <video src={marker.url} muted autoPlay loop playsInline />
+                                <div style={{ width: "100%", height: 94 }}>
+                                    <WebRTCPlayer url={marker.url} />
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
