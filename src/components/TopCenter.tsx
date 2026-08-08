@@ -148,13 +148,43 @@ const TopCenter = ({
                     className={`top-center-tab${activeTab === 5 ? ' active' : ''}`}
                     onClick={() => setActiveTab(5)}
                 >
-                    ZANJIR 1
+                    GS 1
                 </button>
                 <button
                     className={`top-center-tab${activeTab === 6 ? ' active' : ''}`}
                     onClick={() => setActiveTab(6)}
                 >
-                    ZANJIR 2
+                    GS 2
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 7 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(7)}
+                >
+                    GS 3
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 8 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(8)}
+                >
+                    GS 4
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 9 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(9)}
+                >
+                    GS 5
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 10 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(10)}
+                >
+                    GS 6
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 11 ? ' active' : ''}`}
+                    onClick={() => setActiveTab(11)}
+                >
+                    GS 7
                 </button>
             </div>
 
@@ -451,27 +481,25 @@ const TopCenter = ({
             )}
 
             {activeTab === 5 && (
-                //   <div style={{ width: "100%", height: "47.5vh" }}>
-                //     <TopCenterNew
-                //         items={defaultItems}
-                //         backgroundImage=""
-                //         // pedestalImage="/imgs/item2.png"
-                //     />
-                // </div>
-                <img src="/imgs/GS3.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
-
+                <img src="/imgs/GS1.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
             )}
-
             {activeTab === 6 && (
-                //   <div style={{ width: "100%", height: "47.5vh" }}>
-                //     <TopCenterNew
-                //         items={defaultItems}
-                //         backgroundImage=""
-                //         // pedestalImage="/imgs/item2.png"
-                //     />
-                // </div>
+                <img src="/imgs/GS2.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
+            )}
+            {activeTab === 7 && (
+                <img src="/imgs/GS3.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
+            )}
+            {activeTab === 8 && (
+                <img src="/imgs/GS4.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
+            )}
+            {activeTab === 9 && (
+                <img src="/imgs/GS5.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
+            )}
+            {activeTab === 10 && (
+                <img src="/imgs/GS6.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
+            )}
+            {activeTab === 11 && (
                 <img src="/imgs/GS7.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
-
             )}
         </div>
     );

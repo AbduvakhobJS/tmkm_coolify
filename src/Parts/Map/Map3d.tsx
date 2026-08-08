@@ -1111,7 +1111,7 @@ const Map3D = ({
             {/* Fabrika ro'yxati — o'ng tomondagi sidebar */}
             <div style={{
                 position: 'absolute',
-                top: '2%',
+                top: '6%',
                 right: '2%',
                 width: '220px',
                 maxHeight: '90%',
