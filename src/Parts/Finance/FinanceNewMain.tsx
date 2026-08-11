@@ -307,9 +307,9 @@ const FinanceNewMain: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#0ea8c7" size={36}><IconGlobe /></NeonIcon>
+                    {/*<NeonIcon color="#0ea8c7" size={36}><IconGlobe /></NeonIcon>*/}
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.company}</div>
+                        <div style={{ color: C.text, fontSize: "clamp(14px, 3.4cqmin, 24px)", fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.company}</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{DATA.meta.subtitle}</div>
                     </div>
                 </div>

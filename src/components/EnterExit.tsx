@@ -95,6 +95,7 @@ const T = {
     amber:  '#fbbf24',  blue:  '#60a5fa',
     purple: '#a78bfa',  muted: '#6b7a99',
     text:   'var(--gc-white)',
+    text2:   '#f1f2f6',
     dim:    '#334155',
     b0:     '#1e293b',
 };
@@ -192,7 +193,7 @@ function CameraInfoCards() {
 
                     {/* text */}
                     <div style={{minWidth:0, flex:1}}>
-                        <div style={{fontSize:10,color:T.muted,marginBottom:3,letterSpacing:0.2}}>{item.label}</div>
+                        <div style={{fontSize:10,color:T.text2,marginBottom:3,letterSpacing:0.2}}>{item.label}</div>
                         <div style={{display:'flex',alignItems:'center', justifyContent:'space-between'}}>
                             {'extra' in item && item.extra}
                             <span style={{fontSize:16,fontWeight:700,color:'#fff',lineHeight:1}}>{item.value}</span>
@@ -236,7 +237,7 @@ function TopCard({label,count,change,icon,accent}:{
             animation: isAlert ? 'alertPulse 2s ease-in-out infinite' : 'none',
         }}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-                <span style={{fontSize:11,color:T.muted,letterSpacing:0.2,lineHeight:1.3}}>{label}</span>
+                <span style={{fontSize:11,color:T.text,letterSpacing:0.2,lineHeight:1.3}}>{label}</span>
             </div>
             <div style={{fontSize:24,fontWeight:700,color:'#fff',lineHeight:1.1, display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 5}}>
                 <Counter to={count}/>
@@ -491,7 +492,7 @@ export default function EnterExit() {
                     <TopCard label="Jami xodimlar"       count={data.total_users}          change={0}                               accent={T.cyan2}
                         icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.7"/><path d="M2 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="18" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.6"/><path d="M20 20c0-2.5-1.8-4.5-4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>}
                     />
-                    <TopCard label="Hhozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
+                    <TopCard label="Hozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
                         icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.7"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="currentColor"/></svg>}
                     />
                     <TopCard label="Bugun kelganlar"     count={cards.arrived.count}        change={cards.arrived.change_percent}       accent={T.green}

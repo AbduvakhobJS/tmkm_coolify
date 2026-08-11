@@ -7,7 +7,7 @@
   /* ── global color ── barchani shu yerdan boshqaring */
   --gc-card-bg:  rgba(255, 255, 255, 0.05);  /* global color: kichik card background */
   --gc-panel-bg: rgb(3, 13, 34);             /* global color: left/center/right katta panel background */
-  --gc-title:    rgb(14, 168, 199);          /* global color: barcha title rangi (cyan) */
+  --gc-title: rgb(236 242 243);          /* global color: barcha title rangi (cyan) */
   --gc-white:    #ffffff;                    /* global color: oq matn rangi */
   --gc-red:      #ff2d55;                    /* global color: qizil rang (xato, kritik) */
   --gc-font:     sans-serif;                 /* global color: global shrift */
@@ -44,7 +44,10 @@
 
 /* ── RESET ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+html, body, #root { width: 100%;
+  height: 100%;
+  /*overflow: hidden; */
+}
 
 body {
   background: var(--bg-void);
@@ -242,6 +245,7 @@ body {
 }
 
 .kpi-card-my-main-title {
+  /*color: var(--gc-title) !important;*/
   color: var(--gc-title) !important;
   /*background: var(--bg-card) !important;*/
   /*border: 1px solid rgba(255,255,255,0.09) !important;*/

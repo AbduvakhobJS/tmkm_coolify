@@ -218,6 +218,7 @@ import {
     BarElement, ArcElement, Title, Tooltip, Legend, Filler,
     type Plugin,
 } from 'chart.js';
+import {useNavigate} from "react-router-dom";
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement,
@@ -227,11 +228,12 @@ ChartJS.register(
 /* ── Umumiy ranglar / uslub ── */
 export const C = {
     bg: '#0a0f1d',
-    card: '#131c30',
+    // card: '#131c30',
+    card: 'linear-gradient(180deg, rgba(8, 38, 66, .78), rgba(3, 19, 35, .78))',
     cardAlt: '#0f1626',
-    border: 'rgba(255,255,255,0.07)',
-    text: '#e2e8f0',
-    sub: '#94a3b8',
+    border: 'rgba(22, 211, 255, .18)',
+    text: '#f1f2f6',
+    sub: '#f1f2f6',
     grid: 'rgba(255,255,255,0.05)',
     up: '#22c55e',
     down: '#ef4444',
@@ -449,42 +451,49 @@ export const Gauge: React.FC<{ label: string; value: number; color?: string; suf
 );
 
 /* ── Dashboard sarlavhasi (header) ── */
-export const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string }> = ({ title, subtitle, dateRange }) => (
-    <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-        marginBottom: 'clamp(4px, 1.2cqmin, 10px)', flexShrink: 0, flexWrap: 'wrap', gap: 'clamp(4px, 1cqmin, 8px)',
-    }}>
-        <div style={{ minWidth: 0 }}>
-            <div style={{
-                color: C.text, fontSize: 'clamp(14px, 3.4cqmin, 24px)', fontWeight: 700,
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            }}>{title}</div>
-            <div style={{
-                color: C.sub, fontSize: 'clamp(9px, 2cqmin, 14px)', marginTop: 2,
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-            }}>{subtitle}</div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 1.1cqmin, 8px)', flexShrink: 0 }}>
-            <div style={{
-                display: 'flex', alignItems: 'center', gap: 'clamp(3px, 1.1cqmin, 8px)',
-                background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 1.8cqmin, 13px)',
-                color: C.text, fontSize: 'clamp(9px, 1.8cqmin, 13px)', whiteSpace: 'nowrap',
-            }}>
-                {dateRange} <span style={{ color: C.sub }}>▦</span>
+export const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string }> = ({ title, subtitle, dateRange }) => {
+    const navigate = useNavigate();
+    return (
+        <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+            marginBottom: 'clamp(4px, 1.2cqmin, 10px)', flexShrink: 0, flexWrap: 'wrap', gap: 'clamp(4px, 1cqmin, 8px)',
+        }}>
+            <div style={{ minWidth: 0 }}>
+                <div style={{
+                    color: C.text,textTransform: "uppercase", fontSize: 'clamp(14px, 3.4cqmin, 24px)', fontWeight: 700,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>{title}</div>
+                {/*<div style={{*/}
+                {/*    color: C.sub, fontSize: 'clamp(9px, 2cqmin, 14px)', marginTop: 2,*/}
+                {/*    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',*/}
+                {/*}}>{subtitle}</div>*/}
             </div>
-            <div style={{
-                background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                padding: 'clamp(4px, 1.2cqmin, 9px) clamp(5px, 1.5cqmin, 11px)', color: C.sub,
-            }}>⛃</div>
-            <div style={{
-                background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 2.1cqmin, 15px)', color: C.text,
-                fontSize: 'clamp(9px, 1.8cqmin, 13px)', display: 'flex', gap: 6, whiteSpace: 'nowrap',
-            }}>⤓ Eksport</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 1.1cqmin, 8px)', flexShrink: 0 }}>
+                <div style={{
+                    display: 'flex', alignItems: 'center', gap: 'clamp(3px, 1.1cqmin, 8px)',
+                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 1.8cqmin, 13px)',
+                    color: C.text, fontSize: 'clamp(9px, 1.8cqmin, 13px)', whiteSpace: 'nowrap',
+                }}>
+                    {dateRange} <span style={{ color: C.sub }}>▦</span>
+                </div>
+                <div style={{
+                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(5px, 1.5cqmin, 11px)', color: C.sub,
+                }}>⛃</div>
+                <div style={{
+                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 2.1cqmin, 15px)', color: C.text,
+                    fontSize: 'clamp(9px, 1.8cqmin, 13px)', display: 'flex', gap: 6, whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                }}
+                     onClick={() => navigate("/main/production")}
+                >Batafsil
+                </div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 /* ── Footer ── */
 export const DashFooter: React.FC<{ left: string; right: string }> = ({ left, right }) => (

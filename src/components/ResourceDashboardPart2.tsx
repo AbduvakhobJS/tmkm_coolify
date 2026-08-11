@@ -27,7 +27,7 @@ const RowSamaradorlik: React.FC = () => {
     const eff = PD.efficiency;
     return (
         <div style={colFlex}>
-            <SectionHeader title="Samaradorlik KPI" color={C.eff} icon={<IconGauge />} />
+            <SectionHeader title="Samaradorlik KPI" color={C.sub} icon={""} />
 
             <Card title="Zavod samaradorlik indeksi, %" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, eff.index.badge)}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -87,7 +87,7 @@ const RowFoyda: React.FC = () => {
     const p = PD.profit;
     return (
         <div style={colFlex}>
-            <SectionHeader title="Foyda va byudjet nazorati" color={C.cost} icon={<IconDollar />} right={badge(C.ok, `Marja: ${p.kpi[3].value}`)} />
+            <SectionHeader title="Foyda va byudjet nazorati" color={C.text} icon={""} right={badge(C.ok, `Marja: ${p.kpi[3].value}`)} />
 
             <Card title="Zavod foyda asosiy ko'rsatkichlari" accent={C.cost} icon={<IconDollar />}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '6px' }}>

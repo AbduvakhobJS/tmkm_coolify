@@ -86,7 +86,9 @@ async function fetchToday(token:string, status:'arrived'|'left'): Promise<TodayE
 ───────────────────────────────────────────────────────── */
 const T = {
     bg:     'var(--gc-panel-bg)',  // gc-panel-bg (faqat to'g'ridan-to'g'ri property)
-    card:   'var(--gc-card-bg)',   // gc-card-bg
+    // card:   'var(--gc-card-bg)',
+    card: 'linear-gradient(180deg, rgba(8, 38, 66, .78), rgba(3, 19, 35, .78))',
+    // gc-card-bg
     border: 'rgba(255,255,255,0.09)',
     cyan:   '#0EA8C7',  // = var(--gc-title) — template literal uchun hex kerak
     cyan2:  '#00d4ff',
@@ -192,7 +194,7 @@ function CameraInfoCards() {
 
                     {/* text */}
                     <div style={{minWidth:0, flex:1}}>
-                        <div style={{fontSize:10,color:T.muted,marginBottom:3,letterSpacing:0.2}}>{item.label}</div>
+                        <div style={{fontSize:10,color:T.text,marginBottom:3,letterSpacing:0.2}}>{item.label}</div>
                         <div style={{display:'flex',alignItems:'center', justifyContent:'space-between'}}>
                             {'extra' in item && item.extra}
                             <span style={{fontSize:16,fontWeight:700,color:'#fff',lineHeight:1}}>{item.value}</span>
@@ -236,7 +238,7 @@ function TopCard({label,count,change,icon,accent}:{
             animation: isAlert ? 'alertPulse 2s ease-in-out infinite' : 'none',
         }}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-                <span style={{fontSize:11,color:T.muted,letterSpacing:0.2,lineHeight:1.3}}>{label}</span>
+                <span style={{fontSize:11,color:T.text,letterSpacing:0.2,lineHeight:1.3}}>{label}</span>
             </div>
             <div style={{fontSize:24,fontWeight:700,color:'#fff',lineHeight:1.1, display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 5}}>
                 <Counter to={count}/>
@@ -253,7 +255,7 @@ function TopCard({label,count,change,icon,accent}:{
                 }}>
                     {up?'↑':'↓'} {Math.abs(change).toFixed(1)}%
                 </span>
-                {/*<span style={{fontSize:10,color:T.muted}}>bugun</span>*/}
+                {/*<span style={{fontSize:10,color:T.text}}>bugun</span>*/}
             </div>
         </div>
     );
@@ -266,7 +268,7 @@ function EventRow({type,time,person,location,onClick}:{
     type:'arrived'|'left'; time:string; person:string; location:string; onClick?:()=>void;
 }) {
     const isArrived = type === 'arrived';
-    const dotColor  = isArrived ? T.green : T.muted;
+    const dotColor  = isArrived ? T.green : T.text;
     const ArrowIcon = isArrived
         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="5 12 19 12" stroke={dotColor} strokeWidth="2" strokeLinecap="round"/><polyline points="13 6 19 12 13 18" stroke={dotColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
         : <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="19 12 5 12" stroke={dotColor} strokeWidth="2" strokeLinecap="round"/><polyline points="11 6 5 12 11 18" stroke={dotColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
@@ -286,16 +288,16 @@ function EventRow({type,time,person,location,onClick}:{
             }}>
                 {ArrowIcon}
             </div>
-            <span style={{fontSize:10,color:T.muted,fontVariantNumeric:'tabular-nums'}}>{time??'—'}</span>
+            <span style={{fontSize:10,color:T.text,fontVariantNumeric:'tabular-nums'}}>{time??'—'}</span>
             <div style={{minWidth:0}}>
                 <div style={{fontSize:11,fontWeight:600,color:T.text,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{person}</div>
-                <div style={{fontSize:9,color:T.muted,marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{location||'—'}</div>
+                <div style={{fontSize:9,color:T.text,marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{location||'—'}</div>
             </div>
             <span style={{
                 fontSize:9, fontWeight:600,
-                color: isArrived ? T.green : T.muted,
-                background: isArrived ? `${T.green}14` : `${T.muted}14`,
-                border:`1px solid ${isArrived?T.green:T.muted}28`,
+                color: isArrived ? T.green : T.text,
+                background: isArrived ? `${T.green}14` : `${T.text}14`,
+                border:`1px solid ${isArrived?T.green:T.text}28`,
                 borderRadius:5, padding:'2px 8px', whiteSpace:'nowrap', flexShrink:0,
             }}>
                 {isArrived ? 'Keldi' : 'Ketdi'}
@@ -394,7 +396,7 @@ export default function EnterExitMain() {
         labels:['Keldi','Kech keldi','Kelmadi','Ketdi','Aniqlanmagan'],
         datasets:[{
             data:[cards.arrived.count,cards.late.count,cards.not_arrived.count,cards.left.count,cards.not_found.count],
-            backgroundColor:[`${T.green}cc`,`${T.amber}cc`,`${T.blue}cc`,`${T.muted}cc`,`${T.red}cc`],
+            backgroundColor:[`${T.green}cc`,`${T.amber}cc`,`${T.blue}cc`,`${T.text}cc`,`${T.red}cc`],
             borderColor:'#0d1117', borderWidth:2,
         }],
     };
@@ -412,7 +414,7 @@ export default function EnterExitMain() {
     data.employees.forEach(e=>{ const k=e.department||'Boshqa'; deptMap[k]=(deptMap[k]||0)+1; });
     const zones=Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const zoneMax=zones[0]?.[1]||1;
-    const ZONE_COLS=[T.blue,T.cyan2,'#34d399',T.amber,T.muted];
+    const ZONE_COLS=[T.blue,T.cyan2,'#34d399',T.amber,T.text];
 
     /* ── Device type cards ── */
     const devItems=[
@@ -420,7 +422,7 @@ export default function EnterExitMain() {
             icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
         {label:'Kech keldi',count:cards.late.count,        color:T.amber,
             icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>},
-        {label:'Ketdi',     count:cards.left.count,        color:T.muted,
+        {label:'Ketdi',     count:cards.left.count,        color:T.text,
             icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M10 17l5-5-5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 12H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
         {label:'Topilmagan',count:cards.not_found.count,   color:T.red,
             icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.8"/><path d="M12 9v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>},
@@ -477,7 +479,7 @@ export default function EnterExitMain() {
                             <div style={{display:'flex',alignItems:'center',gap:8}}>
                                 <div style={{display:'flex',alignItems:'center',gap:5,background:'rgba(255,255,255,0.05)',border:`1px solid ${T.border}`,borderRadius:7,padding:'4px 10px'}}>
                                     <div style={{width:6,height:6,borderRadius:'50%',background:wsOk?T.green:T.amber,boxShadow:`0 0 6px ${wsOk?T.green:T.amber}`,animation:'blink 1.2s infinite'}}/>
-                                    <span style={{fontSize:10,color:T.muted,letterSpacing:.5}}>{wsOk?'Jonli':'Ulanmoqda'}</span>
+                                    <span style={{fontSize:10,color:T.text,letterSpacing:.5}}>{wsOk?'Jonli':'Ulanmoqda'}</span>
                                 </div>
                                 {cards.not_found.count>0&&(
                                     <div style={{display:'flex',alignItems:'center',gap:5,background:`${T.red}14`,border:`1px solid ${T.red}40`,borderRadius:7,padding:'4px 10px',animation:'alertPulse 2s ease-in-out infinite'}}>
@@ -493,7 +495,7 @@ export default function EnterExitMain() {
                             <TopCard label="Jami xodimlar"       count={data.total_users}          change={0}                               accent={T.cyan2}
                                      icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.7"/><path d="M2 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="18" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.6"/><path d="M20 20c0-2.5-1.8-4.5-4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>}
                             />
-                            <TopCard label="Hhozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
+                            <TopCard label="Hozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
                                      icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.7"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="currentColor"/></svg>}
                             />
                             <TopCard label="Bugun kelganlar"     count={cards.arrived.count}        change={cards.arrived.change_percent}       accent={T.green}
@@ -512,7 +514,7 @@ export default function EnterExitMain() {
                                 <PanelHead
                                     title="So'nggi kirish hodisalari"
                                     icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8"/><polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/></svg>}
-                                    right={<span style={{fontSize:9,color:T.muted}}>{EVENTS.length} ta yozuv</span>}
+                                    right={<span style={{fontSize:9,color:T.text}}>{EVENTS.length} ta yozuv</span>}
                                 />
                                 <div style={{display:'grid',gridTemplateColumns:'28px 50px 1fr auto',gap:8,padding:'4px 12px',borderBottom:`1px solid rgba(255,255,255,0.05)`,flexShrink:0}}>
                                     {['','Vaqt','Xodim / Ob\'yekt','Holat'].map((h,i)=>(
@@ -522,11 +524,11 @@ export default function EnterExitMain() {
                                 <div style={{flex:1,overflowY:'auto'}}>
                                     {loading&&EVENTS.length===0?(
                                         <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                            <span style={{fontSize:10,color:T.muted}}>Yuklanmoqda…</span>
+                                            <span style={{fontSize:10,color:T.text}}>Yuklanmoqda…</span>
                                         </div>
                                     ):EVENTS.length===0?(
                                         <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                            <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
+                                            <span style={{fontSize:10,color:T.text}}>Ma'lumot yo'q</span>
                                         </div>
                                     ):EVENTS?.slice(0, 6)?.map((ev,i)=>(
                                         <EventRow key={i} type={ev.type} time={ev.time} person={ev.person} location={ev.location}/>
@@ -541,7 +543,7 @@ export default function EnterExitMain() {
                                 <Panel style={{flex:1,minHeight:140,display:'flex',flexDirection:'column'}}>
                                     <PanelHead
                                         title="Kirish nuqtalari holati"
-                                        right={<span style={{fontSize:10,color:T.muted}}>Jami: <span style={{color:'#fff',fontWeight:600}}><Counter to={data.total_users}/></span></span>}
+                                        right={<span style={{fontSize:10,color:T.text}}>Jami: <span style={{color:'#fff',fontWeight:600}}><Counter to={data.total_users}/></span></span>}
                                     />
 
                                     {/* Body: chap — donut, o'ng — labellar */}
@@ -558,7 +560,7 @@ export default function EnterExitMain() {
                                                         enabled:true,
                                                         backgroundColor:'rgba(13,17,23,0.96)',
                                                         borderColor:T.b0,borderWidth:1,
-                                                        titleColor:T.text,bodyColor:T.muted,padding:9,
+                                                        titleColor:T.text,bodyColor:T.text,padding:9,
                                                         callbacks:{label:(c:any)=>` ${c.label}: ${(c.parsed as number).toLocaleString('ru-RU')} nafar`},
                                                     },
                                                 },
@@ -626,7 +628,7 @@ export default function EnterExitMain() {
                                                 <div style={{fontSize:16,fontWeight:700,color,lineHeight:1}}>
                                                     <Counter to={count}/>
                                                 </div>
-                                                <div style={{fontSize:9,color:T.muted,textAlign:'center'}}>{label}</div>
+                                                <div style={{fontSize:9,color:T.text,textAlign:'center'}}>{label}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -640,7 +642,7 @@ export default function EnterExitMain() {
                             {/* Chiziqli grafik */}
                             <Panel>
                                 <PanelHead title="Kirish faolligi (bugun)"
-                                           right={<span style={{fontSize:9,color:T.muted}}>soat bo'yicha</span>}
+                                           right={<span style={{fontSize:9,color:T.text}}>soat bo'yicha</span>}
                                 />
                                 <div style={{flex:1,padding:'4px 10px 8px',minHeight:0}}>
                                     <Line data={lineData} options={{
@@ -649,12 +651,12 @@ export default function EnterExitMain() {
                                                 enabled:true,
                                                 backgroundColor:'rgba(13,17,23,0.96)',
                                                 borderColor:T.b0,borderWidth:1,
-                                                titleColor:T.text,bodyColor:T.muted,padding:9,
+                                                titleColor:T.text,bodyColor:T.text,padding:9,
                                                 callbacks:{label:(c:any)=>` Kirish: ${c.parsed.y} ta`},
                                             }},
                                         scales:{
-                                            x:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"}},border:{color:T.b0}},
-                                            y:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"},stepSize:1},border:{color:T.b0},min:0},
+                                            x:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.text,font:{size:9,family:"'Exo 2',system-ui,sans-serif"}},border:{color:T.b0}},
+                                            y:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.text,font:{size:9,family:"'Exo 2',system-ui,sans-serif"},stepSize:1},border:{color:T.b0},min:0},
                                         },
                                     } as any}/>
                                 </div>
@@ -663,12 +665,12 @@ export default function EnterExitMain() {
                             {/* Zonalar */}
                             <Panel>
                                 <PanelHead title="Zonalar bo'yicha taqsimot"
-                                           right={<span style={{fontSize:9,color:T.muted}}>bo'limlar</span>}
+                                           right={<span style={{fontSize:9,color:T.text}}>bo'limlar</span>}
                                 />
                                 <div style={{flex:1,overflowY:'auto',padding:'7px 14px 10px',display:'flex',flexDirection:'column',gap:6}}>
                                     {zones.length===0?(
                                         <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                            <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
+                                            <span style={{fontSize:10,color:T.text}}>Ma'lumot yo'q</span>
                                         </div>
                                     ):zones.map(([dept,cnt],i)=>{
                                         const col=ZONE_COLS[i%ZONE_COLS.length];
@@ -677,7 +679,7 @@ export default function EnterExitMain() {
                                             <div key={dept}>
                                                 <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
                                                     <span style={{fontSize:10,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{dept}</span>
-                                                    <span style={{fontSize:10,color:col,fontWeight:600,flexShrink:0}}>{cnt.toLocaleString('ru-RU')} <span style={{color:T.muted,fontWeight:400}}>({pct}%)</span></span>
+                                                    <span style={{fontSize:10,color:col,fontWeight:600,flexShrink:0}}>{cnt.toLocaleString('ru-RU')} <span style={{color:T.text,fontWeight:400}}>({pct}%)</span></span>
                                                 </div>
                                                 <div style={{height:4,borderRadius:3,background:'rgba(255,255,255,0.07)'}}>
                                                     <div style={{height:'100%',width:`${(cnt/zoneMax)*100}%`,background:`linear-gradient(90deg,${col}77,${col})`,borderRadius:3,transition:'width 1s ease'}}/>

@@ -148,9 +148,9 @@ const smoothPath = (pts: [number, number][]): string => {
 /* ── Bo'lim sarlavhasi (Finance.tsx SectionTitle bilan bir xil) ── */
 const SectionTitle: React.FC<{ index: number; title: string; icon: React.ReactNode; color: string; hint?: string }> = ({ index, title, icon, color, hint }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '4px 0 2px' }}>
-        <NeonIcon color={color} size={26}>{icon}</NeonIcon>
-        <span style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
-            {index}. {title}
+        {/*<NeonIcon color={color} size={26}>{icon}</NeonIcon>*/}
+        <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+            {title}
         </span>
         {hint && <span style={{ marginLeft: 'auto', color: C.sub, fontSize: 10.5 }}>{hint}</span>}
     </div>
@@ -160,8 +160,9 @@ const SectionTitle: React.FC<{ index: number; title: string; icon: React.ReactNo
 const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
     <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
-                {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
+            <div style={{ color: C.text, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+                {/*{icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}*/}
+                {title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
         </div>
@@ -467,9 +468,9 @@ const FinanceNew: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#eab308" size={36}><IconDollar /></NeonIcon>
+                    {/*<NeonIcon color="#eab308" size={36}><IconDollar /></NeonIcon>*/}
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.company}</div>
+                        <div style={{ color: C.text, fontSize: 'clamp(14px, 3.4cqmin, 22px)', fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.company}</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{DATA.meta.subtitle}</div>
                     </div>
                 </div>
@@ -508,57 +509,58 @@ const FinanceNew: React.FC = () => {
             {/*</div>*/}
 
             {/* 01. Rentabellik */}
-            <SectionTitle index={1} title="Rentabellik" icon={<IconChartBars />} color="#eab308" hint="" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Foyda shakllanishi (waterfall)" icon={<IconChartBars />} hint={DATA.waterfall.unit}>
-                    <Waterfall steps={DATA.waterfall.steps} />
-                    <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, lineHeight: 1.5 }}>{DATA.waterfall.note}</div>
-                </SectionCard>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
-                        {DATA.margins.map((m) => (
-                            <RatioTile key={m.label} label={m.label} value={fmtPct(m.value)} delta={m.delta} icon={<IconPercentBadge />} color={m.up ? '#22c55e' : '#ef4444'} />
-                        ))}
-                    </div>
-                    <SectionCard title="Daromadlilik ko'rsatkichlari" icon={<IconChartUp />} iconColor="#a855f7">
-                        <div style={{ display: 'grid', gap: 8 }}>
-                            {DATA.profitability.map((p) => (
-                                <div key={p.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '9px 12px', background: C.cardAlt, borderRadius: 8, border: `1px solid ${C.border}` }}>
-                                    <span style={{ color: C.sub, fontSize: 11.5 }}>{p.label}</span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <span style={{ color: p.up === false ? '#ef4444' : C.text, fontSize: 16, fontWeight: 700 }}>{p.value}</span>
-                                        {p.deltaValue !== null && (
-                                            <span style={{ color: deltaColor(p.up === false ? -1 : 1), fontSize: 10.5, fontWeight: 700, background: `${deltaColor(p.up === false ? -1 : 1)}1a`, borderRadius: 6, padding: '2px 6px' }}>
-                                                {p.up === false ? '▼' : '▲'} {fmtNum(p.deltaValue as number, 2)}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </SectionCard>
-                    <SectionCard title="Asosiy omillar" icon={<IconAlertTriangle />} iconColor="#eab308" style={{ flex: 1 }}>
-                        <div style={{ color: C.sub, fontSize: 11, lineHeight: 1.5, marginBottom: 8 }}>
-                            Tushum yalpi foydani hosil qiladi, lekin operatsion va moliyaviy xarajatlar uni sof zararga aylantiradi.
-                        </div>
-                        <div style={{ display: 'grid', gap: 6 }}>
-                            {topCostDrivers.map((d) => (
-                                <div key={d.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '7px 10px', background: C.cardAlt, borderRadius: 8 }}>
-                                    <span style={{ color: C.sub, fontSize: 10.5 }}>{d.label}</span>
-                                    <span style={{ color: '#ef4444', fontSize: 12.5, fontWeight: 700 }}>{fmtNum(d.value)}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </SectionCard>
-                </div>
-            </div>
+            {/*<SectionTitle index={1} title="Rentabellik" icon={""} color="#eab308" hint="" />*/}
+
+            {/*<div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 8, alignItems: 'stretch' }}>*/}
+            {/*    <SectionCard title="Foyda shakllanishi (waterfall)" icon={""} hint={DATA.waterfall.unit}>*/}
+            {/*        <Waterfall steps={DATA.waterfall.steps} />*/}
+            {/*        <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8, lineHeight: 1.5 }}>{DATA.waterfall.note}</div>*/}
+            {/*    </SectionCard>*/}
+            {/*    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>*/}
+            {/*        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>*/}
+            {/*            {DATA.margins.map((m) => (*/}
+            {/*                <RatioTile key={m.label} label={m.label} value={fmtPct(m.value)} delta={m.delta} icon={<IconPercentBadge />} color={m.up ? '#22c55e' : '#ef4444'} />*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+            {/*        <SectionCard title="Daromadlilik ko'rsatkichlari" icon={<IconChartUp />} iconColor="#a855f7">*/}
+            {/*            <div style={{ display: 'grid', gap: 8 }}>*/}
+            {/*                {DATA.profitability.map((p) => (*/}
+            {/*                    <div key={p.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '9px 12px', background: C.cardAlt, borderRadius: 8, border: `1px solid ${C.border}` }}>*/}
+            {/*                        <span style={{ color: C.sub, fontSize: 11.5 }}>{p.label}</span>*/}
+            {/*                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>*/}
+            {/*                            <span style={{ color: p.up === false ? '#ef4444' : C.text, fontSize: 16, fontWeight: 700 }}>{p.value}</span>*/}
+            {/*                            {p.deltaValue !== null && (*/}
+            {/*                                <span style={{ color: deltaColor(p.up === false ? -1 : 1), fontSize: 10.5, fontWeight: 700, background: `${deltaColor(p.up === false ? -1 : 1)}1a`, borderRadius: 6, padding: '2px 6px' }}>*/}
+            {/*                                    {p.up === false ? '▼' : '▲'} {fmtNum(p.deltaValue as number, 2)}*/}
+            {/*                                </span>*/}
+            {/*                            )}*/}
+            {/*                        </div>*/}
+            {/*                    </div>*/}
+            {/*                ))}*/}
+            {/*            </div>*/}
+            {/*        </SectionCard>*/}
+            {/*        <SectionCard title="Asosiy omillar" icon={<IconAlertTriangle />} iconColor="#eab308" style={{ flex: 1 }}>*/}
+            {/*            <div style={{ color: C.sub, fontSize: 11, lineHeight: 1.5, marginBottom: 8 }}>*/}
+            {/*                Tushum yalpi foydani hosil qiladi, lekin operatsion va moliyaviy xarajatlar uni sof zararga aylantiradi.*/}
+            {/*            </div>*/}
+            {/*            <div style={{ display: 'grid', gap: 6 }}>*/}
+            {/*                {topCostDrivers.map((d) => (*/}
+            {/*                    <div key={d.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '7px 10px', background: C.cardAlt, borderRadius: 8 }}>*/}
+            {/*                        <span style={{ color: C.sub, fontSize: 10.5 }}>{d.label}</span>*/}
+            {/*                        <span style={{ color: '#ef4444', fontSize: 12.5, fontWeight: 700 }}>{fmtNum(d.value)}</span>*/}
+            {/*                    </div>*/}
+            {/*                ))}*/}
+            {/*            </div>*/}
+            {/*        </SectionCard>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
             {/* 02. Moliyaviy holat */}
             <SectionTitle index={2} title="Moliyaviy holat" icon={<IconLayers />} color="#a855f7" hint="tarkib · ulush bo'yicha" />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#eab308', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: 8, padding: '10px 13px' }}>
-                <NeonIcon color="#eab308" size={24}><IconAlertTriangle /></NeonIcon>
-                <span>Balans teng emas: jami aktivlar ({fmtNum(DATA.balanceAlert.assets)}) ≠ kapital + majburiyatlar ({fmtNum(DATA.balanceAlert.capitalPlusLiabilities)}). Farq ≈ {DATA.balanceAlert.diffApprox} — manbani tekshirish kerak.</span>
-            </div>
+            {/*<div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#eab308', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: 8, padding: '10px 13px' }}>*/}
+            {/*    <NeonIcon color="#eab308" size={24}><IconAlertTriangle /></NeonIcon>*/}
+            {/*    <span>Balans teng emas: jami aktivlar ({fmtNum(DATA.balanceAlert.assets)}) ≠ kapital + majburiyatlar ({fmtNum(DATA.balanceAlert.capitalPlusLiabilities)}). Farq ≈ {DATA.balanceAlert.diffApprox} — manbani tekshirish kerak.</span>*/}
+            {/*</div>*/}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
                 {DATA.composition.map((item) => <CompositionTile key={item.label} item={item} />)}
                 {DATA.ratios.map((r) => (
