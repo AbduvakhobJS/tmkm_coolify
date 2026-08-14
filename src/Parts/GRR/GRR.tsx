@@ -230,10 +230,10 @@ const GRR: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#3b82f6" size={36}><IconLayers /></NeonIcon>
+                    {/*<NeonIcon color="#3b82f6" size={36}><IconLayers /></NeonIcon>*/}
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{meta.title}</div>
-                        <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{meta.subtitle}</div>
+                        <div style={{ color: 'rgb(241, 242, 246)', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{meta.title}</div>
+                        {/*<div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{meta.subtitle}</div>*/}
                     </div>
                 </div>
                 <span style={{ color: C.sub, fontSize: 11 }}>{meta.dateRange}</span>

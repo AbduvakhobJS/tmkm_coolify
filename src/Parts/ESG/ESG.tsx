@@ -227,8 +227,8 @@ const ESG: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#22c55e" size={32}><IconLeaf /></NeonIcon>
-                    <div style={{ color: '#4fb3d9', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ESG</div>
+                    {/*<NeonIcon color="#22c55e" size={32}><IconLeaf /></NeonIcon>*/}
+                    <div style={{ color: 'rgb(241, 242, 246)', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ESG</div>
                 </div>
                 <button
                     onClick={() => navigate('/main/esg-detail')}

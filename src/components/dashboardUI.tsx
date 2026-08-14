@@ -310,10 +310,10 @@ export const centerText = (main: string, sub: string): Plugin<'doughnut'> => ({
         ctx.save();
         ctx.textAlign = 'center';
         ctx.fillStyle = C.text;
-        ctx.font = '700 18px "Segoe UI", sans-serif';
+        ctx.font = '700 15px "Segoe UI", sans-serif';
         ctx.fillText(main, cx, cy - 2);
         ctx.fillStyle = C.sub;
-        ctx.font = '400 12px "Segoe UI", sans-serif';
+        ctx.font = '400 10px "Segoe UI", sans-serif';
         ctx.fillText(sub, cx, cy + 16);
         ctx.restore();
     },

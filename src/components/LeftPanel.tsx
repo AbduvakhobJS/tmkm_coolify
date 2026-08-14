@@ -10,7 +10,7 @@ const LeftPanel: React.FC = () => {
         {/*<ResourceCardsGrid />*/}
           <MetalsDashboardMain />
 
-          <div className="view-model-right-model" style={{ height: '50%' }}>
+          <div className="view-model-right-model" style={{ height: '100%' }}>
           <div className="view-model" style={{ width: '100%', height: '100%', padding: "10px", background: 'var(--gc-panel-bg)',
               borderRadius: '12px', overflow: 'hidden', position: 'relative',
               border: '1px solid rgba(14,168,199,0.2)' }}>

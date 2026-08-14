@@ -46,7 +46,7 @@ const ProductionModal: React.FC<ProductionModalProps> = ({ marker, onClose }) =>
                                 </button>
                             </div>
                         </div>
-                        <div style={{padding: 30}}>
+                        <div style={{padding: 30, flex: 1, minHeight: 0}}>
                             <ResourceDashboardPart2 />
 
                         </div>

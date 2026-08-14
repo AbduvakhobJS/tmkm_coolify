@@ -465,13 +465,13 @@ export default function EnterExitMain() {
                         {/* Sarlavha */}
                         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
                             <div style={{display:'flex',alignItems:'center',gap:9}}>
-                                <div style={{width:30,height:30,background:`${T.cyan}15`,border:`1px solid ${T.cyan}35`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                                        <rect x="3" y="11" width="18" height="11" rx="2" stroke={T.cyan} strokeWidth="1.8"/>
-                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={T.cyan} strokeWidth="1.8" strokeLinecap="round"/>
-                                        <circle cx="12" cy="16.5" r="1.5" fill={T.cyan}/>
-                                    </svg>
-                                </div>
+                                {/*<div style={{width:30,height:30,background:`${T.cyan}15`,border:`1px solid ${T.cyan}35`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>*/}
+                                {/*    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">*/}
+                                {/*        <rect x="3" y="11" width="18" height="11" rx="2" stroke={T.cyan} strokeWidth="1.8"/>*/}
+                                {/*        <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={T.cyan} strokeWidth="1.8" strokeLinecap="round"/>*/}
+                                {/*        <circle cx="12" cy="16.5" r="1.5" fill={T.cyan}/>*/}
+                                {/*    </svg>*/}
+                                {/*</div>*/}
                                 <span style={{fontSize:11,fontWeight:700, letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
                             XAVFSIZLIK NAZORAT MARKAZI
                         </span>

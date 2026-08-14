@@ -1,196 +1,234 @@
 import React, { useMemo } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
-    C, MONTHS, MONTHS_SHORT, baseOpts, wrap, twoCol, colFlex,
-    SectionHeader, Card, KpiRow, badge, NeonIcon,
-    MiniLine, DonutChart, GaugeChart,
-    IconDollar, IconGauge, IconCloud, IconChip, IconFactory,
-} from './ResourceDashboard';
+    C, fmt, chartBase, noLegend, axis,
+    barLabel, lineLabel, centerText,
+    Card, Badge, Gauge, DashHeader, DashRoot,
+} from './dashboardUI';
 import PD from './resourceProfitDemoData.json';
 
-/* ── Foyda/samaradorlik KPI kartasi (reja/fakt taqqoslash bilan) ── */
-const ProfitKpiTile: React.FC<{ label: string; value: string; plan: string; delta: number; up: boolean }> = ({ label, value, plan, delta, up }) => (
-    <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 10px', minWidth: 0 }}>
-        <div style={{ fontSize: 9, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 4 }}>{label}</div>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 6 }}>
-            <span style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{value}</span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, color: up ? C.ok : C.crit }}>{up ? '▲' : '▼'} {Math.abs(delta)}%</span>
+/* Oy nomlari — bu dashboard 4 oylik ma'lumot bilan ishlaydi (dashboardUI.MONTHS 6 oylik) */
+const M = PD.monthsShort;
+
+/* Aksent ranglar — MetalsDashboardMain paletrasi bilan bir xil uslubda */
+const A = {
+    revenue: '#3b82f6',
+    cost: '#ef4444',
+    profit: '#22c55e',
+    margin: '#f59e0b',
+    eff: '#22c55e',
+    energy: '#06b6d4',
+    save: '#a855f7',
+};
+const COST_COLORS = ['#3b82f6', '#f97316', '#0ea8c7', '#a855f7'];
+
+/* x/y o'qlari — belgilar QIYA emas, doim GORIZONTAL */
+const hAxis = (opts: any = {}) => {
+    const a = axis(opts) as any;
+    return {
+        ...a,
+        x: { ...a.x, ticks: { ...a.x.ticks, maxRotation: 0, minRotation: 0, autoSkip: false } },
+    };
+};
+
+/* KpiCard (dashboardUI) bilan bir xil dizayn va o'lchamlar; yagona farqi —
+   o'sish "yaxshi"mi yoki "yomon"mi ekanini alohida belgilash mumkin
+   (masalan tannarxning o'sishi — yomon). Reja qiymati hover'da ko'rinadi. */
+const KpiTile: React.FC<{
+    title: string; value: string; delta: number; good: boolean;
+    hint?: string; badge?: React.ReactNode;
+}> = ({ title, value, delta, good, hint, badge }) => (
+    <div title={hint} style={{
+        flex: 1, minWidth: 0, background: C.card, border: `1px solid ${C.border}`,
+        borderRadius: 12, padding: '8px 13px',
+    }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ color: C.sub, fontSize: 12, marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
+            {badge}
         </div>
-        <div style={{ fontSize: 9.5, color: C.sub, marginTop: 2 }}>reja: {plan}</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, justifyContent: 'space-between' }}>
+            <span style={{ color: C.text, fontSize: 16, fontWeight: 700, whiteSpace: 'nowrap' }}>{value}</span>
+            <span style={{ color: good ? C.up : C.down, fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                {delta >= 0 ? '↑' : '↓'} {fmt(Math.abs(delta))}%
+            </span>
+        </div>
     </div>
 );
 
-/* ══════════════════════════════════════════
-   ROW A — Samaradorlik (KPI) | Foyda va byudjet nazorati
-══════════════════════════════════════════ */
-const RowSamaradorlik: React.FC = () => {
+const ResourceDashboardPart2: React.FC = () => {
     const eff = PD.efficiency;
-    return (
-        <div style={colFlex}>
-            <SectionHeader title="Samaradorlik KPI" color={C.sub} icon={""} />
+    const p = PD.profit;
+    const s = PD.monthlySummary;
 
-            <Card title="Zavod samaradorlik indeksi, %" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, eff.index.badge)}>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <div style={{ flex: '0 0 110px', position: 'relative' }}>
-                        <GaugeChart value={eff.index.value} color={C.eff} label="Joriy indeks" height={138} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        {MONTHS_SHORT.map((m, i) => {
-                            const vals = eff.index.monthly;
-                            return (
-                                <div key={m} style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '5px' }}>
-                                    <span style={{ fontSize: '9px', color: C.sub, width: '24px' }}>{m}</span>
-                                    <div style={{ flex: 1, height: '8px', background: 'rgba(255,255,255,0.07)', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <div style={{ height: '100%', width: `${vals[i]}%`, background: i === eff.index.warnIdx ? C.crit : C.eff, borderRadius: '4px' }} />
+    /* ── Tushum / tannarx / foyda dinamikasi ── */
+    const dynamicsData = useMemo(() => ({
+        labels: M,
+        datasets: [
+            { label: 'Tushum', data: p.monthly.revenue, backgroundColor: A.revenue, borderRadius: 4, barPercentage: 0.8 },
+            { label: 'Tannarx', data: p.monthly.cost, backgroundColor: A.cost, borderRadius: 4, barPercentage: 0.8 },
+            { label: 'Foyda', data: p.monthly.profit, backgroundColor: A.profit, borderRadius: 4, barPercentage: 0.8 },
+        ],
+    }), [p.monthly]);
+
+    /* ── Tannarx tarkibi ── */
+    const costLabels = p.costDistribution.labels.map(l => l.split(':')[0]);
+    const costDonut = {
+        labels: costLabels,
+        datasets: [{ data: p.costDistribution.data, backgroundColor: COST_COLORS, borderColor: C.cardAlt, borderWidth: 2 }],
+    };
+
+    /* ── 1 tonnaga energiya sarfi ── */
+    const energyLine = {
+        labels: M,
+        datasets: [{
+            data: eff.energyPerTon.data, borderColor: A.energy, backgroundColor: `${A.energy}22`,
+            borderWidth: 2, tension: 0.4, fill: true, pointRadius: 3,
+            pointBackgroundColor: eff.energyPerTon.data.map((_, i) => (i === eff.energyPerTon.warnIdx ? C.down : A.energy)),
+        }],
+    };
+
+    /* ── CO₂ chiqindisi ── */
+    const worstCo2 = Math.max(...eff.co2.data);
+    const co2Bar = {
+        labels: M,
+        datasets: [{
+            data: eff.co2.data,
+            backgroundColor: eff.co2.data.map(v => (v === worstCo2 ? C.down : '#f59e0b')),
+            borderRadius: 4, barPercentage: 0.6,
+        }],
+    };
+
+    return (
+        <DashRoot>
+            <DashHeader
+                title="Samaradorlik va foyda ko'rsatkichlari"
+                subtitle="Zavod KPI dashboardi"
+                dateRange="01.01.2025 - 30.04.2025"
+            />
+
+            <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
+                {p.kpi.map((k, i) => (
+                    <KpiTile
+                        key={k.label}
+                        title={k.label}
+                        value={k.value}
+                        delta={k.delta}
+                        good={k.up}
+                        hint={`reja: ${k.plan}`}
+                        badge={<Badge symbol={['$', '∑', '◆', '%'][i] ?? '•'} color={[A.revenue, A.cost, A.profit, A.margin][i] ?? C.sub} />}
+                    />
+                ))}
+                <KpiTile
+                    title={p.savings.label}
+                    value={p.savings.value}
+                    delta={p.savings.delta}
+                    good
+                    hint={p.savings.note}
+                    badge={<Badge symbol="↯" color={A.save} />}
+                />
+            </div>
+
+            {/* minmax(0,1fr) — kartalar ichidagi matn qatorlar balandligini "itarib" yubormasligi uchun */}
+            <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 8 }}>
+                <Card title="Zavod samaradorlik indeksi, %">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minHeight: 0 }}>
+                        {/*<div style={{ flexShrink: 0 }}>*/}
+                        {/*    <Gauge label="Joriy indeks" value={eff.index.value} color={A.eff} />*/}
+                        {/*</div>*/}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+                            {M.map((m, i) => {
+                                const v = eff.index.monthly[i];
+                                const col = i === eff.index.warnIdx ? C.down : A.eff;
+                                return (
+                                    <div key={m} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5 }}>
+                                        <span style={{ color: C.sub, width: 30, flexShrink: 0 }}>{m}</span>
+                                        <div style={{ flex: 1, height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden', minWidth: 0 }}>
+                                            <div style={{ height: '100%', width: `${v}%`, background: col, borderRadius: 4 }} />
+                                        </div>
+                                        <span style={{ color: col, fontWeight: 600, width: 32, textAlign: 'right', flexShrink: 0 }}>{v}%</span>
                                     </div>
-                                    <span style={{ fontSize: '11px', fontWeight: 600, color: i === eff.index.warnIdx ? C.crit : C.eff, width: '34px', textAlign: 'right' }}>{vals[i]}%</span>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </Card>
+
+                <Card title="Tushum, tannarx va foyda dinamikasi, $ ming">
+                    <div style={{ flex: 1, minHeight: 0 }}>
+                        <Bar
+                            data={dynamicsData}
+                            options={{
+                                ...chartBase,
+                                plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 10 } } } },
+                                scales: hAxis({ y: { beginAtZero: true } }),
+                            } as any}
+                        />
+                    </div>
+                </Card>
+
+                <Card title="Tannarx tarkibi, %">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minHeight: 0 }}>
+                        {/* to'liq o'lchamda 138px (Metals bilan bir xil), tor konteynerda proporsional kichrayadi */}
+                        <div style={{ width: 'clamp(44px, 72cqmin, 138px)', height: 'clamp(44px, 72cqmin, 138px)', flexShrink: 0 }}>
+                            <Doughnut
+                                data={costDonut}
+                                options={{ ...chartBase, cutout: '65%', ...noLegend } as any}
+                                plugins={[centerText(p.costDistribution.badge.split('/')[0].trim(), 'Oylik tannarx')]}
+                            />
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0 }}>
+                            {costLabels.map((l, i) => (
+                                <div key={l} style={{ display: 'flex', alignItems: 'center', fontSize: 12 }}>
+                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: COST_COLORS[i], marginRight: 6, flexShrink: 0 }} />
+                                    <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l}</span>
+                                    <span style={{ color: C.text, fontWeight: 600 }}>{p.costDistribution.data[i]}%</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </Card>
+
+                <Card title="1 tonnaga energiya sarfi, kVt·soat/t">
+                    <div style={{ flex: 1, minHeight: 0 }}>
+                        <Line
+                            data={energyLine}
+                            options={{ ...chartBase, ...noLegend, scales: hAxis({ y: { beginAtZero: false } }) } as any}
+                            plugins={[lineLabel(0)]}
+                        />
+                    </div>
+                </Card>
+
+                <Card title="CO₂ chiqindisi, tonna/sutka">
+                    <div style={{ flex: 1, minHeight: 0 }}>
+                        <Bar
+                            data={co2Bar}
+                            options={{ ...chartBase, ...noLegend, scales: hAxis({ y: { beginAtZero: true } }) } as any}
+                            plugins={[barLabel(0)]}
+                        />
+                    </div>
+                </Card>
+
+                <Card title="Oy yakunlari — foyda va samaradorlik">
+                    <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: '1fr 1fr', gap: 6 }}>
+                        {s.items.map(it => {
+                            const col = it.tone === 'crit' ? C.down : it.tone === 'warn' ? '#eab308' : C.up;
+                            return (
+                                <div key={it.label} style={{
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                    textAlign: 'center', background: `${col}11`, border: `1px solid ${col}33`,
+                                    borderRadius: 8, padding: '4px 3px', minWidth: 0,
+                                }}>
+                                    <div style={{ fontSize: 10, color: C.sub, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{it.label}</div>
+                                    <div style={{ fontSize: 14, fontWeight: 700, color: col }}>{it.pct}</div>
+                                    <div style={{ fontSize: 9.5, color: C.sub, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{it.value}</div>
                                 </div>
                             );
                         })}
                     </div>
-                </div>
-            </Card>
-            <div style={{ display: 'flex', width: '100%', gap: '8px' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <Card title="1 tonnaga energiya, kVt·soat/t" accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, 'Yaxshilanish ↓')} style={{ height: '100%' }}>
-                        <KpiRow value={eff.energyPerTon.value} unit={eff.energyPerTon.unit} color={C.eff} trend={eff.energyPerTon.deltaText} up={eff.energyPerTon.up}
-                            sub={eff.energyPerTon.sub}
-                            right={<div style={{ textAlign: 'right', background: `${C.crit}11`, borderRadius: '8px', padding: '6px 8px', border: `1px solid ${C.crit}33` }}>
-                                <div style={{ fontSize: '18px', fontWeight: 700, color: C.crit }}>{eff.energyPerTon.worstLabel}</div>
-                            </div>} />
-                        <MiniLine data={eff.energyPerTon.data} color={C.eff} warnIdx={eff.energyPerTon.warnIdx} height={65} />
-                    </Card>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <Card title="CO₂ chiqindisi, tonna/sutka" accent={C.co2} icon={<IconCloud />} extra={badge(C.crit, eff.co2.badge)} style={{ height: '100%' }}>
-                        <KpiRow value={eff.co2.value} unit={eff.co2.unit} color={C.co2} trend={eff.co2.deltaText} up={eff.co2.up}
-                            right={<div style={{ textAlign: 'right', background: `${C.co2}11`, borderRadius: '8px', padding: '6px 8px', border: `1px solid ${C.co2}33` }}>
-                                <div style={{ fontSize: '18px', fontWeight: 700, color: C.co2 }}>{eff.co2.worstLabel}</div>
-                            </div>} />
-                        <div style={wrap(100)}>
-                            <Line data={{
-                                labels: MONTHS, datasets: [{
-                                    data: eff.co2.data, borderColor: C.co2, backgroundColor: `${C.co2}18`,
-                                    borderWidth: 2, pointRadius: [3, 3, 5, 3], pointBackgroundColor: [C.co2, C.co2, '#fff', C.co2],
-                                    tension: 0.4, fill: true,
-                                }],
-                            }} options={baseOpts() as any} />
-                        </div>
-                    </Card>
-                </div>
+                </Card>
             </div>
-        </div>
+        </DashRoot>
     );
 };
-
-const RowFoyda: React.FC = () => {
-    const p = PD.profit;
-    return (
-        <div style={colFlex}>
-            <SectionHeader title="Foyda va byudjet nazorati" color={C.text} icon={""} right={badge(C.ok, `Marja: ${p.kpi[3].value}`)} />
-
-            <Card title="Zavod foyda asosiy ko'rsatkichlari" accent={C.cost} icon={<IconDollar />}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '6px' }}>
-                    {p.kpi.map(k => <ProfitKpiTile key={k.label} label={k.label} value={k.value} plan={k.plan} delta={k.delta} up={k.up} />)}
-                </div>
-            </Card>
-
-            <div style={{ display: 'flex', width: '100%', gap: '8px' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <Card title="Tannarx tarkibi" accent={C.cost} icon={<IconChip />} extra={badge(C.cost, p.costDistribution.badge)} style={{ height: '100%' }}>
-                        <DonutChart data={p.costDistribution.data} labels={p.costDistribution.labels} colors={[C.electric, C.gas, C.water, C.chemical]} height={150} flex />
-                    </Card>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <Card title={p.savings.label} accent={C.eff} icon={<IconGauge />} extra={badge(C.ok, `+${p.savings.delta}%`)} style={{ height: '100%' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 6 }}>
-                            <div style={{ fontSize: 30, fontWeight: 700, color: C.eff }}>{p.savings.value}</div>
-                            <div style={{ fontSize: 10.5, color: C.sub, textAlign: 'center', padding: '0 6px' }}>{p.savings.note}</div>
-                        </div>
-                    </Card>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-/* ══════════════════════════════════════════
-   ROW B — Tushum, tannarx va foyda dinamikasi
-══════════════════════════════════════════ */
-const ProfitDynamics: React.FC = () => {
-    const p = PD.profit;
-    const chartData = useMemo(() => ({
-        labels: MONTHS,
-        datasets: [
-            { label: "Tushum, $ming", data: p.monthly.revenue, backgroundColor: `${C.electric}bb`, borderRadius: 4 },
-            { label: "Tannarx, $ming", data: p.monthly.cost, backgroundColor: `${C.crit}bb`, borderRadius: 4 },
-            { label: "Foyda, $ming", data: p.monthly.profit, backgroundColor: `${C.eff}bb`, borderRadius: 4 },
-        ],
-    }), [p.monthly]);
-    return (
-        <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <NeonIcon color={C.cost} size={22}><IconFactory /></NeonIcon>
-                    <span style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>Tushum, tannarx va foyda dinamikasi</span>
-                </div>
-                <span style={{ color: C.sub, fontSize: 9.5 }}>$ ming / oy</span>
-            </div>
-            <div style={wrap(200)}>
-                <Bar data={chartData} options={baseOpts('bottom') as any} />
-            </div>
-        </div>
-    );
-};
-
-/* ══════════════════════════════════════════
-   OY YAKUNLARI
-══════════════════════════════════════════ */
-const MonthlySummary: React.FC = () => {
-    const s = PD.monthlySummary;
-    return (
-        <div style={{ background: 'rgba(34,197,94,0.06)', border: `1px solid ${C.ok}33`, borderRadius: '12px', padding: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <NeonIcon color={C.ok} size={24}><IconDollar /></NeonIcon>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: C.ok, letterSpacing: '1px' }}>{s.title}</div>
-                </div>
-                <div style={{ fontSize: '11px', color: C.sub }}>{s.subtitle}</div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: '6px' }}>
-                {s.items.map(it => {
-                    const col = it.tone === 'crit' ? C.crit : it.tone === 'warn' ? C.warn : C.ok;
-                    return (
-                        <div key={it.label} style={{ textAlign: 'center', background: `${col}11`, border: `1px solid ${col}33`, borderRadius: '8px', padding: '7px 4px' }}>
-                            <div style={{ fontSize: '10px', color: C.sub, marginBottom: '2px' }}>{it.label}</div>
-                            <div style={{ fontSize: '15px', fontWeight: 700, color: col }}>{it.pct}</div>
-                            <div style={{ fontSize: '9px', color: C.sub }}>{it.value}</div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-};
-
-/* ══════════════════════════════════════════
-   EXPORT
-══════════════════════════════════════════ */
-const ResourceDashboardPart2: React.FC = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%', overflowY: 'auto', overflowX: 'hidden', paddingRight: 2 }}>
-        {/*<div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: -4 }}>*/}
-        {/*    <NeonIcon color={C.cost} size={30}><IconDollar /></NeonIcon>*/}
-        {/*    <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '2px', color: '#4fb3d9', textTransform: 'uppercase' }}>*/}
-        {/*        Samaradorlik va foyda KPI*/}
-        {/*    </div>*/}
-        {/*</div>*/}
-        <div style={twoCol}>
-            <RowSamaradorlik />
-            <RowFoyda />
-        </div>
-        <ProfitDynamics />
-        <MonthlySummary />
-    </div>
-);
 
 export default ResourceDashboardPart2;
