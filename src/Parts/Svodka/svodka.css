@@ -1,0 +1,262 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   Design tokens.
+
+   Хост илова (`App.css`) — қоронғи «ситуацион марказ» темаси, шунинг учун
+   дашборднинг стандарт палитраси ҳам қоронғи. Ёруғ вариант хост `<html>` га
+   `data-theme="light"` қўйганда ишлайди.
+
+   Барча токенлар `:root` да эмас, `.svodka-dash` да эълон қилинган: номлар
+   (`--page`, `--grid`, `--shadow`, `--sans` …) жуда умумий ва хостнинг ўз
+   ўзгарувчилари билан тўқнашмаслиги керак. Шу сабабли Tailwind утилиталари
+   ҳам фақат шу элемент ичида тўғри рангни олади.
+
+   Ҳаммаси `@layer base` ичида: акс ҳолда бу қоидалар файлда утилиталардан
+   кейин турар ва бир хил вазнда (`.svodka-dash *` = `.border`) уларни босиб
+   кетарди — масалан `border` умуман чизилмасди.
+--------------------------------------------------------------------------- */
+@layer base {
+  .svodka-dash {
+    color-scheme: dark;
+
+    /* Ранглар `src/components/dashboardUI.tsx` даги `C` палитрасидан олинган —
+       «Ситуацион марказ» иловасининг умумий темаси (`MetalsDashboardMain`
+       ва бошқа дашбордлар ҳам ўша палитрада). */
+    --page: #0a0f1d; /* C.bg */
+    --surface: #0b2036; /* карточка градиентининг ўртача тони */
+    --surface-2: #10293f;
+    --sunken: #071627;
+    --ink: #f1f2f6; /* C.text */
+    /* C да `sub` ҳам `#f1f2f6` — яъни иккинчи даражали матн асосийсидан
+       фарқланмайди. Бу дашбордда изоҳ, бирлик ва сарлавҳа-каптионлар жуда кўп,
+       ҳаммаси бир хил ёруғликда бўлса ўқиш оғирлашади — шунинг учун `ink-2` /
+       `ink-3` асосий рангдан пасайтирилган, лекин шу тоналликда қолдирилган. */
+    --ink-2: #b6c3d2;
+    --ink-3: #8b9bb0;
+    --grid: rgba(255, 255, 255, 0.05); /* C.grid */
+    --rule: rgba(22, 211, 255, 0.18); /* C.border — цианга мойил ҳошия */
+    --hair: rgba(22, 211, 255, 0.18);
+
+    /* Диаграмма сериялари — `MONTH_COLORS` нинг биринчи учтаси. */
+    --s1: #3b82f6;
+    --s2: #22c55e;
+    --s3: #f59e0b;
+
+    --good: #22c55e; /* C.up */
+    --warn: #f59e0b;
+    --serious: #f97316;
+    --crit: #ef4444; /* C.down */
+    --good-ink: #22c55e;
+    --warn-ink: #f59e0b;
+    --crit-ink: #ef4444;
+
+    /* Карточка фони — `dashboardUI.tsx` даги `C.card` градиенти. Tailwind'нинг
+       `bg-*` утилиталари `background-color` беради, градиент эмас; шунинг учун
+       у алоҳида `.sv-card` синфида қўлланади. */
+    --card: linear-gradient(180deg, rgba(8, 38, 66, 0.78), rgba(3, 19, 35, 0.78));
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -24px rgba(0, 0, 0, 0.9);
+    --sans: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+    /* `NavbarOverlay` тепада 100px жой эгаллайди — таблар қатори шунга ёпишади
+       (қаранг: `components/NavbarOverlay.css`, `Dashboard.tsx`). */
+    --sv-nav-h: 100px;
+    /* Дашборд кенглиги чекланмаган — экран бўйлаб тўлиқ очилади. Ён бўшлиқ
+       `DashRoot` даги 14px билан бир хил. */
+    --sv-gutter: 14px;
+  }
+
+  /* -------------------------------------------------------------------------
+     Базавий стиллар. Tailwind preflight ўчирилган (`tailwind.config.js`),
+     чунки у бутун иловани ресетлаб, хостнинг мавжуд дизайнини бузарди.
+     Дашбордга керакли ресет шу ерда, фақат `.svodka-dash` ичида берилади.
+  ------------------------------------------------------------------------- */
+  .svodka-dash {
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+  }
+  .svodka-dash *,
+  .svodka-dash *::before,
+  .svodka-dash *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    /* `border` утилиталари фақат қалинликни беради; услуб (`solid`) ва стандарт
+       0 қалинлик preflight'дан келарди — у ўчирилгани учун шу ерда
+       такрорланади, акс ҳолда `border border-hair` ҳеч нарса чизмасди. */
+    border: 0 solid;
+  }
+  .svodka-dash h1,
+  .svodka-dash h2,
+  .svodka-dash h3 {
+    text-wrap: balance;
+    letter-spacing: -0.015em;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  .svodka-dash button {
+    font: inherit;
+    color: inherit;
+    background: none;
+  }
+  .svodka-dash svg,
+  .svodka-dash img,
+  .svodka-dash canvas {
+    display: block;
+    max-width: 100%;
+  }
+  .svodka-dash table {
+    border-collapse: collapse;
+  }
+  .svodka-dash :focus-visible {
+    outline: 2px solid var(--s1);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+  /* Форма элементлари хостнинг «шиша карточка» чегарасини такрорлайди
+     (`DashHeader` даги давр танлагич ва тугмалар билан бир хил). */
+  .svodka-dash select,
+  .svodka-dash input[type="search"] {
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    border: 1px solid var(--rule);
+    background: var(--card);
+    color: var(--ink);
+    max-width: 100%;
+    min-width: 0;
+  }
+  .svodka-dash select:hover,
+  .svodka-dash input[type="search"]:hover {
+    border-color: rgba(22, 211, 255, 0.38);
+  }
+  /* Рўйхат очилганда браузер `option` ларни ўз фонида чизади — қоронғи темада
+     фон берилмаса Windows'да оқ устига оқ ёзув чиқади. */
+  .svodka-dash select option {
+    background: #0b2036;
+    color: var(--ink);
+  }
+  .svodka-dash input[type="search"] {
+    min-width: 180px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .svodka-dash *,
+    .svodka-dash *::before,
+    .svodka-dash *::after {
+      transition: none !important;
+      animation: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   A few structural pieces that are clearer as plain CSS than as long utility
+   strings: sticky table headers, scroll containers and the tooltip chrome.
+--------------------------------------------------------------------------- */
+@layer components {
+  /* -------------------------------------------------------------------------
+     Карточка — хостнинг `dashboardUI.tsx` даги `Card` билан бир хил: градиент
+     фон, цианга мойил ҳошия, 12px радиус. Градиентни Tailwind утилитаси билан
+     бериб бўлмайди, шунинг учун алоҳида синф (`Card`, `StatTile` ва бошқа
+     панеллар шуни ишлатади).
+  ------------------------------------------------------------------------- */
+  .svodka-dash .sv-card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    min-width: 0;
+  }
+  /* Интерактив карточкалар (устига босиш/ховер мазмунга эга бўлганлари). */
+  .svodka-dash .sv-card--hover {
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .svodka-dash .sv-card--hover:hover {
+    border-color: rgba(22, 211, 255, 0.4);
+  }
+
+  /* Хостнинг «шиша» панели — сарлавҳа/таб қатори каби ясси юзалар учун. */
+  .svodka-dash .sv-pane {
+    background: linear-gradient(180deg, rgba(8, 38, 66, 0.94), rgba(3, 19, 35, 0.94));
+    backdrop-filter: blur(6px);
+  }
+
+  .svodka-dash .tbl-wrap {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 440px;
+    border: 1px solid var(--hair);
+    border-radius: 10px;
+  }
+  .svodka-dash .tbl {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12.5px;
+  }
+  .svodka-dash .tbl th,
+  .svodka-dash .tbl td {
+    padding: 7px 11px;
+    text-align: left;
+    border-bottom: 1px solid var(--grid);
+    white-space: nowrap;
+  }
+  .svodka-dash .tbl th {
+    position: sticky;
+    top: 0;
+    background: #0d2439;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
+    z-index: 1;
+    border-bottom: 1px solid var(--rule);
+  }
+  .svodka-dash .tbl td.num,
+  .svodka-dash .tbl th.num {
+    text-align: right;
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .svodka-dash .tbl tbody tr:hover {
+    background: rgba(22, 211, 255, 0.06);
+  }
+  .svodka-dash .tbl tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .svodka-dash .tbl td.wrap {
+    white-space: normal;
+    min-width: 240px;
+    max-width: 420px;
+  }
+
+  .svodka-dash .tabs-scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(22, 211, 255, 0.3) transparent;
+  }
+
+  /* Дашборд экран бўйлаб тўлиқ очилади — кенглик чекланмаган, фақат ён
+     бўшлиқ (хостнинг `DashRoot` идагидек). */
+  .svodka-dash .sv-wrap {
+    width: 100%;
+    padding-inline: var(--sv-gutter);
+  }
+
+  .svodka-dash .recharts-wrapper:focus,
+  .svodka-dash .recharts-surface:focus {
+    outline: none;
+  }
+}

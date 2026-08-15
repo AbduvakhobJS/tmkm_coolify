@@ -37,9 +37,9 @@ const Parts = () => {
                 </div>
                 <div className="col-md-2">
                     <button className="btn btn-primary part-btn"
-                            onClick={() => navigate('/main/3')}
+                            onClick={() => navigate('/main/svodka')}
                     >
-                        3/6
+                        Svodka
                     </button>
                 </div>
                 <div className="col-md-2">
