@@ -328,9 +328,14 @@ export const centerText = (main: string, sub: string): Plugin<'doughnut'> => ({
    juda katta konteynerlarda o'qib bo'lmas darajaga tushib ketmasligi / haddan
    tashqari kattalashib ketmasligi uchun min/max chegara qo'yadi. */
 
-export const Card: React.FC<{ title?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, children, style }) => (
+/* `mock` — kartadagi ma'lumot API'dan emas, namunaviy (mock) datadan olingan.
+   Bunday kartalar sariq ramka bilan ajratib ko'rsatiladi. */
+export const MOCK_BORDER = '#eadaab';
+
+export const Card: React.FC<{ title?: string; children: React.ReactNode; mock?: boolean; style?: React.CSSProperties }> = ({ title, children, mock, style }) => (
     <div style={{
         background: C.card,
+        // border: `1px solid ${mock ? MOCK_BORDER : C.border}`,
         border: `1px solid ${C.border}`,
         borderRadius: 'clamp(6px, 1.6cqmin, 12px)',
         padding: 'clamp(6px, 1.6cqmin, 11px)',
@@ -359,11 +364,16 @@ export const Card: React.FC<{ title?: string; children: React.ReactNode; style?:
     </div>
 );
 
-export const Delta: React.FC<{ v: number }> = ({ v }) => (
-    <span style={{ color: v >= 0 ? C.up : C.down, fontSize: 'clamp(9px, 1.9cqmin, 13px)', fontWeight: 600 }}>
-        {v >= 0 ? '↑' : '↓'} {signPct(v).replace('+', '').replace('-', '')}
-    </span>
-);
+/* `v` — `null`/`undefined` bo'lishi mumkin: API o'zgarishni hisoblay olmaganda
+   (masalan avvalgi davr ma'lumoti yo'q) foiz umuman ko'rsatilmaydi. */
+export const Delta: React.FC<{ v?: number | null }> = ({ v }) => {
+    if (typeof v !== 'number' || !Number.isFinite(v)) return null;
+    return (
+        <span style={{ color: v >= 0 ? C.up : C.down, fontSize: 'clamp(9px, 1.9cqmin, 13px)', fontWeight: 600 }}>
+            {v >= 0 ? '↑' : '↓'} {signPct(v).replace('+', '').replace('-', '')}
+        </span>
+    );
+};
 
 // export const KpiCard: React.FC<{
 //     title: string; value: string; delta: number; compare: string;
@@ -396,11 +406,11 @@ export const Delta: React.FC<{ v: number }> = ({ v }) => (
 // );
 
 export const KpiCard: React.FC<{
-    title: string; value: string; delta: number; compare: string;
-    badge?: React.ReactNode;
-}> = ({ title, value, delta, compare, badge }) => (
+    title: string; value: string; delta?: number | null; compare: string;
+    badge?: React.ReactNode; mock?: boolean;
+}> = ({ title, value, delta, compare, badge, mock }) => (
     <div style={{
-        flex: 1, minWidth: 0, background: C.card, border: `1px solid ${C.border}`,
+        flex: 1, minWidth: 0, background: C.card, border: `1px solid ${mock ? MOCK_BORDER : C.border}`,
         borderRadius: 12, padding: '8px 13px',
     }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -514,8 +524,11 @@ export const DashFooter: React.FC<{ left: string; right: string }> = ({ left, ri
    grid/flex ichida (1/6, 1/2, to'liq) joylashtirilgan bo'lsa ham. */
 export const DashRoot: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <div style={{
-        background: C.bg,
+        // background: C.bg,
+        background: 'var(--gc-panel-bg)',
         padding: 'clamp(6px, 1.8cqmin, 14px)',
+        border: '1px solid rgba(14,168,199,0.2)',
+        borderRadius: '12px',
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',

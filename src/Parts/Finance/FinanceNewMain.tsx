@@ -302,7 +302,16 @@ const FinanceNewMain: React.FC = () => {
     }, []);
 
     return (
-        <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{
+            background: 'var(--gc-panel-bg)',
+            height: '100vh',
+            overflowY: 'auto',
+            padding: 14,
+            boxSizing: 'border-box',
+            fontFamily: '"Segoe UI", system-ui, sans-serif',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10 }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>

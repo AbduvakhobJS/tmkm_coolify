@@ -66,6 +66,66 @@ export const getNarastaykaPage = async (
     return response.data;
 };
 
+/* ── /dashboard — metallar dashboardi uchun yig'ma ko'rsatkichlar ──
+   Har bir son maydoni `null` bo'lishi mumkin: bu API'da (qarang Svodka/api/types.ts)
+   ma'lumot topilmagan hollarda `null` qaytariladi. Frontend shu sababli har bir
+   blokni alohida tekshiradi va yo'q bo'lsa mock dataga tushadi. */
+
+export type DashboardMonth = {
+    /** Ekranda ko'rsatiladigan yorliq, masalan "Yan 2026". */
+    label: string;
+    /** `YYYY-MM` — ixtiyoriy. */
+    month?: string;
+};
+
+export type DashboardMetal = {
+    /** Material belgisi, masalan "Mo". Nomi/rangi frontend tomonda aniqlanadi. */
+    material: string | null;
+    value: number | null;
+    pct: number | null;
+    delta: number | null;
+    plan: number | null;
+    /** Oylik dinamika — `months` bilan bir xil uzunlikda. */
+    dyn: (number | null)[] | null;
+};
+
+export type DashboardPlant = {
+    name: string;
+    /** Oylik hajm — `months` bilan bir xil uzunlikda. */
+    monthly: (number | null)[] | null;
+};
+
+export type DashboardData = {
+    months: DashboardMonth[] | null;
+    total: number | null;
+    monthly: (number | null)[] | null;
+    avgDaily: (number | null)[] | null;
+    metals: DashboardMetal[] | null;
+    plants: DashboardPlant[] | null;
+};
+
+/**
+ * Bu API'dagi qolgan endpointlar javobni `{success, data}` konvertiga o'raydi.
+ * `/dashboard` konvertsiz ham kelishi mumkin — ikkala shakl ham qabul qilinadi.
+ */
+const unwrapDashboard = (body: unknown): DashboardData => {
+    if (body && typeof body === "object" && "success" in body && "data" in body) {
+        return (body as { data: DashboardData }).data;
+    }
+    return body as DashboardData;
+};
+
+export const getDashboard = async (
+    from: string,
+    to: string,
+    plant?: string
+): Promise<DashboardData> => {
+    const response = await productionClient.get("/dashboard", {
+        params: { from, to, plant },
+    });
+    return unwrapDashboard(response.data);
+};
+
 /** Berilgan sana oralig'idagi barcha detal yozuvlarni sahifalab yig'ib beradi. */
 export const getAllNarastayka = async (from: string, to: string): Promise<NarastaykaRow[]> => {
     const limit = 500;
