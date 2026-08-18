@@ -1,0 +1,74 @@
+[
+  {
+    "title": "O'tkan kunlar",
+    "author": "Abdulla Qodiriy",
+    "genre": "roman, tarixiy",
+    "summary": "O'zbek adabiyotidagi birinchi roman. Otabek va Kumush sevgisi orqali XIX asr Turkiston hayoti tasvirlanadi."
+  },
+  {
+    "title": "Mehrobdan chayon",
+    "author": "Abdulla Qodiriy",
+    "genre": "roman, tarixiy",
+    "summary": "Xudoyorxon davri Qo'qon xonligidagi adolatsizlik va fitnalar haqida hikoya qiluvchi tarixiy roman."
+  },
+  {
+    "title": "Sarob",
+    "author": "Abdulla Qahhor",
+    "genre": "roman",
+    "summary": "Ziyolilar hayoti va ularning ichki kurashlarini psixologik chuqurlik bilan yorituvchi asar."
+  },
+  {
+    "title": "Kecha va kunduz",
+    "author": "Cho'lpon",
+    "genre": "roman",
+    "summary": "XX asr boshidagi Turkiston jamiyati, ayollar taqdiri va ijtimoiy o'zgarishlar haqida roman."
+  },
+  {
+    "title": "Ikki eshik orasi",
+    "author": "O'tkir Hoshimov",
+    "genre": "roman",
+    "summary": "Oila, insoniy munosabatlar va o'zbek turmush tarzi haqida chuqur hissiy roman."
+  },
+  {
+    "title": "Dunyoning ishlari",
+    "author": "O'tkir Hoshimov",
+    "genre": "hikoyalar to'plami",
+    "summary": "Hayotning kichik, ammo ma'noli lahzalarini tasvirlovchi hikoyalar to'plami."
+  },
+  {
+    "title": "Alpomish",
+    "author": "Xalq dostoni",
+    "genre": "epos, dostoni",
+    "summary": "O'zbek xalq og'zaki ijodining eng mashhur qahramonlik dostoni."
+  },
+  {
+    "title": "Yulduzli tunlar",
+    "author": "Pirimqul Qodirov",
+    "genre": "roman, tarixiy",
+    "summary": "Zahiriddin Muhammad Bobur hayoti va faoliyatiga bag'ishlangan tarixiy roman."
+  },
+  {
+    "title": "1984",
+    "author": "George Orwell",
+    "genre": "distopiya, roman",
+    "summary": "Totalitar davlat va inson erkinligi mavzusidagi jahon adabiyotining mashhur distopik romani."
+  },
+  {
+    "title": "Kichkina shahzoda",
+    "author": "Antoine de Saint-Exupery",
+    "genre": "falsafiy ertak",
+    "summary": "Do'stlik, sevgi va hayot ma'nosi haqida barcha yosh guruhlariga mo'ljallangan falsafiy ertak."
+  },
+  {
+    "title": "Sariq devni minib",
+    "author": "Xudoyberdi To'xtaboyev",
+    "genre": "bolalar adabiyoti, sarguzasht",
+    "summary": "O'zbek bolalar adabiyotining sevimli sarguzasht-fantastik asari."
+  },
+  {
+    "title": "Qaro ko'zim",
+    "author": "Alisher Navoiy",
+    "genre": "she'riyat, g'azal",
+    "summary": "Buyuk mutafakkir shoir Alisher Navoiyning eng mashhur g'azallar to'plami."
+  }
+]
