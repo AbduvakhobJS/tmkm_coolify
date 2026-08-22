@@ -52,6 +52,7 @@ import ProductionPage from "./Parts/Production/ProductionPage";
 import Svodka from "./Parts/Svodka/Svodka";
 import Agent from "./Parts/Agent/Agent";
 import FreeAgent from "./Parts/Agent/FreeAgent";
+import NewNewHrd from "./Parts/HrAnalitika/NewNewHrd";
 SciChartSurface.setRuntimeLicenseKey("NbX+2XP9JhtSxLiFXWZHRkPfQJz1ladswS9bZa9nR+HQYgAvAQ+qGVaNrxbIHiFYjIkf7WbsQcgKkk5dIOar27oI78ndSaTKtUGcIg3QG1LphEcW7+M3az5rma0vDbjxz3MX4dN3r3+HnYK50ErzErnLx7kzUYYZRmZOgPiMIP/bnVLp1I07eKJv4J7pHGbf2/5Sz/+staHCf8OscRw0lOaodXWOybw9gigzKZpp9QBJbJr9b2YINi6sRikakhwRQ5RnW838qqTvxbbcPaRLjqp7+0tZlU3KQ2351+Hz96EMFZwKN2TdRYCZO1ARHp57eck+8M+9fUDcSEo0NzgdCTe3bZ6tXepsOyUIgwMFY8s9WWwvRScewcS2pFG1DCun2HvSC/G5rCaoAjFYuXhi3zx/Znx8qY5YNCGRI6uuBgHqJDDuZflM2Ot2XSl5PtatddhWogw97AeFUEbNAO3WNuUyPweKYSFAfhdlzfRof+3ZRxCtI7Wv6M269RGDToZJniFgn9Pw6mf+d3DVnz+RSj4/16eCI4ZUDeQJg/dfD/kefdNpa/+B22DexowqOjtjmR7ECgBktFN0Pq46enu+6Z0b9WphqUt7i62+9PD7ctHFJYqLfzwaHBrOG0VdpGRX7hoBHv4L9RaqEJ8kzEUswRuKkyKnwghr");
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
@@ -103,6 +104,7 @@ root.render(
           <Route path="/main/constructor-four" element={<PrivateRoute><ConstuctorPageFour /></PrivateRoute>} />
           <Route path="/main/production" element={<PrivateRoute><NavbarOverlay><ProductionPage /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/svodka" element={<PrivateRoute><NavbarOverlay><Svodka /></NavbarOverlay></PrivateRoute>} />
+          <Route path="/main/new-new-hrd" element={<PrivateRoute><NavbarOverlay><NewNewHrd /></NavbarOverlay></PrivateRoute>} />
         </Routes>
   </BrowserRouter>
     </QueryClientProvider>

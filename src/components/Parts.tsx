@@ -246,6 +246,16 @@ const Parts = () => {
                     </button>
                 </div>
             </div>
+            <div className="row d-flex" style={{marginTop: "10px"}} >
+                <div className="col-md-2">
+
+                    <button className="btn btn-primary part-btn"
+                            onClick={() => navigate('/main/new-new-hrd')}
+                    >
+                        New HRD
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

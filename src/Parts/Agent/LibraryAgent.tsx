@@ -49,7 +49,7 @@ export default function LibraryAgent() {
     script.setAttribute(
       "data-agent-id",
       "v2_agt_GM0Xe1Xs"
-    );
+    );  
     script.setAttribute("data-name", "did-agent");
     script.setAttribute("data-monitor", "true");
     script.setAttribute("data-orientation", "horizontal");
