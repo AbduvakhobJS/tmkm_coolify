@@ -30,7 +30,8 @@
     font-family: "Rajdhani", "Segoe UI", Arial, sans-serif;
     color: var(--txt);
     user-select: none;
-    overflow: hidden;
+    /* submenu (.nnav-dropdown) ramkadan pastga chiqadi — kesilmasligi kerak */
+    overflow: visible;
 }
 
 /* ---- tugmalar joylashadigan band (ramka ichidagi tekis qism) ---- */
@@ -153,4 +154,94 @@
 @media (max-width: 1200px) {
     .nnav-btn .nnav-label { display: none; }
     .nnav-btn { padding: 0 10px; }
+}
+
+/* ---- submenuli band (Resurs sarfi, Investitsion loyihalar) ---- */
+.nnav-item {
+    position: relative;
+}
+
+.nnav-btn.has-children {
+    padding-right: 9px;
+}
+
+.nnav-chevron {
+    flex: 0 0 auto;
+    width: 13px;
+    height: 13px;
+    color: var(--cyan);
+    transition: transform 0.18s ease;
+}
+.nnav-chevron.open { transform: rotate(180deg); }
+
+@media (max-width: 1200px) {
+    .nnav-chevron { display: none; }
+}
+
+/* ---- submenu paneli ----
+   Tugma bilan panel orasidagi vizual bo'shliq endi `.nnav-dropdown`ning
+   O'ZI (padding-top) orqali hosil qilinadi, `margin-top` orqali emas —
+   shunday qilib sichqoncha shu bo'shliqdan o'tganda ham u hali ham
+   elementning ICHIDA hisoblanadi va `mouseleave` erta ishga tushmaydi.
+   Ko'rinadigan fon/chegara esa faqat ichki `.nnav-dropdown-inner`da. */
+.nnav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding-top: 10px;
+    min-width: 220px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.16s ease, visibility 0.16s;
+    z-index: 50;
+}
+.nnav-group.right .nnav-dropdown {
+    left: auto;
+    right: 0;
+}
+.nnav-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.nnav-dropdown-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px;
+    background: linear-gradient(180deg, rgba(10,26,42,0.97) 0%, rgba(4,12,22,0.98) 100%);
+    border: 1px solid var(--cyan-soft);
+    border-radius: 9px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.55), 0 0 18px rgba(var(--gc-icon-rgb), 0.14);
+    transform: translateY(-6px);
+    transition: transform 0.16s ease;
+}
+.nnav-dropdown.open .nnav-dropdown-inner {
+    transform: translateY(0);
+}
+
+.nnav-dropdown-item {
+    background: transparent;
+    border: none;
+    color: var(--txt);
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 9px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.nnav-dropdown-item:hover {
+    background: rgba(var(--gc-icon-rgb), 0.14);
+    color: var(--txt-active);
+}
+.nnav-dropdown-item.active {
+    background: linear-gradient(180deg, var(--cyan) 0%, var(--cyan-dim) 100%);
+    color: #04121c;
 }
