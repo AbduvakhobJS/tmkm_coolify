@@ -232,15 +232,15 @@ ChartJS.register(
  * dagi tokenlardan olinadi — bu yerda mustaqil rang saqlanmaydi.
  */
 export const C = {
-    bg: '#0a0f1d',
-    card: 'linear-gradient(180deg, rgba(8, 38, 66, .78), rgba(3, 19, 35, .78))',
-    cardAlt: '#0f1626',
-    border: alpha(GC.icon, 0.18),
-    text: GC.text,
-    sub: GC.text,
-    grid: GC.grid,
-    up: GC.green,
-    down: GC.red,
+    bg: GC.bg900,
+    card: GC.bg800,
+    cardAlt: GC.bg700,
+    border: GC.border,
+    text: GC.textPrimary,
+    sub: GC.textSecondary,
+    grid: GC.gridLine,
+    up: GC.success,
+    down: GC.danger,
 };
 
 export const MONTHS = ['Yan 2025', 'Fev 2025', 'Mar 2025', 'Apr 2025', 'May 2025', 'Iyn 2025'];
@@ -412,13 +412,20 @@ export const Delta: React.FC<{ v?: number | null }> = ({ v }) => {
 export const KpiCard: React.FC<{
     title: string; value: string; delta?: number | null; compare: string;
     badge?: React.ReactNode; mock?: boolean;
-}> = ({ title, value, delta, compare, badge, mock }) => (
+    /** Kartaning chap tomonidagi rangli ikonka (masalan emoji: "⛏️"). */
+    icon?: React.ReactNode;
+    /** Ikonka foni/rangi uchun aksent (berilmasa GC.accent1 ishlatiladi). */
+    iconColor?: string;
+}> = ({ title, value, delta, compare, badge, mock, icon, iconColor = GC.accent1 }) => (
     <div style={{
         flex: 1, minWidth: 0, background: C.card, border: `1px solid ${mock ? MOCK_BORDER : C.border}`,
         borderRadius: 12, padding: '8px 13px',
     }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ color: C.sub, fontSize: 12, marginBottom: 6 }}>{title}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: C.sub, fontSize: 12, marginBottom: 6, minWidth: 0 }}>
+                {icon && <span style={{ color: iconColor, display: 'inline-flex', flexShrink: 0, width: 13, height: 13 }}>{icon}</span>}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</span>
+            </div>
             {badge}
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, justifyContent: "space-between" }}>

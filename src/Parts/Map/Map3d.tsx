@@ -9,7 +9,7 @@ import { uzbekistanBorder, loadUzbekistanBorder } from '../../components/uzbekis
 import ProjectDashboard from '../../components/ProjectDashboard';
 import WebRTCPlayer from '../../components/WebRTCPlayer';
 import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "../../hooks/map";
-import { GC } from '../../theme/palette';
+import { GC, alpha } from '../../theme/palette';
 
 
 
@@ -61,15 +61,15 @@ const CATEGORY_TOIFA: Record<string, string> = {
 };
 
 const CATEGORY_ICON: Record<string, string> = {
-    factory: '/icons/factory1.png',
-    mine: '/icons/factory2.png',
+    factory: '/icons/factory3.png',
+    mine: '/icons/factory3.png',
     'mine-cart': '/icons/factory3.png',
 };
 
 const STATUS_COLORS: Record<string, string> = {
     REGISTRATION: GC.amber,
     CONSTRUCTION: 'var(--gc-title)',
-    STARTED: GC.green,
+    STARTED: GC.accent1,
 };
 
 const IMPORTANCE_COLORS: Record<string, string> = {
@@ -101,6 +101,87 @@ const buildCameraStreamUrl = (cam: any): string | undefined => {
     return undefined;
 };
 
+
+/* ── Baza xarita uslubidagi YASHIL/TEAL qatlamlarni ko'kka o'tkazish ─────
+   MapTiler uslubida fon qatlami (`Background`) teal — `hsl(182, 35%, 17%)`,
+   ya'ni butun xarita yashilroq ko'rinadi. "Situatsion markaz" palitrasida
+   yashil faqat status uchun, shuning uchun bunday sirtlar navy-ko'k tonga
+   almashtiriladi.
+
+   Shart: yashil kanal qizildan sezilarli yuqori VA ko'kdan past emas.
+   Shu sababli suv/daryo kabi aniq ko'k qatlamlar (b >> g) tegilmaydi —
+   uslub allaqachon ko'k bo'lsa, funksiya hech narsani o'zgartirmaydi. */
+const NAVY_DARK: [number, number, number] = [11, 17, 24];   // GC.bg900
+const NAVY_LIGHT: [number, number, number] = [42, 54, 70];  // GC.axisLine
+
+const deGreenBasemap = (map: maplibregl.Map) => {
+    let layers: any[];
+    try {
+        layers = map.getStyle()?.layers ?? [];
+    } catch {
+        return;
+    }
+
+    let changed = false;
+
+    /* Rangni rgb ga o'girish uchun bitta yashirin element (hex/rgb/hsl/nom —
+       barchasini brauzerning o'zi hisoblab beradi). */
+    const probe = document.createElement('span');
+    probe.style.display = 'none';
+    document.body.appendChild(probe);
+
+    const toRgb = (value: string): [number, number, number] | null => {
+        probe.style.color = '';
+        probe.style.color = value;
+        if (!probe.style.color) return null;
+        const m = getComputedStyle(probe).color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
+    };
+
+    /* Faqat SIRT qatlamlari. `line` ataylab yo'q: chegara chiziqlari yorqin
+       siyan (`hsl(181, 92%, 54%)`) bo'lib, kanal nisbati bo'yicha "teal" ga
+       o'xshaydi — ular ranglansa xarita konturlari yo'qolib qolardi. */
+    const PROPS: Record<string, string> = {
+        background: 'background-color',
+        fill: 'fill-color',
+        'fill-extrusion': 'fill-extrusion-color',
+    };
+
+    for (const layer of layers) {
+        const prop = PROPS[layer.type];
+        if (!prop) continue;
+
+        let raw: unknown;
+        try {
+            raw = map.getPaintProperty(layer.id, prop);
+        } catch {
+            continue;
+        }
+        /* Ifoda (expression) yoki bo'sh qiymatlarga tegilmaydi. */
+        if (typeof raw !== 'string') continue;
+
+        const rgb = toRgb(raw);
+        if (!rgb) continue;
+        const [r, g, b] = rgb;
+        if (!(g > r + 6 && g >= b - 4)) continue; // yashil/teal emas — qoldiriladi
+
+        /* Yorqinligini saqlab, navy gradient ichiga ko'chiriladi. */
+        const l = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+        const mix = (i: 0 | 1 | 2) => Math.round(NAVY_DARK[i] + (NAVY_LIGHT[i] - NAVY_DARK[i]) * l);
+        try {
+            map.setPaintProperty(layer.id, prop, `rgb(${mix(0)}, ${mix(1)}, ${mix(2)})`);
+            changed = true;
+        } catch {
+            /* qatlam qulflangan bo'lsa — o'tkazib yuboriladi */
+        }
+    }
+
+    probe.remove();
+
+    /* Plitkalar yuklanmagan holatda karta render siklini o'zi qayta
+       chizmasligi mumkin — yangi ranglar ko'rinishi uchun majburiy repaint. */
+    if (changed) map.triggerRepaint();
+};
 
 const MARKER_STYLES = `
     .custom-html-marker {
@@ -241,16 +322,16 @@ const MINERAL_MARKERS: { name: string; type: 'square' | 'triangle' | 'circle' | 
     { name: 'Litiy',       type: 'rhombus',  color: GC.amber, coords: [66.5, 40.2] },
     { name: 'Berilliy',    type: 'rhombus',  color: GC.amber, coords: [63.8, 39.2] },
     { name: 'Skandiy',     type: 'rhombus',  color: GC.magenta, coords: [70.1, 41.2] },
-    { name: 'Stronsiy',    type: 'rhombus',  color: GC.green, coords: [62.5, 41.7] },
+    { name: 'Stronsiy',    type: 'rhombus',  color: GC.accent1, coords: [62.5, 41.7] },
     { name: 'Vismut',      type: 'rhombus',  color: GC.cyan, coords: [72.0, 40.5] },
     // Stars (8)
     { name: 'Rubidiy',     type: 'star',     color: GC.magenta, coords: [69.0, 41.3] },
     { name: 'Sesiy',       type: 'star',     color: GC.cyan, coords: [68.9, 32.5] },
     { name: 'Lantan',      type: 'star',     color: GC.magenta, coords: [65.8, 38.8] },
     { name: 'Seriy',       type: 'star',     color: GC.amber, coords: [68.2, 38.9] },
-    { name: 'Neodim',      type: 'star',     color: GC.green, coords: [71.5, 40.6] },
+    { name: 'Neodim',      type: 'star',     color: GC.accent1, coords: [71.5, 40.6] },
     { name: 'Erbiy',       type: 'star',     color: GC.red, coords: [63.5, 41.8] },
-    { name: 'Ytterbiy',    type: 'star',     color: GC.green, coords: [60.6, 43.1] },
+    { name: 'Ytterbiy',    type: 'star',     color: GC.accent3, coords: [60.6, 43.1] },
     { name: 'Gadoliniy',   type: 'star',     color: GC.violet, coords: [70.7, 41.5] },
     // Squares (12)
     { name: 'Temir',       type: 'square',   color: '#8B8B8B', coords: [60.6, 41.3] },
@@ -258,8 +339,8 @@ const MINERAL_MARKERS: { name: string; type: 'square' | 'triangle' | 'circle' | 
     { name: 'Rux',         type: 'square',   color: GC.blue, coords: [67.8, 38.6] },
     { name: "Qo'rg'oshin", type: 'square',   color: GC.slate, coords: [70.5, 40.5] },
     { name: 'Alyuminiy',   type: 'square',   color: GC.blue, coords: [65.4, 41.8] },
-    { name: 'Nikel',       type: 'square',   color: GC.green, coords: [58.5, 43.2] },
-    { name: 'Xrom',        type: 'square',   color: GC.green, coords: [62.1, 40.5] },
+    { name: 'Nikel',       type: 'square',   color: GC.accent3, coords: [58.5, 43.2] },
+    { name: 'Xrom',        type: 'square',   color: GC.accent4, coords: [62.1, 40.5] },
     { name: 'Marganes',    type: 'square',   color: GC.amber, coords: [64.4, 40.1] },
     { name: 'Kobalt',      type: 'square',   color: GC.cyan, coords: [66.9, 38.1] },
     { name: 'Titan',       type: 'square',   color: GC.magenta, coords: [71.2, 40.7] },
@@ -455,6 +536,15 @@ const Map3D = ({
         // Karta har harakat/zoom qilinganda markerlarni qayta declutter qilish
         map.current.on('move', scheduleDeclutter);
 
+        /* Fon ranglarini ko'kka o'tkazish `load` ga emas, `styledata` ga
+           bog'langan: `load` sprite/glyph so'rovlari muvaffaqiyatsiz bo'lsa
+           umuman ishga tushmaydi, `styledata` esa uslub o'qilishi bilanoq
+           chaqiriladi. Funksiya idempotent — rang bir marta ko'kka aylangach
+           keyingi chaqiruvlarda tegilmaydi. */
+        map.current.on('styledata', () => {
+            if (map.current) deGreenBasemap(map.current);
+        });
+
         map.current.on('load', async () => {
             if (!map.current) return;
 
@@ -467,14 +557,19 @@ const Map3D = ({
                     data: uzbekistanData as any
                 });
 
+                /* DIQQAT: MapLibre `paint` qiymatlari CSS o'zgaruvchini
+                   (`var(--gc-*)`) tushunmaydi — bunday yozuvda qatlam butunlay
+                   qo'shilmay, xarita ostidagi yashil relyef ochiq qolardi.
+                   Shuning uchun bu yerda faqat haqiqiy rang qiymatlari (GC). */
+
                 // Ichki to'ldirish
                 map.current.addLayer({
                     id: 'uzbekistan-fill',
                     type: 'fill',
                     source: 'uzbekistan-border',
                     paint: {
-                        'fill-color': 'var(--gc-title)',
-                        'fill-opacity': 0.05
+                        'fill-color': GC.bg900,
+                        'fill-opacity': 0.55
                     }
                 });
 
@@ -484,7 +579,7 @@ const Map3D = ({
                     type: 'line',
                     source: 'uzbekistan-border',
                     paint: {
-                        'line-color': 'var(--gc-title)',
+                        'line-color': GC.accent2,
                         'line-width': 8,
                         'line-blur': 12,
                         'line-opacity': 0.4
@@ -497,7 +592,7 @@ const Map3D = ({
                     type: 'line',
                     source: 'uzbekistan-border',
                     paint: {
-                        'line-color': 'var(--gc-title)',
+                        'line-color': GC.accent2,
                         'line-width': 4,
                         'line-blur': 6,
                         'line-opacity': 0.7
@@ -510,7 +605,7 @@ const Map3D = ({
                     type: 'line',
                     source: 'uzbekistan-border',
                     paint: {
-                        'line-color': GC.cyan,
+                        'line-color': GC.accent3,
                         'line-width': 1.5,
                         'line-opacity': 0.8
                     }
@@ -653,7 +748,7 @@ const Map3D = ({
             const toifaClass = CATEGORY_TOIFA[f.marker_icon] || 'toifa-1';
             el.className = `custom-html-marker ${toifaClass}`;
 
-            const iconPath = CATEGORY_ICON[f.marker_icon] || '/icons/factory1.png';
+            const iconPath = CATEGORY_ICON[f.marker_icon] || '/icons/factory3.png';
             const name = f.name || f.title || '';
             const subInfo = f.objectType || f.object_type || '';
             const regionLabel = f.region || 'Hudud';
@@ -1108,13 +1203,13 @@ const Map3D = ({
                 {/* Transport holati */}
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.green, boxShadow: `0 0 6px ${GC.green}` }}></div>
-                        <span style={{ color: GC.green, fontWeight: 'bold' }}>Active</span>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.accent1, boxShadow: `0 0 6px ${GC.accent1}` }}></div>
+                        <span style={{ color: GC.accent1, fontWeight: 'bold' }}>Active</span>
                         <input
                             type="checkbox"
                             checked={visibleToifas.includes('active_car')}
                             onChange={() => toggleToifa('active_car')}
-                            style={{ cursor: 'pointer', accentColor: GC.green, width: '13px', height: '13px' }}
+                            style={{ cursor: 'pointer', accentColor: GC.accent1, width: '13px', height: '13px' }}
                         />
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
@@ -1245,12 +1340,12 @@ const Map3D = ({
                                         alignItems: 'center', 
                                         gap: '5px', 
                                         fontSize: '12px', 
-                                        color: selectedVehicle.status?.isOnline ? GC.green : GC.red,
-                                        background: selectedVehicle.status?.isOnline ? 'rgba(57, 255, 20, 0.1)' : 'rgba(255, 45, 85, 0.1)',
+                                        color: selectedVehicle.status?.isOnline ? GC.accent1 : GC.red,
+                                        background: selectedVehicle.status?.isOnline ? alpha(GC.accent1, 0.1) : alpha(GC.red, 0.1),
                                         padding: '2px 8px',
                                         borderRadius: '4px',
                                         marginTop: '4px',
-                                        border: `1px solid ${selectedVehicle.status?.isOnline ? 'rgba(57, 255, 20, 0.3)' : 'rgba(255, 45, 85, 0.3)'}`
+                                        border: `1px solid ${selectedVehicle.status?.isOnline ? alpha(GC.accent1, 0.3) : alpha(GC.red, 0.3)}`
                                     }}>
                                         <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor', boxShadow: '0 0 5px currentColor' }}></span>
                                         {selectedVehicle.status?.isOnline ? 'Onlayn' : 'Oflayn'}
@@ -1306,18 +1401,18 @@ const Map3D = ({
 
                             {/* Harakat */}
                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: GC.green, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: GC.accent1, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                                     Harakat
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span style={{ color: GC.slate }}>Tezlik:</span>
-                                        <span style={{ fontWeight: 'bold', fontSize: '16px', color: GC.green, textShadow: '0 0 5px rgba(57, 255, 20, 0.5)' }}>{selectedVehicle.position?.speed || 0} km/h</span>
+                                        <span style={{ fontWeight: 'bold', fontSize: '16px', color: GC.accent1, textShadow: `0 0 5px ${alpha(GC.accent1, 0.5)}` }}>{selectedVehicle.position?.speed || 0} km/h</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <span style={{ color: GC.slate }}>Dvigatel:</span>
-                                        <span style={{ fontWeight: '600', color: selectedVehicle.sensors?.ignition ? GC.green : GC.red }}>
+                                        <span style={{ fontWeight: '600', color: selectedVehicle.sensors?.ignition ? GC.accent1 : GC.red }}>
                                             {selectedVehicle.sensors?.ignition ? 'Yoqilgan' : 'O\'chirilgan'}
                                         </span>
                                     </div>
@@ -1384,7 +1479,7 @@ const Map3D = ({
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <span style={{ color: GC.slate }}>Holat:</span>
-                                        <span style={{ fontWeight: '600', color: selectedVehicle.status?.isOnline ? GC.green : GC.red }}>
+                                        <span style={{ fontWeight: '600', color: selectedVehicle.status?.isOnline ? GC.accent1 : GC.red }}>
                                             {selectedVehicle.status?.isOnline ? 'Onlayn' : 'Oflayn'}
                                         </span>
                                     </div>
@@ -1548,7 +1643,7 @@ const Map3D = ({
 
                                         {/* Loyiha */}
                                         <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: GC.green, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Loyiha</div>
+                                            <div style={{ marginBottom: '15px', color: GC.accent1, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Loyiha</div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span style={{ color: GC.slate }}>Maqsad:</span>
@@ -1565,7 +1660,7 @@ const Map3D = ({
                                                             <span style={{ fontWeight: '600' }}>{factoryDetail.work_persent}%</span>
                                                         </div>
                                                         <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                                                            <div style={{ width: `${factoryDetail.work_persent}%`, height: '100%', background: GC.green, boxShadow: `0 0 5px ${GC.green}` }}></div>
+                                                            <div style={{ width: `${factoryDetail.work_persent}%`, height: '100%', background: GC.accent1, boxShadow: `0 0 5px ${GC.accent1}` }}></div>
                                                         </div>
                                                     </div>
                                                 )}

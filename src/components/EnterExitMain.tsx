@@ -153,8 +153,8 @@ function CameraInfoCards() {
         {
             label: 'Kameralar onlayn',
             value: `${MOCK.online} / ${MOCK.total}`,
-            color: T.green,
-            icon: <IconCamera color={T.green}/>,
+            color: GC.accent1,
+            icon: <IconCamera color={GC.accent1}/>,
             extra: null,
         },
         {
@@ -168,8 +168,8 @@ function CameraInfoCards() {
         {
             label: 'Xavfli hodisalar',
             value: String(MOCK.alerts),
-            color: MOCK.alerts > 0 ? T.red : T.green,
-            icon: <IconShield color={MOCK.alerts>0 ? T.red : T.green}/>,
+            color: MOCK.alerts > 0 ? T.red : GC.accent1,
+            icon: <IconShield color={MOCK.alerts>0 ? T.red : GC.accent1}/>,
             extra: null,
         },
         {
@@ -269,7 +269,7 @@ function EventRow({type,time,person,location,onClick}:{
     type:'arrived'|'left'; time:string; person:string; location:string; onClick?:()=>void;
 }) {
     const isArrived = type === 'arrived';
-    const dotColor  = isArrived ? T.green : T.text;
+    const dotColor  = isArrived ? GC.accent1 : T.text;
     const ArrowIcon = isArrived
         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="5 12 19 12" stroke={dotColor} strokeWidth="2" strokeLinecap="round"/><polyline points="13 6 19 12 13 18" stroke={dotColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
         : <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="19 12 5 12" stroke={dotColor} strokeWidth="2" strokeLinecap="round"/><polyline points="11 6 5 12 11 18" stroke={dotColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
@@ -296,9 +296,9 @@ function EventRow({type,time,person,location,onClick}:{
             </div>
             <span style={{
                 fontSize:9, fontWeight:600,
-                color: isArrived ? T.green : T.text,
-                background: isArrived ? `${T.green}14` : `${T.text}14`,
-                border:`1px solid ${isArrived?T.green:T.text}28`,
+                color: isArrived ? GC.accent1 : T.text,
+                background: isArrived ? `${GC.accent1}14` : `${T.text}14`,
+                border:`1px solid ${isArrived?GC.accent1:T.text}28`,
                 borderRadius:5, padding:'2px 8px', whiteSpace:'nowrap', flexShrink:0,
             }}>
                 {isArrived ? 'Keldi' : 'Ketdi'}
@@ -397,7 +397,7 @@ export default function EnterExitMain() {
         labels:['Keldi','Kech keldi','Kelmadi','Ketdi','Aniqlanmagan'],
         datasets:[{
             data:[cards.arrived.count,cards.late.count,cards.not_arrived.count,cards.left.count,cards.not_found.count],
-            backgroundColor:[`${T.green}cc`,`${T.amber}cc`,`${T.blue}cc`,`${T.text}cc`,`${T.red}cc`],
+            backgroundColor:[`${GC.accent1}cc`,`${T.amber}cc`,`${GC.accent3}cc`,`${GC.accent4}cc`,`${T.red}cc`],
             borderColor:'#0d1117', borderWidth:2,
         }],
     };
@@ -415,11 +415,11 @@ export default function EnterExitMain() {
     data.employees.forEach(e=>{ const k=e.department||'Boshqa'; deptMap[k]=(deptMap[k]||0)+1; });
     const zones=Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const zoneMax=zones[0]?.[1]||1;
-    const ZONE_COLS=[T.blue,T.cyan2,GC.green,T.amber,T.text];
+    const ZONE_COLS=[GC.accent1,GC.accent2,GC.accent3,GC.accent4,GC.accent5];
 
     /* ── Device type cards ── */
     const devItems=[
-        {label:'Keldi',     count:cards.arrived.count,     color:T.green,
+        {label:'Keldi',     count:cards.arrived.count,     color:GC.accent1,
             icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
         {label:'Kech keldi',count:cards.late.count,        color:T.amber,
             icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>},
@@ -499,7 +499,7 @@ export default function EnterExitMain() {
                             <TopCard label="Hozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
                                      icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.7"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="currentColor"/></svg>}
                             />
-                            <TopCard label="Bugun kelganlar"     count={cards.arrived.count}        change={cards.arrived.change_percent}       accent={T.green}
+                            <TopCard label="Bugun kelganlar"     count={cards.arrived.count}        change={cards.arrived.change_percent}       accent={GC.accent1}
                                      icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>}
                             />
                             <TopCard label="Aniqlanmagan"        count={cards.not_found.count}      change={cards.not_found.change_percent}     accent={cards.not_found.count>0?T.red:T.amber}

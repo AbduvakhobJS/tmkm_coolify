@@ -27,10 +27,10 @@
         { "label": "O'qitilganlar", "value": "96", "unit": "%", "delta": 18.0, "icon": "graduation-cap" }
     ],
     "kpiExecution": [
-        { "label": "CO₂ kamayishi", "value": 68, "color": "#22c55e", "icon": "leaf" },
-        { "label": "Energiya samaradorligi", "value": 58, "color": "#eab308", "icon": "zap" },
-        { "label": "Qayta ishlash", "value": 76, "color": "#22c55e", "icon": "recycle" },
-        { "label": "QTEM", "value": 35, "color": "#f59e0b", "icon": "sun" }
+        { "label": "CO₂ kamayishi", "value": 68, "color": "#3B82F6", "icon": "leaf" },
+        { "label": "Energiya samaradorligi", "value": 58, "color": "#60A5FA", "icon": "zap" },
+        { "label": "Qayta ishlash", "value": 76, "color": "#93C5FD", "icon": "recycle" },
+        { "label": "QTEM", "value": 35, "color": "#BFDBFE", "icon": "sun" }
     ],
     "sentiment": [
         { "label": "Ijobiy", "value": 21, "color": "#22c55e" },

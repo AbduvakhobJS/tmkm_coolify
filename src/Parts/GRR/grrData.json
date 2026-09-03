@@ -5,14 +5,14 @@
     "dateRange": "2026 yil"
   },
   "kpis": [
-    { "label": "PORTFELDAGI LOYIHALAR", "value": "20", "unit": "loyiha", "icon": "folder", "color": "#3b82f6" },
-    { "label": "FAOL LOYIHALAR", "value": "8", "unit": "ishlanmoqda", "icon": "pulse", "color": "#22c55e" },
-    { "label": "PFS TAYYORGARLIGI", "value": "5", "unit": "loyiha", "icon": "check", "color": "#eab308" },
-    { "label": "QIDIRUV BOSQICHI", "value": "7", "unit": "loyiha", "icon": "search", "color": "#a855f7" },
-    { "label": "PORTFEL BYUDJETI", "value": "1,84", "unit": "mlrd dollar", "icon": "coins", "color": "#06b6d4" },
-    { "label": "O'ZLASHTIRILDI", "value": "42%", "unit": "784 mln dollar", "icon": "gauge", "color": "#3b82f6" },
-    { "label": "KUTILAYOTGAN TUSHUM", "value": "2,15", "unit": "mlrd dollar", "icon": "bars", "color": "#22c55e" },
-    { "label": "PORTFEL IRR", "value": "24,7%", "unit": "o'rtacha vaznlangan", "icon": "trend", "color": "#f59e0b" }
+    { "label": "PORTFELDAGI LOYIHALAR", "value": "20", "unit": "loyiha", "icon": "folder", "color": "#3B82F6" },
+    { "label": "FAOL LOYIHALAR", "value": "8", "unit": "ishlanmoqda", "icon": "pulse", "color": "#60A5FA" },
+    { "label": "PFS TAYYORGARLIGI", "value": "5", "unit": "loyiha", "icon": "check", "color": "#93C5FD" },
+    { "label": "QIDIRUV BOSQICHI", "value": "7", "unit": "loyiha", "icon": "search", "color": "#BFDBFE" },
+    { "label": "PORTFEL BYUDJETI", "value": "1,84", "unit": "mlrd dollar", "icon": "coins", "color": "#1D4ED8" },
+    { "label": "O'ZLASHTIRILDI", "value": "42%", "unit": "784 mln dollar", "icon": "gauge", "color": "#3B82F6" },
+    { "label": "KUTILAYOTGAN TUSHUM", "value": "2,15", "unit": "mlrd dollar", "icon": "bars", "color": "#60A5FA" },
+    { "label": "PORTFEL IRR", "value": "24,7%", "unit": "o'rtacha vaznlangan", "icon": "trend", "color": "#93C5FD" }
   ],
   "projects": [
     { "num": 1, "name": "Tin-Kanta", "stage": "PFS (TEI)", "readiness": 78, "risk": "medium" },
@@ -25,13 +25,13 @@
     { "num": 8, "name": "Shimoliy Taskazgan", "stage": "Geologik qidiruv", "readiness": 27, "risk": "high" }
   ],
   "mineralZones": [
-    { "label": "Cu-Sb-W-Bi-Co-Zn-Pb", "color": "#f97316" },
-    { "label": "Li (litiyli)", "color": "#3b82f6" },
-    { "label": "W (volframli)", "color": "#22c55e" },
-    { "label": "REE (noyob yer elementlari)", "color": "#eab308" },
-    { "label": "Au (oltin konlari)", "color": "#ec4899" },
-    { "label": "U (uranli)", "color": "#a855f7" },
-    { "label": "Fosforitli", "color": "#06b6d4" },
+    { "label": "Cu-Sb-W-Bi-Co-Zn-Pb", "color": "#1D4ED8" },
+    { "label": "Li (litiyli)", "color": "#3B82F6" },
+    { "label": "W (volframli)", "color": "#60A5FA" },
+    { "label": "REE (noyob yer elementlari)", "color": "#93C5FD" },
+    { "label": "Au (oltin konlari)", "color": "#DBEAFE" },
+    { "label": "U (uranli)", "color": "#BFDBFE" },
+    { "label": "Fosforitli", "color": "#1D4ED8" },
     { "label": "Grafitli", "color": "#94a3b8" },
     { "label": "Istiqbolli tuzilmalar", "color": "#e2e8f0" }
   ],
@@ -54,9 +54,9 @@
     "npv10": "2 412",
     "irr": "24,7%",
     "stages": [
-      { "label": "Ishlanmoqda", "count": 8, "pct": 40, "color": "#3b82f6" },
-      { "label": "PFS (TEI) tayyorgarligi", "count": 5, "pct": 25, "color": "#22c55e" },
-      { "label": "Qidiruv bosqichi", "count": 7, "pct": 35, "color": "#a855f7" }
+      { "label": "Ishlanmoqda", "count": 8, "pct": 40, "color": "#3B82F6" },
+      { "label": "PFS (TEI) tayyorgarligi", "count": 5, "pct": 25, "color": "#60A5FA" },
+      { "label": "Qidiruv bosqichi", "count": 7, "pct": 35, "color": "#BFDBFE" }
     ]
   },
   "reservesChart": {
@@ -75,16 +75,16 @@
     "remaining": [65, 46, 42, 33, 30, 28, 12, 6]
   },
   "resourceDistribution": [
-    { "label": "Asosiy va rangli metallar", "pct": 27, "color": "#22c55e" },
-    { "label": "Akkumulyator metallari", "pct": 23, "color": "#3b82f6" },
-    { "label": "Noyob va noyob yer elementlari", "pct": 28, "color": "#f59e0b" },
-    { "label": "Qimmatbaho metallar", "pct": 14, "color": "#a855f7" },
-    { "label": "Nometallar va maxsus xomashyo", "pct": 8, "color": "#06b6d4" }
+    { "label": "Asosiy va rangli metallar", "pct": 27, "color": "#60A5FA" },
+    { "label": "Akkumulyator metallari", "pct": 23, "color": "#3B82F6" },
+    { "label": "Noyob va noyob yer elementlari", "pct": 28, "color": "#93C5FD" },
+    { "label": "Qimmatbaho metallar", "pct": 14, "color": "#BFDBFE" },
+    { "label": "Nometallar va maxsus xomashyo", "pct": 8, "color": "#1D4ED8" }
   ],
   "keyFindings": [
-    { "icon": "star", "title": "Asosiy ustuvorliklar", "text": "Tin-Kanta, Karaauna, Jetigitash — portfelning eng qimmatli loyihalari.", "color": "#eab308" },
+    { "icon": "star", "title": "Asosiy ustuvorliklar", "text": "Tin-Kanta, Karaauna, Jetigitash — portfelning eng qimmatli loyihalari.", "color": "#93C5FD" },
     { "icon": "clock", "title": "Kechikish xavflari", "text": "Shabulkak va Altintau PFS bosqichiga o'tish uchun tezlashtirishni talab qiladi.", "color": "#94a3b8" },
-    { "icon": "warning", "title": "Byudjet xavfi", "text": "3 ta loyiha byudjetdan oshib ketish xavfi yuqori (Shabulkak, Madaniyat, Altintau).", "color": "#ef4444" },
-    { "icon": "pie", "title": "Strategik ustunlik", "text": "Portfel guruhlar bo'yicha muvozanatlashgan — Cu, Zn, Li, W, REE bo'yicha yetakchilar.", "color": "#3b82f6" }
+    { "icon": "warning", "title": "Byudjet xavfi", "text": "3 ta loyiha byudjetdan oshib ketish xavfi yuqori (Shabulkak, Madaniyat, Altintau).", "color": "#E5484D" },
+    { "icon": "pie", "title": "Strategik ustunlik", "text": "Portfel guruhlar bo'yicha muvozanatlashgan — Cu, Zn, Li, W, REE bo'yicha yetakchilar.", "color": "#3B82F6" }
   ]
 }

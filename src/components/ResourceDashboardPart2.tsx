@@ -11,17 +11,19 @@ import { GC } from '../theme/palette';
 /* Oy nomlari — bu dashboard 4 oylik ma'lumot bilan ishlaydi (dashboardUI.MONTHS 6 oylik) */
 const M = PD.monthsShort;
 
-/* Aksent ranglar — MetalsDashboardMain paletrasi bilan bir xil uslubda */
+/* Aksent ranglar — MetalsDashboardMain paletrasi bilan bir xil uslubda:
+   grafik seriyalari bitta ko'k oiladan, qizil/sariq/yashil esa faqat
+   og'ish va status ko'rsatkichlari uchun qoldiriladi. */
 const A = {
-    revenue: GC.blue,
-    cost: GC.red,
-    profit: GC.green,
-    margin: GC.amber,
-    eff: GC.green,
-    energy: GC.cyan,
-    save: GC.violet,
+    revenue: GC.accent1,
+    cost: GC.accent3,
+    profit: GC.accent2,
+    margin: GC.accent4,
+    eff: GC.accent1,
+    energy: GC.accent2,
+    save: GC.accent3,
 };
-const COST_COLORS = [GC.blue, GC.amber, GC.cyan, GC.violet];
+const COST_COLORS = [GC.accent1, GC.accent2, GC.accent3, GC.accent4];
 
 /* x/y o'qlari — belgilar QIYA emas, doim GORIZONTAL */
 const hAxis = (opts: any = {}) => {
@@ -94,7 +96,8 @@ const ResourceDashboardPart2: React.FC = () => {
         labels: M,
         datasets: [{
             data: eff.co2.data,
-            backgroundColor: eff.co2.data.map(v => (v === worstCo2 ? C.down : GC.amber)),
+            /* Oddiy ustunlar — ko'k, faqat eng yomon oy qizil bilan ajratiladi. */
+            backgroundColor: eff.co2.data.map(v => (v === worstCo2 ? C.down : GC.accent1)),
             borderRadius: 4, barPercentage: 0.6,
         }],
     };

@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import {
-    C, MONTHS as MOCK_MONTHS, MONTH_COLORS, fmt, chartBase, noLegend, axis,
+    C, MONTHS as MOCK_MONTHS, fmt, chartBase, noLegend, axis,
     barLabel, centerText,
     Card, KpiCard, Badge, DashHeader, DashRoot,
 } from './dashboardUI';
 import { useProductionDashboard } from '../hooks/production';
 import type { DashboardData, DashboardMetal } from '../services/production';
-import { GC, alpha, SERIES_COLORS } from '../theme/palette';
+import { GC, alpha, ACCENT_SERIES } from '../theme/palette';
 
 type ViewMetal = {
     name: string; symbol: string; color: string;
@@ -19,9 +19,9 @@ type ViewMetal = {
    API'dan kelmagan bloklar shu qiymatlarda qoladi va sariq ramka bilan
    belgilanadi (`Card mock` / `KpiCard mock`). */
 const MOCK_METALS: ViewMetal[] = [
-    { name: 'Molibden', symbol: 'Mo', color: GC.blue, value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, dyn: [812, 828, 845, 872, 918, 895] },
-    { name: 'Volfram', symbol: 'W', color: GC.green, value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, dyn: [602, 624, 641, 663, 701, 688] },
-    { name: 'Titan', symbol: 'Ti', color: GC.amber, value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, dyn: [378, 388, 398, 408, 421, 414] },
+    { name: 'Molibden', symbol: 'Mo', color: GC.accent1, value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, dyn: [812, 828, 845, 872, 918, 895] },
+    { name: 'Volfram', symbol: 'W', color: GC.accent2, value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, dyn: [602, 624, 641, 663, 701, 688] },
+    { name: 'Titan', symbol: 'Ti', color: GC.accent3, value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, dyn: [378, 388, 398, 408, 421, 414] },
     { name: 'Boshqalar', symbol: '•••', color: GC.slate, value: 277.4, pct: 3.4, delta: -6.8, plan: 300, dyn: [44, 45, 46, 47, 49, 48] },
 ];
 const MOCK_TOTAL = 8247.5;
@@ -38,14 +38,37 @@ const NAMES: Record<string, string> = {
     Mo: 'Molibden', W: 'Volfram', Ti: 'Titan', Cu: 'Mis',
     Re: 'Reniy', Bi: 'Vismut', Pb: "Qo'rg'oshin", Zn: 'Rux', Ag: 'Kumush',
 };
+/* Barcha metallar bitta ko'k oiladan — "asosan ko'kka urg'u" (situatsion
+   markaz standarti). Kam uchraydigan qoldiq toifalar neytral (slate) rangda. */
 const COLORS: Record<string, string> = {
-    Mo: GC.blue, W: GC.green, Ti: GC.amber, Cu: GC.magenta,
-    Re: GC.violet, Bi: GC.amber, Pb: GC.slate, Zn: GC.cyan, Ag: GC.magenta,
+    Mo: GC.accent1, W: GC.accent2, Ti: GC.accent3, Cu: GC.accent4,
+    Re: GC.accent5, Bi: GC.accent2, Pb: GC.slate, Zn: GC.accent3, Ag: GC.accent4,
 };
 /* Lug'atda yo'q materiallar uchun — donut bo'laklari bir-biridan ajralib
-   tursin uchun kulrang emas, navbatma-navbat rang beriladi. */
-const FALLBACK_COLORS = SERIES_COLORS;
+   tursin uchun ko'k oilaning ochiq-to'q ottenkalari navbatma-navbat beriladi. */
+const FALLBACK_COLORS = ACCENT_SERIES;
 const GREY = GC.slate;
+
+/* KPI kartochkalari uchun ikonkalar — emoji o'rniga bitta rangli (currentColor)
+   chiziqli SVG, "ko'kka urg'u" uslubiga mos: rang metall bo'yicha farqlanadi,
+   shakl esa barchasida bir xil (minerall/kon toshi). */
+const MetalIcon: React.FC = () => (
+    <svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round">
+        <polygon points="12 2.5 20.5 7.5 20.5 16.5 12 21.5 3.5 16.5 3.5 7.5" />
+        <path d="M3.5 7.5 12 12 20.5 7.5" strokeOpacity={0.55} />
+        <path d="M12 12v9.5" strokeOpacity={0.55} />
+    </svg>
+);
+const TotalIcon: React.FC = () => (
+    <svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="2.5" />
+        <path d="M12 3.5v17M3.5 12h17" strokeOpacity={0.55} />
+    </svg>
+);
+
+/* Zavodlar bo'yicha ustunli grafikda oylar shu ko'k oiladan (to'qdan ochiqqa)
+   ajratiladi — boshqa dashboardlar ishlatadigan ko'p rangli SERIES_COLORS emas. */
+const MONTH_ACCENTS = ['#1D4ED8', GC.accent1, GC.accent2, GC.accent3, GC.accent4, GC.accent5];
 
 /* ── Qiymat tekshiruvchilari ── */
 const num = (v: unknown): number | null =>
@@ -166,23 +189,24 @@ const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
         datasets: v.plantMonths.map((mo, mi) => ({
             label: mo,
             data: v.plants.map((p) => p.monthly[mi] ?? 0),
-            backgroundColor: MONTH_COLORS[mi % MONTH_COLORS.length],
+            backgroundColor: MONTH_ACCENTS[mi % MONTH_ACCENTS.length],
             stack: 's',
             borderWidth: 0,
         })),
     };
-    const monthlyBar = { labels: v.monthlyMonths, datasets: [{ data: v.monthly, backgroundColor: GC.blue, borderRadius: 4, barPercentage: 0.6 }] };
-    const avgBar = { labels: v.avgMonths, datasets: [{ data: v.avgDaily, backgroundColor: GC.green, borderRadius: 4, barPercentage: 0.6 }] };
+    const monthlyBar = { labels: v.monthlyMonths, datasets: [{ data: v.monthly, backgroundColor: GC.accent1, borderRadius: 4, barPercentage: 0.6 }] };
+    const avgBar = { labels: v.avgMonths, datasets: [{ data: v.avgDaily, backgroundColor: GC.accent1, borderRadius: 4, barPercentage: 0.6 }] };
 
     return (
         <DashRoot>
             <DashHeader title="Texnologik metallar ishlab chiqarish" subtitle="Ko'rsatkichlar dashboardi" dateRange={`${fmtDots(range.from)} - ${fmtDots(range.to)}`} />
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
                 <KpiCard title="Umumiy hajmi" value={`${fmt(v.total)} t`} compare={COMPARE} mock={v.totalMock}
-                         badge={""} />
+                         icon={""} iconColor={GC.accent1} badge={""} />
                 {v.metals.slice(0,4)?.map((m) => (
                     <KpiCard key={m.name} title={m.name} value={`${fmt(m.value)} t`} mock={v.metalsMock}
-                             delta={m.delta} compare={COMPARE} badge={""} />
+                             delta={m.delta} compare={COMPARE} badge={""}
+                             icon={""} iconColor={m.color} />
                 ))}
             </div>
             <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: '1fr 1fr', gap: 8 }}>

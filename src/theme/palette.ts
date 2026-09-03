@@ -11,84 +11,128 @@
    ilova render bo'lishidan oldin chaqiriladi) — ya'ni CSS'da hech qanday hex
    takrorlanmaydi, qiymat faqat shu faylda turadi.
 
-   Manba palitra: henu.at — "Trending Color Palettes 2026".
+   Manba palitra: "Situatsion markaz" standart ranglari — sovuq ko'k/ko'kimtir
+   kulrang asosiy, ogohlantirish uchun faqat qizil/sariq/yashil (pastga qarang,
+   SITUATION_ROOM_PALETTE).
    ══════════════════════════════════════════════════════════════════════════ */
 
-/** henu.at 2026 palitrasidagi xom ranglar (o'zgartirmang — semantik nomlardan foydalaning). */
-export const PALETTE_2026 = {
-    /** Electric Pulse — fintech/AI uchun "Stripe-blue" */
-    electricBlue: '#635BFF',
-    electricCyan: '#00E5E5',
-    /** Sky Pulse */
-    skyCyan: '#00D2FF',
-    deepViolet: '#3A0CA3',
-    /** Night Moss */
-    mossGreen: '#26DE81',
-    /** Toxic Sun */
-    sunAmber: '#F7B731',
-    sunRed: '#EB3B5A',
-    /** Synth Wave */
-    neonMagenta: '#FF2079',
-    /** Solar Violet */
-    solarViolet: '#706fd3',
-    /** Lava Core */
-    steelSlate: '#4B6584',
-    /** Carbon Mint */
-    carbon: '#2D3436',
+/**
+ * "Situatsion markaz" standart palitrasi (dashboard ranglar dokumentatsiyasi).
+ * O'zgartirmang — semantik `GC` tokenlaridan foydalaning.
+ */
+export const SITUATION_ROOM_PALETTE = {
+    /* Neytral fon qatlamlari */
+    bg900: '#0B1118',
+    bg800: '#111A24',
+    bg700: '#162433',
+    border: '#22303D',
+    textPrimary: '#E6EDF3',
+    textSecondary: '#9AA7B3',
+    textDisabled: '#64748B',
+    /* Asosiy aksent — ko'k spektr (grafikalar shu oiladan ketma-ket oladi) */
+    accent1: '#3B82F6',
+    accent2: '#60A5FA',
+    accent3: '#93C5FD',
+    accent4: '#BFDBFE',
+    accent5: '#DBEAFE',
+    /* Status / og'ishlar */
+    danger: '#E5484D',
+    warning: '#F5C542',
+    success: '#22C55E',
+    /* Neytral grafik elementlari */
+    gridLine: '#1F2A37',
+    axisLine: '#2A3646',
+    tickLabel: '#7B8794',
+    areaFill: '#1A2431',
 } as const;
+
+/** Eski nom — orqaga moslik uchun saqlanadi, qiymatlari yuqoridagi bilan bir xil. */
+export const PALETTE_2026 = SITUATION_ROOM_PALETTE;
+
+const SIT = SITUATION_ROOM_PALETTE;
 
 /* ── Semantik tokenlar — kodda faqat shulardan foydalaniladi ──────────────
    Rangni butun sayt bo'ylab almashtirish uchun shu yerdagi bitta qatorni
    o'zgartirish kifoya. */
 export const GC = {
-    /* ── Asosiy aksentlar ── */
+    /* ── Situatsion markaz tokenlari (to'g'ridan-to'g'ri nomlar) ── */
+    bg900: SIT.bg900,
+    bg800: SIT.bg800,
+    bg700: SIT.bg700,
+    borderColor: SIT.border,
+    textPrimary: SIT.textPrimary,
+    textSecondary: SIT.textSecondary,
+    textDisabled: SIT.textDisabled,
+    accent1: SIT.accent1,
+    accent2: SIT.accent2,
+    accent3: SIT.accent3,
+    accent4: SIT.accent4,
+    accent5: SIT.accent5,
+    danger: SIT.danger,
+    warning: SIT.warning,
+    success: SIT.success,
+    gridLine: SIT.gridLine,
+    axisLine: SIT.axisLine,
+    tickLabel: SIT.tickLabel,
+    areaFill: SIT.areaFill,
+
+    /* ── Asosiy aksentlar (eski nomlar — ko'k urg'u bilan yangilangan) ── */
     /** Ko'k — asosiy brend rangi, tugma/link/asosiy seriya */
-    blue: PALETTE_2026.electricBlue,
-    /** Moviy (cyan) — panel aksenti, ikkilamchi seriya */
-    cyan: PALETTE_2026.skyCyan,
+    blue: SIT.accent1,
+    /** Moviy (cyan) — panel aksenti, ikkilamchi seriya (endi ko'k oilasidan) */
+    cyan: SIT.accent2,
     /** IKONKALAR — barcha ikonka shu rangda (rang-baranglikdan voz kechilgan) */
-    icon: '#37e1ff',
+    icon: SIT.accent2,
 
     /* ── Holat ranglari ── */
     /** Yashil — ijobiy, o'sish, "norma" */
-    green: PALETTE_2026.mossGreen,
+    green: SIT.success,
     /** Qizil — xato, kritik, pasayish */
-    red: PALETTE_2026.sunRed,
+    red: SIT.danger,
     /** Sariq/amber — ogohlantirish, kutilmoqda */
-    amber: PALETTE_2026.sunAmber,
+    amber: SIT.warning,
 
     /**
      * Xarita markerlari va ularning toifa filtri.
      * Metall / Kon / Market — uchalasi ham SHU BITTA rangda chiziladi.
+     * (Ilgari yashil edi — situatsion markaz palitrasida ko'kka o'tkazildi.)
      */
-    marker: '#469110',
+    marker: SIT.accent1,
 
-    /* ── Qo'shimcha seriya ranglari (grafiklar uchun) ── */
-    violet: PALETTE_2026.solarViolet,
-    magenta: PALETTE_2026.neonMagenta,
-    deep: PALETTE_2026.deepViolet,
+    /* ── Qo'shimcha seriya ranglari (boshqa, ko'p toifali grafiklar uchun) ── */
+    violet: '#706fd3',
+    magenta: '#FF2079',
+    deep: '#3A0CA3',
     /** Kulrang-ko'k — ikkilamchi matn, neytral seriya */
-    slate: PALETTE_2026.steelSlate,
+    slate: '#4B6584',
 
     /* ── Sirtlar va matn ── */
     white: '#ffffff',
     /** Sahifa/panel foni */
-    panelBg: 'rgb(3, 13, 34)',
+    panelBg: SIT.bg900,
     /** Kichik kartochka foni */
-    cardBg: 'rgba(255, 255, 255, 0.05)',
+    cardBg: SIT.bg800,
     /** Sarlavha matni */
-    title: 'rgb(236, 242, 243)',
+    title: SIT.textPrimary,
     /** Asosiy matn */
-    text: '#f1f2f6',
+    text: SIT.textPrimary,
     /** Ikkilamchi/so'nik matn */
-    textMuted: '#9fb3c8',
+    textMuted: SIT.textSecondary,
     /** Chegara (border) */
-    border: 'rgba(55, 225, 255, 0.18)',
+    border: SIT.border,
     /** Grafik to'ri (grid) */
-    grid: 'rgba(255, 255, 255, 0.06)',
+    grid: SIT.gridLine,
 } as const;
 
 export type GcToken = keyof typeof GC;
+
+/**
+ * Bosh (hero) grafikalar uchun — bitta rang oilasi, ketma-ket ochilib boradi.
+ * Donut/chiziqli/ustunli grafikalarda "asosan ko'kka urg'u" shu ro'yxatdan.
+ */
+export const ACCENT_SERIES: string[] = [
+    GC.accent1, GC.accent2, GC.accent3, GC.accent4, GC.accent5,
+];
 
 /**
  * Grafiklarda ketma-ket seriyalar uchun standart tartib.

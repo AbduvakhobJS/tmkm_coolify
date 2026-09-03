@@ -159,7 +159,10 @@ const SectionCard: React.FC<{
 const RISK_COLORS: Record<string, string> = { low: GC.green, medium: GC.amber, high: GC.red };
 const RISK_LABELS: Record<string, string> = { low: 'Past', medium: "O'rta", high: 'Yuqori' };
 
-const readinessColor = (v: number) => (v >= 60 ? C.up : v >= 40 ? GC.amber : C.down);
+/* Tayyorlik progress bari — og'ish emas, oddiy ko'rsatkich: ko'k oiladan
+   (yuqori foiz — to'qroq ko'k). Xavf darajasi esa yonidagi nuqtada
+   qizil/sariq/yashil bilan alohida ko'rsatiladi (`RISK_COLORS`). */
+const readinessColor = (v: number) => (v >= 60 ? GC.accent1 : v >= 40 ? GC.accent3 : GC.accent4);
 
 /* Tarkib halqasi — qiymatlar juda kichik (<2%) bo'lgani uchun guruh ichidagi maksimumga nisbatan normallashtiriladi */
 const CompositionRing: React.FC<{ label: string; value: number; maxValue: number; color: string }> = ({ label, value, maxValue, color }) => {
@@ -188,24 +191,24 @@ const GRR: React.FC = () => {
     const reservesData = {
         labels: reservesChart.labels,
         datasets: [
-            { label: "Razvedka qilingan zaxiralar", data: reservesChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
-            { label: 'Resurslar', data: reservesChart.resources, backgroundColor: GC.blue, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
+            { label: "Razvedka qilingan zaxiralar", data: reservesChart.explored, backgroundColor: GC.accent3, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
+            { label: 'Resurslar', data: reservesChart.resources, backgroundColor: GC.accent1, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
         ],
     };
 
     const elementData = {
         labels: elementContentChart.labels,
         datasets: [
-            { label: "Razvedka qilingan zaxiralar", data: elementContentChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
-            { label: 'Resurslar', data: elementContentChart.resources, backgroundColor: GC.blue, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
+            { label: "Razvedka qilingan zaxiralar", data: elementContentChart.explored, backgroundColor: GC.accent3, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
+            { label: 'Resurslar', data: elementContentChart.resources, backgroundColor: GC.accent1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
         ],
     };
 
     const budgetData = {
         labels: budgetRemainderChart.labels,
         datasets: [
-            { label: "O'zlashtirildi", data: budgetRemainderChart.used, backgroundColor: C.up, stack: 's', borderRadius: 2, barPercentage: 0.7 },
-            { label: 'Qoldiq', data: budgetRemainderChart.remaining, backgroundColor: GC.blue, stack: 's', borderRadius: 2, barPercentage: 0.7 },
+            { label: "O'zlashtirildi", data: budgetRemainderChart.used, backgroundColor: GC.accent3, stack: 's', borderRadius: 2, barPercentage: 0.7 },
+            { label: 'Qoldiq', data: budgetRemainderChart.remaining, backgroundColor: GC.accent1, stack: 's', borderRadius: 2, barPercentage: 0.7 },
         ],
     };
 
@@ -367,7 +370,7 @@ const GRR: React.FC = () => {
                                 <span style={{ color: C.text, fontWeight: 700 }}>{summary.budget.used}</span>
                             </div>
                             <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 4 }}>
-                                <div style={{ width: `${summary.budget.usedPct}%`, height: '100%', background: GC.blue, borderRadius: 3 }} />
+                                <div style={{ width: `${summary.budget.usedPct}%`, height: '100%', background: GC.accent1, borderRadius: 3 }} />
                             </div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -389,7 +392,7 @@ const GRR: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 4, marginBottom: 12 }}>
                         {summary.composition.map((c, i) => (
-                            <CompositionRing key={c.label} label={c.label} value={c.value} maxValue={maxComposition} color={[GC.blue, GC.violet, GC.green, GC.cyan, GC.amber][i % 5]} />
+                            <CompositionRing key={c.label} label={c.label} value={c.value} maxValue={maxComposition} color={[GC.accent1, GC.accent2, GC.accent3, GC.accent4, GC.accent5][i % 5]} />
                         ))}
                     </div>
 
@@ -427,7 +430,7 @@ const GRR: React.FC = () => {
 
             {/* Pastki grafiklar qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, height: 450 }}>
-                <SectionCard title="Loyihalar bo'yicha zaxira va resurslar, mln t" icon={<IconLayers />} iconColor={GC.green}>
+                <SectionCard title="Loyihalar bo'yicha zaxira va resurslar, mln t" icon={<IconLayers />} iconColor={GC.accent1}>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={reservesData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } }, scales: axis({ x: { ticks: { font: { size: 8.5 } } }, y: { beginAtZero: true } }) } as any} />
                     </div>

@@ -220,7 +220,7 @@ const ESG: React.FC = () => {
     }), []);
 
     const generated = new Date(DATA.generatedAt);
-    const kpiColor: Record<string, string> = { esgRating: GC.cyan, irma: GC.green, hseIndex: GC.violet, co2: GC.slate, water: GC.blue, violations: C.down };
+    const kpiColor: Record<string, string> = { esgRating: GC.accent1, irma: GC.accent2, hseIndex: GC.accent3, co2: GC.slate, water: GC.accent4, violations: C.down };
 
     return (
         <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -264,19 +264,19 @@ const ESG: React.FC = () => {
 
             {/* 1-qator: Ekologiya / ijtimoiy blok / HSE-Governance */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Ekologiya" icon={<IconLeaf />} iconColor={GC.green}>
+                <SectionCard title="Ekologiya" icon={<IconLeaf />} iconColor={GC.accent1}>
                     {DATA.ecology.map((item) => (
-                        <MiniStatRow key={item.label} item={item} color={GC.green} />
+                        <MiniStatRow key={item.label} item={item} color={GC.accent1} />
                     ))}
                 </SectionCard>
 
-                <SectionCard title="Ijtimoiy blok" icon={<IconUsers />} iconColor={GC.blue}>
+                <SectionCard title="Ijtimoiy blok" icon={<IconUsers />} iconColor={GC.accent2}>
                     {DATA.social.map((item) => (
-                        <MiniStatRow key={item.label} item={item} color={GC.blue} />
+                        <MiniStatRow key={item.label} item={item} color={GC.accent2} />
                     ))}
                 </SectionCard>
 
-                <SectionCard title="HSE / Governance" icon={<IconShield />} iconColor={GC.violet}>
+                <SectionCard title="HSE / Governance" icon={<IconShield />} iconColor={GC.accent3}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, flex: 1 }}>
                         {DATA.governance.map((item) => (
                             <div key={item.label} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 10px', minWidth: 0 }}>
@@ -321,10 +321,10 @@ const ESG: React.FC = () => {
 
             {/* Pastki qator: status va maqsad */}
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: alpha(GC.green, 0.08), border: `1px solid ${alpha(GC.green, 0.27)}`, borderRadius: 12, padding: '9px 14px' }}>
-                    <NeonIcon color={GC.green} size={26}><IconShield /></NeonIcon>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: alpha(GC.accent1, 0.08), border: `1px solid ${alpha(GC.accent1, 0.27)}`, borderRadius: 12, padding: '9px 14px' }}>
+                    <NeonIcon color={GC.accent1} size={26}><IconShield /></NeonIcon>
                     <span style={{ color: C.sub, fontSize: 11 }}>Holat:</span>
-                    <span style={{ color: GC.green, fontSize: 13, fontWeight: 700, textTransform: 'uppercase' }}>{DATA.status}</span>
+                    <span style={{ color: GC.accent1, fontSize: 13, fontWeight: 700, textTransform: 'uppercase' }}>{DATA.status}</span>
                 </div>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '9px 14px', minWidth: 0 }}>
                     <NeonIcon color={GC.cyan} size={26}><IconFlag /></NeonIcon>

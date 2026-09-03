@@ -12,7 +12,6 @@ const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactN
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
         border: `1.3px solid ${GC.icon}70`,
-        boxShadow: `0 0 12px ${GC.icon}66, inset 0 0 8px ${GC.icon}30`,
         color: GC.icon,
     }}>
         {children}
@@ -110,8 +109,10 @@ const IconFlag = () => (
 type FinanceNewData = typeof DATA_JSON;
 const DATA = DATA_JSON as FinanceNewData;
 
-/* ── Ranglar (mockupdagi semantik ranglarni C palitrasiga moslashtirish) ── */
-const SEG_COLOR: Record<string, string> = { blue: GC.blue, purple: GC.violet, teal: GC.cyan, amber: GC.amber, coral: GC.amber, gray: GC.slate };
+/* ── Ranglar (mockupdagi semantik ranglarni C palitrasiga moslashtirish) ──
+   "Asosan ko'kka urg'u" — tarkib segmentlari endi bitta ko'k oiladan turli
+   ottenkalarda, qoldiq ("Boshqa") toifalar esa neytral (slate) rangda. */
+const SEG_COLOR: Record<string, string> = { blue: '#1D4ED8', teal: GC.accent1, coral: GC.accent2, amber: GC.accent3, purple: GC.accent4, gray: GC.slate };
 
 /* ── Yordamchi funksiyalar (Finance.tsx bilan bir xil nomlash) ── */
 const fmtNum = (n: number, d = 0): string => {
@@ -121,9 +122,11 @@ const fmtNum = (n: number, d = 0): string => {
     const sign = n < 0 ? '-' : '';
     return dec !== undefined ? `${sign}${grouped},${dec}` : `${sign}${grouped}`;
 };
-const valueColor = (n: number) => (n < 0 ? GC.red : GC.green);
 const deltaColor = (n: number) => (n < 0 ? GC.red : GC.green);
 const deltaArrow = (n: number) => (n < 0 ? '▼' : '▲');
+/* KPI trend chizig'i — barcha kartalarda bir xil ko'k (og'ishni faqat delta
+   badge'i qizil/yashil bilan ko'rsatadi). */
+const TREND_COLOR = GC.accent1;
 
 const MONTH_SHORT = DATA.trendLabels;
 
@@ -213,18 +216,25 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number; fmtV
                 {hovered && (
                     <line x1={hx} y1={padTop} x2={hx} y2={padTop + plotH} stroke={color} strokeWidth="1" strokeDasharray="2 2" opacity={0.55} />
                 )}
-                {data.map((v, i) => (
-                    <circle
-                        key={i} cx={x(i)} cy={y(v)}
-                        r={hoverIdx === i ? 3.8 : i === data.length - 1 ? 3 : 2}
-                        fill={color} stroke={C.card} strokeWidth={hoverIdx === i ? 1.6 : 1}
-                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${GC.icon})` } : undefined}
-                    />
-                ))}
                 {MONTH_SHORT.map((m, i) => (
                     <text key={m} x={x(i)} y={h - 2} fontSize="7.5" fill={hoverIdx === i ? color : C.sub} textAnchor={i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle'}>{m}</text>
                 ))}
             </svg>
+            {/* Chiziqdagi nuqtalar — SVG `preserveAspectRatio="none"` ni cho'zib
+                yuborgani uchun HTML qatlamida chiziladi (shunda aniq dumaloq). */}
+            {data.map((v, i) => (
+                <span key={i} style={{
+                    position: 'absolute',
+                    left: `${(x(i) / w) * 100}%`,
+                    top: `${(y(v) / h) * 100}%`,
+                    width: hoverIdx === i ? 8 : 6,
+                    height: hoverIdx === i ? 8 : 6,
+                    transform: 'translate(-50%, -50%)',
+                    borderRadius: '50%',
+                    background: color,
+                    pointerEvents: 'none',
+                }} />
+            ))}
             {hovered && (
                 <div style={{
                     position: 'absolute', left: `${(hx / w) * 100}%`, top: `${(hy / h) * 100}%`,
@@ -281,8 +291,8 @@ const RatioTile: React.FC<{ label: string; value: string; delta?: number | null;
                 </div>
             )}
         </div>
-        <span style={{ color: C.text, fontSize: 22, fontWeight: 700 }}>{value}</span>
-        {tag && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: GC.green, background: 'rgba(34,197,94,0.13)', padding: '3px 9px', borderRadius: 6, alignSelf: 'flex-start' }}>✓ {tag}</span>}
+        <span style={{ color: C.text, fontSize: 18, fontWeight: 700 }}>{value}</span>
+        {tag && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: C.sub, background: C.cardAlt, padding: '3px 9px', borderRadius: 6, alignSelf: 'flex-start' }}>✓ {tag}</span>}
     </div>
 );
 
@@ -293,7 +303,7 @@ const CompositionTile: React.FC<{ item: FinanceNewData['composition'][number] }>
             <NeonIcon color={GC.violet} size={24}><IconLayers /></NeonIcon>
             <span style={{ color: C.sub, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
         </div>
-        <div style={{ color: C.text, fontSize: 18, fontWeight: 700 }}>{item.value}</div>
+        <div style={{ color: C.text, fontSize: 15.5, fontWeight: 700 }}>{item.value}</div>
         <div style={{ display: 'flex', height: 10, borderRadius: 4, overflow: 'hidden', background: C.cardAlt }}>
             {item.segs.filter((s) => s.pct > 0).map((s) => (
                 <div key={s.label} style={{ width: `${s.pct}%`, background: SEG_COLOR[s.color] }} />
@@ -479,13 +489,13 @@ const FinanceNew: React.FC = () => {
 
             {/* Vitals */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <KpiTile label="Tushum" value={fmtNum(DATA.vitals[0].value)} icon={<IconDollar />} color={GC.blue}
+                <KpiTile label="Tushum" value={fmtNum(DATA.vitals[0].value)} icon={<IconDollar />} color={TREND_COLOR}
                     delta={DATA.vitals[0].delta} trend={DATA.vitals[0].trend} />
-                <KpiTile label="Hisobot davri foydasi" value={fmtNum(DATA.vitals[1].value)} icon={<IconWalletFilled />} color={GC.cyan}
-                    delta={DATA.vitals[1].delta} trend={DATA.vitals[1].trend} valueTone={valueColor(DATA.vitals[1].value)} />
-                <KpiTile label="Sof foyda marjasi" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color={GC.amber}
-                    delta={DATA.vitals[2].delta} deltaUnit=" p.p." trend={DATA.vitals[2].trend} valueTone={valueColor(DATA.vitals[2].value)} fmtV={fmtPct} />
-                <KpiTile label="Sof pul oqimi" value={fmtNum(DATA.vitals[3].value)} icon={<IconArrowUpDown />} color={GC.green}
+                <KpiTile label="Hisobot davri foydasi" value={fmtNum(DATA.vitals[1].value)} icon={<IconWalletFilled />} color={TREND_COLOR}
+                    delta={DATA.vitals[1].delta} trend={DATA.vitals[1].trend} />
+                <KpiTile label="Sof foyda marjasi" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color={TREND_COLOR}
+                    delta={DATA.vitals[2].delta} deltaUnit=" p.p." trend={DATA.vitals[2].trend} fmtV={fmtPct} />
+                <KpiTile label="Sof pul oqimi" value={fmtNum(DATA.vitals[3].value)} icon={<IconArrowUpDown />} color={TREND_COLOR}
                     note={(DATA.vitals[3] as any).note} trend={DATA.vitals[3].trend} />
             </div>
 
