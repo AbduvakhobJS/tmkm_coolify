@@ -733,6 +733,9 @@ const Logistics = () => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<maplibregl.Map | null>(null);
     const socketRef = useRef<Socket | null>(null);
+    /* Socket effekti faqat mount'da ishlashi kerak — shu sabab u ichida
+       o'qiladigan o'zgaruvchan qiymatlar state emas, ref orqali beriladi. */
+    const wsConnectedRef = useRef(false);
     const [isManual, setIsManual] = React.useState(false);
     const [openDetailId, setOpenDetailId] = React.useState<number | string | null>(null);
     const timerRef = useRef<any>(null);
@@ -1334,30 +1337,51 @@ const Logistics = () => {
         });
     }, [visibleToifas]);
 
-    // WebSocket connection for real-time vehicle tracking
+    /* Handler'lar har doim eng oxirgi `updateVehicleMarkersOptimized` ni chaqirsin
+       (u `visibleToifas` o'zgarganda qayta yaratiladi), lekin bu socketni qayta
+       ulashga sabab bo'lmasin. */
+    const updateMarkersOptimizedRef = useRef(updateVehicleMarkersOptimized);
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const wsUrl = 'wss://tmk.bgs.uz/tracking';
+        updateMarkersOptimizedRef.current = updateVehicleMarkersOptimized;
+    }, [updateVehicleMarkersOptimized]);
 
-        // Initialize WebSocket connection
-        socketRef.current = io(wsUrl, {
+    /* WebSocket — real vaqtda transport kuzatuvi.
+       DIQQAT: effekt FAQAT mount'da ishlaydi. Ilgari bog'liqliklarda
+       `wsConnected` turgan edi va socketning o'z `connect`/`disconnect`/
+       `connect_error` handleri o'sha state'ni o'zgartirgani uchun effekt
+       o'zini-o'zi qayta ishga tushirar edi: ulanish → state → cleanup →
+       disconnect → yangi socket → ... Natijada `reconnectionAttempts: 5`
+       hech qachon tugamay, konsol cheksiz "websocket error" bilan to'lardi. */
+    useEffect(() => {
+        /* Token loyihada faqat `tmk-token-bgs` kalitida saqlanadi (LoginPage.tsx)
+           va "Bearer " prefiksi bilan yoziladi. Avval `"token"` kaliti o'qilardi —
+           u hech qachon mavjud emas, shuning uchun so'rovlar `Bearer null` ketardi. */
+        const stored = localStorage.getItem('tmk-token-bgs') ?? '';
+        const authHeader = stored
+            ? (stored.startsWith('Bearer ') ? stored : `Bearer ${stored}`)
+            : '';
+        const rawToken = authHeader.replace(/^Bearer\s+/, '');
+
+        const socket = io('wss://tmk.bgs.uz/tracking', {
             transports: ['websocket', 'polling'],
             timeout: 20000,
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 2000,
-            auth: {
-                token: token || ''
-            }
+            auth: { token: rawToken },
         });
+        socketRef.current = socket;
 
-        socketRef.current.on('connect', () => {
-            console.log('WebSocket connected');
-            setWsConnected(true);
+        const setConnected = (value: boolean) => {
+            wsConnectedRef.current = value;
+            setWsConnected(value);
+        };
 
+        socket.on('connect', () => {
+            setConnected(true);
             // Enable real-time tracking with 1 second interval
             setTimeout(() => {
-                socketRef.current?.emit('enableRealTimeTracking', {
+                socket.emit('enableRealTimeTracking', {
                     interval: 1000,
                     includePosition: true,
                     includeStatus: true,
@@ -1366,66 +1390,59 @@ const Logistics = () => {
             }, 1000);
         });
 
-        socketRef.current.on('disconnect', (reason: string) => {
-            console.log('WebSocket disconnected:', reason);
-            setWsConnected(false);
+        socket.on('disconnect', () => setConnected(false));
+
+        /* Urinishlar soni cheklangan (5 ta), shundan keyin REST polling ishlaydi. */
+        socket.on('connect_error', (error: Error) => {
+            console.warn('WebSocket ulanmadi, REST polling ishlatiladi:', error.message);
+            setConnected(false);
         });
 
-        socketRef.current.on('connect_error', (error: Error) => {
-            console.error('WebSocket connection error:', error);
-            setWsConnected(false);
-        });
-
-        // Handle real-time vehicle updates
-        socketRef.current.on('realTimeVehicleUpdate', (data: { vehicles: any[]; totalCount: number }) => {
+        socket.on('realTimeVehicleUpdate', (data: { vehicles: any[]; totalCount: number }) => {
             if (data?.vehicles) {
                 setVehicles(data.vehicles);
-                updateVehicleMarkersOptimized(data.vehicles);
+                updateMarkersOptimizedRef.current(data.vehicles);
             }
         });
 
-        // Handle regular vehicle updates
-        socketRef.current.on('vehicleUpdates', (data: { status: string; vehicles?: any[] }) => {
+        socket.on('vehicleUpdates', (data: { status: string; vehicles?: any[] }) => {
             if (data.status === 'success' && data.vehicles) {
                 setVehicles(data.vehicles);
-                updateVehicleMarkersOptimized(data.vehicles);
+                updateMarkersOptimizedRef.current(data.vehicles);
             }
         });
 
         // Fallback to REST polling if WebSocket fails
         const fetchVehicles = async () => {
-            if (wsConnected) return; // Skip if WebSocket is connected
+            if (wsConnectedRef.current) return; // socket ishlayotgan bo'lsa — kerak emas
+            if (!authHeader) return;            // token yo'q — bekorga 401 olmaymiz
 
             try {
                 const response = await fetch('https://tmk.bgs.uz/api/api/vehicles/realtime', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { Authorization: authHeader },
                 });
+                if (!response.ok) return;
                 const result = await response.json();
                 const list = result.success ? result.data : result;
                 if (Array.isArray(list)) {
                     setVehicles(list);
-                    updateVehicleMarkersOptimized(list);
+                    updateMarkersOptimizedRef.current(list);
                 }
             } catch (err) {
-                console.error("Vehicle fetch error:", err);
+                console.error('Vehicle fetch error:', err);
             }
         };
 
-        // Initial fetch
         fetchVehicles();
-
-        // Polling interval for fallback
         const interval = setInterval(fetchVehicles, 5000);
 
         return () => {
             clearInterval(interval);
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
+            socket.removeAllListeners();
+            socket.disconnect();
+            socketRef.current = null;
         };
-    }, [wsConnected, updateVehicleMarkersOptimized]);
+    }, []);
 
     const toggleToifa = (toifa: string) => {
         setVisibleToifas(prev => {
