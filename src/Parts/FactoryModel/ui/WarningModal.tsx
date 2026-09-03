@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiAlertTriangle, FiX } from "react-icons/fi";
 import type { WarningMarker } from "../types";
+import { GC } from '../../../theme/palette';
 
 interface WarningModalProps {
     marker: WarningMarker | null;
@@ -37,7 +38,7 @@ const WarningModal: React.FC<WarningModalProps> = ({ marker, onClose }) => {
                         <div className="fm-modal__head">
                             <div className="fm-modal__titles">
                                 <span className="fm-modal__camera">
-                                    <FiAlertTriangle size={18} color="#f43f5e" />
+                                    <FiAlertTriangle size={18} color={GC.red} />
                                     Warning
                                 </span>
                             </div>

@@ -2,14 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
 import { C, chartBase, Badge } from '../../components/dashboardUI';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Mock ma'lumotlar (Guard HSE reyestri — umumiy ko'rinish) ── */
 
 const KPI_ITEMS = [
-    { label: 'Всего случаев', value: '5', sub: 'в реестре Guard', symbol: '📦', color: '#4fb3d9' },
-    { label: 'Открытые случаи', value: '5', sub: '0 закрыто', symbol: '📂', color: '#3b82f6' },
-    { label: 'Просрочено SLA', value: '4', sub: '0 случаев / 4 задач', symbol: '⏱', color: '#f59e0b' },
-    { label: 'Критические', value: '1', sub: 'по уровню риска', symbol: '⚠', color: '#ef4444' },
+    { label: 'Всего случаев', value: '5', sub: 'в реестре Guard', symbol: '📦', color: GC.cyan },
+    { label: 'Открытые случаи', value: '5', sub: '0 закрыто', symbol: '📂', color: GC.blue },
+    { label: 'Просрочено SLA', value: '4', sub: '0 случаев / 4 задач', symbol: '⏱', color: GC.amber },
+    { label: 'Критические', value: '1', sub: 'по уровню риска', symbol: '⚠', color: GC.red },
 ];
 
 const SITES = [
@@ -24,36 +25,36 @@ const SITES = [
 ];
 
 const MINI_STATS = [
-    { label: 'Площадки', value: '13', symbol: '📍', color: '#0ea8c7' },
-    { label: 'Отделы', value: '70', symbol: '🏢', color: '#3b82f6' },
-    { label: 'Фото/видео', value: '1 / 1', symbol: '📷', color: '#a855f7' },
-    { label: 'Пользователи', value: '7', symbol: '👥', color: '#22c55e' },
+    { label: 'Площадки', value: '13', symbol: '📍', color: GC.cyan },
+    { label: 'Отделы', value: '70', symbol: '🏢', color: GC.blue },
+    { label: 'Фото/видео', value: '1 / 1', symbol: '📷', color: GC.violet },
+    { label: 'Пользователи', value: '7', symbol: '👥', color: GC.green },
 ];
 
 const CASE_TOTALS = [
-    { label: 'Открытые случаи', value: 5, max: 5, color: '#3b82f6' },
-    { label: 'Просрочено SLA', value: 0, max: 5, color: '#f59e0b' },
-    { label: 'Закрыто', value: 0, max: 5, color: '#22c55e' },
-    { label: 'Критические', value: 1, max: 5, color: '#ef4444' },
+    { label: 'Открытые случаи', value: 5, max: 5, color: GC.blue },
+    { label: 'Просрочено SLA', value: 0, max: 5, color: GC.amber },
+    { label: 'Закрыто', value: 0, max: 5, color: GC.green },
+    { label: 'Критические', value: 1, max: 5, color: GC.red },
 ];
 
 const RISK_LEVELS = [
-    { label: 'Критическая', value: 1, color: '#ef4444' },
-    { label: 'Низкая', value: 1, color: '#22c55e' },
-    { label: 'Средняя', value: 3, color: '#f59e0b' },
+    { label: 'Критическая', value: 1, color: GC.red },
+    { label: 'Низкая', value: 1, color: GC.green },
+    { label: 'Средняя', value: 3, color: GC.amber },
 ];
 
 const VIOLATIONS = [
-    { label: 'Нарушение инструкций по технике безопасности', value: 2, color: '#f59e0b' },
-    { label: 'Нарушение требований пожарной безопасности', value: 1, color: '#f59e0b' },
-    { label: 'Нарушение инструкций по охране труда', value: 1, color: '#f59e0b' },
-    { label: 'Без СИЗ', value: 1, color: '#f59e0b' },
+    { label: 'Нарушение инструкций по технике безопасности', value: 2, color: GC.amber },
+    { label: 'Нарушение требований пожарной безопасности', value: 1, color: GC.amber },
+    { label: 'Нарушение инструкций по охране труда', value: 1, color: GC.amber },
+    { label: 'Без СИЗ', value: 1, color: GC.amber },
 ];
 
 const STATUSES = [
-    { label: 'В работе HR', value: 2, color: '#3b82f6' },
-    { label: 'Направлено в HR', value: 2, color: '#22c55e' },
-    { label: 'Черновик', value: 1, color: '#94a3b8' },
+    { label: 'В работе HR', value: 2, color: GC.blue },
+    { label: 'Направлено в HR', value: 2, color: GC.green },
+    { label: 'Черновик', value: 1, color: GC.slate },
 ];
 
 const CHART_LABELS = ['29.04', '30.04', '01.05', '02.05', '03.05', '04.05', '05.05'];
@@ -76,13 +77,13 @@ const ROWS: Row[] = [
     { date: '22.04, 19:01', site: 'Чирчик', type: 'Без СИЗ', level: 'Средняя', status: 'Черновик' },
 ];
 
-const levelColor = (l: Row['level']) => l === 'Критическая' ? C.down : l === 'Средняя' ? '#f59e0b' : C.up;
+const levelColor = (l: Row['level']) => l === 'Критическая' ? C.down : l === 'Средняя' ? GC.amber : C.up;
 
 /* ── Yordamchi komponentlar ── */
 
 const SectionCard: React.FC<{ title: string; icon?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
-        <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             {icon && <span>{icon}</span>}{title}
         </div>
         {children}
@@ -133,7 +134,7 @@ const HseSlaBig: React.FC = () => {
     const chartData = useMemo(() => ({
         labels: CHART_LABELS,
         datasets: [
-            { label: 'Всего', data: CHART_TOTAL, borderColor: '#4fb3d9', backgroundColor: '#4fb3d922', borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: '#4fb3d9', fill: true },
+            { label: 'Всего', data: CHART_TOTAL, borderColor: GC.cyan, backgroundColor: alpha(GC.cyan, 0.13), borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: GC.cyan, fill: true },
             { label: 'Критические', data: CHART_CRITICAL, borderColor: C.down, backgroundColor: `${C.down}22`, borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: C.down, fill: true },
         ],
     }), []);
@@ -152,14 +153,14 @@ const HseSlaBig: React.FC = () => {
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>HSE контроль и SLA</div>
+                <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>HSE контроль и SLA</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     {/*<span style={{ color: C.sub, fontSize: 11 }}>{now.toLocaleDateString('ru-RU')}, {now.toLocaleTimeString('ru-RU')}</span>*/}
                     <button
                         onClick={() => navigate('/main/hse')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 8,
+                            background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 8,
                             color: '#fff', fontSize: 12, fontWeight: 700, padding: '8px 14px',
                             boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                         }}
@@ -198,14 +199,14 @@ const HseSlaBig: React.FC = () => {
                     <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: 6, paddingRight: 2 }}>
                         {SITES.map((s) => (
                             <div key={s.name} style={{ display: 'flex', alignItems: 'center', fontSize: 12 }}>
-                                <span style={{ color: '#4fb3d9', marginRight: 6, flexShrink: 0 }}>📍</span>
+                                <span style={{ color: GC.cyan, marginRight: 6, flexShrink: 0 }}>📍</span>
                                 <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
                                 <span style={{ color: C.sub, fontWeight: 600 }}>{s.value}</span>
                             </div>
                         ))}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', fontSize: 12, borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 8 }}>
-                        <span style={{ color: '#f59e0b', marginRight: 6 }}>🗂</span>
+                        <span style={{ color: GC.amber, marginRight: 6 }}>🗂</span>
                         <span style={{ color: C.text, flex: 1 }}>Площадок в справочнике</span>
                         <span style={{ color: C.text, fontWeight: 700 }}>13</span>
                     </div>
@@ -214,14 +215,14 @@ const HseSlaBig: React.FC = () => {
                 {/* Сводка Guard из реестра */}
                 <SectionCard title="Сводка Guard из реестра" style={{ height: 340 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 12px', marginBottom: 8 }}>
-                        <Badge symbol="👤" color="#0ea8c7" />
+                        <Badge symbol="👤" color={GC.cyan} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ color: C.sub, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.4 }}>Персонал под HSE-контролем</div>
                             <div style={{ color: C.text, fontSize: 18, fontWeight: 700 }}>945 сотрудников</div>
                             <div style={{ color: C.sub, fontSize: 10.5, marginTop: 2 }}>13 площадок • 70 отделов • 7 пользователей</div>
                         </div>
                         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: '6px 12px', textAlign: 'center', flexShrink: 0 }}>
-                            <div style={{ color: '#4fb3d9', fontSize: 16, fontWeight: 700 }}>5</div>
+                            <div style={{ color: GC.cyan, fontSize: 16, fontWeight: 700 }}>5</div>
                             <div style={{ color: C.sub, fontSize: 9 }}>HSE</div>
                         </div>
                     </div>
@@ -283,7 +284,7 @@ const HseSlaBig: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: C.sub }}>
-                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fb3d9' }} />Всего
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: GC.cyan }} />Всего
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: C.sub }}>
                             <span style={{ width: 8, height: 8, borderRadius: '50%', background: C.down }} />Критические

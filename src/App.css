@@ -4,34 +4,38 @@
    ============================================================ */
 
 :root {
-  /* ── global color ── barchani shu yerdan boshqaring */
-  --gc-card-bg:  rgba(255, 255, 255, 0.05);  /* global color: kichik card background */
-  --gc-panel-bg: rgb(3, 13, 34);             /* global color: left/center/right katta panel background */
-  --gc-title: rgb(236 242 243);          /* global color: barcha title rangi (cyan) */
-  --gc-white:    #ffffff;                    /* global color: oq matn rangi */
-  --gc-red:      #ff2d55;                    /* global color: qizil rang (xato, kritik) */
-  --gc-font:     sans-serif;                 /* global color: global shrift */
-  /* ── /global color ── */
+  /* ── global color ─────────────────────────────────────────────────────
+     DIQQAT: `--gc-*` rang o'zgaruvchilari bu yerda TA'RIFLANMAYDI.
+     Ularning yagona manbai — `src/theme/palette.ts`; qiymatlar ilova
+     ishga tushganda `applyPalette()` orqali `:root` ga yoziladi.
+     Rangni o'zgartirish uchun faqat o'sha faylni tahrirlang.
+
+     Mavjud tokenlar: --gc-blue --gc-cyan --gc-icon --gc-green --gc-red
+     --gc-amber --gc-violet --gc-magenta --gc-deep --gc-slate --gc-white
+     --gc-panel-bg --gc-card-bg --gc-title --gc-text --gc-text-muted
+     --gc-border --gc-grid  (+ har biriga `--gc-<nom>-rgb` kanal varianti)
+     ───────────────────────────────────────────────────────────────────── */
+  --gc-font: sans-serif;                     /* rang emas — shrift shu yerda qoladi */
 
   --bg-void:       #020b18;
   --bg-panel:      #040f1f;
   --bg-card:       var(--gc-card-bg);
   --bg-card-hover: rgba(255, 255, 255, 0.09);
   --border-glow:   #0d3a6e;
-  --border-bright: #1a5fa8;
+  --border-bright: var(--gc-blue);
 
-  --upstream-color:   #00c3ff;
-  --midstream-color:  #ff6b35;
-  --downstream-color: #7fff00;
+  --upstream-color:   var(--gc-cyan);
+  --midstream-color:  var(--gc-amber);
+  --downstream-color: var(--gc-green);
 
   --accent-cyan:   var(--gc-title);
-  --accent-amber:  #ffa500;
-  --accent-green:  #39ff14;
+  --accent-amber:  var(--gc-amber);
+  --accent-green:  var(--gc-green);
   --accent-red:    var(--gc-red);
-  --accent-purple: #bf5fff;
+  --accent-purple: var(--gc-violet);
 
   --text-primary:  var(--gc-white);
-  --text-secondary:#7aa5cc;
+  --text-secondary:var(--gc-slate);
   --text-muted:    #3a5f85;
 
   --font-display: 'Orbitron', monospace;
@@ -965,7 +969,7 @@ opacity: 1;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #b7e9ed, #99c4cd 60%, #14bdec);
+  background: radial-gradient(circle at 30% 30%, #b7e9ed, #99c4cd 60%, var(--gc-cyan));
   border: 1px solid rgba(255, 255, 255, 0.45);
   /*box-shadow: 0 0 8px rgba(0, 245, 255, 0.8);*/
   cursor: move;
@@ -975,7 +979,7 @@ opacity: 1;
 .part-btn{
   width: 180px;
   height: 100px;
-  background-color: #089ce6;
+  background-color: var(--gc-cyan);
   font-size: 28px;
   margin-right: 20px;
   border-radius: 10px;

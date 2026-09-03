@@ -41,17 +41,17 @@
     --hair: rgba(22, 211, 255, 0.18);
 
     /* Диаграмма сериялари — `MONTH_COLORS` нинг биринчи учтаси. */
-    --s1: #3b82f6;
-    --s2: #22c55e;
-    --s3: #f59e0b;
+    --s1: var(--gc-blue);
+    --s2: var(--gc-green);
+    --s3: var(--gc-amber);
 
-    --good: #22c55e; /* C.up */
-    --warn: #f59e0b;
-    --serious: #f97316;
-    --crit: #ef4444; /* C.down */
-    --good-ink: #22c55e;
-    --warn-ink: #f59e0b;
-    --crit-ink: #ef4444;
+    --good: var(--gc-green); /* C.up */
+    --warn: var(--gc-amber);
+    --serious: var(--gc-amber);
+    --crit: var(--gc-red); /* C.down */
+    --good-ink: var(--gc-green);
+    --warn-ink: var(--gc-amber);
+    --crit-ink: var(--gc-red);
 
     /* Карточка фони — `dashboardUI.tsx` даги `C.card` градиенти. Tailwind'нинг
        `bg-*` утилиталари `background-color` беради, градиент эмас; шунинг учун

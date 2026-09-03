@@ -78,7 +78,7 @@
     padding: 8px 16px;
     font-size: 11px;
     letter-spacing: 0.4px;
-    color: #9fc7d6;
+    color: var(--gc-cyan);
     background: rgba(3, 13, 34, 0.5);
     border: 1px solid rgba(var(--fm-cyan), 0.2);
     border-radius: 10px;
@@ -325,7 +325,7 @@
 
 .fm-widget__head-extra {
     font-size: 10px;
-    color: #9fc0cf;
+    color: var(--gc-slate);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -373,13 +373,13 @@
 
 .fm-attendance__stats { display: flex; gap: 20px; }
 .fm-attendance__stat { display: flex; flex-direction: column; }
-.fm-attendance__label { font-size: 10px; color: #9fc0cf; margin-bottom: 4px; }
+.fm-attendance__label { font-size: 10px; color: var(--gc-slate); margin-bottom: 4px; }
 .fm-attendance__value-row { display: flex; align-items: baseline; gap: 6px; }
 .fm-attendance__value { font-size: 18px; font-weight: 700; }
 .fm-attendance__percent { font-size: 10px; }
 
 .fm-turnstile__main { margin-bottom: 12px; }
-.fm-turnstile__label { font-size: 11px; color: #9fc0cf; }
+.fm-turnstile__label { font-size: 11px; color: var(--gc-slate); }
 .fm-turnstile__total { display: block; font-size: 24px; font-weight: 700; color: #eafaff; }
 .fm-turnstile__footer { display: flex; gap: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; }
 .fm-turnstile__sub { display: flex; flex-direction: column; }
@@ -389,26 +389,26 @@
 .fm-parking__top { display: flex; align-items: center; gap: 15px; }
 .fm-parking__percentage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #eafaff; }
 .fm-parking__info { display: flex; flex-direction: column; gap: 6px; }
-.fm-parking__info-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #9fc0cf; }
+.fm-parking__info-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--gc-slate); }
 .fm-parking__info-val { margin-left: auto; color: #eafaff; font-weight: 600; }
 
 .fm-visitors__stats { display: flex; gap: 15px; margin-bottom: 12px; }
 .fm-visitors__stat { display: flex; flex-direction: column; flex: 1; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; }
-.fm-visitors__stat-label { font-size: 9px; color: #9fc0cf; margin-bottom: 4px; }
+.fm-visitors__stat-label { font-size: 9px; color: var(--gc-slate); margin-bottom: 4px; }
 .fm-visitors__stat-val { font-size: 16px; font-weight: 700; color: #eafaff; }
 .fm-visitors__list { display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: space-around; }
 .fm-visitors__item { display: flex; align-items: center; gap: 10px; font-size: 10px; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px; }
-.fm-visitors__time { color: #5f8496; }
+.fm-visitors__time { color: var(--gc-slate); }
 .fm-visitors__name { flex: 1; color: #eafaff; }
-.fm-visitors__org { color: #5f8496; }
-.fm-visitors__more, .fm-cameras__more { width: 100%; margin-top: 10px; padding: 6px; background: rgba(var(--fm-cyan), 0.1); border: 1px solid rgba(var(--fm-cyan), 0.2); border-radius: 6px; color: #9fc0cf; font-size: 10px; cursor: pointer; transition: background 0.2s; }
+.fm-visitors__org { color: var(--gc-slate); }
+.fm-visitors__more, .fm-cameras__more { width: 100%; margin-top: 10px; padding: 6px; background: rgba(var(--fm-cyan), 0.1); border: 1px solid rgba(var(--fm-cyan), 0.2); border-radius: 6px; color: var(--gc-slate); font-size: 10px; cursor: pointer; transition: background 0.2s; }
 .fm-visitors__more:hover, .fm-cameras__more:hover { background: rgba(var(--fm-cyan), 0.2); }
 
 .fm-cameras__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fm-cameras__item { display: flex; flex-direction: column; gap: 4px; }
 .fm-cameras__thumb { height: 60px; background: #0a1428; border-radius: 6px; position: relative; overflow: hidden; background-image: url('https://picsum.photos/seed/factory/200/120'); background-size: cover; }
-.fm-cameras__live { position: absolute; top: 4px; right: 4px; font-size: 8px; padding: 1px 4px; background: #ff5470; color: white; border-radius: 3px; text-transform: uppercase; font-weight: 700; }
-.fm-cameras__name { font-size: 9px; color: #9fc0cf; text-align: center; }
+.fm-cameras__live { position: absolute; top: 4px; right: 4px; font-size: 8px; padding: 1px 4px; background: var(--gc-red); color: white; border-radius: 3px; text-transform: uppercase; font-weight: 700; }
+.fm-cameras__name { font-size: 9px; color: var(--gc-slate); text-align: center; }
 
 .fm-attendance, .fm-turnstile, .fm-parking, .fm-visitors, .fm-resources, .fm-security, .fm-weather, .fm-staff {
     flex: 1;
@@ -420,18 +420,18 @@
 .fm-resources__grid { display: flex; flex-direction: column; gap: 4px; flex: 1; justify-content: space-around; min-height: 0; }
 .fm-resources__item { padding: 4px 8px; background: rgba(255,255,255,0.02); border-radius: 8px; flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; overflow: hidden; }
 .fm-resources__item-top { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
-.fm-resources__item-label { font-size: 9px; color: #9fc0cf; }
+.fm-resources__item-label { font-size: 9px; color: var(--gc-slate); }
 .fm-resources__item-main { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .fm-resources__val-row { display: flex; align-items: baseline; gap: 4px; }
 .fm-resources__val { font-size: 14px; font-weight: 700; color: #eafaff; }
-.fm-resources__unit { font-size: 9px; color: #5f8496; }
+.fm-resources__unit { font-size: 9px; color: var(--gc-slate); }
 .fm-resources__pct { font-size: 9px; margin-left: 4px; }
 
 .fm-security__grid { display: flex; flex-direction: column; gap: 5px; flex: 1; justify-content: space-around; min-height: 0; }
 .fm-security__item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 10px; flex: 1; min-height: 0; overflow: hidden; }
 .fm-security__icon-box { width: 26px; height: 26px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: white; }
 .fm-security__info { flex: 1; }
-.fm-security__label { display: block; font-size: 10px; color: #9fc0cf; margin-bottom: 2px; }
+.fm-security__label { display: block; font-size: 10px; color: var(--gc-slate); margin-bottom: 2px; }
 .fm-security__val-row { display: flex; align-items: baseline; gap: 8px; }
 .fm-security__val { font-size: 14px; font-weight: 700; color: #eafaff; }
 .fm-security__pct { font-size: 10px; }
@@ -439,30 +439,30 @@
 .fm-weather__main { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
 .fm-weather__temp-box { display: flex; flex-direction: column; }
 .fm-weather__temp { font-size: 24px; font-weight: 700; color: #eafaff; }
-.fm-weather__desc { font-size: 12px; color: #9fc0cf; }
+.fm-weather__desc { font-size: 12px; color: var(--gc-slate); }
 .fm-weather__details { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px; }
 .fm-weather__detail { display: flex; flex-direction: column; gap: 4px; }
-.fm-weather__detail span:first-child { font-size: 9px; color: #5f8496; }
+.fm-weather__detail span:first-child { font-size: 9px; color: var(--gc-slate); }
 .fm-weather__detail span:last-child { font-size: 11px; color: #eafaff; font-weight: 600; }
 
 .fm-staff__main { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .fm-staff__total-box { display: flex; flex-direction: column; }
-.fm-staff__total-label { font-size: 10px; color: #9fc0cf; }
+.fm-staff__total-label { font-size: 10px; color: var(--gc-slate); }
 .fm-staff__total-val { font-size: 24px; font-weight: 700; color: #eafaff; }
 .fm-staff__list { display: flex; flex-direction: column; gap: 6px; }
 .fm-staff__item { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #eafaff; }
-.fm-staff__item-left { display: flex; align-items: center; gap: 8px; color: #9fc0cf; }
+.fm-staff__item-left { display: flex; align-items: center; gap: 8px; color: var(--gc-slate); }
 .fm-staff__item-val { font-weight: 600; }
 
 .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-.dot-good, .bg-good { background: #4ade80; }
-.dot-warning, .bg-warning { background: #fbbf24; }
-.dot-danger, .bg-danger { background: #f87171; }
-.dot-normal, .bg-normal { background: #60a5fa; }
+.dot-good, .bg-good { background: var(--gc-green); }
+.dot-warning, .bg-warning { background: var(--gc-amber); }
+.dot-danger, .bg-danger { background: var(--gc-red); }
+.dot-normal, .bg-normal { background: var(--gc-blue); }
 
-.text-good { color: #4ade80; }
-.text-warning { color: #fbbf24; }
-.text-danger { color: #f87171; }
+.text-good { color: var(--gc-green); }
+.text-warning { color: var(--gc-amber); }
+.text-danger { color: var(--gc-red); }
 
 /* ─── Camera modal ──────────────────────────────────────────────────────── */
 
@@ -544,15 +544,15 @@
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 1px;
-    color: #ff5470;
+    color: var(--gc-red);
 }
 
 .fm-live__dot {
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background: #ff3355;
-    box-shadow: 0 0 10px #ff3355;
+    background: var(--gc-red);
+    box-shadow: 0 0 10px var(--gc-red);
     animation: fm-blink 1.2s ease-in-out infinite;
 }
 
@@ -588,7 +588,7 @@
 
 .fm-modal__close:hover {
     background: rgba(255, 84, 112, 0.18);
-    color: #ff8095;
+    color: var(--gc-red);
     border-color: rgba(255, 84, 112, 0.5);
 }
 
@@ -1064,7 +1064,7 @@
 
 .fm-pavilion__close:hover {
     background: rgba(255, 84, 112, 0.2);
-    color: #ff8095;
+    color: var(--gc-red);
     border-color: rgba(255, 84, 112, 0.5);
 }
 
@@ -1188,25 +1188,25 @@
 }
 
 .fm-pavilion-marker-panel__status--running {
-    color: #7cf5b0;
+    color: var(--gc-green);
     background: rgba(34, 197, 94, 0.16);
     border: 1px solid rgba(34, 197, 94, 0.4);
 }
 
 .fm-pavilion-marker-panel__status--idle {
-    color: #cbd5e1;
+    color: var(--gc-slate);
     background: rgba(148, 163, 184, 0.16);
     border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
 .fm-pavilion-marker-panel__status--maintenance {
-    color: #93c5fd;
+    color: var(--gc-blue);
     background: rgba(59, 130, 246, 0.16);
     border: 1px solid rgba(59, 130, 246, 0.4);
 }
 
 .fm-pavilion-marker-panel__status--warning {
-    color: #fcd34d;
+    color: var(--gc-amber);
     background: rgba(245, 158, 11, 0.18);
     border: 1px solid rgba(245, 158, 11, 0.45);
 }

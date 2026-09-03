@@ -4,17 +4,18 @@ import { Doughnut, Line } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText } from '../../components/dashboardUI';
 import { useContactHubSummary } from '../../hooks/contactHub';
 import demoData from './contactHubDemoData.json';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -82,17 +83,17 @@ type Notebook = {
     };
 };
 
-const NOTE_COLORS: Record<string, string> = { sky: '#3b82f6', amber: '#f59e0b', green: '#22c55e', pink: '#ec4899', purple: '#a855f7' };
-const MEETING_STATUS_COLOR: Record<string, string> = { 'Проведено': '#22c55e', 'Запланировано': '#3b82f6', 'Перенесено': '#f59e0b', 'Отменено': C.down };
+const NOTE_COLORS: Record<string, string> = { sky: GC.blue, amber: GC.amber, green: GC.green, pink: GC.magenta, purple: GC.violet };
+const MEETING_STATUS_COLOR: Record<string, string> = { 'Проведено': GC.green, 'Запланировано': GC.blue, 'Перенесено': GC.amber, 'Отменено': C.down };
 
 const DEMO = demoData as unknown as Notebook;
 
 const donutOptions = { ...chartBase, cutout: '68%', ...noLegend } as any;
 
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, hint, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 7 }}>
+            <div style={{ color: GC.cyan, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 7 }}>
                 {icon && <NeonIcon color={iconColor} size={20}>{icon}</NeonIcon>}{title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3 }}>{hint}</div>}
@@ -108,7 +109,7 @@ const ProgressRow: React.FC<{ name: string; value: number; max: number; color: s
             <span style={{ color: C.sub, fontWeight: 700, flexShrink: 0 }}>{value}</span>
         </div>
         <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min((value / max) * 100, 100)}%`, background: color, borderRadius: 2, boxShadow: `0 0 5px ${color}88` }} />
+            <div style={{ height: '100%', width: `${Math.min((value / max) * 100, 100)}%`, background: color, borderRadius: 2, boxShadow: `0 0 5px ${GC.icon}88` }} />
         </div>
     </div>
 );
@@ -135,9 +136,9 @@ const ContactHub: React.FC = () => {
         labels: ['План', 'Пров.', 'Просроч.', 'Ближ.', 'Всего'],
         datasets: [{
             data: [NB.totals.meetingsPlanned, NB.totals.meetingsDone, NB.totals.meetingsOverdue, NB.meetings.upcoming.length, NB.totals.meetings],
-            borderColor: '#4fb3d9', backgroundColor: '#4fb3d922', borderWidth: 2, tension: 0.35, fill: true,
+            borderColor: GC.cyan, backgroundColor: alpha(GC.cyan, 0.13), borderWidth: 2, tension: 0.35, fill: true,
             pointRadius: 4,
-            pointBackgroundColor: ['#3b82f6', '#22c55e', C.down, '#eab308', '#4fb3d9'],
+            pointBackgroundColor: [GC.blue, GC.green, C.down, GC.amber, GC.cyan],
         }],
     }), [NB]);
 
@@ -156,14 +157,14 @@ const ContactHub: React.FC = () => {
                 {/* Sarlavha */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                        <NeonIcon color="#4fb3d9" size={32}><IconBookOpen /></NeonIcon>
-                        <div style={{ color: '#4fb3d9', fontSize: 15, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ContactHub</div>
+                        <NeonIcon color={GC.cyan} size={32}><IconBookOpen /></NeonIcon>
+                        <div style={{ color: GC.cyan, fontSize: 15, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ContactHub</div>
                         <span style={{
                             display: 'flex', alignItems: 'center', gap: 5, fontSize: 9.5, fontWeight: 700, marginLeft: 4,
-                            color: isLive ? '#22c55e' : '#eab308', background: isLive ? '#22c55e18' : '#eab30818',
-                            border: `1px solid ${isLive ? '#22c55e44' : '#eab30844'}`, borderRadius: 999, padding: '2px 8px',
+                            color: isLive ? GC.green : GC.amber, background: isLive ? alpha(GC.green, 0.09) : alpha(GC.amber, 0.09),
+                            border: `1px solid ${isLive ? alpha(GC.green, 0.27) : alpha(GC.amber, 0.27)}`, borderRadius: 999, padding: '2px 8px',
                         }}>
-                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: isLive ? '#22c55e' : '#eab308' }} />
+                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: isLive ? GC.green : GC.amber }} />
                             {isLive ? 'Живые данные' : 'Демо'}
                         </span>
                     </div>
@@ -171,7 +172,7 @@ const ContactHub: React.FC = () => {
                         onClick={() => navigate('/main/contact-hub-detail')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 999,
+                            background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 999,
                             color: '#fff', fontSize: 10.5, fontWeight: 700, padding: '5px 11px',
                             boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                         }}
@@ -185,10 +186,10 @@ const ContactHub: React.FC = () => {
                 {/* KPI qatori */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                     {[
-                        { label: 'Всего компаний', value: NB.totals.companies, icon: <IconBuilding />, color: '#4fb3d9' },
-                        { label: 'Стран', value: NB.totals.countries, icon: <IconGlobe />, color: '#3b82f6' },
-                        { label: 'Сфер деятельности', value: NB.totals.directions, icon: <IconLayers />, color: '#a855f7' },
-                        { label: 'Карточек с файлами', value: NB.totals.files, icon: <IconFileLines />, color: '#0ea8c7' },
+                        { label: 'Всего компаний', value: NB.totals.companies, icon: <IconBuilding />, color: GC.cyan },
+                        { label: 'Стран', value: NB.totals.countries, icon: <IconGlobe />, color: GC.blue },
+                        { label: 'Сфер деятельности', value: NB.totals.directions, icon: <IconLayers />, color: GC.violet },
+                        { label: 'Карточек с файлами', value: NB.totals.files, icon: <IconFileLines />, color: GC.cyan },
                     ].map((k) => (
                         <div key={k.label} style={{ minWidth: 0, background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <NeonIcon color={k.color} size={26}>{k.icon}</NeonIcon>
@@ -251,9 +252,9 @@ const ContactHub: React.FC = () => {
                     <SectionCard title="Заметки / события" icon={<IconStickyNote />}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                             {NB.notes.map((n) => {
-                                const color = NOTE_COLORS[n.color] ?? '#eab308';
+                                const color = NOTE_COLORS[n.color] ?? GC.amber;
                                 return (
-                                    <div key={n.id} style={{ background: `${color}18`, border: `1px solid ${color}44`, borderRadius: 10, padding: '8px 10px', minWidth: 0 }}>
+                                    <div key={n.id} style={{ background: `${GC.icon}18`, border: `1px solid ${GC.icon}44`, borderRadius: 10, padding: '8px 10px', minWidth: 0 }}>
                                         <div style={{ color, fontSize: 11.5, fontWeight: 700, marginBottom: 2 }}>{n.title}</div>
                                         <div style={{ color: C.sub, fontSize: 10.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.content}</div>
                                     </div>

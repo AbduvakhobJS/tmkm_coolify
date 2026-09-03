@@ -9,6 +9,7 @@ import { loadUzbekistanBorder, uzbekistanBorder } from '../../components/uzbekis
 import ProjectDashboard from '../../components/ProjectDashboard';
 import WebRTCPlayer from '../../components/WebRTCPlayer';
 import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "../../hooks/map";
+import { GC } from '../../theme/palette';
 
 
 
@@ -66,23 +67,23 @@ const CATEGORY_ICON: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-    REGISTRATION: '#ffa500',
+    REGISTRATION: GC.amber,
     CONSTRUCTION: 'var(--gc-title)',
-    STARTED: '#39ff14',
+    STARTED: GC.green,
 };
 
 const IMPORTANCE_COLORS: Record<string, string> = {
-    HIGH: '#ff2d55',
-    AVERAGE: '#ffa500',
-    LOW: '#7aa5cc',
+    HIGH: GC.red,
+    AVERAGE: GC.amber,
+    LOW: GC.slate,
 };
 
 const CYBER_LOGISTICS_MAP = {
     background: '#06111B',
     land: '#10202b',
     water: '#0b426d',
-    waterGlow: '#22b8ff',
-    border: '#00f5ff',
+    waterGlow: GC.cyan,
+    border: GC.cyan,
     province: 'rgba(0, 245, 255, 0.26)',
     road: 'rgba(104, 177, 205, 0.16)',
 };
@@ -300,13 +301,13 @@ const buildRoadLikeEdge = (
 // Har bir marshrutdagi 2 nuqta oralig'i (segment) alohida "chiziqcha" sifatida
 // chiziladi va navbatma-navbat har xil neon rangga bo'yaladi.
 const NEON_ROUTE_PALETTE = [
-    '#39ff14', // neon yashil
-    '#00f5ff', // neon firuza
-    '#2979ff', // neon ko'k
-    '#7dfcff', // neon havorang
-    '#00ffa3', // neon zumrad-yashil
-    '#aefc03', // neon laym
-    '#18e0c9', // neon aqua
+    GC.green, // neon yashil
+    GC.cyan, // neon firuza
+    GC.blue, // neon ko'k
+    GC.cyan, // neon havorang
+    GC.green, // neon zumrad-yashil
+    GC.green, // neon laym
+    GC.cyan, // neon aqua
 ];
 
 const createLogisticsRouteData = (isInsideBorder: (point: [number, number]) => boolean) => {
@@ -447,7 +448,7 @@ const addLogisticsRouteLayers = (
             'circle-radius': 14,
             'circle-color': 'rgba(255, 161, 22, 0.28)',
             'circle-blur': 0.65,
-            'circle-stroke-color': '#ffb02e',
+            'circle-stroke-color': GC.amber,
             'circle-stroke-width': 1,
             'circle-stroke-opacity': 0.8,
         },
@@ -460,7 +461,7 @@ const addLogisticsRouteLayers = (
         paint: {
             'circle-radius': 7,
             'circle-color': '#17130b',
-            'circle-stroke-color': '#ffd166',
+            'circle-stroke-color': GC.amber,
             'circle-stroke-width': 2,
             'circle-stroke-opacity': 1,
         },
@@ -479,7 +480,7 @@ const addLogisticsRouteLayers = (
         },
         paint: {
             'text-color': '#ffffff',
-            'text-halo-color': '#ff9f1c',
+            'text-halo-color': GC.amber,
             'text-halo-width': 1.2,
         },
     });
@@ -554,7 +555,7 @@ const MARKER_STYLES = `
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid #ff1493;
+        border: 2px solid ${GC.magenta};
     }
     .marker-icon-inner {
         transform: rotate(45deg);
@@ -567,7 +568,7 @@ const MARKER_STYLES = `
     .marker-line {
         width: 3px;
         height: 80px;
-        background: #ff1493;
+        background: ${GC.magenta};
         margin-left: 0px;
         margin-top: -2px;
     }
@@ -580,7 +581,7 @@ const MARKER_STYLES = `
         min-width: 180px;
     }
     .marker-title-tag {
-        background: #ff1493;
+        background: ${GC.magenta};
         color: white;
         padding: 4px 12px;
         font-size: 16px;
@@ -605,7 +606,7 @@ const MARKER_STYLES = `
         margin-left: 5%;
         font-size: 13px;
         border-radius: 4px;
-        border-left: 4px solid #ff1493;
+        border-left: 4px solid ${GC.magenta};
         backdrop-filter: blur(4px);
         display: flex;
         justify-content: space-between;
@@ -613,82 +614,82 @@ const MARKER_STYLES = `
         white-space: nowrap;
     }
     .marker-info-value {
-        color: #ffd700;
+        color: ${GC.amber};
         margin-left: 10px;
     }
 
     /* Toifalar ranglari */
-    .toifa-1 .marker-pin { border-color: #ff1493; }
-    .toifa-1 .marker-line { background: #ff1493; }
-    .toifa-1 .marker-title-tag { background: #ff1493; }
-    .toifa-1 .marker-info-box { border-left-color: #ff1493; }
+    .toifa-1 .marker-pin { border-color: ${GC.magenta}; }
+    .toifa-1 .marker-line { background: ${GC.magenta}; }
+    .toifa-1 .marker-title-tag { background: ${GC.magenta}; }
+    .toifa-1 .marker-info-box { border-left-color: ${GC.magenta}; }
 
     .toifa-2 .marker-pin { border-color: var(--gc-title); }
     .toifa-2 .marker-line { background: var(--gc-title); }
     .toifa-2 .marker-title-tag { background: var(--gc-title); }
     .toifa-2 .marker-info-box { border-left-color: var(--gc-title); }
 
-    .toifa-3 .marker-pin { border-color: #32cd32; }
-    .toifa-3 .marker-line { background: #32cd32; }
-    .toifa-3 .marker-title-tag { background: #32cd32; }
-    .toifa-3 .marker-info-box { border-left-color: #32cd32; }
+    .toifa-3 .marker-pin { border-color: ${GC.green}; }
+    .toifa-3 .marker-line { background: ${GC.green}; }
+    .toifa-3 .marker-title-tag { background: ${GC.green}; }
+    .toifa-3 .marker-info-box { border-left-color: ${GC.green}; }
 
-    .toifa-4 .marker-pin { border-color: #ffa500; }
-    .toifa-4 .marker-line { background: #ffa500; }
-    .toifa-4 .marker-title-tag { background: #ffa500; }
-    .toifa-4 .marker-info-box { border-left-color: #ffa500; }
+    .toifa-4 .marker-pin { border-color: ${GC.amber}; }
+    .toifa-4 .marker-line { background: ${GC.amber}; }
+    .toifa-4 .marker-title-tag { background: ${GC.amber}; }
+    .toifa-4 .marker-info-box { border-left-color: ${GC.amber}; }
 
-    .toifa-5 .marker-pin { border-color: #9370db; }
-    .toifa-5 .marker-line { background: #9370db; }
-    .toifa-5 .marker-title-tag { background: #9370db; }
-    .toifa-5 .marker-info-box { border-left-color: #9370db; }
+    .toifa-5 .marker-pin { border-color: ${GC.violet}; }
+    .toifa-5 .marker-line { background: ${GC.violet}; }
+    .toifa-5 .marker-title-tag { background: ${GC.violet}; }
+    .toifa-5 .marker-info-box { border-left-color: ${GC.violet}; }
 `;
 
 // Mineral markers array (name, type, color, coords)
 // Row 1: 6 triangle + 7 circle = 13  |  Row 2: 5 rhombus + 8 star = 13  |  Row 3: 12 square
 const MINERAL_MARKERS: { name: string; type: 'square' | 'triangle' | 'circle' | 'rhombus' | 'star'; color: string; coords: [number, number] }[] = [
     // Triangles (6)
-    { name: 'Oltin',       type: 'triangle', color: '#FFD700', coords: [64.6, 40.9] },
+    { name: 'Oltin',       type: 'triangle', color: GC.amber, coords: [64.6, 40.9] },
     { name: 'Kumush',      type: 'triangle', color: '#C0C0C0', coords: [67.3, 39.7] },
     { name: 'Platina',     type: 'triangle', color: '#E0E0E0', coords: [61.4, 41.5] },
-    { name: 'Volfram',     type: 'triangle', color: '#4682B4', coords: [60.9, 43.8] },
-    { name: 'Molibden',    type: 'triangle', color: '#9370DB', coords: [61.0, 42.5] },
+    { name: 'Volfram',     type: 'triangle', color: GC.blue, coords: [60.9, 43.8] },
+    { name: 'Molibden',    type: 'triangle', color: GC.violet, coords: [61.0, 42.5] },
     { name: 'Palladiy',    type: 'triangle', color: '#ADD8E6', coords: [63.2, 40.3] },
     // Circles (7)
-    { name: 'Reniy',       type: 'circle',   color: '#87CEEB', coords: [71.8, 40.1] },
+    { name: 'Reniy',       type: 'circle',   color: GC.cyan, coords: [71.8, 40.1] },
     { name: 'Rodiy',       type: 'circle',   color: '#E0C8FF', coords: [65.1, 39.5] },
-    { name: 'Indiy',       type: 'circle',   color: '#FF6347', coords: [67.7, 41.4] },
-    { name: 'Galliy',      type: 'circle',   color: '#20B2AA', coords: [68.4, 40.6] },
-    { name: 'Tellurid',    type: 'circle',   color: '#FFA07A', coords: [64.9, 42.2] },
-    { name: 'Selen',       type: 'circle',   color: '#DA70D6', coords: [67.9, 41.0] },
-    { name: 'Surma',       type: 'circle',   color: '#DDA0DD', coords: [68.9, 40.1] },
+    { name: 'Indiy',       type: 'circle',   color: GC.red, coords: [67.7, 41.4] },
+    { name: 'Galliy',      type: 'circle',   color: GC.cyan, coords: [68.4, 40.6] },
+    { name: 'Tellurid',    type: 'circle',   color: GC.amber, coords: [64.9, 42.2] },
+    { name: 'Selen',       type: 'circle',   color: GC.magenta, coords: [67.9, 41.0] },
+    { name: 'Surma',       type: 'circle',   color: GC.magenta, coords: [68.9, 40.1] },
     // Rhombuses (5)
-    { name: 'Litiy',       type: 'rhombus',  color: '#FF4500', coords: [66.5, 40.2] },
-    { name: 'Berilliy',    type: 'rhombus',  color: '#FFA500', coords: [63.8, 39.2] },
-    { name: 'Skandiy',     type: 'rhombus',  color: '#FF00FF', coords: [70.1, 41.2] },
-    { name: 'Stronsiy',    type: 'rhombus',  color: '#00FF7F', coords: [62.5, 41.7] },
-    { name: 'Vismut',      type: 'rhombus',  color: '#5F9EA0', coords: [72.0, 40.5] },
+    { name: 'Litiy',       type: 'rhombus',  color: GC.amber, coords: [66.5, 40.2] },
+    { name: 'Berilliy',    type: 'rhombus',  color: GC.amber, coords: [63.8, 39.2] },
+    { name: 'Skandiy',     type: 'rhombus',  color: GC.magenta, coords: [70.1, 41.2] },
+    { name: 'Stronsiy',    type: 'rhombus',  color: GC.green, coords: [62.5, 41.7] },
+    { name: 'Vismut',      type: 'rhombus',  color: GC.cyan, coords: [72.0, 40.5] },
     // Stars (8)
-    { name: 'Rubidiy',     type: 'star',     color: '#FF1493', coords: [69.0, 41.3] },
-    { name: 'Sesiy',       type: 'star',     color: '#00CED1', coords: [68.9, 32.5] },
-    { name: 'Lantan',      type: 'star',     color: '#EE82EE', coords: [65.8, 38.8] },
-    { name: 'Seriy',       type: 'star',     color: '#F0E68C', coords: [68.2, 38.9] },
-    { name: 'Neodim',      type: 'star',     color: '#7FFFD4', coords: [71.5, 40.6] },
-    { name: 'Erbiy',       type: 'star',     color: '#FF8C69', coords: [63.5, 41.8] },
-    { name: 'Ytterbiy',    type: 'star',     color: '#00FA9A', coords: [60.6, 43.1] },
-    { name: 'Gadoliniy',   type: 'star',     color: '#BA55D3', coords: [70.7, 41.5] },
+    { name: 'Rubidiy',     type: 'star',     color: GC.magenta, coords: [69.0, 41.3] },
+    { name: 'Sesiy',       type: 'star',     color: GC.cyan, coords: [68.9, 32.5] },
+    { name: 'Lantan',      type: 'star',     color: GC.magenta, coords: [65.8, 38.8] },
+    { name: 'Seriy',       type: 'star',     color: GC.amber, coords: [68.2, 38.9] },
+    { name: 'Neodim',      type: 'star',     color: GC.green, coords: [71.5, 40.6] },
+    { name: 'Erbiy',       type: 'star',     color: GC.red, coords: [63.5, 41.8] },
+    { name: 'Ytterbiy',    type: 'star',     color: GC.green, coords: [60.6, 43.1] },
+    { name: 'Gadoliniy',   type: 'star',     color: GC.violet, coords: [70.7, 41.5] },
     // Squares (12)
     { name: 'Temir',       type: 'square',   color: '#8B8B8B', coords: [60.6, 41.3] },
-    { name: 'Mis',         type: 'square',   color: '#B87333', coords: [69.3, 40.8] },
-    { name: 'Rux',         type: 'square',   color: '#6BAED6', coords: [67.8, 38.6] },
-    { name: "Qo'rg'oshin", type: 'square',   color: '#708090', coords: [70.5, 40.5] },
-    { name: 'Alyuminiy',   type: 'square',   color: '#A6BDDB', coords: [65.4, 41.8] },
-    { name: 'Nikel',       type: 'square',   color: '#98FB98', coords: [58.5, 43.2] },
-    { name: 'Xrom',        type: 'square',   color: '#32CD32', coords: [62.1, 40.5] },
-    { name: 'Marganes',    type: 'square',   color: '#FF8C00', coords: [64.4, 40.1] },
-    { name: 'Kobalt',      type: 'square',   color: '#00BFFF', coords: [66.9, 38.1] },
-    { name: 'Titan',       type: 'square',   color: '#FF69B4', coords: [71.2, 40.7] },
-    { name: 'Vanadiy',     type: 'square',   color: '#1E90FF', coords: [60.8, 42.9] },
+    { name: 'Mis',         type: 'square',   color: GC.amber, coords: [69.3, 40.8] },
+    { name: 'Rux',         type: 'square',   color: GC.blue, coords: [67.8, 38.6] },
+    { name: "Qo'rg'oshin", type: 'square',   color: GC.slate, coords: [70.5, 40.5] },
+    { name: 'Alyuminiy',   type: 'square',   color: GC.blue, coords: [65.4, 41.8] },
+    { name: 'Nikel',       type: 'square',   color: GC.green, coords: [58.5, 43.2] },
+    { name: 'Xrom',        type: 'square',   color: GC.green, coords: [62.1, 40.5] },
+    { name: 'Marganes',    type: 'square',   color: GC.amber, coords: [64.4, 40.1] },
+    { name: 'Kobalt',      type: 'square',   color: GC.cyan, coords: [66.9, 38.1] },
+    { name: 'Titan',       type: 'square',   color: GC.magenta, coords: [71.2, 40.7] },
+    { name: 'Vanadiy',     type: 'square',   color: GC.blue, coords: [60.8, 42.9] },
     { name: 'Qalay',       type: 'square',   color: '#BC8F8F', coords: [59.2, 44.1] },
 ];
 
@@ -1516,9 +1517,9 @@ const Logistics = () => {
                 {/*<div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>*/}
                 {/*    {[*/}
                 {/*        { value: '', label: 'Barchasi', color: 'var(--gc-title)' },*/}
-                {/*        { value: 'factory', label: 'Metall', color: '#ff1493' },*/}
-                {/*        { value: 'mine', label: 'Kon', color: '#32cd32' },*/}
-                {/*        { value: 'mine-cart', label: 'Market', color: '#ffa500' },*/}
+                {/*        { value: 'factory', label: 'Metall', color: GC.magenta },*/}
+                {/*        { value: 'mine', label: 'Kon', color: GC.green },*/}
+                {/*        { value: 'mine-cart', label: 'Market', color: GC.amber },*/}
                 {/*    ].map(opt => (*/}
                 {/*        <button*/}
                 {/*            key={opt.value}*/}
@@ -1566,23 +1567,23 @@ const Logistics = () => {
                 {/* Transport holati */}
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#39ff14', boxShadow: '0 0 6px #39ff14' }}></div>
-                        <span style={{ color: '#39ff14', fontWeight: 'bold' }}>Active</span>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.green, boxShadow: `0 0 6px ${GC.green}` }}></div>
+                        <span style={{ color: GC.green, fontWeight: 'bold' }}>Active</span>
                         <input
                             type="checkbox"
                             checked={visibleToifas.includes('active_car')}
                             onChange={() => toggleToifa('active_car')}
-                            style={{ cursor: 'pointer', accentColor: '#39ff14', width: '13px', height: '13px' }}
+                            style={{ cursor: 'pointer', accentColor: GC.green, width: '13px', height: '13px' }}
                         />
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ff2d55', boxShadow: '0 0 6px #ff2d55' }}></div>
-                        <span style={{ color: '#ff2d55', fontWeight: 'bold' }}>Inactive</span>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.red, boxShadow: `0 0 6px ${GC.red}` }}></div>
+                        <span style={{ color: GC.red, fontWeight: 'bold' }}>Inactive</span>
                         <input
                             type="checkbox"
                             checked={visibleToifas.includes('inactive_car')}
                             onChange={() => toggleToifa('inactive_car')}
-                            style={{ cursor: 'pointer', accentColor: '#ff2d55', width: '13px', height: '13px' }}
+                            style={{ cursor: 'pointer', accentColor: GC.red, width: '13px', height: '13px' }}
                         />
                     </label>
                 </div>
@@ -1611,7 +1612,7 @@ const Logistics = () => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto', flex: 1 }}>
                     {factorys.map((f: any, index: number) => {
-                        const color = f.marker_icon === 'mine' ? '#32cd32' : f.marker_icon === 'mine-cart' ? '#ffa500' : '#ff1493';
+                        const color = f.marker_icon === 'mine' ? GC.green : f.marker_icon === 'mine-cart' ? GC.amber : GC.magenta;
                         return (
                             <div
                                 key={f.id ?? index}
@@ -1644,7 +1645,7 @@ const Logistics = () => {
                         </div>
                     )}
                     {markersIsError && (
-                        <div style={{ fontSize: '11px', color: '#ff2d55', textAlign: 'center', padding: '10px 0' }}>
+                        <div style={{ fontSize: '11px', color: GC.red, textAlign: 'center', padding: '10px 0' }}>
                             Xatolik: {(markersErrorObj as any)?.response?.status === 401 ? 'Token yo\'q yoki muddati o\'tgan, qayta login qiling' : ((markersErrorObj as any)?.message || 'ma\'lumot olinmadi')}
                         </div>
                     )}
@@ -1702,7 +1703,7 @@ const Logistics = () => {
                                         alignItems: 'center',
                                         gap: '5px',
                                         fontSize: '12px',
-                                        color: selectedVehicle.status?.isOnline ? '#39ff14' : '#ff2d55',
+                                        color: selectedVehicle.status?.isOnline ? GC.green : GC.red,
                                         background: selectedVehicle.status?.isOnline ? 'rgba(57, 255, 20, 0.1)' : 'rgba(255, 45, 85, 0.1)',
                                         padding: '2px 8px',
                                         borderRadius: '4px',
@@ -1743,19 +1744,19 @@ const Logistics = () => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Kenglik:</span>
+                                        <span style={{ color: GC.slate }}>Kenglik:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.position?.latitude?.toFixed(6)}°</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Uzunlik:</span>
+                                        <span style={{ color: GC.slate }}>Uzunlik:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.position?.longitude?.toFixed(6)}°</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Balandlik:</span>
+                                        <span style={{ color: GC.slate }}>Balandlik:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.position?.altitude || 0} m</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Yo'nalish:</span>
+                                        <span style={{ color: GC.slate }}>Yo'nalish:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.position?.course || 0}°</span>
                                     </div>
                                 </div>
@@ -1763,23 +1764,23 @@ const Logistics = () => {
 
                             {/* Harakat */}
                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: '#39ff14', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: GC.green, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                                     Harakat
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Tezlik:</span>
-                                        <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#39ff14', textShadow: '0 0 5px rgba(57, 255, 20, 0.5)' }}>{selectedVehicle.position?.speed || 0} km/h</span>
+                                        <span style={{ color: GC.slate }}>Tezlik:</span>
+                                        <span style={{ fontWeight: 'bold', fontSize: '16px', color: GC.green, textShadow: '0 0 5px rgba(57, 255, 20, 0.5)' }}>{selectedVehicle.position?.speed || 0} km/h</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Dvigatel:</span>
-                                        <span style={{ fontWeight: '600', color: selectedVehicle.sensors?.ignition ? '#39ff14' : '#ff2d55' }}>
+                                        <span style={{ color: GC.slate }}>Dvigatel:</span>
+                                        <span style={{ fontWeight: '600', color: selectedVehicle.sensors?.ignition ? GC.green : GC.red }}>
                                             {selectedVehicle.sensors?.ignition ? 'Yoqilgan' : 'O\'chirilgan'}
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Oxirgi yangilanish:</span>
+                                        <span style={{ color: GC.slate }}>Oxirgi yangilanish:</span>
                                         <span style={{ fontWeight: '600', fontSize: '11px', color: '#e0f0ff' }}>
                                             {selectedVehicle.position?.lastUpdate ? new Date(selectedVehicle.position.lastUpdate).toLocaleString('uz-UZ') : '-'}
                                         </span>
@@ -1789,26 +1790,26 @@ const Logistics = () => {
 
                             {/* Sensorlar */}
                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: '#bf5fff', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: GC.violet, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                                     Sensorlar
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>GPS sun'iy yo'ldoshlar:</span>
+                                        <span style={{ color: GC.slate }}>GPS sun'iy yo'ldoshlar:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.sensors?.satellites || selectedVehicle.position?.satellites || 0}</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Kuchlanish:</span>
+                                        <span style={{ color: GC.slate }}>Kuchlanish:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.sensors?.voltage || 0} V</span>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ color: '#7aa5cc' }}>Yoqilg'i:</span>
+                                            <span style={{ color: GC.slate }}>Yoqilg'i:</span>
                                             <span style={{ fontWeight: '600' }}>{selectedVehicle.sensors?.fuel || 0}%</span>
                                         </div>
                                         <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                                            <div style={{ width: `${selectedVehicle.sensors?.fuel || 0}%`, height: '100%', background: '#ffa500', boxShadow: '0 0 5px #ffa500' }}></div>
+                                            <div style={{ width: `${selectedVehicle.sensors?.fuel || 0}%`, height: '100%', background: GC.amber, boxShadow: `0 0 5px ${GC.amber}` }}></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1816,17 +1817,17 @@ const Logistics = () => {
 
                             {/* Elektr ta'minoti */}
                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: '#ffa500', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: GC.amber, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"></rect><line x1="23" y1="13" x2="23" y2="9"></line></svg>
                                     Quvvat
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Tashqi quvvat:</span>
+                                        <span style={{ color: GC.slate }}>Tashqi quvvat:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.sensors?.externalPower || 0} V</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Ichki quvvat:</span>
+                                        <span style={{ color: GC.slate }}>Ichki quvvat:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.sensors?.internalPower || 0} V</span>
                                     </div>
                                 </div>
@@ -1840,19 +1841,19 @@ const Logistics = () => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Holat:</span>
-                                        <span style={{ fontWeight: '600', color: selectedVehicle.status?.isOnline ? '#39ff14' : '#ff2d55' }}>
+                                        <span style={{ color: GC.slate }}>Holat:</span>
+                                        <span style={{ fontWeight: '600', color: selectedVehicle.status?.isOnline ? GC.green : GC.red }}>
                                             {selectedVehicle.status?.isOnline ? 'Onlayn' : 'Oflayn'}
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Oxirgi aloqa:</span>
+                                        <span style={{ color: GC.slate }}>Oxirgi aloqa:</span>
                                         <span style={{ fontWeight: '600', fontSize: '11px' }}>
                                             {selectedVehicle.status?.lastMessage ? new Date(selectedVehicle.status.lastMessage * 1000).toLocaleString('uz-UZ') : '-'}
                                         </span>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Ulanish vaqti:</span>
+                                        <span style={{ color: GC.slate }}>Ulanish vaqti:</span>
                                         <span style={{ fontWeight: '600', fontSize: '11px' }}>
                                             {selectedVehicle.status?.connectionTime ? new Date(selectedVehicle.status.connectionTime * 1000).toLocaleString('uz-UZ') : '-'}
                                         </span>
@@ -1862,21 +1863,21 @@ const Logistics = () => {
 
                             {/* Qo'shimcha ma'lumotlar */}
                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: '#7aa5cc', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px', color: GC.slate, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                     Ma'lumot
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>ID:</span>
+                                        <span style={{ color: GC.slate }}>ID:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.id}</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Sinf:</span>
+                                        <span style={{ color: GC.slate }}>Sinf:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.className || 'Noma\'lum'}</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span style={{ color: '#7aa5cc' }}>Xabar ID:</span>
+                                        <span style={{ color: GC.slate }}>Xabar ID:</span>
                                         <span style={{ fontWeight: '600' }}>{selectedVehicle.additional?.lastMessageId || '-'}</span>
                                     </div>
                                 </div>
@@ -1993,11 +1994,11 @@ const Logistics = () => {
                                             <div style={{ marginBottom: '15px', color: 'var(--gc-title)', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Joylashuv</div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Manzil:</span>
+                                                    <span style={{ color: GC.slate }}>Manzil:</span>
                                                     <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.location || '-'}</span>
                                                 </div>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Viloyat:</span>
+                                                    <span style={{ color: GC.slate }}>Viloyat:</span>
                                                     <span style={{ fontWeight: '600' }}>{factoryDetail.region || '-'}</span>
                                                 </div>
                                             </div>
@@ -2005,24 +2006,24 @@ const Logistics = () => {
 
                                         {/* Loyiha */}
                                         <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: '#39ff14', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Loyiha</div>
+                                            <div style={{ marginBottom: '15px', color: GC.green, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Loyiha</div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Maqsad:</span>
+                                                    <span style={{ color: GC.slate }}>Maqsad:</span>
                                                     <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.projectGoal || '-'}</span>
                                                 </div>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Obyekt turi:</span>
+                                                    <span style={{ color: GC.slate }}>Obyekt turi:</span>
                                                     <span style={{ fontWeight: '600' }}>{factoryDetail.objectType || '-'}</span>
                                                 </div>
                                                 {typeof factoryDetail.work_persent === 'number' && (
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                            <span style={{ color: '#7aa5cc' }}>Bajarilish:</span>
+                                                            <span style={{ color: GC.slate }}>Bajarilish:</span>
                                                             <span style={{ fontWeight: '600' }}>{factoryDetail.work_persent}%</span>
                                                         </div>
                                                         <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                                                            <div style={{ width: `${factoryDetail.work_persent}%`, height: '100%', background: '#39ff14', boxShadow: '0 0 5px #39ff14' }}></div>
+                                                            <div style={{ width: `${factoryDetail.work_persent}%`, height: '100%', background: GC.green, boxShadow: `0 0 5px ${GC.green}` }}></div>
                                                         </div>
                                                     </div>
                                                 )}
@@ -2031,14 +2032,14 @@ const Logistics = () => {
 
                                         {/* Holat va muhimlik */}
                                         <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: '#bf5fff', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Holat</div>
+                                            <div style={{ marginBottom: '15px', color: GC.violet, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Holat</div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Holat:</span>
+                                                    <span style={{ color: GC.slate }}>Holat:</span>
                                                     <span style={{ fontWeight: '600', color: STATUS_COLORS[factoryDetail.status] || '#e0f0ff' }}>{factoryDetail.status || '-'}</span>
                                                 </div>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Muhimlik:</span>
+                                                    <span style={{ color: GC.slate }}>Muhimlik:</span>
                                                     <span style={{ fontWeight: '600', color: IMPORTANCE_COLORS[factoryDetail.importance] || '#e0f0ff' }}>{factoryDetail.importance || '-'}</span>
                                                 </div>
                                             </div>
@@ -2046,14 +2047,14 @@ const Logistics = () => {
 
                                         {/* Boshqaruv */}
                                         <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: '#ffa500', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Boshqaruv</div>
+                                            <div style={{ marginBottom: '15px', color: GC.amber, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Boshqaruv</div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Korxona:</span>
+                                                    <span style={{ color: GC.slate }}>Korxona:</span>
                                                     <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.enterprise_name || '-'}</span>
                                                 </div>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: '#7aa5cc' }}>Rahbar:</span>
+                                                    <span style={{ color: GC.slate }}>Rahbar:</span>
                                                     <span style={{ fontWeight: '600' }}>{factoryDetail.manager || '-'}</span>
                                                 </div>
                                             </div>
@@ -2062,7 +2063,7 @@ const Logistics = () => {
                                         {/* Elementlar */}
                                         {Array.isArray(factoryDetail.elements) && factoryDetail.elements.length > 0 && (
                                             <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                                <div style={{ marginBottom: '15px', color: '#7aa5cc', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Elementlar</div>
+                                                <div style={{ marginBottom: '15px', color: GC.slate, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Elementlar</div>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                                     {factoryDetail.elements.map((el: string, i: number) => (
                                                         <span key={i} style={{ fontSize: '12px', fontWeight: '600', color: 'var(--gc-title)', border: '1px solid rgba(0,245,255,0.3)', borderRadius: '4px', padding: '3px 10px' }}>{el}</span>

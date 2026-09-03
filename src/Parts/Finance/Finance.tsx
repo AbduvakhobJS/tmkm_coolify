@@ -2,17 +2,18 @@ import React, { useMemo, useState } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, axis } from '../../components/dashboardUI';
 import financeData from './financeDemoData.json';
+import { GC } from '../../theme/palette';
 
 /* ── Professional dumaloq ikonka (gradient fon + glow, "badge" uslubi) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 12px ${color}66, inset 0 0 8px ${color}30`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 12px ${GC.icon}66, inset 0 0 8px ${GC.icon}30`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -151,8 +152,8 @@ const fmtNum = (n: number, d = 0): string => {
     const sign = n < 0 ? '-' : '';
     return dec !== undefined ? `${sign}${grouped},${dec}` : `${sign}${grouped}`;
 };
-const valueColor = (n: number) => (n < 0 ? '#ef4444' : '#22c55e');
-const deltaColor = (n: number) => (n < 0 ? '#ef4444' : '#22c55e');
+const valueColor = (n: number) => (n < 0 ? GC.red : GC.green);
+const deltaColor = (n: number) => (n < 0 ? GC.red : GC.green);
 const deltaArrow = (n: number) => (n < 0 ? '▼' : '▲');
 
 /* ── UI blok komponentlari ── */
@@ -160,7 +161,7 @@ const deltaArrow = (n: number) => (n < 0 ? '▼' : '▲');
 const SectionTitle: React.FC<{ index: number; title: string; icon: React.ReactNode; color: string }> = ({ index, title, icon, color }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '4px 0 2px' }}>
         <NeonIcon color={color} size={26}>{icon}</NeonIcon>
-        <span style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+        <span style={{ color: GC.cyan, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
             {index}. {title}
         </span>
     </div>
@@ -217,7 +218,7 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number }> = 
                         key={i} cx={x(i)} cy={y(v)}
                         r={hoverIdx === i ? 3.8 : i === data.length - 1 ? 3 : 2}
                         fill={color} stroke={C.card} strokeWidth={hoverIdx === i ? 1.6 : 1}
-                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${color})` } : undefined}
+                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${GC.icon})` } : undefined}
                     />
                 ))}
                 {MONTH_SHORT.map((m, i) => (
@@ -228,9 +229,9 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number }> = 
                 <div style={{
                     position: 'absolute', left: `${(hx / w) * 100}%`, top: `${(hy / h) * 100}%`,
                     transform: `translate(-50%, ${tooltipAbove ? '-130%' : '20%'})`,
-                    background: '#0a0f1df2', border: `1px solid ${color}99`, borderRadius: 6,
+                    background: '#0a0f1df2', border: `1px solid ${GC.icon}99`, borderRadius: 6,
                     padding: '3px 8px', whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
-                    boxShadow: `0 2px 10px ${color}55`, textAlign: 'center',
+                    boxShadow: `0 2px 10px ${GC.icon}55`, textAlign: 'center',
                 }}>
                     <div style={{ color: C.sub, fontSize: 8, fontWeight: 600, textTransform: 'uppercase' }}>{MONTH_SHORT[hoverIdx as number]}</div>
                     <div style={{ color: C.text, fontSize: 11, fontWeight: 700 }}>{fmtNum(data[hoverIdx as number])}</div>
@@ -339,10 +340,10 @@ const Finance: React.FC = () => {
     const trendChart = useMemo(() => ({
         labels: DATA.trend.labels,
         datasets: [
-            { label: 'Tushum', data: DATA.trend.revenue, backgroundColor: '#3b82f6', borderRadius: 4 },
-            { label: 'Yalpi foyda', data: DATA.trend.grossProfit, backgroundColor: '#eab308', borderRadius: 4 },
-            { label: 'Operatsion foyda', data: DATA.trend.operatingProfit, backgroundColor: '#ef4444', borderRadius: 4 },
-            { label: 'Hisobot davri foydasi', data: DATA.trend.netProfit, backgroundColor: '#22c55e', borderRadius: 4 },
+            { label: 'Tushum', data: DATA.trend.revenue, backgroundColor: GC.blue, borderRadius: 4 },
+            { label: 'Yalpi foyda', data: DATA.trend.grossProfit, backgroundColor: GC.amber, borderRadius: 4 },
+            { label: 'Operatsion foyda', data: DATA.trend.operatingProfit, backgroundColor: GC.red, borderRadius: 4 },
+            { label: 'Hisobot davri foydasi', data: DATA.trend.netProfit, backgroundColor: GC.green, borderRadius: 4 },
         ],
     }), []);
 
@@ -352,9 +353,9 @@ const Finance: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#eab308" size={36}><IconDollar /></NeonIcon>
+                    <NeonIcon color={GC.amber} size={36}><IconDollar /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.title}</div>
+                        <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.title}</div>
                         <div style={{ color: C.sub, fontSize: 11.5, marginTop: 2, maxWidth: 640 }}>{DATA.meta.company}</div>
                     </div>
                 </div>
@@ -373,96 +374,96 @@ const Finance: React.FC = () => {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                         <div style={{ color: C.sub, fontSize: 10 }}>Yangilangan:</div>
-                        <div style={{ color: C.text, fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{DATA.meta.generatedAt} <span style={{ color: '#4fb3d9' }}><IconRefresh /></span></div>
+                        <div style={{ color: C.text, fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{DATA.meta.generatedAt} <span style={{ color: GC.cyan }}><IconRefresh /></span></div>
                     </div>
                 </div>
             </div>
 
             {/* 1. Moliyaviy natijalar (oy bo'yicha) */}
-            <SectionTitle index={1} title="Moliyaviy natijalar (oy bo'yicha)" icon={<IconDollar />} color="#eab308" />
+            <SectionTitle index={1} title="Moliyaviy natijalar (oy bo'yicha)" icon={<IconDollar />} color={GC.amber} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <KpiTile label="Tushum" value={fmtNum(is.revenue)} delta={d.revenue} icon={<IconDollar />} color="#3b82f6" trend={DATA.trend.revenue} />
-                <KpiTile label="Yalpi foyda" value={fmtNum(is.grossProfit)} delta={d.grossProfit} icon={<IconChartBars />} color="#eab308" trend={DATA.trend.grossProfit} valueTone={valueColor(is.grossProfit)} />
-                <KpiTile label="Operatsion foyda" value={fmtNum(is.operatingProfit)} delta={d.operatingProfit} icon={<IconChartDown />} color="#ef4444" trend={DATA.trend.operatingProfit} valueTone={valueColor(is.operatingProfit)} />
-                <KpiTile label="Foyda solig'idan oldingi foyda" value={fmtNum(is.profitBeforeTax)} delta={d.profitBeforeTax} icon={<IconPieChart />} color="#a855f7" trend={DATA.trend.profitBeforeTax} valueTone={valueColor(is.profitBeforeTax)} />
-                <KpiTile label="Hisobot davri foydasi" value={fmtNum(is.netProfit)} delta={d.netProfit} icon={<IconWalletFilled />} color="#0ea8c7" trend={DATA.trend.netProfit} valueTone={valueColor(is.netProfit)} />
-                <KpiTile label="Yalpi foyda marjasi" value={fmtNum(grossMargin, 1)} unit="%" delta={d.grossMarginPP} deltaUnit=" p.p." icon={<IconPercentBadge />} color="#22c55e" trend={DATA.trend.grossMargin} valueTone={valueColor(grossMargin)} />
-                <KpiTile label="Operatsion marja" value={fmtNum(operatingMargin, 1)} unit="%" delta={d.operatingMarginPP} deltaUnit=" p.p." icon={<IconPercentBadge />} color="#ef4444" trend={DATA.trend.operatingMargin} valueTone={valueColor(operatingMargin)} />
-                <KpiTile label="Sof foyda marjasi" value={fmtNum(netMargin, 1)} unit="%" delta={d.netMarginPP} deltaUnit=" p.p." icon={<IconPercentBadge />} color="#f59e0b" trend={DATA.trend.netMargin} valueTone={valueColor(netMargin)} />
+                <KpiTile label="Tushum" value={fmtNum(is.revenue)} delta={d.revenue} icon={<IconDollar />} color={GC.blue} trend={DATA.trend.revenue} />
+                <KpiTile label="Yalpi foyda" value={fmtNum(is.grossProfit)} delta={d.grossProfit} icon={<IconChartBars />} color={GC.amber} trend={DATA.trend.grossProfit} valueTone={valueColor(is.grossProfit)} />
+                <KpiTile label="Operatsion foyda" value={fmtNum(is.operatingProfit)} delta={d.operatingProfit} icon={<IconChartDown />} color={GC.red} trend={DATA.trend.operatingProfit} valueTone={valueColor(is.operatingProfit)} />
+                <KpiTile label="Foyda solig'idan oldingi foyda" value={fmtNum(is.profitBeforeTax)} delta={d.profitBeforeTax} icon={<IconPieChart />} color={GC.violet} trend={DATA.trend.profitBeforeTax} valueTone={valueColor(is.profitBeforeTax)} />
+                <KpiTile label="Hisobot davri foydasi" value={fmtNum(is.netProfit)} delta={d.netProfit} icon={<IconWalletFilled />} color={GC.cyan} trend={DATA.trend.netProfit} valueTone={valueColor(is.netProfit)} />
+                <KpiTile label="Yalpi foyda marjasi" value={fmtNum(grossMargin, 1)} unit="%" delta={d.grossMarginPP} deltaUnit=" p.p." icon={<IconPercentBadge />} color={GC.green} trend={DATA.trend.grossMargin} valueTone={valueColor(grossMargin)} />
+                <KpiTile label="Operatsion marja" value={fmtNum(operatingMargin, 1)} unit="%" delta={d.operatingMarginPP} deltaUnit=" p.p." icon={<IconPercentBadge />} color={GC.red} trend={DATA.trend.operatingMargin} valueTone={valueColor(operatingMargin)} />
+                <KpiTile label="Sof foyda marjasi" value={fmtNum(netMargin, 1)} unit="%" delta={d.netMarginPP} deltaUnit=" p.p." icon={<IconPercentBadge />} color={GC.amber} trend={DATA.trend.netMargin} valueTone={valueColor(netMargin)} />
             </div>
 
             {/* 2. Daromad va xarajatlar tahlili */}
-            <SectionTitle index={2} title="Daromad va xarajatlar tahlili" icon={<IconReceipt />} color="#4fb3d9" />
+            <SectionTitle index={2} title="Daromad va xarajatlar tahlili" icon={<IconReceipt />} color={GC.cyan} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <KpiTile label="Sotish tannarxi" value={fmtNum(is.costOfSales)} delta={d.costOfSales} icon={<IconReceipt />} color="#ef4444" trend={DATA.trend.costOfSales} valueTone={valueColor(is.costOfSales)} />
-                <KpiTile label="Sotish va tarqatish xarajatlari" value={fmtNum(is.sellingExpenses)} delta={d.sellingExpenses} icon={<IconReceipt />} color="#22c55e" trend={DATA.trend.sellingExpenses} valueTone={valueColor(is.sellingExpenses)} />
-                <KpiTile label="Ma'muriy xarajatlar" value={fmtNum(is.adminExpenses)} delta={d.adminExpenses} icon={<IconReceipt />} color="#ef4444" trend={DATA.trend.adminExpenses} valueTone={valueColor(is.adminExpenses)} />
-                <KpiTile label="Boshqa operatsion xarajatlar" value={fmtNum(is.otherOperatingExpenses)} delta={d.otherOperatingExpenses} icon={<IconReceipt />} color="#ef4444" trend={DATA.trend.otherOperatingExpenses} valueTone={valueColor(is.otherOperatingExpenses)} />
-                <KpiTile label="Operatsion daromadlar" value={fmtNum(is.otherOperatingIncome)} delta={d.otherOperatingIncome} icon={<IconChartUp />} color="#22c55e" trend={DATA.trend.otherOperatingIncome} valueTone={valueColor(is.otherOperatingIncome)} />
-                <KpiTile label="Moliyaviy daromad" value={fmtNum(is.financialIncome.total)} delta={d.financialIncome} icon={<IconChartUp />} color="#22c55e" trend={DATA.trend.financialIncome} valueTone={valueColor(is.financialIncome.total)} />
-                <KpiTile label="Moliyaviy xarajatlar" value={fmtNum(is.financialExpenses.total)} delta={d.financialExpenses} icon={<IconChartDown />} color="#ef4444" trend={DATA.trend.financialExpenses} valueTone={valueColor(is.financialExpenses.total)} />
-                <KpiTile label="Foyda solig'i xarajati" value={fmtNum(is.incomeTaxExpense)} delta={d.incomeTaxExpense} icon={<IconReceipt />} color="#ef4444" trend={DATA.trend.incomeTaxExpense} valueTone={valueColor(is.incomeTaxExpense)} />
+                <KpiTile label="Sotish tannarxi" value={fmtNum(is.costOfSales)} delta={d.costOfSales} icon={<IconReceipt />} color={GC.red} trend={DATA.trend.costOfSales} valueTone={valueColor(is.costOfSales)} />
+                <KpiTile label="Sotish va tarqatish xarajatlari" value={fmtNum(is.sellingExpenses)} delta={d.sellingExpenses} icon={<IconReceipt />} color={GC.green} trend={DATA.trend.sellingExpenses} valueTone={valueColor(is.sellingExpenses)} />
+                <KpiTile label="Ma'muriy xarajatlar" value={fmtNum(is.adminExpenses)} delta={d.adminExpenses} icon={<IconReceipt />} color={GC.red} trend={DATA.trend.adminExpenses} valueTone={valueColor(is.adminExpenses)} />
+                <KpiTile label="Boshqa operatsion xarajatlar" value={fmtNum(is.otherOperatingExpenses)} delta={d.otherOperatingExpenses} icon={<IconReceipt />} color={GC.red} trend={DATA.trend.otherOperatingExpenses} valueTone={valueColor(is.otherOperatingExpenses)} />
+                <KpiTile label="Operatsion daromadlar" value={fmtNum(is.otherOperatingIncome)} delta={d.otherOperatingIncome} icon={<IconChartUp />} color={GC.green} trend={DATA.trend.otherOperatingIncome} valueTone={valueColor(is.otherOperatingIncome)} />
+                <KpiTile label="Moliyaviy daromad" value={fmtNum(is.financialIncome.total)} delta={d.financialIncome} icon={<IconChartUp />} color={GC.green} trend={DATA.trend.financialIncome} valueTone={valueColor(is.financialIncome.total)} />
+                <KpiTile label="Moliyaviy xarajatlar" value={fmtNum(is.financialExpenses.total)} delta={d.financialExpenses} icon={<IconChartDown />} color={GC.red} trend={DATA.trend.financialExpenses} valueTone={valueColor(is.financialExpenses.total)} />
+                <KpiTile label="Foyda solig'i xarajati" value={fmtNum(is.incomeTaxExpense)} delta={d.incomeTaxExpense} icon={<IconReceipt />} color={GC.red} trend={DATA.trend.incomeTaxExpense} valueTone={valueColor(is.incomeTaxExpense)} />
             </div>
 
             {/* 3. Aktivlar va majburiyatlar tahlili */}
-            <SectionTitle index={3} title="Aktivlar va majburiyatlar tahlili" icon={<IconLayers />} color="#a855f7" />
+            <SectionTitle index={3} title="Aktivlar va majburiyatlar tahlili" icon={<IconLayers />} color={GC.violet} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 <AssetTile
-                    label="Jami aktivlar" total={bs.totalAssets} deltaPct={d.totalAssets} color="#3b82f6" icon={<IconLayers />}
+                    label="Jami aktivlar" total={bs.totalAssets} deltaPct={d.totalAssets} color={GC.blue} icon={<IconLayers />}
                     breakdown={[
-                        { label: 'Uzoq muddatli aktivlar', value: bs.longTermAssetsTotal, color: '#3b82f6' },
-                        { label: 'Joriy aktivlar', value: bs.currentAssetsTotal, color: '#0ea8c7' },
+                        { label: 'Uzoq muddatli aktivlar', value: bs.longTermAssetsTotal, color: GC.blue },
+                        { label: 'Joriy aktivlar', value: bs.currentAssetsTotal, color: GC.cyan },
                     ]}
                 />
                 <AssetTile
-                    label="Uzoq muddatli aktivlar" total={bs.longTermAssetsTotal} deltaPct={d.longTermAssetsTotal} color="#a855f7" icon={<IconBuilding />}
-                    breakdown={bs.longTermAssets.map((it: LineItem, i: number) => ({ label: it.label, value: it.value, color: ['#a855f7', '#3b82f6', '#eab308', '#94a3b8'][i % 4] }))}
+                    label="Uzoq muddatli aktivlar" total={bs.longTermAssetsTotal} deltaPct={d.longTermAssetsTotal} color={GC.violet} icon={<IconBuilding />}
+                    breakdown={bs.longTermAssets.map((it: LineItem, i: number) => ({ label: it.label, value: it.value, color: [GC.violet, GC.blue, GC.amber, GC.slate][i % 4] }))}
                 />
                 <AssetTile
-                    label="Joriy aktivlar" total={bs.currentAssetsTotal} deltaPct={d.currentAssetsTotal} color="#0ea8c7" icon={<IconWallet />}
-                    breakdown={bs.currentAssets.map((it: LineItem, i: number) => ({ label: it.label, value: it.value, color: ['#0ea8c7', '#3b82f6', '#22c55e', '#f59e0b'][i % 4] }))}
+                    label="Joriy aktivlar" total={bs.currentAssetsTotal} deltaPct={d.currentAssetsTotal} color={GC.cyan} icon={<IconWallet />}
+                    breakdown={bs.currentAssets.map((it: LineItem, i: number) => ({ label: it.label, value: it.value, color: [GC.cyan, GC.blue, GC.green, GC.amber][i % 4] }))}
                 />
                 <AssetTile
-                    label="Jami kapital" total={bs.capitalTotal} deltaPct={d.capitalTotal} color="#22c55e" icon={<IconScale />}
-                    breakdown={bs.capital.map((it: LineItem, i: number) => ({ label: it.label, value: it.value, color: ['#22c55e', '#3b82f6', '#eab308'][i % 3] }))}
+                    label="Jami kapital" total={bs.capitalTotal} deltaPct={d.capitalTotal} color={GC.green} icon={<IconScale />}
+                    breakdown={bs.capital.map((it: LineItem, i: number) => ({ label: it.label, value: it.value, color: [GC.green, GC.blue, GC.amber][i % 3] }))}
                 />
                 <AssetTile
-                    label="Jami majburiyatlar" total={bs.totalLiabilities} deltaPct={d.totalLiabilities} color="#ef4444" icon={<IconScale />}
+                    label="Jami majburiyatlar" total={bs.totalLiabilities} deltaPct={d.totalLiabilities} color={GC.red} icon={<IconScale />}
                     breakdown={[
-                        { label: 'Uzoq muddatli majburiyatlar', value: bs.longTermLiabilitiesTotal, color: '#ef4444' },
-                        { label: 'Joriy majburiyatlar', value: bs.currentLiabilitiesTotal, color: '#f59e0b' },
+                        { label: 'Uzoq muddatli majburiyatlar', value: bs.longTermLiabilitiesTotal, color: GC.red },
+                        { label: 'Joriy majburiyatlar', value: bs.currentLiabilitiesTotal, color: GC.amber },
                     ]}
                 />
                 <AssetTile
-                    label="Jami kapital va majburiyatlar" total={bs.totalCapitalAndLiabilities} deltaPct={d.totalCapitalAndLiabilities} color="#f59e0b" icon={<IconLayers />}
+                    label="Jami kapital va majburiyatlar" total={bs.totalCapitalAndLiabilities} deltaPct={d.totalCapitalAndLiabilities} color={GC.amber} icon={<IconLayers />}
                     breakdown={[
-                        { label: 'Jami kapital', value: bs.capitalTotal, color: '#22c55e' },
-                        { label: 'Jami majburiyatlar', value: bs.totalLiabilities, color: '#ef4444' },
+                        { label: 'Jami kapital', value: bs.capitalTotal, color: GC.green },
+                        { label: 'Jami majburiyatlar', value: bs.totalLiabilities, color: GC.red },
                     ]}
                 />
-                <RatioTile label="Qarz/kapital koeffitsienti" value={fmtNum(debtToEquity, 2)} delta={d.debtToEquity} icon={<IconScale />} color="#eab308" trend={DATA.trend.debtToEquity} />
-                <RatioTile label="Joriy likvidlik koeffitsienti" value={fmtNum(currentRatio, 2)} delta={d.currentRatio} icon={<IconDroplets />} color="#0ea8c7" trend={DATA.trend.currentRatio} />
+                <RatioTile label="Qarz/kapital koeffitsienti" value={fmtNum(debtToEquity, 2)} delta={d.debtToEquity} icon={<IconScale />} color={GC.amber} trend={DATA.trend.debtToEquity} />
+                <RatioTile label="Joriy likvidlik koeffitsienti" value={fmtNum(currentRatio, 2)} delta={d.currentRatio} icon={<IconDroplets />} color={GC.cyan} trend={DATA.trend.currentRatio} />
             </div>
 
             {/* 4. Pul oqimlari va bank ma'lumotlari */}
-            <SectionTitle index={4} title="Pul oqimlari va bank ma'lumotlari" icon={<IconArrowUpDown />} color="#22c55e" />
+            <SectionTitle index={4} title="Pul oqimlari va bank ma'lumotlari" icon={<IconArrowUpDown />} color={GC.green} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <KpiTile label="Pul mablag'lari va ularning ekvivalentlari" value={fmtNum(DATA.cashFlow.cashAndEquivalents)} delta={d.cash} icon={<IconWalletFilled />} color="#22c55e" trend={DATA.trend.cash} valueTone={valueColor(DATA.cashFlow.cashAndEquivalents)} />
-                <KpiTile label="Operatsion pul oqimi" value={fmtNum(DATA.cashFlow.operating)} icon={<IconArrowUpDown />} color="#ef4444" trend={DATA.trend.operatingCF} valueTone={valueColor(DATA.cashFlow.operating)} />
-                <KpiTile label="Investitsion pul oqimi" value={fmtNum(DATA.cashFlow.investing)} icon={<IconArrowUpDown />} color="#ef4444" trend={DATA.trend.investingCF} valueTone={valueColor(DATA.cashFlow.investing)} />
-                <KpiTile label="Moliyaviy pul oqimi" value={fmtNum(DATA.cashFlow.financing)} icon={<IconArrowUpDown />} color="#22c55e" trend={DATA.trend.financingCF} valueTone={valueColor(DATA.cashFlow.financing)} />
-                <KpiTile label="Sof pul oqimi" value={fmtNum(netCashFlow)} icon={<IconArrowUpDown />} color="#22c55e" trend={DATA.trend.netCF} valueTone={valueColor(netCashFlow)} />
-                <RatioTile label="Aktivlar ustiga qaytuvchanlik (ROA)" value={`${fmtNum(roa, 1)}%`} delta={d.roa} icon={<IconPercentBadge />} color="#3b82f6" trend={DATA.trend.roa} />
-                <RatioTile label="Kapital ustiga qaytuvchanlik (ROE)" value={`${fmtNum(roe, 1)}%`} delta={d.roe} icon={<IconPercentBadge />} color="#a855f7" trend={DATA.trend.roe} />
-                <KpiTile label="EBITDA" value={fmtNum(DATA.cashFlow.ebitda)} icon={<IconDollar />} color="#f59e0b" trend={DATA.trend.ebitda} valueTone={valueColor(DATA.cashFlow.ebitda)} />
+                <KpiTile label="Pul mablag'lari va ularning ekvivalentlari" value={fmtNum(DATA.cashFlow.cashAndEquivalents)} delta={d.cash} icon={<IconWalletFilled />} color={GC.green} trend={DATA.trend.cash} valueTone={valueColor(DATA.cashFlow.cashAndEquivalents)} />
+                <KpiTile label="Operatsion pul oqimi" value={fmtNum(DATA.cashFlow.operating)} icon={<IconArrowUpDown />} color={GC.red} trend={DATA.trend.operatingCF} valueTone={valueColor(DATA.cashFlow.operating)} />
+                <KpiTile label="Investitsion pul oqimi" value={fmtNum(DATA.cashFlow.investing)} icon={<IconArrowUpDown />} color={GC.red} trend={DATA.trend.investingCF} valueTone={valueColor(DATA.cashFlow.investing)} />
+                <KpiTile label="Moliyaviy pul oqimi" value={fmtNum(DATA.cashFlow.financing)} icon={<IconArrowUpDown />} color={GC.green} trend={DATA.trend.financingCF} valueTone={valueColor(DATA.cashFlow.financing)} />
+                <KpiTile label="Sof pul oqimi" value={fmtNum(netCashFlow)} icon={<IconArrowUpDown />} color={GC.green} trend={DATA.trend.netCF} valueTone={valueColor(netCashFlow)} />
+                <RatioTile label="Aktivlar ustiga qaytuvchanlik (ROA)" value={`${fmtNum(roa, 1)}%`} delta={d.roa} icon={<IconPercentBadge />} color={GC.blue} trend={DATA.trend.roa} />
+                <RatioTile label="Kapital ustiga qaytuvchanlik (ROE)" value={`${fmtNum(roe, 1)}%`} delta={d.roe} icon={<IconPercentBadge />} color={GC.violet} trend={DATA.trend.roe} />
+                <KpiTile label="EBITDA" value={fmtNum(DATA.cashFlow.ebitda)} icon={<IconDollar />} color={GC.amber} trend={DATA.trend.ebitda} valueTone={valueColor(DATA.cashFlow.ebitda)} />
             </div>
 
             {/* Bank jadvali va dinamika grafigi */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, alignItems: 'stretch' }}>
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                        <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <NeonIcon color="#0ea8c7" size={22}><IconBank /></NeonIcon>Bank hisob raqamlaridagi qoldiq pul mablag'lari
+                        <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <NeonIcon color={GC.cyan} size={22}><IconBank /></NeonIcon>Bank hisob raqamlaridagi qoldiq pul mablag'lari
                         </div>
                         <div style={{ color: C.sub, fontSize: 9.5 }}>Valyuta kursi: 1 USD = {fmtNum(DATA.meta.exchangeRate, 2)} so'm</div>
                     </div>
@@ -498,8 +499,8 @@ const Finance: React.FC = () => {
 
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                        <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <NeonIcon color="#eab308" size={22}><IconChartBars /></NeonIcon>Tushum, xarajatlar va foyda dinamikasi
+                        <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <NeonIcon color={GC.amber} size={22}><IconChartBars /></NeonIcon>Tushum, xarajatlar va foyda dinamikasi
                         </div>
                         <div style={{ color: C.sub, fontSize: 9.5 }}>Valyuta: {DATA.meta.currency}</div>
                     </div>

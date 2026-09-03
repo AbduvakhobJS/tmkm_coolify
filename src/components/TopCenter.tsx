@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TopCenterNew, {TopCenterItem} from "./TopCenterNew";
 import Map3D from "../Parts/Map/Map3d";
+import { GC } from '../theme/palette';
 
 /* ── TMK Schema data ── */
 const stages = [
@@ -28,7 +29,7 @@ const kpis = [
     {label:'1 tonna konsentratning tannarxi', value:'8 420', unit:'$'},
 ];
 
-const c = { teal:'var(--gc-title)' /* gc-title */, muted:'#7aa5cc', text:'#a0c4e8', bright:'#b4dcff', ok:'#00ff88', gold:'#ffd700', bg:'rgba(0,245,255,0.04)', border:'rgba(14,168,199,0.2)' };
+const c = { teal:'var(--gc-title)' /* gc-title */, muted:GC.slate, text:GC.blue, bright:'#b4dcff', ok:GC.green, gold:GC.amber, bg:'rgba(0,245,255,0.04)', border:'rgba(14,168,199,0.2)' };
 
 
 interface WidgetData {
@@ -268,7 +269,7 @@ const TopCenter = ({
                                             border:'1px solid rgba(14,168,199,0.5)',
                                             borderRadius:'4px',
                                             fontSize:'9px', fontWeight:900,
-                                            color:'#4fc3f7', lineHeight:1,
+                                            color:GC.cyan, lineHeight:1,
                                             padding:'2px 5px',
                                         }}>{st.num}</span>
                                         <span style={{
@@ -294,7 +295,7 @@ const TopCenter = ({
                                         borderTop:'1px solid rgba(14,168,199,0.15)',
                                         background:'rgba(0,0,0,0.2)',
                                     }}>
-                                        <div style={{fontSize:'9px', color:'#6a9fc0', lineHeight:1, marginBottom:'1px'}}>
+                                        <div style={{fontSize:'9px', color:GC.blue, lineHeight:1, marginBottom:'1px'}}>
                                             {st.statLabel}
                                         </div>
                                         <div style={{
@@ -309,26 +310,26 @@ const TopCenter = ({
                                             <div style={{display:'flex', alignItems:'center', gap:'5px'}}>
                                                 <span style={{
                                                     width:'7px', height:'7px', borderRadius:'50%', flexShrink:0,
-                                                    background:'#00ff88',
-                                                    boxShadow:'0 0 8px #00ff88, 0 0 3px #00ff88',
+                                                    background:GC.green,
+                                                    boxShadow:`0 0 8px ${GC.green}, 0 0 3px ${GC.green}`,
                                                     display:'inline-block',
                                                 }}/>
                                                 <div>
-                                                    <div style={{fontSize:'8px', color:'#5a8aaa', lineHeight:1}}>{st.statusLabel}</div>
-                                                    <div style={{fontSize:'10px', fontWeight:700, color:'#00e87a', lineHeight:1.2}}>{st.statusVal}</div>
+                                                    <div style={{fontSize:'8px', color:GC.slate, lineHeight:1}}>{st.statusLabel}</div>
+                                                    <div style={{fontSize:'10px', fontWeight:700, color:GC.green, lineHeight:1.2}}>{st.statusVal}</div>
                                                 </div>
                                             </div>
                                         )}
                                         {st.progress && (
                                             <div>
                                                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:'3px'}}>
-                                                    <span style={{fontSize:'8px', color:'#5a8aaa'}}>{st.progress.label}</span>
-                                                    <span style={{fontSize:'11px', fontWeight:800, color:'#00ff88'}}>{st.progress.val}%</span>
+                                                    <span style={{fontSize:'8px', color:GC.slate}}>{st.progress.label}</span>
+                                                    <span style={{fontSize:'11px', fontWeight:800, color:GC.green}}>{st.progress.val}%</span>
                                                 </div>
                                                 <div style={{height:'5px', background:'rgba(255,255,255,0.07)', borderRadius:'3px', overflow:'hidden'}}>
                                                     <div style={{
                                                         height:'100%', width:`${st.progress.val}%`,
-                                                        background:'linear-gradient(90deg,#00bb55,#00ff88)',
+                                                        background:`linear-gradient(90deg,${GC.green},${GC.green})`,
                                                         borderRadius:'3px',
                                                         boxShadow:'0 0 8px rgba(0,255,136,0.5)',
                                                     }}/>
@@ -348,7 +349,7 @@ const TopCenter = ({
                                             <defs>
                                                 <linearGradient id={`ag${i}`} x1="0" y1="0" x2="1" y2="0">
                                                     <stop offset="0%" stopColor="var(--gc-title)" stopOpacity="0.4"/>
-                                                    <stop offset="100%" stopColor="#4fc3f7"/>
+                                                    <stop offset="100%" stopColor={GC.cyan}/>
                                                 </linearGradient>
                                             </defs>
                                             <polyline points="2,2 11,12 2,22" stroke={`url(#ag${i})`} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -368,7 +369,7 @@ const TopCenter = ({
                     }}>
                         <div style={{
                             fontSize:'8px', fontWeight:700, letterSpacing:'2px',
-                            color:'#3d7a9a', textTransform:'uppercase',
+                            color:GC.blue, textTransform:'uppercase',
                             borderLeft:'2px solid var(--gc-title)', paddingLeft:'6px',
                             marginBottom:'6px',
                         }}>
@@ -384,7 +385,7 @@ const TopCenter = ({
                                         borderRadius:'5px', padding:'5px 6px',
                                     }}>
                                         <div style={{
-                                            fontSize:'8px', color:'#5a8aaa',
+                                            fontSize:'8px', color:GC.slate,
                                             whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
                                             marginBottom:'2px',
                                         }}>{fl.label}</div>
@@ -394,7 +395,7 @@ const TopCenter = ({
                                                 fontWeight:800, color:'#cce8ff',
                                                 lineHeight:1, whiteSpace:'nowrap',
                                             }}>{fl.value}</span>
-                                            <span style={{fontSize:'8px', color:'#5a8aaa', whiteSpace:'nowrap'}}>{fl.unit}</span>
+                                            <span style={{fontSize:'8px', color:GC.slate, whiteSpace:'nowrap'}}>{fl.unit}</span>
                                         </div>
                                     </div>
                                     {i < flows.length - 1 && (
@@ -417,8 +418,8 @@ const TopCenter = ({
                     }}>
                         <div style={{
                             fontSize:'8px', fontWeight:700, letterSpacing:'2px',
-                            color:'#3d7a9a', textTransform:'uppercase',
-                            borderLeft:'2px solid #ffd700', paddingLeft:'6px',
+                            color:GC.blue, textTransform:'uppercase',
+                            borderLeft:`2px solid ${GC.amber}`, paddingLeft:'6px',
                             marginBottom:'6px',
                         }}>
                             Kalit zanjir ko'rsatkichlari
@@ -433,7 +434,7 @@ const TopCenter = ({
                                     boxShadow:'inset 0 1px 0 rgba(14,168,199,0.08)',
                                 }}>
                                     <div style={{
-                                        fontSize:'8px', color:'#5a8aaa',
+                                        fontSize:'8px', color:GC.slate,
                                         lineHeight:1.3, marginBottom:'3px',
                                         minHeight:'22px',
                                         display:'flex', alignItems:'center', justifyContent:'start',
@@ -441,12 +442,12 @@ const TopCenter = ({
                                   <div className="d-flex" style={{alignItems: "end"}}>
                                       <div style={{
                                           fontSize:'clamp(15px,1.8vw,24px)',
-                                          fontWeight:900, color:'#ffd700',
+                                          fontWeight:900, color:GC.amber,
                                           lineHeight:1, marginBottom:'2px',
                                           textShadow:'0 0 12px rgba(255,215,0,0.4)',
                                       }}>{k.value}
                                       </div>
-                                      <div style={{fontSize:'9px',marginLeft: '2px', color:'#7aa5cc', fontWeight:600}}>{k.unit}</div>
+                                      <div style={{fontSize:'9px',marginLeft: '2px', color:GC.slate, fontWeight:600}}>{k.unit}</div>
                                   </div>
                                 </div>
                             ))}

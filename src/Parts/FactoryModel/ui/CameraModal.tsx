@@ -4,6 +4,7 @@ import { FiVideo, FiX } from "react-icons/fi";
 import WebRTCPlayer from "../../../components/WebRTCPlayer";
 import { useClock } from "../../../hooks/useClock";
 import type { BuildingMarker, CameraStream } from "../types";
+import { GC } from '../../../theme/palette';
 
 interface CameraModalProps {
     /** The selected marker, or null when the modal is closed. */
@@ -85,7 +86,7 @@ const CameraModal: React.FC<CameraModalProps> = ({ marker, stream, onClose }) =>
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            color: "#5f8496",
+                                            color: GC.slate,
                                             fontSize: 13,
                                         }}
                                     >

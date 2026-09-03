@@ -2,18 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText, Badge } from '../../components/dashboardUI';
+import { GC } from '../../theme/palette';
 
 /* ── Mock ma'lumotlar (Маркетинг / Бренд / PR / Инвесторы — to'liq ko'rinish) ── */
 
 const KPI_ITEMS = [
-    { label: 'Индекс репутации бренда', value: '78.4', sub: '▲ 5.2', symbol: '⭐', color: '#4fb3d9' },
-    { label: 'Тональность публикаций', value: '68%', sub: 'позитив', symbol: '💬', color: '#22c55e' },
-    { label: 'Медиаохват', value: '256M', sub: '▲ 6.3%', symbol: '📡', color: '#3b82f6' },
-    { label: 'Доверие инвесторов', value: '82.1', sub: '▲ 6.3%', symbol: '🤝', color: '#a855f7' },
-    { label: 'Посещаемость сайта', value: '128K', sub: '▲ 12.4%', symbol: '🌐', color: '#0ea8c7' },
-    { label: 'Активные партнёрства', value: '31', sub: '▲ 6', symbol: '🔗', color: '#f59e0b' },
-    { label: 'Мероприятия / форумы', value: '18', sub: '▲ 4', symbol: '📅', color: '#ec4899' },
-    { label: 'Статус системы', value: 'OK', sub: 'в норме', symbol: '✔', color: '#22c55e' },
+    { label: 'Индекс репутации бренда', value: '78.4', sub: '▲ 5.2', symbol: '⭐', color: GC.cyan },
+    { label: 'Тональность публикаций', value: '68%', sub: 'позитив', symbol: '💬', color: GC.green },
+    { label: 'Медиаохват', value: '256M', sub: '▲ 6.3%', symbol: '📡', color: GC.blue },
+    { label: 'Доверие инвесторов', value: '82.1', sub: '▲ 6.3%', symbol: '🤝', color: GC.violet },
+    { label: 'Посещаемость сайта', value: '128K', sub: '▲ 12.4%', symbol: '🌐', color: GC.cyan },
+    { label: 'Активные партнёрства', value: '31', sub: '▲ 6', symbol: '🔗', color: GC.amber },
+    { label: 'Мероприятия / форумы', value: '18', sub: '▲ 4', symbol: '📅', color: GC.magenta },
+    { label: 'Статус системы', value: 'OK', sub: 'в норме', symbol: '✔', color: GC.green },
 ];
 
 const REPUTATION = [
@@ -23,10 +24,10 @@ const REPUTATION = [
 ];
 
 const MEDIA_CHANNELS = [
-    { label: 'Онлайн СМИ', value: 42, color: '#3b82f6' },
-    { label: 'Социальные сети', value: 31, color: '#0ea8c7' },
-    { label: 'ТВ и радио', value: 18, color: '#a855f7' },
-    { label: 'Печатные издания', value: 9, color: '#f59e0b' },
+    { label: 'Онлайн СМИ', value: 42, color: GC.blue },
+    { label: 'Социальные сети', value: 31, color: GC.cyan },
+    { label: 'ТВ и радио', value: 18, color: GC.violet },
+    { label: 'Печатные издания', value: 9, color: GC.amber },
 ];
 
 const FUNNEL = [
@@ -74,7 +75,7 @@ const AI_INSIGHTS = [
     { label: 'AI sentiment', value: 'Позитивный', color: C.up },
     { label: 'Investor sentiment', value: 'Позитивный', color: C.up },
     { label: 'ESG perception', value: 'Позитивный', color: C.up },
-    { label: 'Market trend', value: 'Растущий', color: '#4fb3d9' },
+    { label: 'Market trend', value: 'Растущий', color: GC.cyan },
     { label: 'Репутационный риск', value: 'Низкий', color: C.up },
 ];
 
@@ -94,7 +95,7 @@ const SUMMARY = [
 
 const SectionCard: React.FC<{ title: string; icon?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
-        <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             {icon && <span>{icon}</span>}{title}
         </div>
         {children}
@@ -141,9 +142,9 @@ const MarketingDetail: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Badge symbol="📊" color="#3b82f6" />
+                    <Badge symbol="📊" color={GC.blue} />
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Маркетинг / Бренд / PR / Инвесторы</div>
+                        <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Маркетинг / Бренд / PR / Инвесторы</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2, maxWidth: 620 }}>
                             Сводный экран репутации, инвесторов, цифрового бренда и кризисных коммуникаций
                         </div>
@@ -156,7 +157,7 @@ const MarketingDetail: React.FC = () => {
                         onClick={() => navigate('/main/marketing')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 8,
+                            background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 8,
                             color: '#fff', fontSize: 12, fontWeight: 700, padding: '8px 14px',
                             boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                         }}
@@ -189,7 +190,7 @@ const MarketingDetail: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {REPUTATION.map((r) => (
                             <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 10px' }}>
-                                <Badge symbol={r.symbol} color="#4fb3d9" />
+                                <Badge symbol={r.symbol} color={GC.cyan} />
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3 }}>{r.label}</div>
                                     <div style={{ color: C.text, fontSize: 17, fontWeight: 700 }}>{r.value}</div>
@@ -212,7 +213,7 @@ const MarketingDetail: React.FC = () => {
                 <SectionCard title="Центр коммуникации с инвесторами" style={{ height: 260 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, marginBottom: 8 }}>
                         {FUNNEL.map((f) => (
-                            <div key={f.label} style={{ width: `${f.width}%`, height: 14, borderRadius: 3, background: 'linear-gradient(90deg, #1e4d7b, #0ea8c7)' }} />
+                            <div key={f.label} style={{ width: `${f.width}%`, height: 14, borderRadius: 3, background: `linear-gradient(90deg, #1e4d7b, ${GC.cyan})` }} />
                         ))}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto', flex: 1 }}>
@@ -253,7 +254,7 @@ const MarketingDetail: React.FC = () => {
                     </div>
                     <div style={{ marginTop: 8 }}>
                         <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, marginBottom: 4 }}>Шкала риска</div>
-                        <div style={{ height: 6, borderRadius: 3, background: 'linear-gradient(90deg, #22c55e, #eab308, #f59e0b, #ef4444)' }} />
+                        <div style={{ height: 6, borderRadius: 3, background: `linear-gradient(90deg, ${GC.green}, ${GC.amber}, ${GC.amber}, ${GC.red})` }} />
                     </div>
                 </SectionCard>
 
@@ -288,7 +289,7 @@ const MarketingDetail: React.FC = () => {
 
                 <SectionCard title="AI Marketing Intelligence" style={{ height: 236 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
-                        <div style={{ width: 64, height: 64, flexShrink: 0, borderRadius: '50%', background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 18, boxShadow: '0 8px 20px rgba(14,168,199,0.35)' }}>
+                        <div style={{ width: 64, height: 64, flexShrink: 0, borderRadius: '50%', background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 18, boxShadow: '0 8px 20px rgba(14,168,199,0.35)' }}>
                             AI
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0 }}>

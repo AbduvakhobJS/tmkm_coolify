@@ -2,17 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, axis, centerText } from '../../components/dashboardUI';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -149,33 +150,33 @@ const IconArrowLeft = () => (
 /* ── Mock ma'lumotlar (PR / Медиа и репутация — to'liq ko'rinish) ── */
 
 const KPI_ITEMS = [
-    { label: 'Медиаохват', value: '86/100', sub: '+12', icon: <IconTarget />, color: '#4fb3d9', bad: false },
-    { label: 'Нац. СМИ', value: '12/10', sub: '120%', icon: <IconNewspaper />, color: '#22c55e', bad: false },
+    { label: 'Медиаохват', value: '86/100', sub: '+12', icon: <IconTarget />, color: GC.cyan, bad: false },
+    { label: 'Нац. СМИ', value: '12/10', sub: '120%', icon: <IconNewspaper />, color: GC.green, bad: false },
     { label: 'Центральное ТВ', value: '2/5', sub: 'квартал', icon: <IconTv />, color: C.down, bad: true },
     { label: 'Международные СМИ', value: '1/4', sub: 'квартал', icon: <IconGlobe />, color: C.down, bad: true },
-    { label: 'Позитив', value: '89%', sub: '+14%', icon: <IconSmile />, color: '#22c55e', bad: false },
-    { label: 'LinkedIn', value: '+38%', sub: 'цель 50%', icon: <IconLinkedIn />, color: '#0a66c2', bad: false },
-    { label: 'Telegram охват', value: '31%', sub: 'цель ≥30%', icon: <IconTelegram />, color: '#29a9eb', bad: false },
-    { label: 'Публичные выступления', value: '7', sub: '+2', icon: <IconMic />, color: '#a855f7', bad: false },
+    { label: 'Позитив', value: '89%', sub: '+14%', icon: <IconSmile />, color: GC.green, bad: false },
+    { label: 'LinkedIn', value: '+38%', sub: 'цель 50%', icon: <IconLinkedIn />, color: GC.blue, bad: false },
+    { label: 'Telegram охват', value: '31%', sub: 'цель ≥30%', icon: <IconTelegram />, color: GC.blue, bad: false },
+    { label: 'Публичные выступления', value: '7', sub: '+2', icon: <IconMic />, color: GC.violet, bad: false },
 ];
 
 type KpiStatus = 'done' | 'warn' | 'progress';
 const KPI_EXEC: { label: string; value: string; pct: number; color: string; status: KpiStatus }[] = [
-    { label: 'Публикации в СМИ (нац.)', value: '12/10', pct: 100, color: '#22c55e', status: 'done' },
+    { label: 'Публикации в СМИ (нац.)', value: '12/10', pct: 100, color: GC.green, status: 'done' },
     { label: 'Выходы на ТВ (квартал)', value: '2/5', pct: 40, color: C.down, status: 'warn' },
     { label: 'Публикации в межд. СМИ', value: '1/4', pct: 25, color: C.down, status: 'warn' },
-    { label: 'LinkedIn рост (год)', value: '+38%', pct: 76, color: '#22c55e', status: 'done' },
-    { label: 'Telegram охват', value: '31%', pct: 100, color: '#22c55e', status: 'done' },
-    { label: 'Контент-план', value: '41/57', pct: 72, color: '#f59e0b', status: 'progress' },
+    { label: 'LinkedIn рост (год)', value: '+38%', pct: 76, color: GC.green, status: 'done' },
+    { label: 'Telegram охват', value: '31%', pct: 100, color: GC.green, status: 'done' },
+    { label: 'Контент-план', value: '41/57', pct: 72, color: GC.amber, status: 'progress' },
 ];
 
 type PlanStatus = 'ВЫПОЛНЕНО' | 'В ГРАФИКЕ' | 'ТРЕБУЕТ РЕШЕНИЯ' | 'В РАБОТЕ' | 'ЕСТЬ РИСК';
 const PLAN_COLOR: Record<PlanStatus, string> = {
-    'ВЫПОЛНЕНО': '#22c55e',
-    'В ГРАФИКЕ': '#3b82f6',
+    'ВЫПОЛНЕНО': GC.green,
+    'В ГРАФИКЕ': GC.blue,
     'ТРЕБУЕТ РЕШЕНИЯ': C.down,
-    'В РАБОТЕ': '#f59e0b',
-    'ЕСТЬ РИСК': '#f59e0b',
+    'В РАБОТЕ': GC.amber,
+    'ЕСТЬ РИСК': GC.amber,
 };
 const MEDIA_PLAN: { topic: string; owner: string; status: PlanStatus }[] = [
     { topic: "O'zbekiston24 / Studio24 podcast", owner: 'А. Раупов', status: 'ВЫПОЛНЕНО' },
@@ -187,30 +188,30 @@ const MEDIA_PLAN: { topic: string; owner: string; status: PlanStatus }[] = [
 ];
 
 const SOCIAL_DIGITAL = [
-    { label: 'LinkedIn', sub: 'рост подписчиков, англ. посты', delta: '+38%', value: '6/8', pct: 75, icon: <IconLinkedIn />, color: '#0a66c2' },
-    { label: 'Telegram', sub: 'рост подписчиков, охват', delta: '+14%', value: '31%', pct: 31, icon: <IconTelegram />, color: '#29a9eb' },
-    { label: 'Instagram / Facebook', sub: 'контент', delta: '', value: '16/20', pct: 80, icon: <IconInstagram />, color: '#c1358f' },
-    { label: 'YouTube', sub: 'видео', delta: '', value: '8/10', pct: 80, icon: <IconYouTube />, color: '#ff0000' },
-    { label: 'Личный бренд руководства', sub: 'упоминания / реакции', delta: '', value: '2.9K', pct: 60, icon: <IconStar />, color: '#eab308' },
+    { label: 'LinkedIn', sub: 'рост подписчиков, англ. посты', delta: '+38%', value: '6/8', pct: 75, icon: <IconLinkedIn />, color: GC.blue },
+    { label: 'Telegram', sub: 'рост подписчиков, охват', delta: '+14%', value: '31%', pct: 31, icon: <IconTelegram />, color: GC.blue },
+    { label: 'Instagram / Facebook', sub: 'контент', delta: '', value: '16/20', pct: 80, icon: <IconInstagram />, color: GC.magenta },
+    { label: 'YouTube', sub: 'видео', delta: '', value: '8/10', pct: 80, icon: <IconYouTube />, color: GC.red },
+    { label: 'Личный бренд руководства', sub: 'упоминания / реакции', delta: '', value: '2.9K', pct: 60, icon: <IconStar />, color: GC.amber },
 ];
 
 const CORP_CONTENT = [
-    { label: 'Новости', value: '18/20', icon: <IconFileText />, color: '#4fb3d9' },
-    { label: 'Видео', value: '8/10', icon: <IconVideo />, color: '#a855f7' },
-    { label: 'Интервью', value: '4/5', icon: <IconMic />, color: '#22c55e' },
-    { label: 'Спецрепортажи', value: '1/2', icon: <IconStar />, color: '#f59e0b' },
+    { label: 'Новости', value: '18/20', icon: <IconFileText />, color: GC.cyan },
+    { label: 'Видео', value: '8/10', icon: <IconVideo />, color: GC.violet },
+    { label: 'Интервью', value: '4/5', icon: <IconMic />, color: GC.green },
+    { label: 'Спецрепортажи', value: '1/2', icon: <IconStar />, color: GC.amber },
 ];
 
 const TONALITY = [
-    { label: 'Позитив', value: 21, pct: 75, color: '#22c55e' },
-    { label: 'Нейтрально', value: 5, pct: 18, color: '#3b82f6' },
+    { label: 'Позитив', value: 21, pct: 75, color: GC.green },
+    { label: 'Нейтрально', value: 5, pct: 18, color: GC.blue },
     { label: 'Негатив', value: 2, pct: 7, color: C.down },
 ];
 const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'];
 const REACH_TREND = [12, 15, 18, 22, 25, 28];
 
 type RiskLevel = 'СРЕДНИЙ РИСК' | 'ТРЕБУЕТ РЕШЕНИЯ' | 'НИЗКИЙ РИСК';
-const RISK_COLOR: Record<RiskLevel, string> = { 'СРЕДНИЙ РИСК': '#f59e0b', 'ТРЕБУЕТ РЕШЕНИЯ': C.down, 'НИЗКИЙ РИСК': '#22c55e' };
+const RISK_COLOR: Record<RiskLevel, string> = { 'СРЕДНИЙ РИСК': GC.amber, 'ТРЕБУЕТ РЕШЕНИЯ': C.down, 'НИЗКИЙ РИСК': GC.green };
 const RISKS: { text: string; level: RiskLevel }[] = [
     { text: 'Недобор международных СМИ: 1 из 4', level: 'СРЕДНИЙ РИСК' },
     { text: 'До пресс-конференции осталось 3 дня — требуется финализация тезисов', level: 'ТРЕБУЕТ РЕШЕНИЯ' },
@@ -226,9 +227,9 @@ const TODAY_ACTIONS = [
 
 /* ── Yordamchi komponentlar ── */
 
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
-        <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
             {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
         </div>
         {children}
@@ -243,19 +244,19 @@ const MiniBar: React.FC<{ value: number; color: string }> = ({ value, color }) =
     }, [value]);
     return (
         <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', flex: 1 }}>
-            <div style={{ height: '100%', width: `${w}%`, background: color, borderRadius: 3, transition: 'width 0.6s ease', boxShadow: `0 0 6px ${color}88` }} />
+            <div style={{ height: '100%', width: `${w}%`, background: color, borderRadius: 3, transition: 'width 0.6s ease', boxShadow: `0 0 6px ${GC.icon}88` }} />
         </div>
     );
 };
 
 const StatusIcon: React.FC<{ status: KpiStatus }> = ({ status }) => {
-    if (status === 'done') return <span style={{ color: '#22c55e' }}><IconCheckCircle /></span>;
+    if (status === 'done') return <span style={{ color: GC.green }}><IconCheckCircle /></span>;
     if (status === 'warn') return <span style={{ color: C.down }}><IconAlertTriangle /></span>;
-    return <span style={{ color: '#f59e0b' }}><IconClockCircle /></span>;
+    return <span style={{ color: GC.amber }}><IconClockCircle /></span>;
 };
 
 const Pill: React.FC<{ label: string; color: string }> = ({ label, color }) => (
-    <span style={{ color, background: `${color}18`, border: `1px solid ${color}44`, borderRadius: 999, padding: '2px 9px', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap' }}>
+    <span style={{ color, background: `${GC.icon}18`, border: `1px solid ${GC.icon}44`, borderRadius: 999, padding: '2px 9px', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap' }}>
         {label}
     </span>
 );
@@ -288,7 +289,7 @@ const PrMediaDetail: React.FC = () => {
 
     const reachLine = {
         labels: MONTHS,
-        datasets: [{ data: REACH_TREND, borderColor: '#4fb3d9', backgroundColor: '#4fb3d922', borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: '#4fb3d9', fill: true }],
+        datasets: [{ data: REACH_TREND, borderColor: GC.cyan, backgroundColor: alpha(GC.cyan, 0.13), borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: GC.cyan, fill: true }],
     };
     const reachOptions = { ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any;
 
@@ -298,9 +299,9 @@ const PrMediaDetail: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#4fb3d9" size={36}><IconMegaphone /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={36}><IconMegaphone /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>PR / Медиа и репутация</div>
+                        <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>PR / Медиа и репутация</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2, maxWidth: 620 }}>
                             Экран для председателя · медиаактивность, KPI, риски и поручения
                         </div>
@@ -313,7 +314,7 @@ const PrMediaDetail: React.FC = () => {
                         onClick={() => navigate('/main/pr-media')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 8,
+                            background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 8,
                             color: '#fff', fontSize: 12, fontWeight: 700, padding: '8px 14px',
                             boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                         }}
@@ -384,9 +385,9 @@ const PrMediaDetail: React.FC = () => {
                         </table>
                     </div>
                     <div style={{ display: 'flex', gap: 12, fontSize: 10.5, marginTop: 8, paddingTop: 8, borderTop: `1px solid ${C.border}`, flexWrap: 'wrap' }}>
-                        <span style={{ color: '#22c55e' }}>Выполнено: {doneCount}</span>
-                        <span style={{ color: '#3b82f6' }}>В графике: {onTrackCount}</span>
-                        <span style={{ color: '#f59e0b' }}>Риск: {riskCount}</span>
+                        <span style={{ color: GC.green }}>Выполнено: {doneCount}</span>
+                        <span style={{ color: GC.blue }}>В графике: {onTrackCount}</span>
+                        <span style={{ color: GC.amber }}>Риск: {riskCount}</span>
                         <span style={{ color: C.down }}>Требует решения: {blockedCount}</span>
                     </div>
                 </SectionCard>
@@ -445,7 +446,7 @@ const PrMediaDetail: React.FC = () => {
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Риски и поручения председателя" icon={<IconAlertTriangle />} iconColor="#f59e0b" style={{ height: 236 }}>
+                <SectionCard title="Риски и поручения председателя" icon={<IconAlertTriangle />} iconColor={GC.amber} style={{ height: 236 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto', flex: 1 }}>
                         {RISKS.map((r) => (
                             <div key={r.text} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, fontSize: 10.5 }}>
@@ -484,7 +485,7 @@ const PrMediaDetail: React.FC = () => {
                     >
                         <span style={{
                             width: 24, height: 24, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: doneActions[idx] ? '#22c55e' : 'rgba(255,255,255,0.08)', color: doneActions[idx] ? '#fff' : C.sub, fontSize: 11, fontWeight: 700,
+                            background: doneActions[idx] ? GC.green : 'rgba(255,255,255,0.08)', color: doneActions[idx] ? '#fff' : C.sub, fontSize: 11, fontWeight: 700,
                         }}>
                             {doneActions[idx] ? '✓' : idx + 1}
                         </span>

@@ -2,17 +2,18 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, axis, centerText } from '../../components/dashboardUI';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -90,10 +91,10 @@ const IconInstagram = () => (
 /* ── Mock ma'lumotlar (PR / Медиа — qisqa ko'rinish) ── */
 
 const KPI_ITEMS = [
-    { label: 'Публикации', value: '28', delta: '▲ 27%', icon: <IconNewspaper />, color: '#4fb3d9' },
-    { label: 'Выходы на ТВ', value: '6', delta: '▲ 20%', icon: <IconTv />, color: '#3b82f6' },
-    { label: 'Международ. СМИ', value: '7', delta: '▲ 40%', icon: <IconGlobe />, color: '#a855f7' },
-    { label: 'Охват аудитории', value: '3.2 млн', delta: '', icon: <IconAudience />, color: '#22c55e' },
+    { label: 'Публикации', value: '28', delta: '▲ 27%', icon: <IconNewspaper />, color: GC.cyan },
+    { label: 'Выходы на ТВ', value: '6', delta: '▲ 20%', icon: <IconTv />, color: GC.blue },
+    { label: 'Международ. СМИ', value: '7', delta: '▲ 40%', icon: <IconGlobe />, color: GC.violet },
+    { label: 'Охват аудитории', value: '3.2 млн', delta: '', icon: <IconAudience />, color: GC.green },
 ];
 
 const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'];
@@ -102,15 +103,15 @@ const SERIES_TV = [3, 3, 4, 4, 5, 6];
 const SERIES_INTL = [2, 2, 3, 4, 5, 7];
 
 const TONALITY = [
-    { label: 'Позитив', value: 21, pct: 75, color: '#22c55e' },
-    { label: 'Нейтрально', value: 5, pct: 18, color: '#3b82f6' },
+    { label: 'Позитив', value: 21, pct: 75, color: GC.green },
+    { label: 'Нейтрально', value: 5, pct: 18, color: GC.blue },
     { label: 'Негатив', value: 2, pct: 7, color: C.down },
 ];
 
 const SOCIAL = [
-    { label: 'LinkedIn', value: '24 560', delta: '▲ 52% к году', icon: <IconLinkedIn />, color: '#0a66c2' },
-    { label: 'Telegram', value: '18 920', delta: '▲ 21% к году', icon: <IconTelegram />, color: '#29a9eb' },
-    { label: 'Instagram / Facebook', value: '22 / 20', delta: 'контент / план', icon: <IconInstagram />, color: '#c1358f' },
+    { label: 'LinkedIn', value: '24 560', delta: '▲ 52% к году', icon: <IconLinkedIn />, color: GC.blue },
+    { label: 'Telegram', value: '18 920', delta: '▲ 21% к году', icon: <IconTelegram />, color: GC.blue },
+    { label: 'Instagram / Facebook', value: '22 / 20', delta: 'контент / план', icon: <IconInstagram />, color: GC.magenta },
 ];
 
 const PrMedia: React.FC = () => {
@@ -120,9 +121,9 @@ const PrMedia: React.FC = () => {
     const lineData = {
         labels: MONTHS,
         datasets: [
-            { label: 'СМИ', data: SERIES_SMI, borderColor: '#4fb3d9', backgroundColor: '#4fb3d922', borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: '#4fb3d9' },
-            { label: 'ТВ', data: SERIES_TV, borderColor: '#22c55e', backgroundColor: '#22c55e22', borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: '#22c55e' },
-            { label: 'Межд. СМИ', data: SERIES_INTL, borderColor: '#eab308', backgroundColor: '#eab30822', borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: '#eab308' },
+            { label: 'СМИ', data: SERIES_SMI, borderColor: GC.cyan, backgroundColor: alpha(GC.cyan, 0.13), borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: GC.cyan },
+            { label: 'ТВ', data: SERIES_TV, borderColor: GC.green, backgroundColor: alpha(GC.green, 0.13), borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: GC.green },
+            { label: 'Межд. СМИ', data: SERIES_INTL, borderColor: GC.amber, backgroundColor: alpha(GC.amber, 0.13), borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: GC.amber },
         ],
     };
     const lineOptions = {
@@ -143,9 +144,9 @@ const PrMedia: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#4fb3d9" size={36}><IconMegaphone /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={36}><IconMegaphone /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 15, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>PR / Медиа</div>
+                        <div style={{ color: GC.cyan, fontSize: 15, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>PR / Медиа</div>
                         <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.4, marginTop: 1 }}>Ключевые показатели</div>
                     </div>
                 </div>
@@ -157,7 +158,7 @@ const PrMedia: React.FC = () => {
                         onClick={() => navigate('/main/pr-media-detail')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 999,
+                            background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 999,
                             color: '#fff', fontSize: 11.5, fontWeight: 700, padding: '7px 14px',
                             boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                         }}
@@ -188,11 +189,11 @@ const PrMedia: React.FC = () => {
             {/* Dinamika va tonallik */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 10, alignItems: 'stretch' }}>
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', height: 260 }}>
-                    <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>Динамика публикаций</div>
+                    <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>Динамика публикаций</div>
                     <div style={{ display: 'flex', gap: 14, marginBottom: 6 }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: C.sub }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4fb3d9' }} />СМИ</span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: C.sub }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />ТВ</span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: C.sub }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#eab308' }} />Межд. СМИ</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: C.sub }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: GC.cyan }} />СМИ</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: C.sub }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: GC.green }} />ТВ</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: C.sub }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: GC.amber }} />Межд. СМИ</span>
                     </div>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Line data={lineData} options={lineOptions} />
@@ -200,7 +201,7 @@ const PrMedia: React.FC = () => {
                 </div>
 
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', height: 260 }}>
-                    <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8 }}>Тональность публикаций</div>
+                    <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8 }}>Тональность публикаций</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
                         <div style={{ width: 108, height: 108, flexShrink: 0 }}>
                             <Doughnut data={donutData} options={donutOptions} plugins={[centerText(String(tonalityTotal), 'всего')]} />
@@ -224,7 +225,7 @@ const PrMedia: React.FC = () => {
                     <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 13px' }}>
                         <NeonIcon color={s.color} size={38}>{s.icon}</NeonIcon>
                         <div style={{ minWidth: 0 }}>
-                            <div style={{ color: '#4fb3d9', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+                            <div style={{ color: GC.cyan, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
                             <div style={{ color: C.text, fontSize: 18, fontWeight: 700, marginTop: 2 }}>{s.value}</div>
                             <div style={{ color: C.up, fontSize: 10.5, marginTop: 1 }}>{s.delta}</div>
                         </div>

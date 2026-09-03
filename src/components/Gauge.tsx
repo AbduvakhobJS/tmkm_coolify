@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { GC } from '../theme/palette';
 
 interface GaugeProps {
   value: number;
@@ -76,9 +77,9 @@ export const GaugeRow: React.FC = () => {
 
   return (
     <div className="gauge-row">
-      <Gauge value={vals.uptime} color="#0EA8C7" label="UPTIME" />
-      <Gauge value={vals.load}   color="#ff6b35" label="LOAD" />
-      <Gauge value={vals.safety} color="#7fff00" label="SAFETY" />
+      <Gauge value={vals.uptime} color={GC.cyan} label="UPTIME" />
+      <Gauge value={vals.load}   color={GC.amber} label="LOAD" />
+      <Gauge value={vals.safety} color={GC.green} label="SAFETY" />
     </div>
   );
 };

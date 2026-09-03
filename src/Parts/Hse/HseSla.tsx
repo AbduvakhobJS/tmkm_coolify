@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText } from '../../components/dashboardUI';
+import { GC } from '../../theme/palette';
 
 /* ── Mock ma'lumotlar (Guard HSE reyestri) ── */
 
@@ -13,15 +14,15 @@ interface Incident {
 }
 
 const STATUS_BREAKDOWN = [
-    { label: 'В работе HR', value: 2, color: '#3b82f6' },
-    { label: 'Направлено в HR', value: 2, color: '#22c55e' },
-    { label: 'Черновик', value: 1, color: '#94a3b8' },
+    { label: 'В работе HR', value: 2, color: GC.blue },
+    { label: 'Направлено в HR', value: 2, color: GC.green },
+    { label: 'Черновик', value: 1, color: GC.slate },
 ];
 
 const SEVERITY_BREAKDOWN = [
-    { label: 'Критическая', value: 1, color: '#ef4444' },
-    { label: 'Средняя', value: 3, color: '#f59e0b' },
-    { label: 'Низкая', value: 1, color: '#22c55e' },
+    { label: 'Критическая', value: 1, color: GC.red },
+    { label: 'Средняя', value: 3, color: GC.amber },
+    { label: 'Низкая', value: 1, color: GC.green },
 ];
 
 const SITES = [
@@ -88,7 +89,7 @@ const API_FIELDS: { key: string; value: string; tag: string }[] = [
 
 type Filter = 'all' | 'open' | 'overdue' | 'critical';
 
-const severityColor = (s: Incident['severity']) => s === 'Критическая' ? C.down : s === 'Средняя' ? '#f59e0b' : C.up;
+const severityColor = (s: Incident['severity']) => s === 'Критическая' ? C.down : s === 'Средняя' ? GC.amber : C.up;
 
 /* ── Kichik yordamchi komponentlar ── */
 
@@ -199,7 +200,7 @@ const HseSla: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                    <div style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase' }}>Guard · Инциденты и задачи</div>
+                    <div style={{ color: GC.cyan, fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase' }}>Guard · Инциденты и задачи</div>
                     <div style={{ color: C.text, fontSize: 21, fontWeight: 700, marginTop: 2 }}>HSE контроль и SLA</div>
                     <div style={{ color: C.sub, fontSize: 12, marginTop: 2, maxWidth: 560 }}>
                         Подробная оперативная сводка по HSE: случаи, критичность, статусы, SLA, площадки, объекты и последние события.
@@ -213,9 +214,9 @@ const HseSla: React.FC = () => {
 
             {/* KPI qatorlari — filtrlash mumkin */}
             <div style={{ display: 'flex', gap: 8 }}>
-                <StatCard label="Всего случаев" value="5" sub="в реестре Guard" color="#4fb3d9" active={filter === 'all'} onClick={() => setFilter('all')} />
-                <StatCard label="Открытые случаи" value="5" sub="0 закрыто" color="#3b82f6" active={filter === 'open'} onClick={() => setFilter('open')} />
-                <StatCard label="Просрочено SLA" value="4" sub="0 случаев / 4 задач" color="#f59e0b" active={filter === 'overdue'} onClick={() => setFilter('overdue')} />
+                <StatCard label="Всего случаев" value="5" sub="в реестре Guard" color={GC.cyan} active={filter === 'all'} onClick={() => setFilter('all')} />
+                <StatCard label="Открытые случаи" value="5" sub="0 закрыто" color={GC.blue} active={filter === 'open'} onClick={() => setFilter('open')} />
+                <StatCard label="Просрочено SLA" value="4" sub="0 случаев / 4 задач" color={GC.amber} active={filter === 'overdue'} onClick={() => setFilter('overdue')} />
                 <StatCard label="Критические" value="1" sub="по уровню риска" color={C.down} active={filter === 'critical'} onClick={() => setFilter('critical')} />
             </div>
 
@@ -261,7 +262,7 @@ const HseSla: React.FC = () => {
                     <SectionLabel hint={`${SITES.length} объектов`}>Площадки и объекты</SectionLabel>
                     <div style={{ overflowY: 'auto', flex: 1, paddingRight: 2 }}>
                         {SITES.map((s) => (
-                            <ProgressRow key={s.name} name={s.name} value={s.value} max={maxSite} color="#0ea8c7" />
+                            <ProgressRow key={s.name} name={s.name} value={s.value} max={maxSite} color={GC.cyan} />
                         ))}
                     </div>
                 </SectionCard>
@@ -270,7 +271,7 @@ const HseSla: React.FC = () => {
                     <SectionLabel hint="breakdown">Типы нарушений</SectionLabel>
                     <div style={{ overflowY: 'auto', flex: 1, paddingRight: 2 }}>
                         {VIOLATIONS.map((v) => (
-                            <ProgressRow key={v.name} name={v.name} value={v.value} max={maxViolation} color="#f59e0b" />
+                            <ProgressRow key={v.name} name={v.name} value={v.value} max={maxViolation} color={GC.amber} />
                         ))}
                     </div>
                 </SectionCard>
@@ -343,11 +344,11 @@ const HseSla: React.FC = () => {
                             title="Nusxa olish uchun bosing"
                             style={{
                                 textAlign: 'left', cursor: 'pointer', background: C.cardAlt,
-                                border: `1px solid ${copiedKey === f.key ? '#0ea8c7' : C.border}`,
+                                border: `1px solid ${copiedKey === f.key ? GC.cyan : C.border}`,
                                 borderRadius: 10, padding: '8px 10px', minWidth: 0, transition: 'border-color 0.15s ease',
                             }}
                         >
-                            <div style={{ color: '#4fb3d9', fontSize: 10.5, fontFamily: 'monospace', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.key}</div>
+                            <div style={{ color: GC.cyan, fontSize: 10.5, fontFamily: 'monospace', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.key}</div>
                             <div style={{ color: C.text, fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.value}</div>
                             <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 4 }}>
                                 {copiedKey === f.key ? '✓ nusxalandi' : f.tag}

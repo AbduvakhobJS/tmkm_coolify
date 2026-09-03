@@ -7,6 +7,7 @@ import {
 } from './dashboardUI';
 import { useProductionDashboard } from '../hooks/production';
 import type { DashboardData, DashboardMetal } from '../services/production';
+import { GC, alpha, SERIES_COLORS } from '../theme/palette';
 
 type ViewMetal = {
     name: string; symbol: string; color: string;
@@ -18,10 +19,10 @@ type ViewMetal = {
    API'dan kelmagan bloklar shu qiymatlarda qoladi va sariq ramka bilan
    belgilanadi (`Card mock` / `KpiCard mock`). */
 const MOCK_METALS: ViewMetal[] = [
-    { name: 'Molibden', symbol: 'Mo', color: '#3b82f6', value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, dyn: [812, 828, 845, 872, 918, 895] },
-    { name: 'Volfram', symbol: 'W', color: '#22c55e', value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, dyn: [602, 624, 641, 663, 701, 688] },
-    { name: 'Titan', symbol: 'Ti', color: '#f59e0b', value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, dyn: [378, 388, 398, 408, 421, 414] },
-    { name: 'Boshqalar', symbol: '•••', color: '#94a3b8', value: 277.4, pct: 3.4, delta: -6.8, plan: 300, dyn: [44, 45, 46, 47, 49, 48] },
+    { name: 'Molibden', symbol: 'Mo', color: GC.blue, value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, dyn: [812, 828, 845, 872, 918, 895] },
+    { name: 'Volfram', symbol: 'W', color: GC.green, value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, dyn: [602, 624, 641, 663, 701, 688] },
+    { name: 'Titan', symbol: 'Ti', color: GC.amber, value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, dyn: [378, 388, 398, 408, 421, 414] },
+    { name: 'Boshqalar', symbol: '•••', color: GC.slate, value: 277.4, pct: 3.4, delta: -6.8, plan: 300, dyn: [44, 45, 46, 47, 49, 48] },
 ];
 const MOCK_TOTAL = 8247.5;
 const MOCK_MONTHLY = [1245.6, 1289.4, 1356.7, 1412.8, 1487.2, 1455.8];
@@ -38,13 +39,13 @@ const NAMES: Record<string, string> = {
     Re: 'Reniy', Bi: 'Vismut', Pb: "Qo'rg'oshin", Zn: 'Rux', Ag: 'Kumush',
 };
 const COLORS: Record<string, string> = {
-    Mo: '#3b82f6', W: '#22c55e', Ti: '#f59e0b', Cu: '#ec4899',
-    Re: '#a855f7', Bi: '#eab308', Pb: '#64748b', Zn: '#06b6d4', Ag: '#cbd5e1',
+    Mo: GC.blue, W: GC.green, Ti: GC.amber, Cu: GC.magenta,
+    Re: GC.violet, Bi: GC.amber, Pb: GC.slate, Zn: GC.cyan, Ag: GC.magenta,
 };
 /* Lug'atda yo'q materiallar uchun — donut bo'laklari bir-biridan ajralib
    tursin uchun kulrang emas, navbatma-navbat rang beriladi. */
-const FALLBACK_COLORS = ['#14b8a6', '#f43f5e', '#8b5cf6', '#0ea5e9', '#84cc16'];
-const GREY = '#94a3b8';
+const FALLBACK_COLORS = SERIES_COLORS;
+const GREY = GC.slate;
 
 /* ── Qiymat tekshiruvchilari ── */
 const num = (v: unknown): number | null =>
@@ -170,18 +171,18 @@ const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
             borderWidth: 0,
         })),
     };
-    const monthlyBar = { labels: v.monthlyMonths, datasets: [{ data: v.monthly, backgroundColor: '#2563eb', borderRadius: 4, barPercentage: 0.6 }] };
-    const avgBar = { labels: v.avgMonths, datasets: [{ data: v.avgDaily, backgroundColor: '#22c55e', borderRadius: 4, barPercentage: 0.6 }] };
+    const monthlyBar = { labels: v.monthlyMonths, datasets: [{ data: v.monthly, backgroundColor: GC.blue, borderRadius: 4, barPercentage: 0.6 }] };
+    const avgBar = { labels: v.avgMonths, datasets: [{ data: v.avgDaily, backgroundColor: GC.green, borderRadius: 4, barPercentage: 0.6 }] };
 
     return (
         <DashRoot>
             <DashHeader title="Texnologik metallar ishlab chiqarish" subtitle="Ko'rsatkichlar dashboardi" dateRange={`${fmtDots(range.from)} - ${fmtDots(range.to)}`} />
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
                 <KpiCard title="Umumiy hajmi" value={`${fmt(v.total)} t`} compare={COMPARE} mock={v.totalMock}
-                         badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: '#22c55e22', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>▤</div>} />
-                {v.metals.map((m) => (
+                         badge={""} />
+                {v.metals.slice(0,4)?.map((m) => (
                     <KpiCard key={m.name} title={m.name} value={`${fmt(m.value)} t`} mock={v.metalsMock}
-                             delta={m.delta} compare={COMPARE} badge={<Badge symbol={m.symbol} color={m.color} />} />
+                             delta={m.delta} compare={COMPARE} badge={""} />
                 ))}
             </div>
             <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: '1fr 1fr', gap: 8 }}>

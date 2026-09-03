@@ -1,5 +1,13 @@
 import { IThemeProvider, SciChartJsNavyTheme } from "scichart";
+import { GC, alpha } from "../theme/palette";
 
+/**
+ * SciChart uchun mavzu. Ranglar `src/theme/palette.ts` dagi yagona palitradan
+ * olinadi — bu yerda hech qanday hex qattiq yozilmaydi.
+ *
+ * Vivid / Muted / Pale — bir xil semantik rangning to'yinganlik darajalari:
+ * ko'p seriyali grafiklarda chiziqlar farqlanib turishi uchun kerak.
+ */
 export interface AppThemeBase {
     SciChartJsTheme: IThemeProvider;
 
@@ -33,40 +41,44 @@ export interface AppThemeBase {
     PalePurple: string;
 }
 
+/** Muted — 70% to'yinganlik, Pale — 35%. */
+const muted = (c: string) => alpha(c, 0.7);
+const pale = (c: string) => alpha(c, 0.35);
+
 export class SciChart2022AppTheme implements AppThemeBase {
     SciChartJsTheme = new SciChartJsNavyTheme();
 
     // General colors
-    ForegroundColor = "#FFFFFF";
+    ForegroundColor = GC.white;
     Background = this.SciChartJsTheme.sciChartBackground;
 
-    // Series colors
-    VividSkyBlue = "#50C7E0";
-    VividPink = "#EC0F6C";
-    VividTeal = "#30BC9A";
-    VividOrange = "#F48420";
-    VividBlue = "#364BA0";
-    VividPurple = "#882B91";
-    VividGreen = "#67BDAF";
-    VividRed = "#C52E60";
+    // Series colors — palitraning semantik tokenlari
+    VividSkyBlue = GC.cyan;
+    VividPink = GC.magenta;
+    VividTeal = GC.green;
+    VividOrange = GC.amber;
+    VividBlue = GC.blue;
+    VividPurple = GC.violet;
+    VividGreen = GC.green;
+    VividRed = GC.red;
 
-    DarkIndigo = "#14233C";
-    Indigo = "#264B93";
+    DarkIndigo = GC.panelBg;
+    Indigo = GC.deep;
 
-    MutedSkyBlue = "#83D2F5";
-    MutedPink = "#DF69A8";
-    MutedTeal = "#7BCAAB";
-    MutedOrange = "#E7C565";
-    MutedBlue = "#537ABD";
-    MutedPurple = "#A16DAE";
-    MutedRed = "#DC7969";
+    MutedSkyBlue = muted(GC.cyan);
+    MutedPink = muted(GC.magenta);
+    MutedTeal = muted(GC.green);
+    MutedOrange = muted(GC.amber);
+    MutedBlue = muted(GC.blue);
+    MutedPurple = muted(GC.violet);
+    MutedRed = muted(GC.red);
 
-    PaleSkyBlue = "#E4F5FC";
-    PalePink = "#EEB3D2";
-    PaleTeal = "#B9E0D4";
-    PaleOrange = "#F1CFB5";
-    PaleBlue = "#B5BEDF";
-    PalePurple = "#CFB4D5";
+    PaleSkyBlue = pale(GC.cyan);
+    PalePink = pale(GC.magenta);
+    PaleTeal = pale(GC.green);
+    PaleOrange = pale(GC.amber);
+    PaleBlue = pale(GC.blue);
+    PalePurple = pale(GC.violet);
 }
 
 export const appTheme = new SciChart2022AppTheme();

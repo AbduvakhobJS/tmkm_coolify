@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { StreamCell } from "./VideoStream";
+import { GC } from '../theme/palette';
 
 // PTZ API endpoint
 const PTZ_API = "https://tmk.bgs.uz/api/cameras/ptz-control?lang=uz";
@@ -135,8 +136,8 @@ const ptzStyles = `
     height: 18px;
     transition: opacity 0.3s;
   }
-  .ptz-status.ok   { color: #00ff88; }
-  .ptz-status.err  { color: #ff4444; }
+  .ptz-status.ok   { color: ${GC.green}; }
+  .ptz-status.err  { color: ${GC.red}; }
   .ptz-status.idle { opacity: 0; }
 `;
 

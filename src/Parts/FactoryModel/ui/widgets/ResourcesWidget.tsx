@@ -2,6 +2,7 @@ import React from 'react';
 import WidgetWrapper from '../WidgetWrapper';
 import { FiZap, FiDroplet, FiWind, FiThermometer, FiGlobe } from 'react-icons/fi';
 import { Line } from 'react-chartjs-2';
+import { GC } from '../../../../theme/palette';
 
 const Sparkline: React.FC<{ color: string }> = ({ color }) => {
     const data = {
@@ -25,11 +26,11 @@ const Sparkline: React.FC<{ color: string }> = ({ color }) => {
 
 const ResourcesWidget: React.FC<{ index: number }> = ({ index }) => {
     const resources = [
-        { label: 'Elektr energiya', val: '256', unit: 'kWh', pct: '+5%', color: '#fbbf24', icon: FiZap },
-        { label: 'Suv sarfi', val: '3.2', unit: 'm³', pct: '-3%', color: '#60a5fa', icon: FiDroplet },
-        { label: 'Gaz sarfi', val: '18.7', unit: 'm³', pct: '+2%', color: '#f87171', icon: FiWind },
-        { label: 'Issiqlik', val: '42.1', unit: 'kWh', pct: '-6%', color: '#f472b6', icon: FiThermometer },
-        // { label: 'Internet trafigi', val: '840', unit: 'Mb/s', pct: '+12%', color: '#4ade80', icon: FiGlobe },
+        { label: 'Elektr energiya', val: '256', unit: 'kWh', pct: '+5%', color: GC.amber, icon: FiZap },
+        { label: 'Suv sarfi', val: '3.2', unit: 'm³', pct: '-3%', color: GC.blue, icon: FiDroplet },
+        { label: 'Gaz sarfi', val: '18.7', unit: 'm³', pct: '+2%', color: GC.red, icon: FiWind },
+        { label: 'Issiqlik', val: '42.1', unit: 'kWh', pct: '-6%', color: GC.magenta, icon: FiThermometer },
+        // { label: 'Internet trafigi', val: '840', unit: 'Mb/s', pct: '+12%', color: GC.green, icon: FiGlobe },
     ];
 
     return (

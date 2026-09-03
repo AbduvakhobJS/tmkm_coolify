@@ -5,15 +5,16 @@ import {
     barLabel, centerText,
     Card, KpiCard, Badge, Gauge, DashHeader, DashFooter, DashRoot,
 } from './dashboardUI';
+import { GC, alpha } from '../theme/palette';
 
 /* Konsentrat qazib olish ma'lumotlari (mock) */
 const METALS = [
-    { name: 'Molibden', symbol: 'Mo', color: '#3b82f6', value: 2812.0, plan: 2700, delta: 5.2, recovery: 92.4, dyn: [452, 458, 468, 472, 482, 480] },
-    { name: 'Volfram', symbol: 'W', color: '#22c55e', value: 2456.0, plan: 2400, delta: 2.8, recovery: 90.1, dyn: [396, 402, 408, 414, 420, 416] },
-    { name: 'Titan', symbol: 'Ti', color: '#f59e0b', value: 1604.0, plan: 1650, delta: -1.6, recovery: 88.6, dyn: [258, 262, 266, 270, 276, 272] },
-    { name: 'Tantal', symbol: 'Ta', color: '#a855f7', value: 1042.0, plan: 1000, delta: 4.1, recovery: 91.3, dyn: [168, 170, 173, 176, 179, 176] },
-    { name: 'Niobiy', symbol: 'Nb', color: '#06b6d4', value: 548.0, plan: 580, delta: -3.2, recovery: 87.2, dyn: [88, 89, 91, 92, 94, 94] },
-    { name: 'Boshqalar', symbol: '•••', color: '#94a3b8', value: 296.0, plan: 320, delta: -5.4, recovery: 85.5, dyn: [47, 48, 49, 50, 51, 51] },
+    { name: 'Molibden', symbol: 'Mo', color: GC.blue, value: 2812.0, plan: 2700, delta: 5.2, recovery: 92.4, dyn: [452, 458, 468, 472, 482, 480] },
+    { name: 'Volfram', symbol: 'W', color: GC.green, value: 2456.0, plan: 2400, delta: 2.8, recovery: 90.1, dyn: [396, 402, 408, 414, 420, 416] },
+    { name: 'Titan', symbol: 'Ti', color: GC.amber, value: 1604.0, plan: 1650, delta: -1.6, recovery: 88.6, dyn: [258, 262, 266, 270, 276, 272] },
+    { name: 'Tantal', symbol: 'Ta', color: GC.violet, value: 1042.0, plan: 1000, delta: 4.1, recovery: 91.3, dyn: [168, 170, 173, 176, 179, 176] },
+    { name: 'Niobiy', symbol: 'Nb', color: GC.cyan, value: 548.0, plan: 580, delta: -3.2, recovery: 87.2, dyn: [88, 89, 91, 92, 94, 94] },
+    { name: 'Boshqalar', symbol: '•••', color: GC.slate, value: 296.0, plan: 320, delta: -5.4, recovery: 85.5, dyn: [47, 48, 49, 50, 51, 51] },
 ];
 const TOTAL = METALS.reduce((s, m) => s + m.value, 0);
 const MONTHLY_ORE = [72.4, 76.8, 80.2, 84.6, 88.1, 84.4];
@@ -36,8 +37,8 @@ const ExtractionDashboard: React.FC = () => {
         labels: METALS.map((m, i) => `${i + 1}-kon`),
         datasets: MONTHS.map((mo, mi) => ({ label: mo, data: METALS.map((m) => +(m.value * MONTHLY_ORE[mi] / ORE_SUM).toFixed(1)), backgroundColor: MONTH_COLORS[mi], stack: 's', borderWidth: 0 })),
     };
-    const oreBar = { labels: MONTHS, datasets: [{ data: MONTHLY_ORE, backgroundColor: '#2563eb', borderRadius: 4, barPercentage: 0.6 }] };
-    const avgBar = { labels: MONTHS, datasets: [{ data: AVG_DAILY_ORE, backgroundColor: '#22c55e', borderRadius: 4, barPercentage: 0.6 }] };
+    const oreBar = { labels: MONTHS, datasets: [{ data: MONTHLY_ORE, backgroundColor: GC.blue, borderRadius: 4, barPercentage: 0.6 }] };
+    const avgBar = { labels: MONTHS, datasets: [{ data: AVG_DAILY_ORE, backgroundColor: GC.green, borderRadius: 4, barPercentage: 0.6 }] };
 
     return (
         <DashRoot>
@@ -45,7 +46,7 @@ const ExtractionDashboard: React.FC = () => {
 
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
                 <KpiCard title="Umumiy qazib olingan konsentrat" value={`${fmt(TOTAL)} t`} delta={4.6} compare={COMPARE}
-                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: '#22c55e22', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>⛏</div>} />
+                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: alpha(GC.green, 0.13), color: GC.green, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>⛏</div>} />
                 {METALS.map((m) => (
                     <KpiCard key={m.name} title={m.name} value={`${fmt(m.value)} t`} delta={m.delta} compare={COMPARE} badge={<Badge symbol={m.symbol} color={m.color} />} />
                 ))}

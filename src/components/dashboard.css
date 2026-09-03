@@ -54,7 +54,7 @@
 }
 
 .header-icon svg {
-    color: #4fb3d9;
+    color: var(--gc-cyan);
 }
 
 .panel-header h2,
@@ -232,19 +232,19 @@
 
 .badge-warning {
     background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.2));
-    color: #fbbf24;
+    color: var(--gc-amber);
     border-color: rgba(245, 158, 11, 0.3);
 }
 
 .badge-danger {
     background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(239, 68, 68, 0.2));
-    color: var(--gc-red, #ff2d55); /* global color */
+    color: var(--gc-red, var(--gc-red)); /* global color */
     border-color: rgba(239, 68, 68, 0.3);
 }
 
 .badge-info {
     background: rgba(30, 77, 123, 0.3);
-    color: #4fb3d9;
+    color: var(--gc-cyan);
     border: 1px solid rgba(79, 179, 217, 0.2);
     font-family: monospace;
 }
@@ -328,7 +328,7 @@
 .value-number {
     font-size: 64px;
     font-weight: 700;
-    background: linear-gradient(135deg, #4fb3d9 0%, #3d8fb3 100%);
+    background: linear-gradient(135deg, var(--gc-cyan) 0%, var(--gc-cyan) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -358,7 +358,7 @@
 }
 
 .value-currency {
-    color: #4fb3d9;
+    color: var(--gc-cyan);
     font-size: 18px;
     font-weight: 500;
 }
@@ -393,11 +393,11 @@
 }
 
 .construction-primary .construction-dot {
-    background: #4fb3d9;
+    background: var(--gc-cyan);
 }
 
 .construction-success .construction-dot {
-    background: #34d399;
+    background: var(--gc-green);
 }
 
 .construction-value {
@@ -406,11 +406,11 @@
 }
 
 .construction-primary .construction-value {
-    color: #4fb3d9;
+    color: var(--gc-cyan);
 }
 
 .construction-success .construction-value {
-    color: #34d399;
+    color: var(--gc-green);
 }
 
 /* Parameters */
@@ -447,7 +447,7 @@
 }
 
 .parameter-item:hover .parameter-label {
-    color: #4fb3d9;
+    color: var(--gc-cyan);
 }
 
 .parameter-badges {
@@ -468,7 +468,7 @@
 }
 
 .verified-badge svg {
-    color: #34d399;
+    color: var(--gc-green);
 }
 
 .parameter-status {
@@ -481,13 +481,13 @@
 
 .status-success {
     background: rgba(52, 211, 153, 0.2);
-    color: #34d399;
+    color: var(--gc-green);
     border-color: rgba(52, 211, 153, 0.3);
 }
 
 .status-warning {
     background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
+    color: var(--gc-amber);
     border-color: rgba(251, 191, 36, 0.3);
 }
 

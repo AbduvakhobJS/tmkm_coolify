@@ -13,6 +13,7 @@ import {
     ZoomPanModifier,
 } from "scichart";
 import { appTheme } from "../../tools/theme";
+import { GC } from '../../theme/palette';
 
 /** Earthquake data structure from CSV */
 interface EarthquakeData {
@@ -134,11 +135,11 @@ export const DrawExample = async (rootElement: string | HTMLDivElement) => {
                 minimum: colorPaletteMin,
                 maximum: colorPaletteMax,
                 gradientStops: [
-                    { offset: 1, color: "#FF0000" }, // Red - highest magnitude
-                    { offset: 0.8, color: "#FF4500" }, // Orange-red
-                    { offset: 0.6, color: "#FFA500" }, // Orange
-                    { offset: 0.4, color: "#FFFF00" }, // Yellow
-                    { offset: 0.2, color: "#90EE90" }, // Light green
+                    { offset: 1, color: GC.red }, // Red - highest magnitude
+                    { offset: 0.8, color: GC.amber }, // Orange-red
+                    { offset: 0.6, color: GC.amber }, // Orange
+                    { offset: 0.4, color: GC.amber }, // Yellow
+                    { offset: 0.2, color: GC.green }, // Light green
                     { offset: 0, color: "#000000" }, // Black - no activity
                 ],
             }),
@@ -188,12 +189,12 @@ export const drawHeatmapLegend = async (rootElement: string | HTMLDivElement) =>
             minimum: 0,
             maximum: 10,
             gradientStops: [
-                { offset: 1, color: "#FF0000" }, // Red - highest magnitude
-                { offset: 0.8, color: "#FF4500" }, // Orange-red
-                { offset: 0.6, color: "#FFA500" }, // Orange
-                { offset: 0.4, color: "#FFFF00" }, // Yellow
-                { offset: 0.2, color: "#90EE90" }, // Light green
-                { offset: 0, color: "#0001FF" }, // Blue - no activity
+                { offset: 1, color: GC.red }, // Red - highest magnitude
+                { offset: 0.8, color: GC.amber }, // Orange-red
+                { offset: 0.6, color: GC.amber }, // Orange
+                { offset: 0.4, color: GC.amber }, // Yellow
+                { offset: 0.2, color: GC.green }, // Light green
+                { offset: 0, color: GC.blue }, // Blue - no activity
             ],
         },
     });

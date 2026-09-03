@@ -2,16 +2,17 @@ import React from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, axis, barLabel, centerText, fmt } from '../../components/dashboardUI';
 import grrData from './grrData.json';
+import { GC } from '../../theme/palette';
 
 /* ── Neon ikonka (dizayn tizimiga mos, gradient + glow) ── */
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -141,10 +142,10 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 const SectionCard: React.FC<{
     title: string; icon?: React.ReactNode; iconColor?: string; hint?: string;
     children: React.ReactNode; style?: React.CSSProperties; bodyStyle?: React.CSSProperties;
-}> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style, bodyStyle }) => (
+}> = ({ title, icon, iconColor = GC.cyan, hint, children, style, bodyStyle }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexShrink: 0 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
@@ -155,10 +156,10 @@ const SectionCard: React.FC<{
     </div>
 );
 
-const RISK_COLORS: Record<string, string> = { low: '#22c55e', medium: '#eab308', high: '#ef4444' };
+const RISK_COLORS: Record<string, string> = { low: GC.green, medium: GC.amber, high: GC.red };
 const RISK_LABELS: Record<string, string> = { low: 'Past', medium: "O'rta", high: 'Yuqori' };
 
-const readinessColor = (v: number) => (v >= 60 ? C.up : v >= 40 ? '#eab308' : C.down);
+const readinessColor = (v: number) => (v >= 60 ? C.up : v >= 40 ? GC.amber : C.down);
 
 /* Tarkib halqasi — qiymatlar juda kichik (<2%) bo'lgani uchun guruh ichidagi maksimumga nisbatan normallashtiriladi */
 const CompositionRing: React.FC<{ label: string; value: number; maxValue: number; color: string }> = ({ label, value, maxValue, color }) => {
@@ -167,7 +168,7 @@ const CompositionRing: React.FC<{ label: string; value: number; maxValue: number
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
             <div style={{
                 width: 60, height: 60, borderRadius: '50%',
-                background: `conic-gradient(${color} ${pct}%, rgba(255,255,255,0.08) 0)`,
+                background: `conic-gradient(${GC.icon} ${pct}%, rgba(255,255,255,0.08) 0)`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
                 <div style={{ width: 47, height: 47, borderRadius: '50%', background: C.card, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.text, fontSize: 11.5, fontWeight: 700 }}>
@@ -188,7 +189,7 @@ const GRR: React.FC = () => {
         labels: reservesChart.labels,
         datasets: [
             { label: "Razvedka qilingan zaxiralar", data: reservesChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
-            { label: 'Resurslar', data: reservesChart.resources, backgroundColor: '#3b82f6', borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
+            { label: 'Resurslar', data: reservesChart.resources, backgroundColor: GC.blue, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
         ],
     };
 
@@ -196,7 +197,7 @@ const GRR: React.FC = () => {
         labels: elementContentChart.labels,
         datasets: [
             { label: "Razvedka qilingan zaxiralar", data: elementContentChart.explored, backgroundColor: C.up, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
-            { label: 'Resurslar', data: elementContentChart.resources, backgroundColor: '#3b82f6', borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
+            { label: 'Resurslar', data: elementContentChart.resources, backgroundColor: GC.blue, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
         ],
     };
 
@@ -204,7 +205,7 @@ const GRR: React.FC = () => {
         labels: budgetRemainderChart.labels,
         datasets: [
             { label: "O'zlashtirildi", data: budgetRemainderChart.used, backgroundColor: C.up, stack: 's', borderRadius: 2, barPercentage: 0.7 },
-            { label: 'Qoldiq', data: budgetRemainderChart.remaining, backgroundColor: '#3b82f6', stack: 's', borderRadius: 2, barPercentage: 0.7 },
+            { label: 'Qoldiq', data: budgetRemainderChart.remaining, backgroundColor: GC.blue, stack: 's', borderRadius: 2, barPercentage: 0.7 },
         ],
     };
 
@@ -230,7 +231,7 @@ const GRR: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {/*<NeonIcon color="#3b82f6" size={36}><IconLayers /></NeonIcon>*/}
+                    {/*<NeonIcon color={GC.blue} size={36}><IconLayers /></NeonIcon>*/}
                     <div>
                         <div style={{ color: 'rgb(241, 242, 246)', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{meta.title}</div>
                         {/*<div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{meta.subtitle}</div>*/}
@@ -273,7 +274,7 @@ const GRR: React.FC = () => {
                                             <span style={{ color: C.sub, fontSize: 10.5, flexShrink: 0 }}>#{p.num}</span>
                                             <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
                                         </div>
-                                        <div style={{ color: '#4fb3d9', fontSize: 10.5, marginTop: 1 }}>{p.stage}</div>
+                                        <div style={{ color: GC.cyan, fontSize: 10.5, marginTop: 1 }}>{p.stage}</div>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                                         <span style={{ color: C.text, fontSize: 11.5, fontWeight: 700 }}>{p.readiness}%</span>
@@ -286,7 +287,7 @@ const GRR: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, color: '#4fb3d9', fontSize: 11, fontWeight: 600, paddingTop: 9, marginTop: 6, borderTop: `1px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, color: GC.cyan, fontSize: 11, fontWeight: 600, paddingTop: 9, marginTop: 6, borderTop: `1px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}>
                         Barcha loyihalarni ko'rish <IconArrowRight />
                     </div>
                 </SectionCard>
@@ -303,7 +304,7 @@ const GRR: React.FC = () => {
                             background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)',
                             border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px',
                         }}>
-                            <div style={{ color: '#4fb3d9', fontSize: 9, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', borderBottom: `1px solid ${C.border}`, paddingBottom: 5, marginBottom: 6 }}>
+                            <div style={{ color: GC.cyan, fontSize: 9, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', borderBottom: `1px solid ${C.border}`, paddingBottom: 5, marginBottom: 6 }}>
                                 Mineralizatsiya zonalari
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -318,7 +319,7 @@ const GRR: React.FC = () => {
 
                         {/* Hudud yorlig'i */}
                         <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '5px 10px' }}>
-                            <span style={{ color: '#4fb3d9' }}><IconMapPin /></span>
+                            <span style={{ color: GC.cyan }}><IconMapPin /></span>
                             <span style={{ color: C.text, fontSize: 10.5, fontWeight: 600 }}>Minerallar hududi</span>
                         </div>
 
@@ -336,7 +337,7 @@ const GRR: React.FC = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 9.5 }}>
                                 Shaffoflik:
                                 <div style={{ width: 70, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', position: 'relative' }}>
-                                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '60%', borderRadius: 2, background: '#4fb3d9' }} />
+                                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '60%', borderRadius: 2, background: GC.cyan }} />
                                 </div>
                                 <span style={{ color: C.text, fontWeight: 700 }}>60%</span>
                             </div>
@@ -366,7 +367,7 @@ const GRR: React.FC = () => {
                                 <span style={{ color: C.text, fontWeight: 700 }}>{summary.budget.used}</span>
                             </div>
                             <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 4 }}>
-                                <div style={{ width: `${summary.budget.usedPct}%`, height: '100%', background: '#3b82f6', borderRadius: 3 }} />
+                                <div style={{ width: `${summary.budget.usedPct}%`, height: '100%', background: GC.blue, borderRadius: 3 }} />
                             </div>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -383,12 +384,12 @@ const GRR: React.FC = () => {
                         </div>
                     </div>
 
-                    <div style={{ color: '#4fb3d9', fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>
+                    <div style={{ color: GC.cyan, fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>
                         Portfelning o'rtacha vaznli tarkibi
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 4, marginBottom: 12 }}>
                         {summary.composition.map((c, i) => (
-                            <CompositionRing key={c.label} label={c.label} value={c.value} maxValue={maxComposition} color={['#3b82f6', '#a855f7', '#22c55e', '#06b6d4', '#f59e0b'][i % 5]} />
+                            <CompositionRing key={c.label} label={c.label} value={c.value} maxValue={maxComposition} color={[GC.blue, GC.violet, GC.green, GC.cyan, GC.amber][i % 5]} />
                         ))}
                     </div>
 
@@ -403,7 +404,7 @@ const GRR: React.FC = () => {
                         </div>
                     </div>
 
-                    <div style={{ color: '#4fb3d9', fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 }}>
+                    <div style={{ color: GC.cyan, fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 }}>
                         Loyiha bosqichlari
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -426,19 +427,19 @@ const GRR: React.FC = () => {
 
             {/* Pastki grafiklar qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, height: 450 }}>
-                <SectionCard title="Loyihalar bo'yicha zaxira va resurslar, mln t" icon={<IconLayers />} iconColor="#22c55e">
+                <SectionCard title="Loyihalar bo'yicha zaxira va resurslar, mln t" icon={<IconLayers />} iconColor={GC.green}>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={reservesData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } }, scales: axis({ x: { ticks: { font: { size: 8.5 } } }, y: { beginAtZero: true } }) } as any} />
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Element guruhlari bo'yicha o'rtacha tarkib" icon={<IconGauge />} iconColor="#a855f7">
+                <SectionCard title="Element guruhlari bo'yicha o'rtacha tarkib" icon={<IconGauge />} iconColor={GC.violet}>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={elementData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } }, scales: axis({ y: { beginAtZero: true } }) } as any} />
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Loyihalar bo'yicha byudjet qoldig'i, mln dollar" icon={<IconCoins />} iconColor="#06b6d4">
+                <SectionCard title="Loyihalar bo'yicha byudjet qoldig'i, mln dollar" icon={<IconCoins />} iconColor={GC.cyan}>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={budgetData} options={{
                             ...chartBase, indexAxis: 'y' as const,
@@ -448,7 +449,7 @@ const GRR: React.FC = () => {
                     </div>
                 </SectionCard>
 
-                <SectionCard title="Guruhlar bo'yicha resurslar taqsimoti" icon={<IconPie />} iconColor="#f59e0b">
+                <SectionCard title="Guruhlar bo'yicha resurslar taqsimoti" icon={<IconPie />} iconColor={GC.amber}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minHeight: 0 }}>
                         <div style={{ width: 108, height: 108, flexShrink: 0 }}>
                             <Doughnut data={resourceDonut} options={{ ...chartBase, cutout: '62%', ...noLegend } as any} plugins={[centerText('100%', 'resurslar')]} />

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { C } from './dashboardUI';
+import { GC } from '../theme/palette';
 
 /* ── Neon ikonka (umumiy dizayn tizimi) ── */
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 26, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 26, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}25`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}25`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -135,18 +136,18 @@ interface Construction { label: string; value: string; color: string }
 interface Parameter { label: string; status: string; date: string; value: number; verified?: boolean; approved?: boolean }
 
 /* ── Yordamchi UI komponentlar ── */
-const SectionCard: React.FC<{ title: string; icon: React.ReactNode; color?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, color = '#4fb3d9', children, style }) => (
+const SectionCard: React.FC<{ title: string; icon: React.ReactNode; color?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, color = GC.cyan, children, style }) => (
     <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '12px 14px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
             <NeonIcon color={color} size={26}>{icon}</NeonIcon>
-            <span style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>{title}</span>
+            <span style={{ color: GC.cyan, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>{title}</span>
         </div>
         {children}
     </div>
 );
 
 const StatusBadge: React.FC<{ text: string; tone: 'ok' | 'warn' | 'down' | 'info' }> = ({ text, tone }) => {
-    const col = tone === 'ok' ? C.up : tone === 'down' ? C.down : tone === 'warn' ? '#eab308' : '#4fb3d9';
+    const col = tone === 'ok' ? C.up : tone === 'down' ? C.down : tone === 'warn' ? GC.amber : GC.cyan;
     return (
         <span style={{ padding: '3px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, color: col, background: `${col}1c`, border: `1px solid ${col}55`, whiteSpace: 'nowrap' }}>
             {text}
@@ -205,7 +206,7 @@ const ProjectDashboard: React.FC<{ factory?: any }> = ({ factory }) => {
     }));
 
     // "Loyiha qiymatlari" — API project_values obyektidan
-    const valueColors = ['#4fb3d9', '#22c55e'];
+    const valueColors = [GC.cyan, GC.green];
     const constructions: Construction[] = objectEntries(factory?.project_values).map((e, i) => ({
         label: e.label, value: e.value, color: valueColors[i % valueColors.length],
     }));
@@ -229,9 +230,9 @@ const ProjectDashboard: React.FC<{ factory?: any }> = ({ factory }) => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                    <NeonIcon color="#4fb3d9" size={36}><IconLayers /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={36}><IconLayers /></NeonIcon>
                     <div style={{ minWidth: 0 }}>
-                        <div style={{ color: '#4fb3d9', fontSize: 18, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Лойиҳа карточкаси № {project.id}</div>
+                        <div style={{ color: GC.cyan, fontSize: 18, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Лойиҳа карточкаси № {project.id}</div>
                         <div style={{ color: C.sub, fontSize: 11.5, marginTop: 2, maxWidth: 640, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>{project.name}</div>
                     </div>
                 </div>
@@ -266,7 +267,7 @@ const ProjectDashboard: React.FC<{ factory?: any }> = ({ factory }) => {
                             {project.images.map((img, idx) => (
                                 <button key={idx} onClick={() => setCurrentImageIndex(idx)} style={{
                                     flex: 1, height: 52, borderRadius: 8, overflow: 'hidden', padding: 0, cursor: 'pointer',
-                                    border: idx === currentImageIndex ? '2px solid #4fb3d9' : `2px solid ${C.border}`,
+                                    border: idx === currentImageIndex ? `2px solid ${GC.cyan}` : `2px solid ${C.border}`,
                                     opacity: idx === currentImageIndex ? 1 : 0.55, transition: 'all 0.2s ease',
                                     boxShadow: idx === currentImageIndex ? '0 4px 12px rgba(79,179,217,0.25)' : 'none',
                                 }}>
@@ -294,7 +295,7 @@ const ProjectDashboard: React.FC<{ factory?: any }> = ({ factory }) => {
                             ))}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14 }}>
                                 <span style={{ color: C.sub, fontSize: 11.5 }}>Координаталар:</span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#4fb3d9', fontSize: 11, fontFamily: 'monospace', background: 'rgba(79,179,217,0.12)', border: '1px solid rgba(79,179,217,0.25)', borderRadius: 8, padding: '3px 8px' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: GC.cyan, fontSize: 11, fontFamily: 'monospace', background: 'rgba(79,179,217,0.12)', border: '1px solid rgba(79,179,217,0.25)', borderRadius: 8, padding: '3px 8px' }}>
                                     <IconMapPin />{project.coordinates}
                                 </span>
                             </div>
@@ -304,27 +305,27 @@ const ProjectDashboard: React.FC<{ factory?: any }> = ({ factory }) => {
 
                 {/* 2-ustun: Qo'shimcha maydonlar + Loyiha qiymatlari */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 }}>
-                    <SectionCard title="Қўшимча майдонлар" icon={<IconLayers />} color="#a855f7">
+                    <SectionCard title="Қўшимча майдонлар" icon={<IconLayers />} color={GC.violet}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                             {metrics.length === 0 && (
                                 <div style={{ color: C.sub, fontSize: 11, textAlign: 'center', padding: '8px 0' }}>Ma'lumot yo'q</div>
                             )}
                             {metrics.map((m, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 9, background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 9, padding: '7px 9px' }}>
-                                    <NeonIcon color="#a855f7" size={22}>{m.icon}</NeonIcon>
+                                    <NeonIcon color={GC.violet} size={22}>{m.icon}</NeonIcon>
                                     <span style={{ flex: 1, color: C.sub, fontSize: 10.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.label}</span>
-                                    <span style={{ color: '#4fb3d9', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{m.value}</span>
+                                    <span style={{ color: GC.cyan, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{m.value}</span>
                                 </div>
                             ))}
                         </div>
                     </SectionCard>
 
-                    <SectionCard title="Лойиҳа қийматлари" icon={<IconDollar />} color="#22c55e" style={{ flex: 1 }}>
+                    <SectionCard title="Лойиҳа қийматлари" icon={<IconDollar />} color={GC.green} style={{ flex: 1 }}>
                         <div style={{ textAlign: 'center', marginBottom: 12 }}>
                             <div style={{ color: C.sub, fontSize: 11.5, marginBottom: 4 }}>Бажарилиш фоизи</div>
                             <div style={{
                                 fontSize: 46, fontWeight: 700, lineHeight: 1,
-                                background: 'linear-gradient(135deg, #4fb3d9 0%, #22c55e 100%)',
+                                background: `linear-gradient(135deg, ${GC.cyan} 0%, ${GC.green} 100%)`,
                                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
                             }}>
                                 {typeof factory?.work_persent === 'number' ? `${factory.work_persent}%` : '—'}
@@ -348,7 +349,7 @@ const ProjectDashboard: React.FC<{ factory?: any }> = ({ factory }) => {
                 </div>
 
                 {/* 3-ustun: Parametrlar */}
-                <SectionCard title="Параметрлар" icon={<IconClipboard />} color="#eab308">
+                <SectionCard title="Параметрлар" icon={<IconClipboard />} color={GC.amber}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                         {parameters.length === 0 && (
                             <div style={{ color: C.sub, fontSize: 11, textAlign: 'center', padding: '8px 0' }}>Ma'lumot yo'q</div>

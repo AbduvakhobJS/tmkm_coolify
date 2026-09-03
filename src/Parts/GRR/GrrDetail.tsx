@@ -2,16 +2,17 @@ import React from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText, fmt } from '../../components/dashboardUI';
 import grrDetail from './grrDetailData.json';
+import { GC } from '../../theme/palette';
 
 /* ── Neon ikonka (dizayn tizimiga mos, gradient + glow) ── */
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -132,7 +133,7 @@ const SectionCard: React.FC<{
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '12px 14px', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, ...style }}>
         {title && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexShrink: 0 }}>
-                <div style={{ color: '#4fb3d9', fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{title}</div>
+                <div style={{ color: GC.cyan, fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{title}</div>
                 {hint && <div style={{ color: C.sub, fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.3 }}>{hint}</div>}
             </div>
         )}
@@ -144,11 +145,11 @@ const SectionCard: React.FC<{
 
 /* Donut legendasi uchun kvadrat rang belgisi (rasmdagidek) */
 const LegendSquare: React.FC<{ color: string }> = ({ color }) => (
-    <span style={{ width: 12, height: 12, borderRadius: 3, background: color, flexShrink: 0, boxShadow: `0 0 6px ${color}55` }} />
+    <span style={{ width: 12, height: 12, borderRadius: 3, background: color, flexShrink: 0, boxShadow: `0 0 6px ${GC.icon}55` }} />
 );
 
-const RISK_COLORS: Record<string, string> = { low: '#22c55e', medium: '#eab308', high: '#ef4444' };
-const readinessColor = (v: number) => (v >= 60 ? C.up : v >= 40 ? '#eab308' : C.down);
+const RISK_COLORS: Record<string, string> = { low: GC.green, medium: GC.amber, high: GC.red };
+const readinessColor = (v: number) => (v >= 60 ? C.up : v >= 40 ? GC.amber : C.down);
 
 const GrrDetail: React.FC = () => {
     const { meta, kpis, priorityProjects, portfolioStructure, valueIndicators, resourceDistribution, averageContent, keyFindings, overallStatus } = grrDetail;
@@ -189,9 +190,9 @@ const GrrDetail: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#06b6d4" size={36}><IconLayers /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={36}><IconLayers /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 18, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{meta.title}</div>
+                        <div style={{ color: GC.cyan, fontSize: 18, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{meta.title}</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{meta.subtitle}</div>
                     </div>
                 </div>
@@ -203,11 +204,11 @@ const GrrDetail: React.FC = () => {
                 {kpis.map((k) => (
                     <div key={k.label} style={{ minWidth: 0, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <NeonIcon color="#4fb3d9" size={30}>{ICON_MAP[k.icon]}</NeonIcon>
+                            <NeonIcon color={GC.cyan} size={30}>{ICON_MAP[k.icon]}</NeonIcon>
                             <span style={{ color: C.sub, fontSize: 9, fontWeight: 600, letterSpacing: 0.2, textTransform: 'uppercase', lineHeight: 1.25 }}>{k.label}</span>
                         </div>
                         <div style={{ color: C.text, fontSize: 20, fontWeight: 700, lineHeight: 1 }}>{k.value}</div>
-                        <Sparkline data={k.trend} color="#4fb3d9" />
+                        <Sparkline data={k.trend} color={GC.cyan} />
                     </div>
                 ))}
             </div>
@@ -218,7 +219,7 @@ const GrrDetail: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto', flex: 1, minHeight: 0 }}>
                         {priorityProjects.map((p) => (
                             <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.4)', color: '#06b6d4', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{p.num}</div>
+                                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.4)', color: GC.cyan, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{p.num}</div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
                                         <span style={{ color: C.text, fontSize: 11.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
@@ -232,7 +233,7 @@ const GrrDetail: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, color: '#4fb3d9', fontSize: 10.5, fontWeight: 600, paddingTop: 8, marginTop: 6, borderTop: `1px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, color: GC.cyan, fontSize: 10.5, fontWeight: 600, paddingTop: 8, marginTop: 6, borderTop: `1px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}>
                         Смотреть все проекты <IconArrowRight />
                     </div>
                 </SectionCard>

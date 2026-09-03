@@ -211,12 +211,13 @@ const MARKER_HEIGHT = 0.6;
 
 export const BUILDING_MARKERS: BuildingMarker[] = [
     { id: "bld-01", building: "Production",   cameraName: "Shourm tashkil etish",    position: [6.5, MARKER_HEIGHT, -0.5], streamIndex: 0, type: "into" },
-    { id: "bld-02", building: "Electrolysis Plant",  cameraName: "Ma'muriy bino",    position: [6, MARKER_HEIGHT, 1], streamIndex: 1, type: "into" },
+    { id: "bld-01", building: "Production",   cameraName: "Situatsion markaz",    position: [6.1, MARKER_HEIGHT, 0.5], streamIndex: 0, type: "into" },
+    { id: "bld-02", building: "Electrolysis Plant",  cameraName: "Ma'muriy bino",    position: [6, MARKER_HEIGHT, 1.5], streamIndex: 1, type: "into" },
     { id: "bld-03", building: "Production",    cameraName: "Kutubxona",    position: [7,  MARKER_HEIGHT, -1.5], streamIndex: 2, type: "into" },
     { id: "bld-04", building: "Power Substation",    cameraName: "O‘tkazish nazorat punkti",      position: [7,  MARKER_HEIGHT, 4], streamIndex: 2, type: "into" },
     { id: "bld-05", building: "Warehouse North",     cameraName: "O‘tkazish nazorat punkti (avtotransport)",   position: [7,  MARKER_HEIGHT, 5.5],  streamIndex: 0, type: "into" },
     { id: "bld-06", building: "Logistics Terminal",  cameraName: '"R&D PARK" MChJ',  position: [2,  MARKER_HEIGHT, -4],  streamIndex: 1, type: "into" },
-    { id: "bld-07", building: "Chemical Storage",    cameraName: '"SMART POWDER" MChJ',  position: [-3, MARKER_HEIGHT, -1],  streamIndex: 2, type: "into" },
+    { id: "bld-07", building: "Chemical Storage",    cameraName: 'Asosiy saqlash (Elektromexanika ustaxonasi)',  position: [-3, MARKER_HEIGHT, -1],  streamIndex: 2, type: "into" },
     { id: "bld-08", building: "Control Center",      cameraName: "Oshxona",    position: [-1, MARKER_HEIGHT, 0.8],  streamIndex: 3, type: "into" },
     { id: "bld-09", building: "Refinery Unit",       cameraName: "Kompozit materiallar va qotishmalar sexi",   position: [3, MARKER_HEIGHT, -1],  streamIndex: 0, type: "into" },
     { id: "bld-10", building: "Quality Lab",         cameraName: "Molibden p. s. o‘tga chidamli buyumlar  sexi",     position: [3,  MARKER_HEIGHT, 1],  streamIndex: 1, type: "into" },

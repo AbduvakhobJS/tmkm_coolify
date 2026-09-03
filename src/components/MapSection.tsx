@@ -106,10 +106,10 @@
 //         <div ref={mapRef} className="map" />
 //         <div className="map-legend">
 //           <div className="legend-title">FACILITY TYPE</div>
-//           <div className="legend-item"><span className="legend-dot" style={{ background: '#0EA8C7' }} />Mining Site</div>
-//           <div className="legend-item"><span className="legend-dot" style={{ background: '#ff6b35' }} />Smelting Plant</div>
-//           <div className="legend-item"><span className="legend-dot" style={{ background: '#7fff00' }} />Refinery</div>
-//           <div className="legend-item"><span className="legend-dot" style={{ background: '#bf5fff' }} />Manufacturing</div>
+//           <div className="legend-item"><span className="legend-dot" style={{ background: GC.cyan }} />Mining Site</div>
+//           <div className="legend-item"><span className="legend-dot" style={{ background: GC.amber }} />Smelting Plant</div>
+//           <div className="legend-item"><span className="legend-dot" style={{ background: GC.green }} />Refinery</div>
+//           <div className="legend-item"><span className="legend-dot" style={{ background: GC.violet }} />Manufacturing</div>
 //         </div>
 //       </div>
 //     </div>
@@ -124,6 +124,7 @@ import {MapChartComponent} from "./charts/MapChartComponent";
 // import commonClasses from "./styles/Examples.module.scss";
 import { SciChartReact, ChartGroupLoader } from "scichart-react";
 import {drawHeatmapLegend, DrawExample} from "./charts/MapChart";
+import { GC } from '../theme/palette';
 const MapSection = () => {
   return (
       <ChartGroupLoader

@@ -5,17 +5,18 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { C, chartBase, noLegend, axis, centerText } from '../../components/dashboardUI';
 import esgDetail from './esgDetailDemoData.json';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -209,7 +210,7 @@ const ICONS: Record<string, React.ReactNode> = {
     flag: <IconFlag />, target: <IconTarget />,
 };
 
-const STATUS_COLOR: Record<string, string> = { ok: '#22c55e', attention: '#eab308', risk: '#ef4444' };
+const STATUS_COLOR: Record<string, string> = { ok: GC.green, attention: GC.amber, risk: GC.red };
 
 /* ── ESG detail demo ma'lumot turi (esgDetailDemoData.json) ── */
 
@@ -250,10 +251,10 @@ const DATA = esgDetail as unknown as EsgDetailData;
 
 /* ── Yordamchi komponentlar ── */
 
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, hint, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
@@ -282,7 +283,7 @@ const MiniStatRow: React.FC<{ item: SimpleItem; color: string }> = ({ item, colo
             <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>{item.value}{item.unit && <span style={{ color: C.sub, fontSize: 11, fontWeight: 400, marginLeft: 4 }}>{item.unit}</span>}</div>
         </div>
         {item.delta !== undefined && (
-            <div style={{ color: item.delta >= 0 ? '#22c55e' : C.down, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+            <div style={{ color: item.delta >= 0 ? GC.green : C.down, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
                 {item.delta >= 0 ? '▲' : '▼'} {Math.abs(item.delta)}%
             </div>
         )}
@@ -333,7 +334,7 @@ const EsgMap: React.FC<{ sites: Site[] }> = ({ sites }) => {
                 el.style.height = '13px';
                 el.style.borderRadius = '50%';
                 el.style.background = color;
-                el.style.boxShadow = `0 0 8px 2px ${color}99, 0 0 0 2px rgba(10,15,29,0.9)`;
+                el.style.boxShadow = `0 0 8px 2px ${GC.icon}99, 0 0 0 2px rgba(10,15,29,0.9)`;
                 el.title = s.name;
                 new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([s.lon, s.lat]).addTo(map);
             });
@@ -353,7 +354,7 @@ const ESGDetail: React.FC = () => {
     const navigate = useNavigate();
     const [now] = useState(() => new Date());
 
-    const kpiChartColor: Record<string, string> = { esgRating: '#4fb3d9', irma: '#22c55e', hseIndex: '#a855f7', ltifr: '#eab308', co2: '#94a3b8', water: '#3b82f6', renewables: '#f59e0b', violations: C.down };
+    const kpiChartColor: Record<string, string> = { esgRating: GC.cyan, irma: GC.green, hseIndex: GC.violet, ltifr: GC.amber, co2: GC.slate, water: GC.blue, renewables: GC.amber, violations: C.down };
 
     const ecoTrend = useMemo(() => ({
         labels: DATA.ecology.trend.labels,
@@ -365,12 +366,12 @@ const ESGDetail: React.FC = () => {
 
     const genderDonut = useMemo(() => ({
         labels: ['Женщины', 'Мужчины'],
-        datasets: [{ data: [DATA.social.genderSplit.female, DATA.social.genderSplit.male], backgroundColor: ['#ec4899', '#3b82f6'], borderColor: C.card, borderWidth: 2 }],
+        datasets: [{ data: [DATA.social.genderSplit.female, DATA.social.genderSplit.male], backgroundColor: [GC.magenta, GC.blue], borderColor: C.card, borderWidth: 2 }],
     }), []);
 
     const ppeDonut = useMemo(() => ({
         labels: ['Обеспечено', 'Осталось'],
-        datasets: [{ data: [DATA.ppe.value, 100 - DATA.ppe.value], backgroundColor: ['#22c55e', 'rgba(255,255,255,0.06)'], borderColor: C.card, borderWidth: 2 }],
+        datasets: [{ data: [DATA.ppe.value, 100 - DATA.ppe.value], backgroundColor: [GC.green, 'rgba(255,255,255,0.06)'], borderColor: C.card, borderWidth: 2 }],
     }), []);
 
     return (
@@ -379,9 +380,9 @@ const ESGDetail: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#22c55e" size={36}><IconLeaf /></NeonIcon>
+                    <NeonIcon color={GC.green} size={36}><IconLeaf /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ESG / Сводный экран</div>
+                        <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ESG / Сводный экран</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2, maxWidth: 620 }}>
                             Подробные ESG-данные по экологическим, социальным, HSE и governance-показателям
                         </div>
@@ -393,7 +394,7 @@ const ESGDetail: React.FC = () => {
                         onClick={() => navigate('/main/esg')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                            background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 8,
+                            background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 8,
                             color: '#fff', fontSize: 12, fontWeight: 700, padding: '8px 14px',
                             boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                         }}
@@ -410,14 +411,14 @@ const ESGDetail: React.FC = () => {
                 {DATA.kpi.map((k) => (
                     <div key={k.key} style={{ minWidth: 0, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '9px 10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <NeonIcon color={kpiChartColor[k.key] ?? '#4fb3d9'} size={20}>{ICONS[k.icon]}</NeonIcon>
+                            <NeonIcon color={kpiChartColor[k.key] ?? GC.cyan} size={20}>{ICONS[k.icon]}</NeonIcon>
                             <span style={{ color: C.sub, fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.label}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                             <div style={{ color: C.text, fontSize: 18, fontWeight: 700, lineHeight: 1 }}>{k.value}<span style={{ color: C.sub, fontSize: 10, fontWeight: 400, marginLeft: 2 }}>{k.unit}</span></div>
-                            <Sparkline data={k.trend} color={kpiChartColor[k.key] ?? '#4fb3d9'} />
+                            <Sparkline data={k.trend} color={kpiChartColor[k.key] ?? GC.cyan} />
                         </div>
-                        <div style={{ color: k.delta >= 0 ? '#22c55e' : C.down, fontSize: 9.5 }}>
+                        <div style={{ color: k.delta >= 0 ? GC.green : C.down, fontSize: 9.5 }}>
                             {k.delta >= 0 ? '▲' : '▼'} {Math.abs(k.delta)}% {k.note ?? ''}
                         </div>
                     </div>
@@ -428,9 +429,9 @@ const ESGDetail: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr', gap: 8, alignItems: 'stretch' }}>
 
                 {/* Environment */}
-                <SectionCard title="Environment / Экология" icon={<IconLeaf />} iconColor="#22c55e" style={{ height: 590 }}>
+                <SectionCard title="Environment / Экология" icon={<IconLeaf />} iconColor={GC.green} style={{ height: 590 }}>
                     {DATA.ecology.items.map((item) => (
-                        <MiniStatRow key={item.label} item={item} color="#22c55e" />
+                        <MiniStatRow key={item.label} item={item} color={GC.green} />
                     ))}
                     <div style={{ marginBottom: 7 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
@@ -438,11 +439,11 @@ const ESGDetail: React.FC = () => {
                             <span style={{ color: C.sub, fontWeight: 700 }}>{DATA.ecology.goalProgress.value}%</span>
                         </div>
                         <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${DATA.ecology.goalProgress.value}%`, background: '#22c55e', borderRadius: 3, boxShadow: '0 0 6px #22c55e88' }} />
+                            <div style={{ height: '100%', width: `${DATA.ecology.goalProgress.value}%`, background: GC.green, borderRadius: 3, boxShadow: `0 0 6px ${alpha(GC.green, 0.53)}` }} />
                         </div>
                     </div>
 
-                    <div style={{ color: '#4fb3d9', fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', margin: '4px 0 6px' }}>Динамика ключевых ESG показателей</div>
+                    <div style={{ color: GC.cyan, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', margin: '4px 0 6px' }}>Динамика ключевых ESG показателей</div>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Line data={ecoTrend} options={{ ...chartBase, plugins: { legend: { display: false } }, scales: axis({ y: { display: false } }) } as any} />
                     </div>
@@ -468,11 +469,11 @@ const ESGDetail: React.FC = () => {
                             <div style={{ color: C.sub, fontSize: 8.5, textTransform: 'uppercase' }}>Объектов всего</div>
                         </div>
                         <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 8px', textAlign: 'center' }}>
-                            <div style={{ color: '#22c55e', fontSize: 16, fontWeight: 700 }}>{DATA.esgCore.summary.ok}</div>
+                            <div style={{ color: GC.green, fontSize: 16, fontWeight: 700 }}>{DATA.esgCore.summary.ok}</div>
                             <div style={{ color: C.sub, fontSize: 8.5, textTransform: 'uppercase' }}>В работе</div>
                         </div>
                         <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 8px', textAlign: 'center' }}>
-                            <div style={{ color: '#eab308', fontSize: 16, fontWeight: 700 }}>{DATA.esgCore.summary.attention}</div>
+                            <div style={{ color: GC.amber, fontSize: 16, fontWeight: 700 }}>{DATA.esgCore.summary.attention}</div>
                             <div style={{ color: C.sub, fontSize: 8.5, textTransform: 'uppercase' }}>Треб. внимания</div>
                         </div>
                         <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 8px', textAlign: 'center' }}>
@@ -481,7 +482,7 @@ const ESGDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <div style={{ color: '#4fb3d9', fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 }}>Цели 2030 / Выполнение</div>
+                    <div style={{ color: GC.cyan, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 }}>Цели 2030 / Выполнение</div>
                     <div style={{ flex: 1, overflowY: 'auto' }}>
                         {DATA.esgCore.goals2030.map((g) => (
                             <ProgressTile key={g.label} item={g} />
@@ -491,18 +492,18 @@ const ESGDetail: React.FC = () => {
 
                 {/* Social + HSE + Governance */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
-                    <SectionCard title="Social / Социальная ответственность" icon={<IconUsers />} iconColor="#3b82f6">
+                    <SectionCard title="Social / Социальная ответственность" icon={<IconUsers />} iconColor={GC.blue}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 8 }}>
                             <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 8px', minWidth: 0 }}>
-                                <NeonIcon color="#3b82f6" size={20}><IconUsers /></NeonIcon>
+                                <NeonIcon color={GC.blue} size={20}><IconUsers /></NeonIcon>
                                 <div style={{ color: C.sub, fontSize: 8.5, textTransform: 'uppercase', marginTop: 4 }}>Персонал</div>
                                 <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>{DATA.social.headcount} <span style={{ fontSize: 9, color: C.sub, fontWeight: 400 }}>чел.</span></div>
                             </div>
                             <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 8px', minWidth: 0 }}>
-                                <NeonIcon color="#eab308" size={20}><IconUserMinus /></NeonIcon>
+                                <NeonIcon color={GC.amber} size={20}><IconUserMinus /></NeonIcon>
                                 <div style={{ color: C.sub, fontSize: 8.5, textTransform: 'uppercase', marginTop: 4 }}>Текучесть</div>
                                 <div style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>{DATA.social.turnover}%</div>
-                                <div style={{ color: DATA.social.turnoverDelta >= 0 ? '#22c55e' : C.down, fontSize: 9 }}>{DATA.social.turnoverDelta >= 0 ? '▲' : '▼'} {Math.abs(DATA.social.turnoverDelta)}%</div>
+                                <div style={{ color: DATA.social.turnoverDelta >= 0 ? GC.green : C.down, fontSize: 9 }}>{DATA.social.turnoverDelta >= 0 ? '▲' : '▼'} {Math.abs(DATA.social.turnoverDelta)}%</div>
                             </div>
                             <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <div style={{ width: 46, height: 46 }}>
@@ -516,7 +517,7 @@ const ESGDetail: React.FC = () => {
                                 <div key={item.label} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 8px', minWidth: 0 }}>
 
                                     <div className="d-flex">
-                                        <NeonIcon color="#3b82f6" size={20}>{ICONS[item.icon]}</NeonIcon>
+                                        <NeonIcon color={GC.blue} size={20}>{ICONS[item.icon]}</NeonIcon>
                                         <div style={{ color: C.sub, fontSize: 8, textTransform: 'uppercase', marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
                                     </div>
                                     <div style={{ color: C.text, fontSize: 11.5, fontWeight: 700 }}>{item.value}</div>
@@ -525,16 +526,16 @@ const ESGDetail: React.FC = () => {
                         </div>
                     </SectionCard>
 
-                    <SectionCard title="Safety / HSE / Охрана труда" icon={<IconShieldCheck />} iconColor="#a855f7">
+                    <SectionCard title="Safety / HSE / Охрана труда" icon={<IconShieldCheck />} iconColor={GC.violet}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
                             {DATA.hse.map((item) => (
                                 <div key={item.label} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 8px', minWidth: 0 }}>
                                     <div className="d-flex">
-                                        <NeonIcon color="#a855f7" size={20}>{ICONS[item.icon]}</NeonIcon>
+                                        <NeonIcon color={GC.violet} size={20}>{ICONS[item.icon]}</NeonIcon>
                                         <div style={{ color: C.sub, fontSize: 8, textTransform: 'uppercase', marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
                                     </div>
                                     <div style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>{item.value}</div>
-                                    {item.delta !== undefined && <div style={{ color: item.delta >= 0 ? '#22c55e' : C.down, fontSize: 9 }}>{item.delta >= 0 ? '▲' : '▼'} {Math.abs(item.delta)}%</div>}
+                                    {item.delta !== undefined && <div style={{ color: item.delta >= 0 ? GC.green : C.down, fontSize: 9 }}>{item.delta >= 0 ? '▲' : '▼'} {Math.abs(item.delta)}%</div>}
                                 </div>
                             ))}
                             <div style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -546,16 +547,16 @@ const ESGDetail: React.FC = () => {
                         </div>
                     </SectionCard>
 
-                    <SectionCard title="Governance / Корпоративное управление" icon={<IconClipboardCheck />} iconColor="#0ea8c7" style={{ flex: 1 }}>
+                    <SectionCard title="Governance / Корпоративное управление" icon={<IconClipboardCheck />} iconColor={GC.cyan} style={{ flex: 1 }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
                             {DATA.governance.map((item) => (
                                 <div key={item.label} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 8px', minWidth: 0 }}>
                                    <div className="d-flex">
-                                       <NeonIcon color="#0ea8c7" size={20}>{ICONS[item.icon]}</NeonIcon>
+                                       <NeonIcon color={GC.cyan} size={20}>{ICONS[item.icon]}</NeonIcon>
                                        <div style={{  marginLeft: "12px", color: C.sub, fontSize: 8, textTransform: 'uppercase', marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
                                    </div>
                                     <div style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>{item.value}{item.unit && <span style={{ fontSize: 9, color: C.sub, fontWeight: 400 }}>{item.unit}</span>}</div>
-                                    {item.delta !== undefined && <div style={{ color: item.delta >= 0 ? '#22c55e' : C.down, fontSize: 9 }}>{item.delta >= 0 ? '▲' : '▼'} {Math.abs(item.delta)}%</div>}
+                                    {item.delta !== undefined && <div style={{ color: item.delta >= 0 ? GC.green : C.down, fontSize: 9 }}>{item.delta >= 0 ? '▲' : '▼'} {Math.abs(item.delta)}%</div>}
                                 </div>
                             ))}
                         </div>
@@ -578,12 +579,12 @@ const ESGDetail: React.FC = () => {
 
             {/* Voqealar lentasi */}
             <div style={{ display: 'flex', gap: 14, alignItems: 'center', background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 16px', flexWrap: 'wrap' }}>
-                <span style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                <span style={{ color: GC.cyan, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                     <IconTrendUp />Лента событий и инсайтов
                 </span>
                 {DATA.events.map((e) => (
                     <span key={e.time + e.text} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.sub }}>
-                        <span style={{ color: '#4fb3d9' }}>{ICONS[e.icon]}</span>
+                        <span style={{ color: GC.cyan }}>{ICONS[e.icon]}</span>
                         <span style={{ color: C.text }}>{e.time}</span> · {e.text}
                     </span>
                 ))}

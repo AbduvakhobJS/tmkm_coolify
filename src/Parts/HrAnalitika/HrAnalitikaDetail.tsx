@@ -4,17 +4,18 @@ import { C, chartBase, noLegend, axis, centerText } from '../../components/dashb
 import { useSituationSummary } from '../../hooks/hr';
 import hrDemoData from './hrDemoData.json';
 import axios from "axios";
+import { GC, alpha, SERIES_COLORS } from '../../theme/palette';
 
 /* ── Neon ikonkalar ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -154,14 +155,14 @@ type HrData = {
     };
 };
 
-const ABSENCE_COLORS = ['#3b82f6', '#a855f7', '#f59e0b', '#ec4899', '#22c55e', '#0ea8c7', '#eab308', C.down];
+const ABSENCE_COLORS = SERIES_COLORS;
 
 /* ── Yordamchi komponentlar ── */
 
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, hint, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3 }}>{hint}</div>}
@@ -177,7 +178,7 @@ const ProgressRow: React.FC<{ name: string; sub?: string; value: number; max: nu
             <span style={{ color: C.sub, fontWeight: 700, flexShrink: 0 }}>{value}</span>
         </div>
         <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min((value / max) * 100, 100)}%`, background: color, borderRadius: 3, boxShadow: `0 0 5px ${color}88` }} />
+            <div style={{ height: '100%', width: `${Math.min((value / max) * 100, 100)}%`, background: color, borderRadius: 3, boxShadow: `0 0 5px ${GC.icon}88` }} />
         </div>
         {sub && <div style={{ color: C.sub, fontSize: 9.5, marginTop: 2 }}>{sub}</div>}
     </div>
@@ -282,11 +283,11 @@ const HrAnalitikaDetail: React.FC = () => {
 
     const staffDonut = useMemo(() => ({
         labels: HR?.charts.staff.map((s) => s.label) ?? [],
-        datasets: [{ data: HR?.charts.staff.map((s) => s.value) ?? [], backgroundColor: ['#22c55e', '#f59e0b'], borderColor: C.card, borderWidth: 2 }],
+        datasets: [{ data: HR?.charts.staff.map((s) => s.value) ?? [], backgroundColor: [GC.green, GC.amber], borderColor: C.card, borderWidth: 2 }],
     }), [HR]);
     const genderDonut = useMemo(() => ({
         labels: HR?.charts.gender.map((s) => s.label) ?? [],
-        datasets: [{ data: HR?.charts.gender.map((s) => s.value) ?? [], backgroundColor: ['#3b82f6', '#ec4899'], borderColor: C.card, borderWidth: 2 }],
+        datasets: [{ data: HR?.charts.gender.map((s) => s.value) ?? [], backgroundColor: [GC.blue, GC.magenta], borderColor: C.card, borderWidth: 2 }],
     }), [HR]);
     const absenceDonut = useMemo(() => ({
         labels: HR?.charts.currentAbsences.map((s) => s.label) ?? [],
@@ -296,18 +297,18 @@ const HrAnalitikaDetail: React.FC = () => {
 
     const ageBar = useMemo(() => ({
         labels: HR?.charts.age.map((a) => a.label) ?? [],
-        datasets: [{ data: HR?.charts.age.map((a) => a.value) ?? [], backgroundColor: '#4fb3d9', borderRadius: 4, barPercentage: 0.6 }],
+        datasets: [{ data: HR?.charts.age.map((a) => a.value) ?? [], backgroundColor: GC.cyan, borderRadius: 4, barPercentage: 0.6 }],
     }), [HR]);
     const movementBar = useMemo(() => ({
         labels: HR?.charts.movementByPeriod.map((m) => m.label) ?? [],
         datasets: [
-            { label: 'Принято', data: HR?.charts.movementByPeriod.map((m) => m.hired) ?? [], backgroundColor: '#22c55e', borderRadius: 4 },
+            { label: 'Принято', data: HR?.charts.movementByPeriod.map((m) => m.hired) ?? [], backgroundColor: GC.green, borderRadius: 4 },
             { label: 'Уволено', data: HR?.charts.movementByPeriod.map((m) => -m.terminated) ?? [], backgroundColor: C.down, borderRadius: 4 },
         ],
     }), [HR]);
     const posBar = useMemo(() => ({
         labels: (HR?.charts.employeesByPosition ?? []).slice(0, 10).map((p) => p.label.length > 26 ? p.label.slice(0, 24) + '…' : p.label),
-        datasets: [{ data: (HR?.charts.employeesByPosition ?? []).slice(0, 10).map((p) => p.value), backgroundColor: '#a855f7', borderRadius: 4, barPercentage: 0.6 }],
+        datasets: [{ data: (HR?.charts.employeesByPosition ?? []).slice(0, 10).map((p) => p.value), backgroundColor: GC.violet, borderRadius: 4, barPercentage: 0.6 }],
     }), [HR]);
 
     return (
@@ -316,9 +317,9 @@ const HrAnalitikaDetail: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#4fb3d9" size={36}><IconUsers /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={36}><IconUsers /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>HR Аналитика</div>
+                        <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>HR Аналитика</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>
                             Источник: 1C:ЗУП · Период: {HR.period.dateFrom} — {HR.period.dateTo}
                         </div>
@@ -327,12 +328,12 @@ const HrAnalitikaDetail: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{
                         display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700,
-                        color: isLive ? '#22c55e' : '#eab308',
-                        background: isLive ? '#22c55e18' : '#eab30818',
-                        border: `1px solid ${isLive ? '#22c55e44' : '#eab30844'}`,
+                        color: isLive ? GC.green : GC.amber,
+                        background: isLive ? alpha(GC.green, 0.09) : alpha(GC.amber, 0.09),
+                        border: `1px solid ${isLive ? alpha(GC.green, 0.27) : alpha(GC.amber, 0.27)}`,
                         borderRadius: 999, padding: '5px 12px',
                     }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isLive ? '#22c55e' : '#eab308', boxShadow: `0 0 6px ${isLive ? '#22c55e' : '#eab308'}` }} />
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isLive ? GC.green : GC.amber, boxShadow: `0 0 6px ${isLive ? GC.green : GC.amber}` }} />
                         {isLive ? 'Живые данные API' : 'Демо-данные'}
                     </span>
                     <span style={{ color: C.sub, fontSize: 11, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: '5px 12px' }}>
@@ -344,14 +345,14 @@ const HrAnalitikaDetail: React.FC = () => {
             {/* KPI qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 8 }}>
                 {[
-                    { label: 'Плановая численность', value: HR.totals.planned as number, sub: 'штат', icon: <IconBriefcase />, color: '#4fb3d9', bad: false },
-                    { label: 'Фактическая численность', value: HR.totals.actual as number, sub: `${HR.totals.loadPct}% от штата`, icon: <IconUsers />, color: '#22c55e', bad: false },
-                    { label: 'Вакансии', value: HR.totals.vacancy as number, sub: `${HR.totals.vacancyPct}% от штата`, icon: <IconBriefcase />, color: '#f59e0b', bad: true },
-                    { label: 'Принято за период', value: HR.totals.hired as number, sub: 'сотрудников', icon: <IconUserPlus />, color: '#22c55e', bad: false },
+                    { label: 'Плановая численность', value: HR.totals.planned as number, sub: 'штат', icon: <IconBriefcase />, color: GC.cyan, bad: false },
+                    { label: 'Фактическая численность', value: HR.totals.actual as number, sub: `${HR.totals.loadPct}% от штата`, icon: <IconUsers />, color: GC.green, bad: false },
+                    { label: 'Вакансии', value: HR.totals.vacancy as number, sub: `${HR.totals.vacancyPct}% от штата`, icon: <IconBriefcase />, color: GC.amber, bad: true },
+                    { label: 'Принято за период', value: HR.totals.hired as number, sub: 'сотрудников', icon: <IconUserPlus />, color: GC.green, bad: false },
                     { label: 'Уволено за период', value: HR.totals.terminated as number, sub: 'сотрудников', icon: <IconUserMinus />, color: C.down, bad: true },
-                    { label: 'Чистое движение', value: HR.totals.net as number, sub: 'за период', icon: <IconTrend />, color: (HR.totals.net as number) >= 0 ? '#22c55e' : C.down, bad: (HR.totals.net as number) < 0 },
-                    { label: 'Подразделений', value: HR.totals.orgUnits as number, sub: 'в оргструктуре', icon: <IconSitemap />, color: '#a855f7', bad: false },
-                    { label: 'Отсутствуют сегодня', value: HR.totals.absenceOnDateTotal as number, sub: 'статусов', icon: <IconWalk />, color: '#eab308', bad: true },
+                    { label: 'Чистое движение', value: HR.totals.net as number, sub: 'за период', icon: <IconTrend />, color: (HR.totals.net as number) >= 0 ? GC.green : C.down, bad: (HR.totals.net as number) < 0 },
+                    { label: 'Подразделений', value: HR.totals.orgUnits as number, sub: 'в оргструктуре', icon: <IconSitemap />, color: GC.violet, bad: false },
+                    { label: 'Отсутствуют сегодня', value: HR.totals.absenceOnDateTotal as number, sub: 'статусов', icon: <IconWalk />, color: GC.amber, bad: true },
                 ].map((k) => (
                     <div key={k.label} style={{ minWidth: 0, background: C.card, border: `1px solid ${k.bad ? `${k.color}44` : C.border}`, borderRadius: 12, padding: '9px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -374,7 +375,7 @@ const HrAnalitikaDetail: React.FC = () => {
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
                             {HR.charts.staff.map((s, i) => (
                                 <div key={s.label} style={{ display: 'flex', alignItems: 'center', fontSize: 12 }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: ['#22c55e', '#f59e0b'][i], marginRight: 6, boxShadow: `0 0 5px ${['#22c55e', '#f59e0b'][i]}` }} />
+                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: [GC.green, GC.amber][i], marginRight: 6, boxShadow: `0 0 5px ${[GC.green, GC.amber][i]}` }} />
                                     <span style={{ color: C.text, flex: 1 }}>{s.label}</span>
                                     <span style={{ color: C.sub, fontWeight: 700 }}>{s.value}</span>
                                 </div>
@@ -391,7 +392,7 @@ const HrAnalitikaDetail: React.FC = () => {
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
                             {HR.charts.gender.map((s, i) => (
                                 <div key={s.label} style={{ display: 'flex', alignItems: 'center', fontSize: 12 }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: ['#3b82f6', '#ec4899'][i], marginRight: 6, boxShadow: `0 0 5px ${['#3b82f6', '#ec4899'][i]}` }} />
+                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: [GC.blue, GC.magenta][i], marginRight: 6, boxShadow: `0 0 5px ${[GC.blue, GC.magenta][i]}` }} />
                                     <span style={{ color: C.text, flex: 1 }}>{s.label}</span>
                                     <span style={{ color: C.sub, fontWeight: 700 }}>{s.value}</span>
                                 </div>
@@ -439,21 +440,21 @@ const HrAnalitikaDetail: React.FC = () => {
                 <SectionCard title="Текучесть по подразделениям" icon={<IconSitemap />} hint="топ-8" style={{ height: 250 }}>
                     <div style={{ overflowY: 'auto', flex: 1 }}>
                         {HR.charts.turnover.slice(0, 8).map((t) => (
-                            <ProgressRow key={t.unit_id} name={t.label} sub={t.sub} value={t.value} max={maxTurnover} color="#a855f7" />
+                            <ProgressRow key={t.unit_id} name={t.label} sub={t.sub} value={t.value} max={maxTurnover} color={GC.violet} />
                         ))}
                     </div>
                 </SectionCard>
                 <SectionCard title="Топ вакансий по подразделениям" icon={<IconBriefcase />} hint="топ-10" style={{ height: 250 }}>
                     <div style={{ overflowY: 'auto', flex: 1 }}>
                         {HR.charts.topVacancies.slice(0, 10).map((v, i) => (
-                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxVacancy} color="#f59e0b" />
+                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxVacancy} color={GC.amber} />
                         ))}
                     </div>
                 </SectionCard>
                 <SectionCard title="Топ подразделений по факт. численности" icon={<IconUsers />} hint="топ-10" style={{ height: 250 }}>
                     <div style={{ overflowY: 'auto', flex: 1 }}>
                         {HR.charts.topActualHeadcount.slice(0, 10).map((v, i) => (
-                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxHeadcount} color="#22c55e" />
+                            <ProgressRow key={i} name={v.label} sub={v.sub} value={v.value} max={maxHeadcount} color={GC.green} />
                         ))}
                     </div>
                 </SectionCard>
@@ -486,7 +487,7 @@ const HrAnalitikaDetail: React.FC = () => {
                                     onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                                 >
                                     <td style={{ padding: '6px 6px', color: C.text, maxWidth: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={a.label}>{a.label}</td>
-                                    <td style={{ padding: '6px 6px', color: '#eab308' }}>{a.sub}</td>
+                                    <td style={{ padding: '6px 6px', color: GC.amber }}>{a.sub}</td>
                                     <td style={{ padding: '6px 6px', color: C.text, textAlign: 'right', fontWeight: 700 }}>{a.value}</td>
                                 </tr>
                             ))}
@@ -513,7 +514,7 @@ const HrAnalitikaDetail: React.FC = () => {
                                     onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                                 >
                                     <td style={{ padding: '6px 6px', color: C.text, maxWidth: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={a.label}>{a.label}</td>
-                                    <td style={{ padding: '6px 6px', color: '#f59e0b' }}>{a.sub}</td>
+                                    <td style={{ padding: '6px 6px', color: GC.amber }}>{a.sub}</td>
                                     <td style={{ padding: '6px 6px', color: C.text, textAlign: 'right', fontWeight: 700 }}>{a.value}</td>
                                 </tr>
                             ))}
@@ -553,7 +554,7 @@ const HrAnalitikaDetail: React.FC = () => {
                                     <td style={{ padding: '6px 6px', color: C.text, fontFamily: 'monospace', fontSize: 11 }}>{e.label}</td>
                                     <td style={{ padding: '6px 6px', color: C.text, textAlign: 'right', fontWeight: 700 }}>{e.value}</td>
                                     <td style={{ padding: '6px 6px', textAlign: 'right' }}>
-                                        <span style={{ color: e.sub.includes('200') ? '#22c55e' : C.down, fontSize: 10.5 }}>{e.sub}</span>
+                                        <span style={{ color: e.sub.includes('200') ? GC.green : C.down, fontSize: 10.5 }}>{e.sub}</span>
                                     </td>
                                 </tr>
                             ))}
@@ -621,8 +622,8 @@ const HrAnalitikaDetail: React.FC = () => {
                                         <td style={{ padding: '5px 4px', color: C.text, maxWidth: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={d.unit_name}>{d.unit_name}</td>
                                         <td style={{ padding: '5px 4px', color: C.sub, textAlign: 'right' }}>{d.planned}</td>
                                         <td style={{ padding: '5px 4px', color: C.text, textAlign: 'right', fontWeight: 600 }}>{d.actual}</td>
-                                        <td style={{ padding: '5px 4px', color: '#f59e0b', textAlign: 'right' }}>{d.vacancy}</td>
-                                        <td style={{ padding: '5px 4px', textAlign: 'right', color: d.fill >= 70 ? '#22c55e' : d.fill >= 40 ? '#f59e0b' : C.down, fontWeight: 700 }}>{d.fill}%</td>
+                                        <td style={{ padding: '5px 4px', color: GC.amber, textAlign: 'right' }}>{d.vacancy}</td>
+                                        <td style={{ padding: '5px 4px', textAlign: 'right', color: d.fill >= 70 ? GC.green : d.fill >= 40 ? GC.amber : C.down, fontWeight: 700 }}>{d.fill}%</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -656,8 +657,8 @@ const HrAnalitikaDetail: React.FC = () => {
                                     <td style={{ padding: '6px 6px', color: C.sub, textTransform: 'capitalize' }}>{u.level}</td>
                                     <td style={{ padding: '6px 6px', color: C.sub, textAlign: 'right' }}>{u.planned}</td>
                                     <td style={{ padding: '6px 6px', color: C.text, textAlign: 'right', fontWeight: 600 }}>{u.actual}</td>
-                                    <td style={{ padding: '6px 6px', color: '#f59e0b', textAlign: 'right' }}>{u.vacancy}</td>
-                                    <td style={{ padding: '6px 6px', textAlign: 'right', color: u.fill >= 70 ? '#22c55e' : u.fill >= 40 ? '#f59e0b' : C.down, fontWeight: 700 }}>{u.fill}%</td>
+                                    <td style={{ padding: '6px 6px', color: GC.amber, textAlign: 'right' }}>{u.vacancy}</td>
+                                    <td style={{ padding: '6px 6px', textAlign: 'right', color: u.fill >= 70 ? GC.green : u.fill >= 40 ? GC.amber : C.down, fontWeight: 700 }}>{u.fill}%</td>
                                     <td style={{ padding: '6px 6px', color: C.sub, textAlign: 'right' }}>{u.male} / {u.female}</td>
                                 </tr>
                             ))}

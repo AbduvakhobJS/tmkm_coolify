@@ -5,6 +5,7 @@ import {
     CategoryScale, LinearScale, LineElement, PointElement, Filler,
 } from 'chart.js';
 import StreamGrid from "./VideoStream";
+import { GC } from '../theme/palette';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, Filler);
 
@@ -88,16 +89,16 @@ const T = {
     bg:     'var(--gc-panel-bg)',  // gc-panel-bg (faqat to'g'ridan-to'g'ri property)
     card:   'var(--gc-card-bg)',   // gc-card-bg
     border: 'rgba(255,255,255,0.09)',
-    cyan:   '#0EA8C7',  // = var(--gc-title) — template literal uchun hex kerak
-    cyan2:  '#00d4ff',
-    green:  '#4ade80',
-    red:    '#ff2d55',  // = var(--gc-red) — template literal uchun hex kerak
-    amber:  '#fbbf24',  blue:  '#60a5fa',
-    purple: '#a78bfa',  muted: '#6b7a99',
+    cyan:   GC.cyan,  // = var(--gc-title) — template literal uchun hex kerak
+    cyan2:  GC.cyan,
+    green:  GC.green,
+    red:    GC.red,  // = var(--gc-red) — template literal uchun hex kerak
+    amber:  GC.amber,  blue:  GC.blue,
+    purple: GC.violet,  muted: '#6b7a99',
     text:   'var(--gc-white)',
     text2:   '#f1f2f6',
-    dim:    '#334155',
-    b0:     '#1e293b',
+    dim:    GC.slate,
+    b0:     GC.slate,
 };
 
 /* ─────────────────────────────────────────────────────────
@@ -158,7 +159,7 @@ function CameraInfoCards() {
         {
             label: 'Yozuv',
             value: 'Faol',
-            color: '#60a5fa',
+            color: GC.blue,
             icon: <IconRecord color={T.red}/>,
             extra: null,
             // extra: <span style={{width:7,height:7,borderRadius:'50%',background:T.red,display:'inline-block',marginRight:5,boxShadow:`0 0 6px ${T.red}`,animation:'blink .9s infinite',flexShrink:0}} />,
@@ -413,7 +414,7 @@ export default function EnterExit() {
     data.employees.forEach(e=>{ const k=e.department||'Boshqa'; deptMap[k]=(deptMap[k]||0)+1; });
     const zones=Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const zoneMax=zones[0]?.[1]||1;
-    const ZONE_COLS=[T.blue,T.cyan2,'#34d399',T.amber,T.muted];
+    const ZONE_COLS=[T.blue,T.cyan2,GC.green,T.amber,T.muted];
 
     /* ── Device type cards ── */
     const devItems=[
@@ -568,7 +569,7 @@ export default function EnterExit() {
                                         transform:'translate(-50%,-50%)',
                                         textAlign:'center',pointerEvents:'none',
                                     }}>
-                                        <div style={{fontSize:8,color:'#64748b',letterSpacing:.5,marginBottom:2}}>JAMI</div>
+                                        <div style={{fontSize:8,color:GC.slate,letterSpacing:.5,marginBottom:2}}>JAMI</div>
                                         <div style={{fontSize:16,fontWeight:700,color:'#ffffff',lineHeight:1}}>
                                             <Counter to={data.total_users}/>
                                         </div>
@@ -592,10 +593,10 @@ export default function EnterExit() {
                                                 {/* label + son */}
                                                 <div style={{flex:1,minWidth:0}}>
                                                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:4}}>
-                                                        <span style={{fontSize:9,color:'#e2e8f0',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                                                        <span style={{fontSize:9,color:GC.slate,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                                                             {lbl as string}
                                                         </span>
-                                                        <span style={{fontSize:9,color:'#94a3b8',flexShrink:0,fontVariantNumeric:'tabular-nums'}}>
+                                                        <span style={{fontSize:9,color:GC.slate,flexShrink:0,fontVariantNumeric:'tabular-nums'}}>
                                                             {cnt.toLocaleString('ru-RU')}
                                                         </span>
                                                     </div>

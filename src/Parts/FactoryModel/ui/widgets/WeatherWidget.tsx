@@ -7,7 +7,7 @@
 //         <WidgetWrapper title="OB-HAVO" icon={FiSun} extra="Toshkent" index={index}>
 //             <div className="fm-weather">
 //                 <div className="fm-weather__main">
-//                     <FiSun size={32} color="#fbbf24" />
+//                     <FiSun size={32} color={GC.amber} />
 //                     <div className="fm-weather__temp-box">
 //                         <span className="fm-weather__temp">24°C</span>
 //                         <span className="fm-weather__desc">Quyoshli</span>
@@ -37,6 +37,7 @@
 import React from 'react';
 import WidgetWrapper from '../WidgetWrapper';
 import { FiMapPin, FiGrid, FiHome, FiTrendingUp } from 'react-icons/fi';
+import { GC } from '../../../../theme/palette';
 
 const TECHNOPARK_STATS = [
     {
@@ -45,7 +46,7 @@ const TECHNOPARK_STATS = [
         unit: 'm²',
         icon: FiGrid,
         percent: 100,
-        color: '#38bdf8',
+        color: GC.cyan,
     },
     {
         label: 'Ishlab chiqarish maydoni',
@@ -53,7 +54,7 @@ const TECHNOPARK_STATS = [
         unit: 'm²',
         icon: FiHome,
         percent: 33,
-        color: '#fbbf24',
+        color: GC.amber,
     },
     {
         label: 'Infratuzilma va ko\'kalamzorlashtirish',
@@ -61,7 +62,7 @@ const TECHNOPARK_STATS = [
         unit: 'm²',
         icon: FiTrendingUp,
         percent: 67,
-        color: '#34d399',
+        color: GC.green,
     },
 ];
 

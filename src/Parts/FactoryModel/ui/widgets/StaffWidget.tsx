@@ -3,6 +3,7 @@ import { Doughnut } from 'react-chartjs-2';
 import WidgetWrapper from '../WidgetWrapper';
 import { FiUsers } from 'react-icons/fi';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { GC } from '../../../../theme/palette';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -12,7 +13,7 @@ const StaffWidget: React.FC<{ index: number }> = ({ index }) => {
         datasets: [
             {
                 data: [132, 18, 12, 6],
-                backgroundColor: ['#4ade80', '#fbbf24', '#60a5fa', '#f87171'],
+                backgroundColor: [GC.green, GC.amber, GC.blue, GC.red],
                 borderWidth: 0,
                 cutout: '70%',
             },

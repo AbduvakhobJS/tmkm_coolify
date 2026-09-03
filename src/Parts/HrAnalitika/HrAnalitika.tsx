@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, axis, centerText } from '../../components/dashboardUI';
 import { useHrSituation } from '../../hooks/hrSituation';
+import { GC } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -105,10 +106,10 @@ const fmtDate = (iso: string) => {
     return d.toLocaleDateString('ru-RU');
 };
 
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, hint, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
@@ -147,19 +148,19 @@ const HrAnalitika: React.FC = () => {
     const movementBar = useMemo(() => ({
         labels: HR?.movements_by_month.map((m) => m.label) ?? [],
         datasets: [
-            { label: 'Принято', data: HR?.movements_by_month.map((m) => m.hired) ?? [], backgroundColor: '#22c55e', borderRadius: 4, barPercentage: 0.6 },
-            { label: 'Уволено', data: HR?.movements_by_month.map((m) => m.dismissed) ?? [], backgroundColor: '#f59e0b', borderRadius: 4, barPercentage: 0.6 },
+            { label: 'Принято', data: HR?.movements_by_month.map((m) => m.hired) ?? [], backgroundColor: GC.green, borderRadius: 4, barPercentage: 0.6 },
+            { label: 'Уволено', data: HR?.movements_by_month.map((m) => m.dismissed) ?? [], backgroundColor: GC.amber, borderRadius: 4, barPercentage: 0.6 },
         ],
     }), [HR]);
 
     const genderDonut = useMemo(() => ({
         labels: ['Мужчины', 'Женщины'],
-        datasets: [{ data: [HR?.demography.male ?? 0, HR?.demography.female ?? 0], backgroundColor: ['#0ea8c7', '#c1358f'], borderColor: C.card, borderWidth: 2 }],
+        datasets: [{ data: [HR?.demography.male ?? 0, HR?.demography.female ?? 0], backgroundColor: [GC.cyan, GC.magenta], borderColor: C.card, borderWidth: 2 }],
     }), [HR]);
 
     const staffingDonut = useMemo(() => ({
         labels: ['Укомплектовано', 'Вакансии'],
-        datasets: [{ data: [staffing, Math.max(100 - staffing, 0)], backgroundColor: ['#22c55e', 'rgba(255,255,255,0.06)'], borderColor: C.card, borderWidth: 2 }],
+        datasets: [{ data: [staffing, Math.max(100 - staffing, 0)], backgroundColor: [GC.green, 'rgba(255,255,255,0.06)'], borderColor: C.card, borderWidth: 2 }],
     }), [staffing]);
 
     const donutOptions = { ...chartBase, cutout: '68%', ...noLegend } as any;
@@ -167,14 +168,14 @@ const HrAnalitika: React.FC = () => {
     const maxAge = Math.max(...ageGroups.map((a) => a.value), 1);
 
     const ABSENCE_ITEMS = HR ? [
-        { label: 'Ежегодный отпуск', value: HR.absences.on_leave, color: '#3b82f6' },
-        { label: 'Больничный', value: HR.absences.sick_leave, color: '#22c55e' },
+        { label: 'Ежегодный отпуск', value: HR.absences.on_leave, color: GC.blue },
+        { label: 'Больничный', value: HR.absences.sick_leave, color: GC.green },
         { label: 'Неявка (не подтв.)', value: HR.absences.absent_unconfirmed, color: C.down },
-        { label: 'За свой счёт', value: HR.absences.unpaid_leave, color: '#f59e0b' },
-        { label: 'Декретный отпуск', value: HR.absences.maternity_leave, color: '#a855f7' },
+        { label: 'За свой счёт', value: HR.absences.unpaid_leave, color: GC.amber },
+        { label: 'Декретный отпуск', value: HR.absences.maternity_leave, color: GC.violet },
     ] : [];
 
-    const statusColor = HR?.last_sync.status === 'ok' ? '#22c55e' : '#eab308';
+    const statusColor = HR?.last_sync.status === 'ok' ? GC.green : GC.amber;
     const statusLabel = HR?.last_sync.status === 'ok' ? 'актуально' : (HR?.last_sync.status ?? '—');
 
     return (
@@ -183,14 +184,14 @@ const HrAnalitika: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#4fb3d9" size={30}><IconUsers /></NeonIcon>
-                    <div style={{ color: '#4fb3d9', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Корпоративный BI / HR / Финансы</div>
+                    <NeonIcon color={GC.cyan} size={30}><IconUsers /></NeonIcon>
+                    <div style={{ color: GC.cyan, fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Корпоративный BI / HR / Финансы</div>
                 </div>
                 <button
                     onClick={() => navigate('/main/hr-bi-detail')}
                     style={{
                         display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                        background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 999,
+                        background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 999,
                         color: '#fff', fontSize: 11.5, fontWeight: 700, padding: '7px 14px',
                         boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                     }}
@@ -211,8 +212,8 @@ const HrAnalitika: React.FC = () => {
                             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                             padding: '8px 10px', borderRadius: 8, cursor: 'pointer', fontSize: 11.5, fontWeight: 700,
                             letterSpacing: 0.3, textTransform: 'uppercase',
-                            background: tab === t.key ? 'linear-gradient(135deg, #1e4d7b, #0ea8c7)' : C.card,
-                            border: `1px solid ${tab === t.key ? '#0ea8c7' : C.border}`,
+                            background: tab === t.key ? `linear-gradient(135deg, #1e4d7b, ${GC.cyan})` : C.card,
+                            border: `1px solid ${tab === t.key ? GC.cyan : C.border}`,
                             color: tab === t.key ? '#fff' : C.sub,
                             transition: 'all 0.15s ease',
                         }}
@@ -236,11 +237,11 @@ const HrAnalitika: React.FC = () => {
                 <>
                     {/* KPI qatori */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
-                        <StatTile label="Сотрудники" value={HR.kpi.employees_actual.toLocaleString('ru-RU')} sub={`снимок ${today}`} color="#4fb3d9" />
-                        <StatTile label="Штатный план" value={HR.kpi.staff_plan.toLocaleString('ru-RU')} sub={`на ${today}`} color="#22c55e" />
-                        <StatTile label="Вакансии" value={HR.kpi.vacancies.toLocaleString('ru-RU')} sub={`на ${today}`} color="#f59e0b" />
-                        <StatTile label="Укомплект." value={`${HR.kpi.staffing_percent}%`} sub="факт / план" color="#22c55e" />
-                        <StatTile label="Принято" value={HR.kpi.hired_period} sub={`${fmtDate(HR.period.date_from + 'T00:00:00')}–${today}`} color="#22c55e" />
+                        <StatTile label="Сотрудники" value={HR.kpi.employees_actual.toLocaleString('ru-RU')} sub={`снимок ${today}`} color={GC.cyan} />
+                        <StatTile label="Штатный план" value={HR.kpi.staff_plan.toLocaleString('ru-RU')} sub={`на ${today}`} color={GC.green} />
+                        <StatTile label="Вакансии" value={HR.kpi.vacancies.toLocaleString('ru-RU')} sub={`на ${today}`} color={GC.amber} />
+                        <StatTile label="Укомплект." value={`${HR.kpi.staffing_percent}%`} sub="факт / план" color={GC.green} />
+                        <StatTile label="Принято" value={HR.kpi.hired_period} sub={`${fmtDate(HR.period.date_from + 'T00:00:00')}–${today}`} color={GC.green} />
                         <StatTile label="Уволено" value={HR.kpi.dismissed_period} sub={`${fmtDate(HR.period.date_from + 'T00:00:00')}–${today}`} color={C.down} />
                     </div>
 
@@ -255,10 +256,10 @@ const HrAnalitika: React.FC = () => {
                                 } as any} />
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginTop: 8 }}>
-                                <StatTile label="Принято" value={HR.kpi.hired_period} sub="за период" color="#22c55e" />
+                                <StatTile label="Принято" value={HR.kpi.hired_period} sub="за период" color={GC.green} />
                                 <StatTile label="Уволено" value={HR.kpi.dismissed_period} sub="за период" color={C.down} />
-                                <StatTile label="Баланс" value={netMovement >= 0 ? `+${netMovement}` : netMovement} sub="чистый прирост" color={netMovement >= 0 ? '#22c55e' : C.down} />
-                                <StatTile label="Пик увольнений" value={peakDismissMonth ? peakDismissMonth.label : '—'} sub={peakDismissMonth ? `${peakDismissMonth.dismissed} событий` : ''} color="#f59e0b" />
+                                <StatTile label="Баланс" value={netMovement >= 0 ? `+${netMovement}` : netMovement} sub="чистый прирост" color={netMovement >= 0 ? GC.green : C.down} />
+                                <StatTile label="Пик увольнений" value={peakDismissMonth ? peakDismissMonth.label : '—'} sub={peakDismissMonth ? `${peakDismissMonth.dismissed} событий` : ''} color={GC.amber} />
                             </div>
                         </SectionCard>
 
@@ -269,11 +270,11 @@ const HrAnalitika: React.FC = () => {
                                 </div>
                                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5 }}>
-                                        <span style={{ color: C.text }}><span style={{ width: 7, height: 7, display: 'inline-block', borderRadius: '50%', background: '#0ea8c7', marginRight: 5 }} />Мужчины</span>
+                                        <span style={{ color: C.text }}><span style={{ width: 7, height: 7, display: 'inline-block', borderRadius: '50%', background: GC.cyan, marginRight: 5 }} />Мужчины</span>
                                         <span style={{ color: C.sub, fontWeight: 700 }}>{HR.demography.male.toLocaleString('ru-RU')}</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5 }}>
-                                        <span style={{ color: C.text }}><span style={{ width: 7, height: 7, display: 'inline-block', borderRadius: '50%', background: '#c1358f', marginRight: 5 }} />Женщины</span>
+                                        <span style={{ color: C.text }}><span style={{ width: 7, height: 7, display: 'inline-block', borderRadius: '50%', background: GC.magenta, marginRight: 5 }} />Женщины</span>
                                         <span style={{ color: C.sub, fontWeight: 700 }}>{HR.demography.female.toLocaleString('ru-RU')}</span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5 }}>
@@ -290,7 +291,7 @@ const HrAnalitika: React.FC = () => {
                                             <span style={{ color: C.text, fontWeight: 600 }}>{g.value}</span>
                                         </div>
                                         <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                                            <div style={{ height: '100%', width: `${(g.value / maxAge) * 100}%`, background: '#0ea8c7', borderRadius: 2 }} />
+                                            <div style={{ height: '100%', width: `${(g.value / maxAge) * 100}%`, background: GC.cyan, borderRadius: 2 }} />
                                         </div>
                                     </div>
                                 ))}
@@ -305,9 +306,9 @@ const HrAnalitika: React.FC = () => {
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginTop: 8, flex: 1 }}>
                                 <StatTile label="План / факт" value={`${HR.kpi.staff_plan} / ${HR.kpi.employees_actual}`} sub="штатное расписание" />
-                                <StatTile label="Вакансии" value={HR.kpi.vacancies} sub={`${vacancyPct}% от плана`} color="#f59e0b" />
-                                <StatTile label="Баланс движения" value={netMovement >= 0 ? `+${netMovement}` : netMovement} sub={`${HR.kpi.hired_period} принято / ${HR.kpi.dismissed_period} уволено`} color={netMovement >= 0 ? '#22c55e' : C.down} />
-                                <StatTile label="Отсутствуют" value={absencesTotal} sub="на дату снимка" color="#eab308" />
+                                <StatTile label="Вакансии" value={HR.kpi.vacancies} sub={`${vacancyPct}% от плана`} color={GC.amber} />
+                                <StatTile label="Баланс движения" value={netMovement >= 0 ? `+${netMovement}` : netMovement} sub={`${HR.kpi.hired_period} принято / ${HR.kpi.dismissed_period} уволено`} color={netMovement >= 0 ? GC.green : C.down} />
+                                <StatTile label="Отсутствуют" value={absencesTotal} sub="на дату снимка" color={GC.amber} />
                             </div>
                         </SectionCard>
                     </div>

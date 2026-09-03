@@ -3,17 +3,18 @@ import { Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText } from '../../components/dashboardUI';
 import { useContactHubSummary } from '../../hooks/contactHub';
 import demoData from './contactHubDemoData.json';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -139,26 +140,26 @@ const CARD_ICON: Record<string, React.ReactNode> = {
     'triangle-exclamation': <IconAlertTriangle />,
 };
 const CARD_COLOR: Record<string, string> = {
-    building: '#4fb3d9',
-    globe: '#3b82f6',
-    'layer-group': '#a855f7',
-    'file-lines': '#0ea8c7',
-    'calendar-days': '#22c55e',
-    clock: '#eab308',
-    'circle-check': '#22c55e',
+    building: GC.cyan,
+    globe: GC.blue,
+    'layer-group': GC.violet,
+    'file-lines': GC.cyan,
+    'calendar-days': GC.green,
+    clock: GC.amber,
+    'circle-check': GC.green,
     'triangle-exclamation': C.down,
 };
 
-const NOTE_COLORS: Record<string, string> = { sky: '#3b82f6', amber: '#f59e0b', green: '#22c55e', pink: '#ec4899', purple: '#a855f7' };
+const NOTE_COLORS: Record<string, string> = { sky: GC.blue, amber: GC.amber, green: GC.green, pink: GC.magenta, purple: GC.violet };
 
 const DEMO: Notebook = demoData as unknown as Notebook;
 
 /* ── Yordamchi komponentlar ── */
 
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, hint, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
@@ -174,7 +175,7 @@ const ProgressRow: React.FC<{ name: string; value: number; max: number; color: s
             <span style={{ color: C.sub, fontWeight: 700, flexShrink: 0 }}>{value}</span>
         </div>
         <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min((value / max) * 100, 100)}%`, background: color, borderRadius: 3, boxShadow: `0 0 5px ${color}88` }} />
+            <div style={{ height: '100%', width: `${Math.min((value / max) * 100, 100)}%`, background: color, borderRadius: 3, boxShadow: `0 0 5px ${GC.icon}88` }} />
         </div>
     </div>
 );
@@ -186,8 +187,8 @@ const StatTile: React.FC<{ label: string; value: React.ReactNode; color?: string
     </div>
 );
 
-const PRIORITY_COLOR: Record<string, string> = { 'Высокий': C.down, 'Средний': '#f59e0b', 'Низкий': '#22c55e' };
-const MEETING_STATUS_COLOR: Record<string, string> = { 'Проведено': '#22c55e', 'Запланировано': '#3b82f6', 'Перенесено': '#f59e0b', 'Отменено': C.down };
+const PRIORITY_COLOR: Record<string, string> = { 'Высокий': C.down, 'Средний': GC.amber, 'Низкий': GC.green };
+const MEETING_STATUS_COLOR: Record<string, string> = { 'Проведено': GC.green, 'Запланировано': GC.blue, 'Перенесено': GC.amber, 'Отменено': C.down };
 
 const donutOptions = { ...chartBase, cutout: '68%', ...noLegend } as any;
 
@@ -247,9 +248,9 @@ const ContactHubDetail: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#4fb3d9" size={36}><IconGlobe /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={36}><IconGlobe /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase' }}>Notebook · Контакты и встречи</div>
+                        <div style={{ color: GC.cyan, fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: 'uppercase' }}>Notebook · Контакты и встречи</div>
                         <div style={{ color: C.text, fontSize: 19, fontWeight: 700, textTransform: 'uppercase', marginTop: 1 }}>ContactHub / Международные контакты</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2, maxWidth: 620 }}>
                             Детализация базы международных контактов: компании, страны, направления, категории, встречи, задачи, файлы и заметки.
@@ -259,16 +260,16 @@ const ContactHubDetail: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                     <a
                         href={`https://${NB.domain}`} target="_blank" rel="noreferrer"
-                        style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#4fb3d9', fontSize: 11, textDecoration: 'none' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 5, color: GC.cyan, fontSize: 11, textDecoration: 'none' }}
                     >
                         <IconExternalLink />Перейти на источник
                     </a>
                     <span style={{
                         display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700,
-                        color: isLive ? '#22c55e' : '#eab308', background: isLive ? '#22c55e18' : '#eab30818',
-                        border: `1px solid ${isLive ? '#22c55e44' : '#eab30844'}`, borderRadius: 999, padding: '3px 11px',
+                        color: isLive ? GC.green : GC.amber, background: isLive ? alpha(GC.green, 0.09) : alpha(GC.amber, 0.09),
+                        border: `1px solid ${isLive ? alpha(GC.green, 0.27) : alpha(GC.amber, 0.27)}`, borderRadius: 999, padding: '3px 11px',
                     }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isLive ? '#22c55e' : '#eab308', boxShadow: `0 0 6px ${isLive ? '#22c55e' : '#eab308'}` }} />
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isLive ? GC.green : GC.amber, boxShadow: `0 0 6px ${isLive ? GC.green : GC.amber}` }} />
                         {isLive ? 'Живые данные API' : 'Демо-данные'}
                     </span>
                     <span style={{ color: C.sub, fontSize: 11 }}>{now.toLocaleDateString('ru-RU')}, {now.toLocaleTimeString('ru-RU').slice(0, 5)}</span>
@@ -278,7 +279,7 @@ const ContactHubDetail: React.FC = () => {
             {/* KPI qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 8 }}>
                 {NB.cards.map((c) => {
-                    const color = CARD_COLOR[c.icon] ?? '#4fb3d9';
+                    const color = CARD_COLOR[c.icon] ?? GC.cyan;
                     return (
                         <div key={c.label} style={{ minWidth: 0, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '9px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -351,8 +352,8 @@ const ContactHubDetail: React.FC = () => {
                     <StatTile label="Сфер деятельности" value={NB.totals.directions} />
                     <StatTile label="Файлов" value={NB.totals.files} />
                     <StatTile label="Встреч всего" value={NB.totals.meetings} />
-                    <StatTile label="Проведено встреч" value={NB.totals.meetingsDone} color="#22c55e" />
-                    <StatTile label="Запланировано" value={NB.totals.meetingsPlanned} color="#3b82f6" />
+                    <StatTile label="Проведено встреч" value={NB.totals.meetingsDone} color={GC.green} />
+                    <StatTile label="Запланировано" value={NB.totals.meetingsPlanned} color={GC.blue} />
                     <StatTile label="Просрочено" value={NB.totals.meetingsOverdue} color={C.down} />
                     <StatTile label="Заметки" value={NB.totals.notes} />
                     <StatTile label="Пользователи" value={NB.totals.users} />
@@ -501,9 +502,9 @@ const ContactHubDetail: React.FC = () => {
             <SectionCard title="Заметки / события" icon={<IconStickyNote />}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                     {NB.notes.map((n) => {
-                        const color = NOTE_COLORS[n.color] ?? '#eab308';
+                        const color = NOTE_COLORS[n.color] ?? GC.amber;
                         return (
-                            <div key={n.id} style={{ background: `${color}14`, border: `1px solid ${color}44`, borderRadius: 10, padding: '9px 11px', minWidth: 0 }}>
+                            <div key={n.id} style={{ background: `${GC.icon}14`, border: `1px solid ${GC.icon}44`, borderRadius: 10, padding: '9px 11px', minWidth: 0 }}>
                                 <div style={{ color, fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>{n.title}</div>
                                 <div style={{ color: C.sub, fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any }}>{n.content}</div>
                             </div>
@@ -517,7 +518,7 @@ const ContactHubDetail: React.FC = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
                     {apiFields.map((f) => (
                         <div key={f.key} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 10px', minWidth: 0 }}>
-                            <div style={{ color: '#4fb3d9', fontSize: 10.5, fontFamily: 'monospace', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.key}</div>
+                            <div style={{ color: GC.cyan, fontSize: 10.5, fontFamily: 'monospace', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.key}</div>
                             <div style={{ color: C.text, fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.value}</div>
                             <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 4 }}>{f.tag}</div>
                         </div>

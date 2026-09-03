@@ -2,17 +2,18 @@ import React from 'react';
 import { C } from '../../components/dashboardUI';
 import investingData from './investingDemoData.json';
 import { useGetAllInvesting } from '../../hooks/investing';
+import { GC } from '../../theme/palette';
 
 /* ── Professional dumaloq ikonka (gradient fon + glow, "badge" uslubi) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 12px ${color}66, inset 0 0 8px ${color}30`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 12px ${GC.icon}66, inset 0 0 8px ${GC.icon}30`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -185,7 +186,7 @@ const FundingSplit: React.FC<{ f: Funding; total: number }> = ({ f, total }) => 
 };
 
 /* Фоиз (факт/режа) ранги */
-const pctColor = (p: number): string => (p >= 100 ? '#22c55e' : p >= 80 ? '#84cc16' : p >= 50 ? '#eab308' : p > 0 ? '#f97316' : '#64748b');
+const pctColor = (p: number): string => (p >= 100 ? GC.green : p >= 80 ? GC.green : p >= 50 ? GC.amber : p > 0 ? GC.amber : GC.slate);
 
 /* Chorak katagi — режа ҳар доим 100% (бутун бар), факт эса режага нисбатан
    бажарилган қисми. Прогрессбар икки алоҳида қийматни эмас, бир бутун
@@ -200,10 +201,10 @@ const QuarterCell: React.FC<{ plan: number; fact: number; color: string }> = ({ 
                 <span style={{ fontSize: 9.5, color: C.sub }}>реж <b style={{ color: C.text, fontWeight: 600 }}>{fmt1(plan)}</b></span>
                 <span style={{ fontSize: 9.5, color: C.sub }}>факт <b style={{ color: fact ? color : C.sub, fontWeight: 700 }}>{fmt1(fact)}</b></span>
             </div>
-            <div style={{ position: 'relative', height: 7, borderRadius: 4, background: `${color}28`, overflow: 'hidden' }}>
+            <div style={{ position: 'relative', height: 7, borderRadius: 4, background: `${GC.icon}28`, overflow: 'hidden' }}>
                 {/* режа = бутун барнинг ўзи (100% база), факт — унинг ичидаги тўлдирма */}
-                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${factW}%`, background: color, borderRadius: 4, boxShadow: fact ? `0 0 6px ${color}88` : 'none' }} />
-                {over && <div style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: 3, background: '#22c55e' }} />}
+                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${factW}%`, background: color, borderRadius: 4, boxShadow: fact ? `0 0 6px ${GC.icon}88` : 'none' }} />
+                {over && <div style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: 3, background: GC.green }} />}
             </div>
             <div style={{ textAlign: 'right', fontSize: 10.5, fontWeight: 700, color: pctColor(pct) }}>{plan ? `${fmt1(pct)}%` : (fact ? `${fmt1(pct)}%` : '—')}</div>
         </div>
@@ -225,11 +226,11 @@ const Investing: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ maxWidth: 960 }}>
-                    <div style={{ color: '#4fb3d9', fontSize: 18, fontWeight: 700, lineHeight: 1.35 }}>{DATA.meta.titleLine1}</div>
+                    <div style={{ color: GC.cyan, fontSize: 18, fontWeight: 700, lineHeight: 1.35 }}>{DATA.meta.titleLine1}</div>
                     <div style={{ color: C.text, fontSize: 13.5, fontWeight: 500, lineHeight: 1.35, marginTop: 2 }}>{DATA.meta.titleLine2}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 9, padding: '8px 13px', flexShrink: 0 }}>
-                    <NeonIcon color="#4fb3d9" size={22}><IconCalendar /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={22}><IconCalendar /></NeonIcon>
                     <div>
                         <div style={{ color: C.text, fontSize: 11.5, fontWeight: 600 }}>{DATA.meta.periodLabel}</div>
                         <div style={{ color: C.sub, fontSize: 10 }}>{DATA.meta.periodRange}</div>
@@ -239,10 +240,10 @@ const Investing: React.FC = () => {
 
             {/* KPI qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: '0.85fr 1fr 1fr 1.15fr 2fr', gap: 10, alignItems: 'stretch' }}>
-                <KpiCard label="Лойиҳалар сони" value={String(DATA.kpi.projectsCount)} unit="та" icon={<IconFileText />} color="#3b82f6" />
-                <KpiCard label="Умумий қиймат" value={fmt1(DATA.kpi.totalValue)} unit={DATA.meta.unit} icon={<IconCoinsStack />} color="#22c55e" />
-                <KpiCard label="2026 йил ўзлаштириш режаси" value={fmt1(DATA.kpi.yearPlan)} unit={DATA.meta.unit} icon={<IconChartBar />} color="#f97316" />
-                <KpiCard label="Факт (август ҳолатига)" value={fmt1(DATA.kpi.yearFact)} unit={DATA.meta.unit} sub={`Йиллик режанинг ${fmt1(execPct)} фоизи бажарилди`} icon={<IconTarget />} color="#22c55e" />
+                <KpiCard label="Лойиҳалар сони" value={String(DATA.kpi.projectsCount)} unit="та" icon={<IconFileText />} color={GC.blue} />
+                <KpiCard label="Умумий қиймат" value={fmt1(DATA.kpi.totalValue)} unit={DATA.meta.unit} icon={<IconCoinsStack />} color={GC.green} />
+                <KpiCard label="2026 йил ўзлаштириш режаси" value={fmt1(DATA.kpi.yearPlan)} unit={DATA.meta.unit} icon={<IconChartBar />} color={GC.amber} />
+                <KpiCard label="Факт (август ҳолатига)" value={fmt1(DATA.kpi.yearFact)} unit={DATA.meta.unit} sub={`Йиллик режанинг ${fmt1(execPct)} фоизи бажарилди`} icon={<IconTarget />} color={GC.green} />
 
                 <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 9, minWidth: 0 }}>
                     <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Лойиҳалар қиймати манбалари</div>
@@ -255,12 +256,12 @@ const Investing: React.FC = () => {
             {/* Loyihalar jadvali */}
             <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '14px 16px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
-                    <div style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                    <div style={{ color: GC.cyan, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase' }}>
                         Лойиҳалар бўйича ўзлаштириш: режа ва факт (ҳар чоракда) <span style={{ color: C.sub, fontWeight: 400, textTransform: 'none' }}>(2026 йил, {DATA.meta.unit})</span>
                     </div>
                     <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
                         <span style={{ color: C.sub, fontSize: 10 }}><span style={{ display: 'inline-block', width: 16, height: 7, borderRadius: 3, background: 'rgba(79,179,217,0.30)', marginRight: 4, verticalAlign: 'middle' }} />режа (соя)</span>
-                        <span style={{ color: C.sub, fontSize: 10 }}><span style={{ display: 'inline-block', width: 16, height: 7, borderRadius: 3, background: '#4fb3d9', marginRight: 4, verticalAlign: 'middle' }} />факт (бажарилган)</span>
+                        <span style={{ color: C.sub, fontSize: 10 }}><span style={{ display: 'inline-block', width: 16, height: 7, borderRadius: 3, background: GC.cyan, marginRight: 4, verticalAlign: 'middle' }} />факт (бажарилган)</span>
                         <span style={{ color: C.sub, fontSize: 10 }}>% — факт/режа</span>
                     </div>
                 </div>
@@ -287,7 +288,7 @@ const Investing: React.FC = () => {
                                             <NeonIcon color={p.color} size={30}>{PROJECT_ICONS[p.icon]}</NeonIcon>
                                             <div style={{ minWidth: 0 }}>
                                                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                                                    <span style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{p.id}.</span>
+                                                    <span style={{ color: GC.cyan, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{p.id}.</span>
                                                     <span style={{ color: C.text, fontWeight: 500 }}>{p.name}</span>
                                                 </div>
                                                 <div style={{ color: C.sub, fontSize: 9.5, marginTop: 3 }}>
@@ -298,7 +299,7 @@ const Investing: React.FC = () => {
                                         </div>
                                     </td>
                                     <td style={{ ...td, textAlign: 'right', color: C.text, fontWeight: 700 }}>{fmt1(p.totalValue)}</td>
-                                    <td style={{ ...td, textAlign: 'right', color: '#f97316', fontWeight: 700 }}>{fmt1(p.yearPlan)}</td>
+                                    <td style={{ ...td, textAlign: 'right', color: GC.amber, fontWeight: 700 }}>{fmt1(p.yearPlan)}</td>
                                     {p.quartersPlan.map((q, i) => (
                                         <td key={i} style={{ ...td }}>
                                             <QuarterCell plan={q} fact={p.quartersActual[i]} color={DATA.quarterColors[i]} />
@@ -311,7 +312,7 @@ const Investing: React.FC = () => {
                             <tr style={{ borderTop: `2px solid ${C.border}` }}>
                                 <td style={{ color: C.text, fontWeight: 800, padding: '11px 8px' }}>ЖАМИ:</td>
                                 <td style={{ textAlign: 'right', color: C.text, fontWeight: 800, padding: '11px 8px' }}>{fmt1(DATA.totals.totalValue)}</td>
-                                <td style={{ textAlign: 'right', color: '#f97316', fontWeight: 800, padding: '11px 8px' }}>{fmt1(DATA.totals.yearPlan)}</td>
+                                <td style={{ textAlign: 'right', color: GC.amber, fontWeight: 800, padding: '11px 8px' }}>{fmt1(DATA.totals.yearPlan)}</td>
                                 {DATA.totals.quartersPlan.map((q, i) => (
                                     <td key={i} style={{ padding: '11px 8px' }}>
                                         <QuarterCell plan={q} fact={DATA.totals.quartersActual[i]} color={DATA.quarterColors[i]} />

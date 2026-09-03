@@ -5,15 +5,16 @@ import {
     barLabel, centerText,
     Card, KpiCard, Badge, Gauge, DashHeader, DashFooter, DashRoot,
 } from './dashboardUI';
+import { GC, alpha } from '../theme/palette';
 
 /* Metall ishlab chiqarish (rasm ma'lumotlari, mock) */
 const METALS = [
-    { name: 'Molibden', symbol: 'Mo', color: '#3b82f6', value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, quality: 98.6, dyn: [812, 828, 845, 872, 918, 895] },
-    { name: 'Volfram', symbol: 'W', color: '#22c55e', value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, quality: 97.9, dyn: [602, 624, 641, 663, 701, 688] },
-    { name: 'Titan', symbol: 'Ti', color: '#f59e0b', value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, quality: 96.4, dyn: [378, 388, 398, 408, 421, 414] },
-    // { name: 'Tantal', symbol: 'Ta', color: '#a855f7', value: 987.3, pct: 12.0, delta: 5.1, plan: 950, quality: 98.1, dyn: [148, 153, 159, 164, 171, 167] },
-    // { name: 'Niobiy', symbol: 'Nb', color: '#06b6d4', value: 521.1, pct: 6.3, delta: -4.3, plan: 550, quality: 97.2, dyn: [84, 87, 89, 92, 96, 93] },
-    { name: 'Boshqalar', symbol: '•••', color: '#94a3b8', value: 277.4, pct: 3.4, delta: -6.8, plan: 300, quality: 95.3, dyn: [44, 45, 46, 47, 49, 48] },
+    { name: 'Molibden', symbol: 'Mo', color: GC.blue, value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, quality: 98.6, dyn: [812, 828, 845, 872, 918, 895] },
+    { name: 'Volfram', symbol: 'W', color: GC.green, value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, quality: 97.9, dyn: [602, 624, 641, 663, 701, 688] },
+    { name: 'Titan', symbol: 'Ti', color: GC.amber, value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, quality: 96.4, dyn: [378, 388, 398, 408, 421, 414] },
+    // { name: 'Tantal', symbol: 'Ta', color: GC.violet, value: 987.3, pct: 12.0, delta: 5.1, plan: 950, quality: 98.1, dyn: [148, 153, 159, 164, 171, 167] },
+    // { name: 'Niobiy', symbol: 'Nb', color: GC.cyan, value: 521.1, pct: 6.3, delta: -4.3, plan: 550, quality: 97.2, dyn: [84, 87, 89, 92, 96, 93] },
+    { name: 'Boshqalar', symbol: '•••', color: GC.slate, value: 277.4, pct: 3.4, delta: -6.8, plan: 300, quality: 95.3, dyn: [44, 45, 46, 47, 49, 48] },
 ];
 const TOTAL = 8247.5;
 const MONTHLY = [1245.6, 1289.4, 1356.7, 1412.8, 1487.2, 1455.8];
@@ -36,8 +37,8 @@ const MetalsDashboard: React.FC = () => {
         labels: METALS.map((m, i) => `${i + 1}-zavod`),
         datasets: MONTHS.map((mo, mi) => ({ label: mo, data: METALS.map((m) => +(m.value * MONTHLY[mi] / TOTAL).toFixed(1)), backgroundColor: MONTH_COLORS[mi], stack: 's', borderWidth: 0 })),
     };
-    const monthlyBar = { labels: MONTHS, datasets: [{ data: MONTHLY, backgroundColor: '#2563eb', borderRadius: 4, barPercentage: 0.6 }] };
-    const avgBar = { labels: MONTHS, datasets: [{ data: AVG_DAILY, backgroundColor: '#22c55e', borderRadius: 4, barPercentage: 0.6 }] };
+    const monthlyBar = { labels: MONTHS, datasets: [{ data: MONTHLY, backgroundColor: GC.blue, borderRadius: 4, barPercentage: 0.6 }] };
+    const avgBar = { labels: MONTHS, datasets: [{ data: AVG_DAILY, backgroundColor: GC.green, borderRadius: 4, barPercentage: 0.6 }] };
 
     return (
         <DashRoot>
@@ -45,7 +46,7 @@ const MetalsDashboard: React.FC = () => {
 
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
                 <KpiCard title="Umumiy ishlab chiqarish hajmi" value={`${fmt(TOTAL)} t`} delta={7.3} compare={COMPARE}
-                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: '#22c55e22', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>▤</div>} />
+                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: alpha(GC.green, 0.13), color: GC.green, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>▤</div>} />
                 {METALS.map((m) => (
                     <KpiCard key={m.name} title={m.name} value={`${fmt(m.value)} t`} delta={m.delta} compare={COMPARE} badge={<Badge symbol={m.symbol} color={m.color} />} />
                 ))}

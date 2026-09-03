@@ -1,4 +1,5 @@
 import { Facility, Project, OpCard } from '../types';
+import { GC } from '../theme/palette';
 
 export const MONTHS = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
 export const DAYS = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
@@ -18,17 +19,17 @@ export const FACILITIES: Facility[] = [
 ];
 
 export const FACILITY_COLORS: Record<string, string> = {
-  mining:   '#0EA8C7',
-  smelting: '#ff6b35',
-  refinery: '#7fff00',
-  mfg:      '#bf5fff',
+  mining:   GC.cyan,
+  smelting: GC.amber,
+  refinery: GC.green,
+  mfg:      GC.violet,
 };
 
 export const PROJECTS: Project[] = [
-  { name: 'New Smelter — Almalyk Phase II', pct: 78, color: '#ff6b35' },
-  { name: 'Navoi Deep Mining Extension',   pct: 54, color: '#0EA8C7' },
-  { name: 'Tashkent EV Components Plant',  pct: 31, color: '#7fff00' },
-  { name: 'Bukhara Rail Logistics Hub',    pct: 92, color: '#ffa500' },
+  { name: 'New Smelter — Almalyk Phase II', pct: 78, color: GC.amber },
+  { name: 'Navoi Deep Mining Extension',   pct: 54, color: GC.cyan },
+  { name: 'Tashkent EV Components Plant',  pct: 31, color: GC.green },
+  { name: 'Bukhara Rail Logistics Hub',    pct: 92, color: GC.amber },
 ];
 
 export const ALERT_POOL = [

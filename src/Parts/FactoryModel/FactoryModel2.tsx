@@ -4,6 +4,7 @@ import { Html, OrbitControls, Sky } from "@react-three/drei";
 import FactoryModelMesh from "./scene/FactoryModelMesh";
 import type { BuildingMarker, MarkerType } from "./types";
 import "./factoryModel.css";
+import { GC } from '../../theme/palette';
 
 /**
  * Minimal, from-scratch factory viewer — same factory_model.glb, same building
@@ -29,12 +30,12 @@ const BUILDING_MARKERS: BuildingMarker[] = [
 ];
 
 const MARKER_COLOR: Record<MarkerType, string> = {
-    scada: "#8b5cf6",
-    energy: "#f59e0b",
-    production: "#10b981",
-    staff: "#f43f5e",
-    camera: "#0ea8c7",
-    into: "#0ea8c7",
+    scada: GC.violet,
+    energy: GC.amber,
+    production: GC.green,
+    staff: GC.red,
+    camera: GC.cyan,
+    into: GC.cyan,
 };
 
 const Marker: React.FC<{ marker: BuildingMarker }> = ({ marker }) => (

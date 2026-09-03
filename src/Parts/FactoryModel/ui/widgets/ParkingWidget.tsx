@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import WidgetWrapper from '../WidgetWrapper';
 import { FiTruck } from 'react-icons/fi';
+import { GC } from '../../../../theme/palette';
 
 ChartJS.register(ArcElement, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip);
 
@@ -19,7 +20,7 @@ const ParkingWidget: React.FC<{ index: number }> = ({ index }) => {
         datasets: [
             {
                 data: [72, 28],
-                backgroundColor: ['#f87171', '#4ade80'],
+                backgroundColor: [GC.red, GC.green],
                 borderWidth: 0,
                 cutout: '75%',
             },
@@ -32,7 +33,7 @@ const ParkingWidget: React.FC<{ index: number }> = ({ index }) => {
             {
                 label: 'Band',
                 data: [10, 25, 45, 30, 15],
-                backgroundColor: '#4ade80',
+                backgroundColor: GC.green,
                 borderRadius: 2,
             },
         ],
@@ -67,7 +68,7 @@ const ParkingWidget: React.FC<{ index: number }> = ({ index }) => {
                             maintainAspectRatio: false, 
                             plugins: { legend: { display: false } },
                             scales: {
-                                x: { display: true, grid: { display: false }, ticks: { color: '#5f8496', font: { size: 8 } } },
+                                x: { display: true, grid: { display: false }, ticks: { color: GC.slate, font: { size: 8 } } },
                                 y: { display: false }
                             }
                         }} 

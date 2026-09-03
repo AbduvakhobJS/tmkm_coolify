@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import WidgetWrapper from '../WidgetWrapper';
 import { FiUsers } from 'react-icons/fi';
+import { GC } from '../../../../theme/palette';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip);
 
@@ -20,14 +21,14 @@ const AttendanceWidget: React.FC<{ index: number }> = ({ index }) => {
             {
                 label: 'Keldi',
                 data: [40, 60, 100, 120, 80],
-                borderColor: '#4ade80',
+                borderColor: GC.green,
                 tension: 0.4,
                 pointRadius: 0,
             },
             {
                 label: 'Ketti',
                 data: [30, 45, 90, 70, 60],
-                borderColor: '#f87171',
+                borderColor: GC.red,
                 tension: 0.4,
                 pointRadius: 0,
             },
@@ -39,8 +40,8 @@ const AttendanceWidget: React.FC<{ index: number }> = ({ index }) => {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-            x: { display: true, grid: { display: false }, ticks: { color: '#5f8496', font: { size: 9 } } },
-            y: { display: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#5f8496', font: { size: 9 } } },
+            x: { display: true, grid: { display: false }, ticks: { color: GC.slate, font: { size: 9 } } },
+            y: { display: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: GC.slate, font: { size: 9 } } },
         },
     };
 

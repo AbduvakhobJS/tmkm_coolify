@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { C, fmt } from '../../components/dashboardUI';
 import { useProductionFilters, useProductionNarastayka } from '../../hooks/production';
 import type { NarastaykaRow } from '../../services/production';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Sana yordamchilari ── */
 
@@ -95,11 +96,11 @@ function buildTiles(current: NarastaykaRow[], previous: NarastaykaRow[]): Tile[]
 const ZAVOD_ORDER = ['Чирчик завод', 'Ингичка'];
 
 const ZAVOD_ACCENTS: Record<string, string> = {
-    'Чирчик завод': '#22d3ee',
-    'Ингичка': '#a855f7',
-    "Noma'lum zavod": '#eab308',
+    'Чирчик завод': GC.cyan,
+    'Ингичка': GC.violet,
+    "Noma'lum zavod": GC.amber,
 };
-const FALLBACK_ACCENTS = ['#22c55e', '#ec4899', '#3b82f6', '#f59e0b'];
+const FALLBACK_ACCENTS = [GC.green, GC.magenta, GC.blue, GC.amber];
 const zavodAccent = (zavod: string, idx: number): string => ZAVOD_ACCENTS[zavod] ?? FALLBACK_ACCENTS[idx % FALLBACK_ACCENTS.length];
 
 function buildStructure(tiles: Tile[]): ZavodGroup[] {
@@ -147,14 +148,14 @@ function buildStructure(tiles: Tile[]): ZavodGroup[] {
 
 /* ── UI qismlari ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 28, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 28, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 28 ? 10 : 8, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}66`,
-        boxShadow: `0 0 12px ${color}55, inset 0 0 8px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}66`,
+        boxShadow: `0 0 12px ${GC.icon}55, inset 0 0 8px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -362,8 +363,8 @@ const ProductionPage: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#4fb3d9" size={30}><IconChart /></NeonIcon>
-                    <div style={{ color: '#4fb3d9', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', textShadow: '0 0 14px #4fb3d966' }}>Narastayka — Fakt</div>
+                    <NeonIcon color={GC.cyan} size={30}><IconChart /></NeonIcon>
+                    <div style={{ color: GC.cyan, fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', textShadow: `0 0 14px ${alpha(GC.cyan, 0.4)}` }}>Narastayka — Fakt</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                     {curStart && curEnd && prevStart && prevEnd && (

@@ -6,13 +6,14 @@ import {
 } from 'chart.js';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import { MONTHS, PRODUCTION_DATA, INITIAL_ENERGY_DATA } from '../data/constants';
+import { GC, SERIES_COLORS } from '../theme/palette';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement,
   BarElement, ArcElement, Title, Tooltip, Legend, Filler
 );
 
-ChartJS.defaults.color = '#7aa5cc';
+ChartJS.defaults.color = GC.slate;
 ChartJS.defaults.font.family = "'Share Tech Mono', monospace";
 
 /* ── Production Line ── */
@@ -22,11 +23,11 @@ export const ProductionLineChart: React.FC = () => {
     datasets: [{
       label: 'Production',
       data: [...PRODUCTION_DATA],
-      borderColor: '#0EA8C7',
+      borderColor: GC.cyan,
       backgroundColor: 'rgba(0,245,255,0.15)',
       borderWidth: 2,
       pointRadius: 3,
-      pointBackgroundColor: '#0EA8C7',
+      pointBackgroundColor: GC.cyan,
       pointBorderColor: '#020b18',
       tension: 0.4,
       fill: true,
@@ -61,7 +62,7 @@ export const MetalPieChart: React.FC = () => {
     labels: ['Steel', 'Copper', 'Aluminum', 'Gold', 'Zinc', 'Other'],
     datasets: [{
       data: [38, 22, 18, 8, 9, 5],
-      backgroundColor: ['#0EA8C7','#ff6b35','#7fff00','#ffa500','#bf5fff','#3a5f85'],
+      backgroundColor: SERIES_COLORS,
       borderColor: '#020b18',
       borderWidth: 2,
       hoverOffset: 6,
@@ -153,7 +154,7 @@ export const RealtimeChart: React.FC = () => {
     labels: dataRef.current.map(() => ''),
     datasets: [{
       data: [...dataRef.current],
-      borderColor: '#0EA8C7',
+      borderColor: GC.cyan,
       backgroundColor: 'rgba(0,245,255,0.15)',
       borderWidth: 1.5,
       pointRadius: 0,
@@ -201,7 +202,7 @@ export const EnergyChart: React.FC = () => {
       {
         type: 'line' as const,
         data: energyData.map(v => v * 0.85),
-        borderColor: '#ffa500',
+        borderColor: GC.amber,
         borderWidth: 1.5,
         pointRadius: 0,
         tension: 0.4,

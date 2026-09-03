@@ -1,17 +1,18 @@
 import React, { useMemo } from 'react';
 import { C, fmt } from '../../components/dashboardUI';
 import treasuryData from './singleTreasuryDemoData.json';
+import { GC } from '../../theme/palette';
 
 /* ── Professional dumaloq ikonka (gradient fon + glow, "badge" uslubi) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 12px ${color}66, inset 0 0 8px ${color}30`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 12px ${GC.icon}66, inset 0 0 8px ${GC.icon}30`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -163,7 +164,7 @@ const KpiCard: React.FC<{
         background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`,
         borderRadius: 13, padding: '13px 15px', minWidth: 0, position: 'relative', overflow: 'hidden',
     }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: color, boxShadow: `0 0 10px ${color}` }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: color, boxShadow: `0 0 10px ${GC.icon}` }} />
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
             <div style={{ minWidth: 0 }}>
                 <div style={{ color: C.sub, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 7 }}>{label}</div>
@@ -256,11 +257,11 @@ const SingleTreasury: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div>
-                    <div style={{ color: '#4fb3d9', fontSize: 18, fontWeight: 700, lineHeight: 1.35 }}>{DATA.meta.title}</div>
+                    <div style={{ color: GC.cyan, fontSize: 18, fontWeight: 700, lineHeight: 1.35 }}>{DATA.meta.title}</div>
                     <div style={{ color: C.sub, fontSize: 12 }}>{DATA.meta.subtitle}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 9, padding: '8px 13px', flexShrink: 0 }}>
-                    <NeonIcon color="#4fb3d9" size={22}><IconCalendar /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={22}><IconCalendar /></NeonIcon>
                     <div>
                         <div style={{ color: C.text, fontSize: 11.5, fontWeight: 600 }}>{DATA.meta.periodLabel}</div>
                         <div style={{ color: C.sub, fontSize: 10 }}>{DATA.meta.periodRange}</div>
@@ -270,10 +271,10 @@ const SingleTreasury: React.FC = () => {
 
             {/* KPI qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
-                <KpiCard label="Всего заявок" value={kpi.total} amount={kpi.totalAmount} icon={<IconDocuments />} color="#4fb3d9" />
+                <KpiCard label="Всего заявок" value={kpi.total} amount={kpi.totalAmount} icon={<IconDocuments />} color={GC.cyan} />
                 <KpiCard label="Новые (сегодня)" value={kpi.byStatus.new} amount={DATA.amounts.new} icon={<IconCalendarPlus />} color={DATA.statuses.new.color} />
                 <KpiCard label={`Просрочено (> ${DATA.meta.overdueThresholdDays} дн.)`} value={kpi.byStatus.overdue} amount={DATA.amounts.overdue} icon={<IconAlert />} color={DATA.statuses.overdue.color} />
-                <KpiCard label="В работе" value={kpi.byStatus.inWork} amount={DATA.amounts.inWork} icon={<IconClock />} color="#a855f7" />
+                <KpiCard label="В работе" value={kpi.byStatus.inWork} amount={DATA.amounts.inWork} icon={<IconClock />} color={GC.violet} />
                 <KpiCard label="Согласовано" value={kpi.byStatus.approved} amount={DATA.amounts.approved} icon={<IconCheckCircle />} color={DATA.statuses.approved.color} />
             </div>
 
@@ -296,7 +297,7 @@ const SingleTreasury: React.FC = () => {
                     borderRadius: 13, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12, minWidth: 0, height: "100%"
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                        <NeonIcon color="#4fb3d9" size={26}><IconPieChart /></NeonIcon>
+                        <NeonIcon color={GC.cyan} size={26}><IconPieChart /></NeonIcon>
                         <div style={{ color: C.text, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Статус согласований</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -317,7 +318,7 @@ const SingleTreasury: React.FC = () => {
                                 Просроченные заявки <span style={{ color: C.sub, fontWeight: 400, textTransform: 'none' }}>(&gt; {DATA.meta.overdueThresholdDays} дней)</span>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#4fb3d9', fontSize: 11, fontWeight: 600 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: GC.cyan, fontSize: 11, fontWeight: 600 }}>
                             Все просроченные <IconArrowRight />
                         </div>
                     </div>
@@ -335,7 +336,7 @@ const SingleTreasury: React.FC = () => {
                             <tbody>
                                 {DATA.overdueRequests.map((r) => (
                                     <tr key={r.code}>
-                                        <td style={{ padding: '8px', borderBottom: `1px solid ${C.border}`, color: '#4fb3d9', fontWeight: 600 }}>{r.code}</td>
+                                        <td style={{ padding: '8px', borderBottom: `1px solid ${C.border}`, color: GC.cyan, fontWeight: 600 }}>{r.code}</td>
                                         <td style={{ padding: '8px', borderBottom: `1px solid ${C.border}`, color: C.text }}>{r.direction}</td>
                                         <td style={{ padding: '8px', borderBottom: `1px solid ${C.border}`, color: C.text, fontWeight: 600, textAlign: 'right' }}>
                                             {fmt(r.amount, 2)} <span style={{ color: C.sub, fontSize: 10 }}>{DATA.meta.unit}</span>

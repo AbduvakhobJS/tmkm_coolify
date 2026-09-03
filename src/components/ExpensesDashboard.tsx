@@ -5,15 +5,16 @@ import {
     barLabel, centerText,
     Card, KpiCard, Badge, Gauge, DashHeader, DashFooter, DashRoot,
 } from './dashboardUI';
+import { GC, alpha } from '../theme/palette';
 
 /* Xarajat moddalari (mlrd so'm) — mock */
 const COSTS = [
-    { name: 'Xom ashyo', symbol: 'X', color: '#3b82f6', value: 58.4, plan: 56.0, delta: 6.2, eff: 88.5, dyn: [9.2, 9.4, 9.6, 9.9, 10.2, 10.1] },
-    { name: 'Elektr energiya', symbol: '⚡', color: '#f59e0b', value: 32.6, plan: 30.0, delta: 8.4, eff: 82.1, dyn: [5.1, 5.2, 5.4, 5.5, 5.7, 5.7] },
-    { name: 'Tabiiy gaz', symbol: 'G', color: '#22c55e', value: 18.2, plan: 18.0, delta: 3.1, eff: 90.3, dyn: [2.9, 2.95, 3.0, 3.05, 3.15, 3.15] },
-    { name: 'Ish haqi', symbol: 'H', color: '#a855f7', value: 21.4, plan: 21.0, delta: 4.5, eff: 94.0, dyn: [3.4, 3.45, 3.55, 3.6, 3.7, 3.7] },
-    { name: "Yoqilg'i", symbol: 'Y', color: '#06b6d4', value: 7.8, plan: 8.2, delta: -2.2, eff: 79.6, dyn: [1.25, 1.28, 1.3, 1.31, 1.33, 1.33] },
-    { name: 'Boshqa', symbol: '•••', color: '#94a3b8', value: 4.4, plan: 4.6, delta: 1.0, eff: 85.2, dyn: [0.7, 0.71, 0.73, 0.74, 0.76, 0.76] },
+    { name: 'Xom ashyo', symbol: 'X', color: GC.blue, value: 58.4, plan: 56.0, delta: 6.2, eff: 88.5, dyn: [9.2, 9.4, 9.6, 9.9, 10.2, 10.1] },
+    { name: 'Elektr energiya', symbol: '⚡', color: GC.amber, value: 32.6, plan: 30.0, delta: 8.4, eff: 82.1, dyn: [5.1, 5.2, 5.4, 5.5, 5.7, 5.7] },
+    { name: 'Tabiiy gaz', symbol: 'G', color: GC.green, value: 18.2, plan: 18.0, delta: 3.1, eff: 90.3, dyn: [2.9, 2.95, 3.0, 3.05, 3.15, 3.15] },
+    { name: 'Ish haqi', symbol: 'H', color: GC.violet, value: 21.4, plan: 21.0, delta: 4.5, eff: 94.0, dyn: [3.4, 3.45, 3.55, 3.6, 3.7, 3.7] },
+    { name: "Yoqilg'i", symbol: 'Y', color: GC.cyan, value: 7.8, plan: 8.2, delta: -2.2, eff: 79.6, dyn: [1.25, 1.28, 1.3, 1.31, 1.33, 1.33] },
+    { name: 'Boshqa', symbol: '•••', color: GC.slate, value: 4.4, plan: 4.6, delta: 1.0, eff: 85.2, dyn: [0.7, 0.71, 0.73, 0.74, 0.76, 0.76] },
 ];
 const TOTAL = COSTS.reduce((s, c) => s + c.value, 0);
 const ELEC = [6.1, 6.2, 6.4, 6.6, 6.7, 6.6];
@@ -37,9 +38,9 @@ const ExpensesDashboard: React.FC = () => {
         labels: COSTS.map((c, i) => `${i + 1}-sex`),
         datasets: MONTHS.map((mo, mi) => ({ label: mo, data: COSTS.map((c) => +(c.value * MONTHLY[mi] / TOTAL).toFixed(2)), backgroundColor: MONTH_COLORS[mi], stack: 's', borderWidth: 0 })),
     };
-    const elecBar = { labels: MONTHS, datasets: [{ data: ELEC, backgroundColor: '#f59e0b', borderRadius: 4, barPercentage: 0.6 }] };
-    const gasBar = { labels: MONTHS, datasets: [{ data: GAS, backgroundColor: '#2563eb', borderRadius: 4, barPercentage: 0.6 }] };
-    const staffBar = { labels: MONTHS, datasets: [{ data: STAFF, backgroundColor: '#22c55e', borderRadius: 4, barPercentage: 0.6 }] };
+    const elecBar = { labels: MONTHS, datasets: [{ data: ELEC, backgroundColor: GC.amber, borderRadius: 4, barPercentage: 0.6 }] };
+    const gasBar = { labels: MONTHS, datasets: [{ data: GAS, backgroundColor: GC.blue, borderRadius: 4, barPercentage: 0.6 }] };
+    const staffBar = { labels: MONTHS, datasets: [{ data: STAFF, backgroundColor: GC.green, borderRadius: 4, barPercentage: 0.6 }] };
 
     return (
         <DashRoot>
@@ -47,12 +48,12 @@ const ExpensesDashboard: React.FC = () => {
 
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
                 <KpiCard title="Umumiy xarajat" value={`${fmt(TOTAL)} mlrd so'm`} delta={5.8} compare={COMPARE}
-                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: '#ef444422', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>₮</div>} />
-                <KpiCard title="Elektr energiya" value="38,6 mln kWt·s" delta={8.4} compare={COMPARE} badge={<Badge symbol="⚡" color="#f59e0b" />} />
-                <KpiCard title="Tabiiy gaz" value="12,4 mln m³" delta={3.1} compare={COMPARE} badge={<Badge symbol="G" color="#22c55e" />} />
-                <KpiCard title="Yoqilg'i (dizel)" value="1 240 t" delta={-2.2} compare={COMPARE} badge={<Badge symbol="Y" color="#06b6d4" />} />
-                <KpiCard title="Suv sarfi" value="860 ming m³" delta={1.4} compare={COMPARE} badge={<Badge symbol="S" color="#3b82f6" />} />
-                <KpiCard title="Xodimlar soni" value="3 480 kishi" delta={2.1} compare={COMPARE} badge={<Badge symbol="👤" color="#a855f7" />} />
+                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: alpha(GC.red, 0.13), color: GC.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>₮</div>} />
+                <KpiCard title="Elektr energiya" value="38,6 mln kWt·s" delta={8.4} compare={COMPARE} badge={<Badge symbol="⚡" color={GC.amber} />} />
+                <KpiCard title="Tabiiy gaz" value="12,4 mln m³" delta={3.1} compare={COMPARE} badge={<Badge symbol="G" color={GC.green} />} />
+                <KpiCard title="Yoqilg'i (dizel)" value="1 240 t" delta={-2.2} compare={COMPARE} badge={<Badge symbol="Y" color={GC.cyan} />} />
+                <KpiCard title="Suv sarfi" value="860 ming m³" delta={1.4} compare={COMPARE} badge={<Badge symbol="S" color={GC.blue} />} />
+                <KpiCard title="Xodimlar soni" value="3 480 kishi" delta={2.1} compare={COMPARE} badge={<Badge symbol="👤" color={GC.violet} />} />
             </div>
 
             <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: '1fr 1fr', gap: 8 }}>

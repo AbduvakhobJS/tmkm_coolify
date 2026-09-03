@@ -3,6 +3,7 @@ import MetalsDashboard from './MetalsDashboard';
 import ExtractionDashboard from './ExtractionDashboard';
 import ExpensesDashboard from './ExpensesDashboard';
 import SalesDashboard from './SalesDashboard';
+import { GC } from '../theme/palette';
 
 interface StModalProps {
     isOpen?: boolean;
@@ -43,7 +44,7 @@ const StModal: React.FC<StModalProps> = ({ isOpen, onClose }) => {
                     flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
-                    backgroundColor: '#0f172a',
+                    backgroundColor: GC.slate,
                     overflow: 'hidden',
                 }}
                 onClick={(e) => e.stopPropagation()}
@@ -65,7 +66,7 @@ const StModal: React.FC<StModalProps> = ({ isOpen, onClose }) => {
                         style={{
                             background: 'transparent',
                             border: 'none',
-                            color: '#94a3b8',
+                            color: GC.slate,
                             cursor: 'pointer',
                             fontSize: 22,
                             lineHeight: 1,

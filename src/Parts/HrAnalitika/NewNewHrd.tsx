@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { C, chartBase, axis, noLegend, fmt } from '../../components/dashboardUI';
+import { GC } from '../../theme/palette';
 
 /* ── Ma'lumoti hali yig'ilmagan ko'rsatkichlar uchun umumiy matn ── */
 const TBD = 'Aniqlanmoqda';
 
-const ACCENT = '#3b82f6';
+const ACCENT = GC.blue;
 
 /* ── Demo ma'lumotlar (API ulanganda shu blok almashtiriladi) ── */
 const DEMO = {
@@ -16,10 +17,10 @@ const DEMO = {
         fot: 857738821,
     },
     categories: [
-        { label: 'Rahbarlar', count: 22, pct: 9.3, color: '#3b82f6' },
-        { label: 'Mutaxassislar', count: 24, pct: 10.1, color: '#f59e0b' },
-        { label: 'Texnik ijrochilar', count: 12, pct: 5.1, color: '#22c55e' },
-        { label: 'Ishchilar', count: 179, pct: 75.5, color: '#94a3b8' },
+        { label: 'Rahbarlar', count: 22, pct: 9.3, color: GC.blue },
+        { label: 'Mutaxassislar', count: 24, pct: 10.1, color: GC.amber },
+        { label: 'Texnik ijrochilar', count: 12, pct: 5.1, color: GC.green },
+        { label: 'Ishchilar', count: 179, pct: 75.5, color: GC.slate },
     ],
     hiringStages: [
         { label: 'I bosqich', count: 5 },
@@ -199,14 +200,14 @@ const IconUsersBig = () => (
 const SCHEDULE_ICONS: Record<string, React.ReactNode> = { clock: <IconClock />, users: <IconUsersBig /> };
 
 /* ── Umumiy UI bo'laklari ── */
-const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ color = ACCENT, size = 32, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 32, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 10px ${color}45, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 10px ${GC.icon}45, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -231,7 +232,7 @@ const PanelTitle: React.FC<{ title: string; icon?: React.ReactNode }> = ({ title
     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
         {icon && <NeonIcon size={24}>{icon}</NeonIcon>}
         <span style={{
-            color: '#4fb3d9', fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
+            color: GC.cyan, fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
             textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>{title}</span>
     </div>

@@ -2,17 +2,18 @@ import React, { useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { C, chartBase, axis } from '../../components/dashboardUI';
 import DATA_JSON from './financeNewMainDemoData.json';
+import { GC } from '../../theme/palette';
 
 /* ── Professional dumaloq ikonka (FinanceNew.tsx bilan bir xil "badge" uslubi) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 12px ${color}66, inset 0 0 8px ${color}30`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 12px ${GC.icon}66, inset 0 0 8px ${GC.icon}30`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -112,7 +113,7 @@ const IconRefresh = () => (
 type FinanceNewMainData = typeof DATA_JSON;
 const DATA = DATA_JSON as FinanceNewMainData;
 
-const MARKET_COLOR: Record<string, string> = { blue: '#3b82f6', purple: '#a855f7', teal: '#0ea8c7', amber: '#eab308', coral: '#f97316', gray: '#94a3b8' };
+const MARKET_COLOR: Record<string, string> = { blue: GC.blue, purple: GC.violet, teal: GC.cyan, amber: GC.amber, coral: GC.amber, gray: GC.slate };
 const PRODUCT_ICON = [<IconPickaxe key="p" />, <IconCube key="w" />, <IconWeight key="m" />, <IconChartBars key="k" />, <IconFlask key="s" />];
 
 /* ── Yordamchi funksiyalar (FinanceNew.tsx bilan bir xil nomlash) ── */
@@ -123,7 +124,7 @@ const fmtNum = (n: number, d = 0): string => {
     const sign = n < 0 ? '-' : '';
     return dec !== undefined ? `${sign}${grouped},${dec}` : `${sign}${grouped}`;
 };
-const deltaColor = (n: number) => (n < 0 ? '#ef4444' : '#22c55e');
+const deltaColor = (n: number) => (n < 0 ? GC.red : GC.green);
 const deltaArrow = (n: number) => (n < 0 ? '▼' : '▲');
 const MONTH_SHORT = DATA.trendLabels;
 
@@ -150,7 +151,7 @@ const smoothPath = (pts: [number, number][]): string => {
 const SectionTitle: React.FC<{ index: number; title: string; icon: React.ReactNode; color: string; hint?: string }> = ({ index, title, icon, color, hint }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '4px 0 2px' }}>
         <NeonIcon color={color} size={26}>{icon}</NeonIcon>
-        <span style={{ color: '#4fb3d9', fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+        <span style={{ color: GC.cyan, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
             {index}. {title}
         </span>
         {hint && <span style={{ marginLeft: 'auto', color: C.sub, fontSize: 10.5 }}>{hint}</span>}
@@ -158,10 +159,10 @@ const SectionTitle: React.FC<{ index: number; title: string; icon: React.ReactNo
 );
 
 /* ── Karta qobig'i ── */
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, hint, children, style }) => (
     <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
             </div>
             {hint && <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
@@ -217,7 +218,7 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number; fmtV
                         key={i} cx={x(i)} cy={y(v)}
                         r={hoverIdx === i ? 3.8 : i === data.length - 1 ? 3 : 2}
                         fill={color} stroke={C.card} strokeWidth={hoverIdx === i ? 1.6 : 1}
-                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${color})` } : undefined}
+                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${GC.icon})` } : undefined}
                     />
                 ))}
                 {MONTH_SHORT.map((m, i) => (
@@ -228,9 +229,9 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number; fmtV
                 <div style={{
                     position: 'absolute', left: `${(hx / w) * 100}%`, top: `${(hy / h) * 100}%`,
                     transform: `translate(-50%, ${tooltipAbove ? '-130%' : '20%'})`,
-                    background: '#0a0f1df2', border: `1px solid ${color}99`, borderRadius: 6,
+                    background: '#0a0f1df2', border: `1px solid ${GC.icon}99`, borderRadius: 6,
                     padding: '3px 8px', whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
-                    boxShadow: `0 2px 10px ${color}55`, textAlign: 'center',
+                    boxShadow: `0 2px 10px ${GC.icon}55`, textAlign: 'center',
                 }}>
                     <div style={{ color: C.sub, fontSize: 8, fontWeight: 600, textTransform: 'uppercase' }}>{MONTH_SHORT[hoverIdx as number]}</div>
                     <div style={{ color: C.text, fontSize: 11, fontWeight: 700 }}>{fmtV(data[hoverIdx as number])}</div>
@@ -316,7 +317,7 @@ const FinanceNewMain: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {/*<NeonIcon color="#0ea8c7" size={36}><IconGlobe /></NeonIcon>*/}
+                    {/*<NeonIcon color={GC.cyan} size={36}><IconGlobe /></NeonIcon>*/}
                     <div>
                         <div style={{ color: C.text, fontSize: "clamp(14px, 3.4cqmin, 24px)", fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.company}</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{DATA.meta.subtitle}</div>
@@ -330,27 +331,27 @@ const FinanceNewMain: React.FC = () => {
                 {/*    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px', color: C.sub, fontSize: 11.5 }}>Kurs: {DATA.meta.exchangeRate} so'm</div>*/}
                 {/*    <div style={{ textAlign: 'right' }}>*/}
                 {/*        <div style={{ color: C.sub, fontSize: 10 }}>Yangilangan:</div>*/}
-                {/*        <div style={{ color: C.text, fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{DATA.meta.generatedAt} <span style={{ color: '#4fb3d9' }}><IconRefresh /></span></div>*/}
+                {/*        <div style={{ color: C.text, fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>{DATA.meta.generatedAt} <span style={{ color: GC.cyan }}><IconRefresh /></span></div>*/}
                 {/*    </div>*/}
                 {/*</div>*/}
             </div>
 
             {/* Vitals */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <KpiTile label="Sotuvdan jami tushum" value={fmtNum(DATA.vitals[0].value)} unit={DATA.meta.currency} icon={<IconDollar />} color="#3b82f6"
+                <KpiTile label="Sotuvdan jami tushum" value={fmtNum(DATA.vitals[0].value)} unit={DATA.meta.currency} icon={<IconDollar />} color={GC.blue}
                     delta={DATA.vitals[0].delta} trend={DATA.vitals[0].trend} />
-                <KpiTile label="Eksport ulushi" value={fmtPct(DATA.vitals[1].value)} icon={<IconTruck />} color="#0ea8c7"
+                <KpiTile label="Eksport ulushi" value={fmtPct(DATA.vitals[1].value)} icon={<IconTruck />} color={GC.cyan}
                     delta={DATA.vitals[1].delta} deltaUnit=" p.p." trend={DATA.vitals[1].trend} fmtV={fmtPct} />
-                <KpiTile label="Realizatsiya indeksi" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color="#22c55e"
+                <KpiTile label="Realizatsiya indeksi" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color={GC.green}
                     delta={DATA.vitals[2].delta} deltaUnit=" p.p." trend={DATA.vitals[2].trend} fmtV={fmtPct} />
-                <KpiTile label="Sotilgan umumiy hajm" value={fmtNum(DATA.vitals[3].value)} unit={(DATA.vitals[3] as any).unit} icon={<IconWeight />} color="#eab308"
+                <KpiTile label="Sotilgan umumiy hajm" value={fmtNum(DATA.vitals[3].value)} unit={(DATA.vitals[3] as any).unit} icon={<IconWeight />} color={GC.amber}
                     delta={DATA.vitals[3].delta} trend={DATA.vitals[3].trend} />
             </div>
 
             {/* 01. Mahsulot bo'yicha sotuv */}
-            <SectionTitle index={1} title="Mahsulot bo'yicha sotuv" icon={<IconPickaxe />} color="#f97316" hint={`jami ${fmtNum(totalTonnage)} t · ${fmtNum(totalSalesRevenue)} ${DATA.meta.currency}`} />
+            <SectionTitle index={1} title="Mahsulot bo'yicha sotuv" icon={<IconPickaxe />} color={GC.amber} hint={`jami ${fmtNum(totalTonnage)} t · ${fmtNum(totalSalesRevenue)} ${DATA.meta.currency}`} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.35fr', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Sotuv tuzilmasi" icon={<IconPieChart />} iconColor="#f97316" hint="hajm va tushum ulushi">
+                <SectionCard title="Sotuv tuzilmasi" icon={<IconPieChart />} iconColor={GC.amber} hint="hajm va tushum ulushi">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {DATA.salesByProduct.map((p, i) => {
                             const revPct = (p.revenue / totalSalesRevenue) * 100;
@@ -373,7 +374,7 @@ const FinanceNewMain: React.FC = () => {
                         })}
                     </div>
                 </SectionCard>
-                <SectionCard title="Narx va rentabellik — jahon narxiga nisbatan" icon={<IconTagPrice />} iconColor="#22c55e" hint="$ / birlik">
+                <SectionCard title="Narx va rentabellik — jahon narxiga nisbatan" icon={<IconTagPrice />} iconColor={GC.green} hint="$ / birlik">
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                             <thead>
@@ -393,7 +394,7 @@ const FinanceNewMain: React.FC = () => {
                                         <td style={{ padding: '6px 7px', textAlign: 'right', color: C.text, fontWeight: 600, borderBottom: `1px solid ${C.border}` }}>{fmtUsd(p.realizedPrice)}{p.priceUnit.replace('$', '')}</td>
                                         <td style={{ padding: '6px 7px', textAlign: 'right', color: C.sub, borderBottom: `1px solid ${C.border}` }}>{fmtUsd(p.cashCost)}{p.priceUnit.replace('$', '')}</td>
                                         <td style={{ padding: '6px 7px', textAlign: 'right', borderBottom: `1px solid ${C.border}` }}>
-                                            <span style={{ color: '#22c55e', fontWeight: 700, background: 'rgba(34,197,94,0.12)', borderRadius: 6, padding: '2px 7px' }}>{fmtNum(p.marginPct, 1)}%</span>
+                                            <span style={{ color: GC.green, fontWeight: 700, background: 'rgba(34,197,94,0.12)', borderRadius: 6, padding: '2px 7px' }}>{fmtNum(p.marginPct, 1)}%</span>
                                         </td>
                                     </tr>
                                 ))}
@@ -407,7 +408,7 @@ const FinanceNewMain: React.FC = () => {
             </div>
 
             {/* 02. Jahon bozori narxlari */}
-            <SectionTitle index={2} title="Jahon bozori narxlari" icon={<IconGlobe />} color="#3b82f6" hint="LME / birja ko'rsatkichlari" />
+            <SectionTitle index={2} title="Jahon bozori narxlari" icon={<IconGlobe />} color={GC.blue} hint="LME / birja ko'rsatkichlari" />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 {DATA.marketPrices.map((m) => {
                     const last = m.trend[m.trend.length - 1];
@@ -419,16 +420,16 @@ const FinanceNewMain: React.FC = () => {
                     );
                 })}
             </div>
-            <SectionCard title="Narxlar indeksi — yanvarga nisbatan (=100)" icon={<IconChartBars />} iconColor="#3b82f6" hint="turli birlikdagi narxlarni solishtirish uchun normallashtirilgan">
+            <SectionCard title="Narxlar indeksi — yanvarga nisbatan (=100)" icon={<IconChartBars />} iconColor={GC.blue} hint="turli birlikdagi narxlarni solishtirish uchun normallashtirilgan">
                 <div style={{ height: 220 }}>
                     <Line data={priceIndexChart.data as any} options={priceIndexChart.options as any} />
                 </div>
             </SectionCard>
 
             {/* 03. Eksport bozorlari */}
-            <SectionTitle index={3} title="Eksport bozorlari" icon={<IconTruck />} color="#a855f7" hint="hududlar bo'yicha sotuv ulushi" />
+            <SectionTitle index={3} title="Eksport bozorlari" icon={<IconTruck />} color={GC.violet} hint="hududlar bo'yicha sotuv ulushi" />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Hududlar bo'yicha taqsimot" icon={<IconPieChart />} iconColor="#a855f7">
+                <SectionCard title="Hududlar bo'yicha taqsimot" icon={<IconPieChart />} iconColor={GC.violet}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {DATA.exportMarkets.map((m) => (
                             <div key={m.label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -446,15 +447,15 @@ const FinanceNewMain: React.FC = () => {
                         ))}
                     </div>
                 </SectionCard>
-                <SectionCard title="Bozor sharhi" icon={<IconInfo />} iconColor="#eab308" style={{ justifyContent: 'space-between' }}>
+                <SectionCard title="Bozor sharhi" icon={<IconInfo />} iconColor={GC.amber} style={{ justifyContent: 'space-between' }}>
                     <div style={{ color: C.sub, fontSize: 11.5, lineHeight: 1.6 }}>{DATA.marketNote}</div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 10 }}>
                         <div style={{ padding: '9px 11px', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 9 }}>
-                            <div style={{ color: '#22c55e', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>Eng yuqori o'sish</div>
+                            <div style={{ color: GC.green, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>Eng yuqori o'sish</div>
                             <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>Mis kontsentrati · +8,4%</div>
                         </div>
                         <div style={{ padding: '9px 11px', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: 9 }}>
-                            <div style={{ color: '#eab308', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>Diqqat talab</div>
+                            <div style={{ color: GC.amber, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', marginBottom: 3 }}>Diqqat talab</div>
                             <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>Sulfat kislotasi tannarxi</div>
                         </div>
                     </div>

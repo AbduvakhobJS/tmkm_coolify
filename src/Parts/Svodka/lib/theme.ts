@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { GC } from '../../../theme/palette';
 
 /**
  * Chart libraries need concrete colours, not `var(--x)` strings, so the active
@@ -32,9 +33,9 @@ export type Palette = Record<TokenName, string>;
 
 /** Стандарт (қоронғи) палитра — `svodka.css` даги қийматлар билан бир хил. */
 const FALLBACK: Palette = {
-  s1: "#3987e5",
-  s2: "#d95926",
-  s3: "#199e70",
+  s1: GC.blue,
+  s2: GC.amber,
+  s3: GC.green,
   ink: "#ffffff",
   "ink-2": "#b9c2cb",
   "ink-3": "#7d8892",
@@ -44,12 +45,12 @@ const FALLBACK: Palette = {
   surface: "#161b20",
   "surface-2": "#1c2229",
   page: "#0a0d10",
-  good: "#0ca30c",
-  warn: "#fab219",
-  crit: "#d03b3b",
-  "good-ink": "#33b833",
-  "warn-ink": "#d9a41c",
-  "crit-ink": "#e06060",
+  good: GC.green,
+  warn: GC.amber,
+  crit: GC.red,
+  "good-ink": GC.green,
+  "warn-ink": GC.amber,
+  "crit-ink": GC.red,
 };
 
 /**

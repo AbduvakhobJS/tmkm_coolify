@@ -2,17 +2,18 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText } from '../../components/dashboardUI';
+import { GC } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -96,10 +97,10 @@ const KPI_ITEMS = [
 ];
 
 const SOCIAL = [
-    { label: 'LinkedIn', value: '45.2K', icon: <IconLinkedIn />, color: '#0a66c2' },
-    { label: 'Telegram', value: '38.7K', icon: <IconTelegram />, color: '#29a9eb' },
-    { label: 'YouTube', value: '22.1K', icon: <IconYouTube />, color: '#ff0000' },
-    { label: 'Instagram', value: '18.6K', icon: <IconInstagram />, color: '#c1358f' },
+    { label: 'LinkedIn', value: '45.2K', icon: <IconLinkedIn />, color: GC.blue },
+    { label: 'Telegram', value: '38.7K', icon: <IconTelegram />, color: GC.blue },
+    { label: 'YouTube', value: '22.1K', icon: <IconYouTube />, color: GC.red },
+    { label: 'Instagram', value: '18.6K', icon: <IconInstagram />, color: GC.magenta },
 ];
 
 const FUNNEL = [
@@ -110,8 +111,8 @@ const FUNNEL = [
 ];
 
 const RISKS = [
-    { label: 'Репутационные', value: 3, color: '#f59e0b' },
-    { label: 'Медиа-инциденты', value: 2, color: '#3b82f6' },
+    { label: 'Репутационные', value: 3, color: GC.amber },
+    { label: 'Медиа-инциденты', value: 2, color: GC.blue },
     { label: 'Fake News', value: 1, color: C.down },
 ];
 
@@ -120,7 +121,7 @@ const CHECKLIST = [
     'Инвесторский интерес устойчив',
 ];
 
-const HeaderRow: React.FC<{ icon: React.ReactNode; title: string; color?: string }> = ({ icon, title, color = '#4fb3d9' }) => (
+const HeaderRow: React.FC<{ icon: React.ReactNode; title: string; color?: string }> = ({ icon, title, color = GC.cyan }) => (
     <div style={{ color, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
         <NeonIcon color={color} size={24}>{icon}</NeonIcon>{title}
     </div>
@@ -149,9 +150,9 @@ const Marketing: React.FC = () => {
                 {/* Sarlavha */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <NeonIcon color="#3b82f6" size={36}><IconBarChart /></NeonIcon>
+                        <NeonIcon color={GC.blue} size={36}><IconBarChart /></NeonIcon>
                         <div>
-                            <div style={{ color: '#4fb3d9', fontSize: 15, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Маркетинг</div>
+                            <div style={{ color: GC.cyan, fontSize: 15, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Маркетинг</div>
                             <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.4, marginTop: 1 }}>Ключевые показатели</div>
                         </div>
                     </div>
@@ -163,7 +164,7 @@ const Marketing: React.FC = () => {
                             onClick={() => navigate('/main/marketing-detail')}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer',
-                                background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 999,
+                                background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 999,
                                 color: '#fff', fontSize: 10.5, fontWeight: 700, padding: '5px 11px',
                                 boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                             }}
@@ -221,7 +222,7 @@ const Marketing: React.FC = () => {
                         <HeaderRow icon={<IconTrendUp />} title="Инвесторы и мероприятия" />
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, marginBottom: 8 }}>
                             {FUNNEL.map((f) => (
-                                <div key={f.label} style={{ width: `${f.width}%`, height: 16, borderRadius: 3, background: 'linear-gradient(90deg, #1e4d7b, #0ea8c7)', boxShadow: '0 0 8px rgba(14,168,199,0.35)' }} />
+                                <div key={f.label} style={{ width: `${f.width}%`, height: 16, borderRadius: 3, background: `linear-gradient(90deg, #1e4d7b, ${GC.cyan})`, boxShadow: '0 0 8px rgba(14,168,199,0.35)' }} />
                             ))}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, overflowY: 'auto', flex: 1 }}>

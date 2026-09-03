@@ -6,21 +6,22 @@ import {
     Card, Badge, Gauge, DashHeader, DashRoot,
 } from './dashboardUI';
 import PD from './resourceProfitDemoData.json';
+import { GC } from '../theme/palette';
 
 /* Oy nomlari — bu dashboard 4 oylik ma'lumot bilan ishlaydi (dashboardUI.MONTHS 6 oylik) */
 const M = PD.monthsShort;
 
 /* Aksent ranglar — MetalsDashboardMain paletrasi bilan bir xil uslubda */
 const A = {
-    revenue: '#3b82f6',
-    cost: '#ef4444',
-    profit: '#22c55e',
-    margin: '#f59e0b',
-    eff: '#22c55e',
-    energy: '#06b6d4',
-    save: '#a855f7',
+    revenue: GC.blue,
+    cost: GC.red,
+    profit: GC.green,
+    margin: GC.amber,
+    eff: GC.green,
+    energy: GC.cyan,
+    save: GC.violet,
 };
-const COST_COLORS = ['#3b82f6', '#f97316', '#0ea8c7', '#a855f7'];
+const COST_COLORS = [GC.blue, GC.amber, GC.cyan, GC.violet];
 
 /* x/y o'qlari — belgilar QIYA emas, doim GORIZONTAL */
 const hAxis = (opts: any = {}) => {
@@ -93,7 +94,7 @@ const ResourceDashboardPart2: React.FC = () => {
         labels: M,
         datasets: [{
             data: eff.co2.data,
-            backgroundColor: eff.co2.data.map(v => (v === worstCo2 ? C.down : '#f59e0b')),
+            backgroundColor: eff.co2.data.map(v => (v === worstCo2 ? C.down : GC.amber)),
             borderRadius: 4, barPercentage: 0.6,
         }],
     };
@@ -211,7 +212,7 @@ const ResourceDashboardPart2: React.FC = () => {
                 <Card title="Oy yakunlari — foyda va samaradorlik">
                     <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: '1fr 1fr', gap: 6 }}>
                         {s.items.map(it => {
-                            const col = it.tone === 'crit' ? C.down : it.tone === 'warn' ? '#eab308' : C.up;
+                            const col = it.tone === 'crit' ? C.down : it.tone === 'warn' ? GC.amber : C.up;
                             return (
                                 <div key={it.label} style={{
                                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',

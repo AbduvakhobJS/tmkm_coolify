@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { C } from '../../components/dashboardUI';
+import { GC } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -82,18 +83,18 @@ const IconLayoutGrid = () => (
 type Widget = { key: string; title: string; desc: string; route: string; color: string; icon: React.ReactNode };
 
 const WIDGETS: Widget[] = [
-    { key: 'hse', title: 'HSE контроль и SLA', desc: 'Производственная безопасность, случаи, SLA и статусы', route: '/main/hse-big', color: '#4fb3d9', icon: <IconShield /> },
-    { key: 'marketing', title: 'Маркетинг', desc: 'Бренд, соцсети, инвесторы и репутация', route: '/main/marketing', color: '#a855f7', icon: <IconBarChart /> },
-    { key: 'prmedia', title: 'PR / Медиа', desc: 'Публикации, СМИ, тональность и охваты', route: '/main/pr-media', color: '#ec4899', icon: <IconMegaphone /> },
+    { key: 'hse', title: 'HSE контроль и SLA', desc: 'Производственная безопасность, случаи, SLA и статусы', route: '/main/hse-big', color: GC.cyan, icon: <IconShield /> },
+    { key: 'marketing', title: 'Маркетинг', desc: 'Бренд, соцсети, инвесторы и репутация', route: '/main/marketing', color: GC.violet, icon: <IconBarChart /> },
+    { key: 'prmedia', title: 'PR / Медиа', desc: 'Публикации, СМИ, тональность и охваты', route: '/main/pr-media', color: GC.magenta, icon: <IconMegaphone /> },
     { key: 'hr', title: 'HR Аналитика', desc: 'Численность, движение персонала, HR-фокус', route: '/main/hr-bi-main', color: '#146775', icon: <IconUsers /> },
-    { key: 'hrnew', title: 'HR New', desc: '', route: '/main/new-hr-detail', color: '#1061a3', icon: <IconUsers /> },
-    { key: 'contacthub', title: 'ContactHub', desc: 'Международные контакты, встречи и заметки', route: '/main/contact-hub', color: '#0ea8c7', icon: <IconBookOpen /> },
-    { key: 'esg', title: 'ESG', desc: 'Экология, соцответственность и governance', route: '/main/esg', color: '#eab308', icon: <IconLeaf /> },
-    { key: 'map', title: 'Map', desc: 'Map', route: '/main/4', color: '#ea08cc', icon: <IconShield /> },
-    { key: 'events', title: 'Events', desc: 'Events', route: '/main/7', color: '#ea0808', icon: <IconUsers /> },
-    { key: 'resurs', title: 'Resurs', desc: 'Resurs', route: '/main/9', color: '#8391d6', icon: <IconBarChart /> },
-    { key: 'finance', title: 'finance', desc: 'finance', route: '/main/finance', color: '#33d80f', icon: <IconBarChart /> },
-    { key: 'financenew', title: 'financenew', desc: 'financenew', route: '/main/finance-new', color: '#2a51a5', icon: <IconBarChart /> },
+    { key: 'hrnew', title: 'HR New', desc: '', route: '/main/new-hr-detail', color: GC.blue, icon: <IconUsers /> },
+    { key: 'contacthub', title: 'ContactHub', desc: 'Международные контакты, встречи и заметки', route: '/main/contact-hub', color: GC.cyan, icon: <IconBookOpen /> },
+    { key: 'esg', title: 'ESG', desc: 'Экология, соцответственность и governance', route: '/main/esg', color: GC.amber, icon: <IconLeaf /> },
+    { key: 'map', title: 'Map', desc: 'Map', route: '/main/4', color: GC.magenta, icon: <IconShield /> },
+    { key: 'events', title: 'Events', desc: 'Events', route: '/main/7', color: GC.red, icon: <IconUsers /> },
+    { key: 'resurs', title: 'Resurs', desc: 'Resurs', route: '/main/9', color: GC.blue, icon: <IconBarChart /> },
+    { key: 'finance', title: 'finance', desc: 'finance', route: '/main/finance', color: GC.green, icon: <IconBarChart /> },
+    { key: 'financenew', title: 'financenew', desc: 'financenew', route: '/main/finance-new', color: GC.blue, icon: <IconBarChart /> },
     { key: 'singletreasury', title: 'single-treasury', desc: 'single-treasury', route: '/main/single-treasury', color: '#103b5e', icon: <IconBarChart /> },
 ];
 
@@ -133,7 +134,7 @@ const PickerModal: React.FC<{ onPick: (key: string) => void; onClose: () => void
             <style>{'@keyframes ctor-modal-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }'}</style>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#4fb3d9" size={30}><IconLayoutGrid /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={30}><IconLayoutGrid /></NeonIcon>
                     <div>
                         <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>Выберите виджет</div>
                         <div style={{ color: C.sub, fontSize: 11.5, marginTop: 1 }}>Компонент отобразится в выбранной ячейке конструктора</div>
@@ -217,9 +218,9 @@ const ConstuctorPage: React.FC = () => {
 
             {/* Sarlavha */}
             {/*<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>*/}
-            {/*    <NeonIcon color="#4fb3d9" size={34}><IconLayoutGrid /></NeonIcon>*/}
+            {/*    <NeonIcon color={GC.cyan} size={34}><IconLayoutGrid /></NeonIcon>*/}
             {/*    <div>*/}
-            {/*        <div style={{ color: '#4fb3d9', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Конструктор дашборда</div>*/}
+            {/*        <div style={{ color: GC.cyan, fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Конструктор дашборда</div>*/}
             {/*        <div style={{ color: C.sub, fontSize: 11.5, marginTop: 1 }}>Соберите свою сводку из 6 доступных виджетов — выбор сохраняется автоматически</div>*/}
             {/*    </div>*/}
             {/*</div>*/}
@@ -306,7 +307,7 @@ const ConstuctorPage: React.FC = () => {
                                 >
                                     <div style={{
                                         width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', color: '#fff',
+                                        background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, color: '#fff',
                                         boxShadow: '0 8px 22px rgba(14,168,199,0.3)',
                                     }}>
                                         <IconPlus />

@@ -8,6 +8,7 @@ import { C as BaseC, chartBase } from './dashboardUI';
 import ResourceDashboardPart2 from './ResourceDashboardPart2';
 import StModal from './StModal';
 import RD from './resourceDashboardDemoData.json';
+import { GC } from '../theme/palette';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
@@ -20,19 +21,19 @@ export const MONTHS_SHORT = RD.monthsShort;
 export const C = {
     ...BaseC,
     muted: BaseC.sub,
-    electric: '#3b82f6', gas: '#f97316', water: '#0ea8c7', solar: '#eab308', chemical: '#a855f7',
-    cost: '#22c55e', co2: '#ef4444', eff: '#22c55e', warn: '#eab308', ok: '#22c55e', crit: '#ef4444', info: '#0ea8c7',
+    electric: GC.blue, gas: GC.amber, water: GC.cyan, solar: GC.magenta, chemical: GC.violet,
+    cost: GC.green, co2: GC.red, eff: GC.green, warn: GC.amber, ok: GC.green, crit: GC.red, info: GC.cyan,
 };
 
 /* ── Neon ikonka (Finance / ESG komponentlaridagi bir xil dizayn uslubi) ── */
-export const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 26, children }) => (
+export const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 26, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}25`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}25`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -171,7 +172,7 @@ export const DetailButton: React.FC<{ onClick: () => void; color: string }> = ({
         onClick={onClick}
         style={{
             display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer',
-            background: `${color}18`, border: `1px solid ${color}44`, borderRadius: 7,
+            background: `${GC.icon}18`, border: `1px solid ${GC.icon}44`, borderRadius: 7,
             color, fontSize: 10.5, fontWeight: 600, padding: '5px 10px',
         }}
     >
@@ -223,20 +224,20 @@ export const MonthRow: React.FC<{ values: (number | string)[]; color?: string; w
     );
 
 export const badge = (color: string, text: string) => (
-    <span style={{ display: 'inline-block', padding: '2px 7px', borderRadius: '5px', background: `${color}1c`, border: `1px solid ${color}55`, color, fontSize: '10px', fontWeight: 700 }}>
+    <span style={{ display: 'inline-block', padding: '2px 7px', borderRadius: '5px', background: `${GC.icon}1c`, border: `1px solid ${GC.icon}55`, color, fontSize: '10px', fontWeight: 700 }}>
         {text}
     </span>
 );
 
 export const Div: React.FC<{ color: string }> = ({ color }) => (
-    <div style={{ height: '1px', background: `linear-gradient(90deg, ${color}55, transparent)`, margin: '2px 0' }} />
+    <div style={{ height: '1px', background: `linear-gradient(90deg, ${GC.icon}55, transparent)`, margin: '2px 0' }} />
 );
 
 /* ── Chart helperlari ── */
 export const MiniLine: React.FC<{ data: number[]; color: string; warnIdx?: number; refLine?: number; height?: number; fill?: boolean }> =
     ({ data, color, warnIdx, refLine, height = 75, fill = true }) => {
         const pts = data.map((_, i) => warnIdx !== undefined && i === warnIdx ? C.crit : color);
-        const ds: any[] = [{ data, borderColor: color, backgroundColor: fill ? `${color}20` : 'transparent', borderWidth: 2, pointRadius: 3, pointBackgroundColor: pts, tension: 0.4, fill }];
+        const ds: any[] = [{ data, borderColor: color, backgroundColor: fill ? `${GC.icon}20` : 'transparent', borderWidth: 2, pointRadius: 3, pointBackgroundColor: pts, tension: 0.4, fill }];
         if (refLine !== undefined) ds.push({ data: data.map(() => refLine), borderColor: `${C.crit}88`, borderWidth: 1, borderDash: [4, 4], pointRadius: 0, fill: false, backgroundColor: 'transparent' } as any);
         return <div style={wrap(height)}><Line data={{ labels: MONTHS, datasets: ds }} options={baseOpts() as any} /></div>;
     };
@@ -244,14 +245,14 @@ export const MiniLine: React.FC<{ data: number[]; color: string; warnIdx?: numbe
 export const MiniArea: React.FC<{ data: number[]; color: string; height?: number }> =
     ({ data, color, height = 80 }) => (
         <div style={wrap(height)}>
-            <Line data={{ labels: MONTHS, datasets: [{ data, borderColor: color, backgroundColor: `${color}28`, borderWidth: 2, pointRadius: 3, tension: 0.4, fill: true }] }} options={baseOpts() as any} />
+            <Line data={{ labels: MONTHS, datasets: [{ data, borderColor: color, backgroundColor: `${GC.icon}28`, borderWidth: 2, pointRadius: 3, tension: 0.4, fill: true }] }} options={baseOpts() as any} />
         </div>
     );
 
 export const MiniBar: React.FC<{ data: number[]; color?: string; barColors?: string[]; height?: number; labels?: string[] }> =
     ({ data, color = C.electric, barColors, height = 80, labels }) => (
         <div style={wrap(height)}>
-            <Bar data={{ labels: labels || MONTHS, datasets: [{ data, backgroundColor: barColors || `${color}bb`, borderRadius: 4, borderColor: 'transparent' }] }} options={baseOpts() as any} />
+            <Bar data={{ labels: labels || MONTHS, datasets: [{ data, backgroundColor: barColors || `${GC.icon}bb`, borderRadius: 4, borderColor: 'transparent' }] }} options={baseOpts() as any} />
         </div>
     );
 
@@ -411,7 +412,7 @@ const CompactTrendCard: React.FC<{
 }> = ({ title, color, icon, value, unit, deltaText, up, trendData, warnIdx, refLine, stats, statsCols = 3 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const pts = trendData.map((_, i) => (warnIdx !== undefined && i === warnIdx ? C.crit : color));
-    const datasets: any[] = [{ data: trendData, borderColor: color, backgroundColor: `${color}20`, borderWidth: 2, pointRadius: 2.5, pointBackgroundColor: pts, tension: 0.4, fill: true }];
+    const datasets: any[] = [{ data: trendData, borderColor: color, backgroundColor: `${GC.icon}20`, borderWidth: 2, pointRadius: 2.5, pointBackgroundColor: pts, tension: 0.4, fill: true }];
     if (refLine !== undefined) datasets.push({ data: trendData.map(() => refLine), borderColor: `${C.crit}88`, borderWidth: 1, borderDash: [4, 4], pointRadius: 0, fill: false, backgroundColor: 'transparent' });
 
     return (
@@ -516,7 +517,7 @@ const ResourceDashboard: React.FC = () => {
         <div style={panelStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0 }}>
                 <NeonIcon color={C.electric} size={30}><IconGauge /></NeonIcon>
-                <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '2px', color: '#4fb3d9', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '2px', color: GC.cyan, textTransform: 'uppercase' }}>
                     Resurs sarfi monitoringi
                 </div>
             </div>

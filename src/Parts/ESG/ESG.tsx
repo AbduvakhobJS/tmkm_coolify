@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 import { C, chartBase, noLegend, centerText } from '../../components/dashboardUI';
 import esgData from './esgDemoData.json';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Neon ikonkalar (dizayn tizimiga mos, gradient + glow) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: size >= 40 ? 12 : 10, flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(135deg, ${color}33, ${color}0a)`,
-        border: `1px solid ${color}55`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}22`,
-        color,
+        background: `linear-gradient(135deg, ${GC.icon}33, ${GC.icon}0a)`,
+        border: `1px solid ${GC.icon}55`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}22`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -172,9 +173,9 @@ type EsgData = {
 
 const DATA = esgData as unknown as EsgData;
 
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, children, style }) => (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
-        <div style={{ color: '#4fb3d9', fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
             {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
         </div>
         {children}
@@ -188,7 +189,7 @@ const MiniStatRow: React.FC<{ item: EsgItem; color: string }> = ({ item, color }
             <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
             <div style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>{item.value}{item.unit && <span style={{ color: C.sub, fontSize: 11, fontWeight: 400, marginLeft: 4 }}>{item.unit}</span>}</div>
         </div>
-        <div style={{ color: item.delta >= 0 ? '#22c55e' : C.down, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+        <div style={{ color: item.delta >= 0 ? GC.green : C.down, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
             {item.delta >= 0 ? '▲' : '▼'} {Math.abs(item.delta)}%
         </div>
     </div>
@@ -219,7 +220,7 @@ const ESG: React.FC = () => {
     }), []);
 
     const generated = new Date(DATA.generatedAt);
-    const kpiColor: Record<string, string> = { esgRating: '#4fb3d9', irma: '#22c55e', hseIndex: '#a855f7', co2: '#94a3b8', water: '#3b82f6', violations: C.down };
+    const kpiColor: Record<string, string> = { esgRating: GC.cyan, irma: GC.green, hseIndex: GC.violet, co2: GC.slate, water: GC.blue, violations: C.down };
 
     return (
         <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -227,14 +228,14 @@ const ESG: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {/*<NeonIcon color="#22c55e" size={32}><IconLeaf /></NeonIcon>*/}
+                    {/*<NeonIcon color={GC.green} size={32}><IconLeaf /></NeonIcon>*/}
                     <div style={{ color: 'rgb(241, 242, 246)', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ESG</div>
                 </div>
                 <button
                     onClick={() => navigate('/main/esg-detail')}
                     style={{
                         display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                        background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 999,
+                        background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 999,
                         color: '#fff', fontSize: 11.5, fontWeight: 700, padding: '7px 14px',
                         boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
                     }}
@@ -250,11 +251,11 @@ const ESG: React.FC = () => {
                 {DATA.kpi.map((k) => (
                     <div key={k.key} style={{ minWidth: 0, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '9px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <NeonIcon color={kpiColor[k.key] ?? '#4fb3d9'} size={22}>{ICONS[k.icon]}</NeonIcon>
+                            <NeonIcon color={kpiColor[k.key] ?? GC.cyan} size={22}>{ICONS[k.icon]}</NeonIcon>
                             <span style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.label}</span>
                         </div>
                         <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{k.value}<span style={{ color: C.sub, fontSize: 11, fontWeight: 400, marginLeft: 3 }}>{k.unit}</span></div>
-                        <div style={{ color: k.delta >= 0 ? '#22c55e' : C.down, fontSize: 10 }}>
+                        <div style={{ color: k.delta >= 0 ? GC.green : C.down, fontSize: 10 }}>
                             {k.delta >= 0 ? '▲' : '▼'} {Math.abs(k.delta)}% oldingi davrga nisbatan
                         </div>
                     </div>
@@ -263,25 +264,25 @@ const ESG: React.FC = () => {
 
             {/* 1-qator: Ekologiya / ijtimoiy blok / HSE-Governance */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, alignItems: 'stretch' }}>
-                <SectionCard title="Ekologiya" icon={<IconLeaf />} iconColor="#22c55e">
+                <SectionCard title="Ekologiya" icon={<IconLeaf />} iconColor={GC.green}>
                     {DATA.ecology.map((item) => (
-                        <MiniStatRow key={item.label} item={item} color="#22c55e" />
+                        <MiniStatRow key={item.label} item={item} color={GC.green} />
                     ))}
                 </SectionCard>
 
-                <SectionCard title="Ijtimoiy blok" icon={<IconUsers />} iconColor="#3b82f6">
+                <SectionCard title="Ijtimoiy blok" icon={<IconUsers />} iconColor={GC.blue}>
                     {DATA.social.map((item) => (
-                        <MiniStatRow key={item.label} item={item} color="#3b82f6" />
+                        <MiniStatRow key={item.label} item={item} color={GC.blue} />
                     ))}
                 </SectionCard>
 
-                <SectionCard title="HSE / Governance" icon={<IconShield />} iconColor="#a855f7">
+                <SectionCard title="HSE / Governance" icon={<IconShield />} iconColor={GC.violet}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, flex: 1 }}>
                         {DATA.governance.map((item) => (
                             <div key={item.label} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 10px', minWidth: 0 }}>
                                 <div style={{ color: C.sub, fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</div>
                                 <div style={{ color: C.text, fontSize: 17, fontWeight: 700, marginTop: 2 }}>{item.value}{item.unit && <span style={{ color: C.sub, fontSize: 11, fontWeight: 400, marginLeft: 3 }}>{item.unit}</span>}</div>
-                                <div style={{ color: item.delta >= 0 ? '#22c55e' : C.down, fontSize: 10, marginTop: 2 }}>
+                                <div style={{ color: item.delta >= 0 ? GC.green : C.down, fontSize: 10, marginTop: 2 }}>
                                     {item.delta >= 0 ? '▲' : '▼'} {Math.abs(item.delta)}%
                                 </div>
                             </div>
@@ -320,13 +321,13 @@ const ESG: React.FC = () => {
 
             {/* Pastki qator: status va maqsad */}
             <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#22c55e14', border: '1px solid #22c55e44', borderRadius: 12, padding: '9px 14px' }}>
-                    <NeonIcon color="#22c55e" size={26}><IconShield /></NeonIcon>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: alpha(GC.green, 0.08), border: `1px solid ${alpha(GC.green, 0.27)}`, borderRadius: 12, padding: '9px 14px' }}>
+                    <NeonIcon color={GC.green} size={26}><IconShield /></NeonIcon>
                     <span style={{ color: C.sub, fontSize: 11 }}>Holat:</span>
-                    <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 700, textTransform: 'uppercase' }}>{DATA.status}</span>
+                    <span style={{ color: GC.green, fontSize: 13, fontWeight: 700, textTransform: 'uppercase' }}>{DATA.status}</span>
                 </div>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '9px 14px', minWidth: 0 }}>
-                    <NeonIcon color="#4fb3d9" size={26}><IconFlag /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={26}><IconFlag /></NeonIcon>
                     <span style={{ color: C.sub, fontSize: 11 }}>Maqsad:</span>
                     <span style={{ color: C.text, fontSize: 11.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{DATA.goal}</span>
                 </div>

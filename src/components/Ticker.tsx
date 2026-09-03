@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { TICKER_ITEMS } from '../data/constants';
+import axios from "axios";
 
 const Ticker: React.FC = () => {
   const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
 
-  return (
+    return (
     <footer className="ticker-bar">
       <div className="ticker-label">LIVE FEED</div>
       <div className="ticker-track">

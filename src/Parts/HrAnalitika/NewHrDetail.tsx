@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { C, chartBase, axis, noLegend, fmt } from '../../components/dashboardUI';
 import HR from './newHrDetailDemoData.json';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Kichraytirilgan (0.6x) markaziy matn plagini — kichik donutlarga son sig'ishi uchun ── */
 const smallCenterText = (main: string, sub: string) => ({
@@ -24,14 +25,14 @@ const smallCenterText = (main: string, sub: string) => ({
 
 /* ── Professional dumaloq ikonka (gradient fon + glow, "badge" uslubi) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 30, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 30, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 10px ${color}55, inset 0 0 6px ${color}25`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 10px ${GC.icon}55, inset 0 0 6px ${GC.icon}25`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -176,15 +177,15 @@ type HrData = typeof HR;
 const DATA = HR as HrData;
 
 /* ── Yordamchi UI komponentlar ── */
-const CardShell: React.FC<{ title: string; icon?: React.ReactNode; color?: string; link?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, color = '#4fb3d9', link, children, style }) => (
+const CardShell: React.FC<{ title: string; icon?: React.ReactNode; color?: string; link?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, color = GC.cyan, link, children, style }) => (
     <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 12, padding: '11px 13px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
             {icon && <NeonIcon color={color} size={22}>{icon}</NeonIcon>}
-            <span style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
+            <span style={{ color: GC.cyan, fontSize: 11, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>{children}</div>
         {link && (
-            <div style={{ marginTop: 8, color: '#4fb3d9', fontSize: 10.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ marginTop: 8, color: GC.cyan, fontSize: 10.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {link}
             </div>
         )}
@@ -195,7 +196,7 @@ const KpiCard: React.FC<{ item: (typeof DATA.kpi)[number] }> = ({ item }) => (
     <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 12, padding: '11px 13px', minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <span style={{ color: C.sub, fontSize: 10.5, fontWeight: 600 }}>{item.label}</span>
-            <NeonIcon color="#4fb3d9" size={26}>{KPI_ICONS[item.icon]}</NeonIcon>
+            <NeonIcon color={GC.cyan} size={26}>{KPI_ICONS[item.icon]}</NeonIcon>
         </div>
         <div style={{ color: C.text, fontSize: 21, fontWeight: 700, lineHeight: 1 }}>
             {item.value}<span style={{ color: C.sub, fontSize: 11, fontWeight: 500, marginLeft: 4 }}>{item.unit}</span>
@@ -203,7 +204,7 @@ const KpiCard: React.FC<{ item: (typeof DATA.kpi)[number] }> = ({ item }) => (
         {item.progress !== undefined ? (
             <>
                 <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', marginTop: 8 }}>
-                    <div style={{ height: '100%', width: `${item.progress}%`, background: '#3b82f6', borderRadius: 3, boxShadow: '0 0 6px #3b82f688' }} />
+                    <div style={{ height: '100%', width: `${item.progress}%`, background: GC.blue, borderRadius: 3, boxShadow: `0 0 6px ${alpha(GC.blue, 0.53)}` }} />
                 </div>
                 <div style={{ color: C.sub, fontSize: 9.5, marginTop: 4 }}>{item.targetLabel}</div>
             </>
@@ -259,7 +260,7 @@ const AgeBarCard: React.FC = () => {
     const d = DATA.ageComposition;
     const data = useMemo(() => ({
         labels: d.items.map((i) => i.label),
-        datasets: [{ data: d.items.map((i) => i.count), backgroundColor: '#3b82f6', borderRadius: 5, maxBarThickness: 34 }],
+        datasets: [{ data: d.items.map((i) => i.count), backgroundColor: GC.blue, borderRadius: 5, maxBarThickness: 34 }],
     }), [d.items]);
     return (
         <CardShell title="Возрастной состав">
@@ -275,7 +276,7 @@ const TenureBarCard: React.FC = () => {
     const d = DATA.tenureDistribution;
     const data = useMemo(() => ({
         labels: d.items.map((i) => i.label),
-        datasets: [{ data: d.items.map((i) => i.count), backgroundColor: '#22c55e', borderRadius: 5, maxBarThickness: 34 }],
+        datasets: [{ data: d.items.map((i) => i.count), backgroundColor: GC.green, borderRadius: 5, maxBarThickness: 34 }],
     }), [d.items]);
     return (
         <CardShell title="Распределение по стажу работы">
@@ -291,7 +292,7 @@ const ScheduleBarCard: React.FC = () => {
     const d = DATA.scheduleDistribution;
     const data = useMemo(() => ({
         labels: d.items.map((i) => i.label),
-        datasets: [{ data: d.items.map((i) => i.count), backgroundColor: '#0ea8c7', borderRadius: 5, maxBarThickness: 18 }],
+        datasets: [{ data: d.items.map((i) => i.count), backgroundColor: GC.cyan, borderRadius: 5, maxBarThickness: 18 }],
     }), [d.items]);
     return (
         <CardShell title="Распределение по рабочим графикам">
@@ -312,14 +313,14 @@ const InfoRow: React.FC<{ label: string; value: React.ReactNode; delta?: string 
     </div>
 );
 
-const ProgressBarRow: React.FC<{ label: string; pct: number; color?: string }> = ({ label, pct, color = '#3b82f6' }) => (
+const ProgressBarRow: React.FC<{ label: string; pct: number; color?: string }> = ({ label, pct, color = GC.blue }) => (
     <div style={{ marginBottom: 7 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 3 }}>
             <span style={{ color: C.text }}>{label}</span>
             <span style={{ color: C.sub, fontWeight: 700 }}>{pct}%</span>
         </div>
         <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, boxShadow: `0 0 5px ${color}88` }} />
+            <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, boxShadow: `0 0 5px ${GC.icon}88` }} />
         </div>
     </div>
 );
@@ -339,14 +340,14 @@ const NewHrDetail: React.FC = () => {
 
             {/* Sarlavha va tablar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-                <div style={{ color: '#4fb3d9', fontSize: 20, fontWeight: 700 }}>{DATA.meta.title}</div>
+                <div style={{ color: GC.cyan, fontSize: 20, fontWeight: 700 }}>{DATA.meta.title}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {/*<div style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 13px', color: C.text, fontSize: 12 }}>*/}
                     {/*    <IconCalendarBell />Период: {DATA.meta.period}*/}
                     {/*</div>*/}
                     {/*<button style={{*/}
                     {/*    display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',*/}
-                    {/*    background: 'linear-gradient(135deg, #1e4d7b, #0ea8c7)', border: 'none', borderRadius: 8,*/}
+                    {/*    background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 8,*/}
                     {/*    color: '#fff', fontSize: 12, fontWeight: 700, padding: '8px 14px',*/}
                     {/*    boxShadow: '0 6px 16px rgba(14,168,199,0.3)',*/}
                     {/*}}>*/}
@@ -359,7 +360,7 @@ const NewHrDetail: React.FC = () => {
             {/*        <div key={t} style={{*/}
             {/*            padding: '6px 14px', borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: 'pointer',*/}
             {/*            color: i === 0 ? '#fff' : C.sub,*/}
-            {/*            background: i === 0 ? 'linear-gradient(135deg, #1e4d7b, #0ea8c7)' : 'transparent',*/}
+            {/*            background: i === 0 ? `linear-gradient(135deg, #1e4d7b, ${GC.cyan})` : 'transparent',*/}
             {/*        }}>*/}
             {/*            {t}*/}
             {/*        </div>*/}
@@ -388,16 +389,16 @@ const NewHrDetail: React.FC = () => {
 
             {/* 4-qator: ma'lumot ro'yxatlari */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
-                <CardShell title="КДП статистика" icon={<IconFileWarning />} color="#3b82f6" link={kdp.link}>
+                <CardShell title="КДП статистика" icon={<IconFileWarning />} color={GC.blue} link={kdp.link}>
                     {kdp.items.map((it) => <InfoRow key={it.label} label={it.label} value={it.value} delta={it.delta} />)}
                 </CardShell>
-                <CardShell title="Истекающие документы (30 дней)" icon={<IconFileWarning />} color="#eab308" link={docs.link}>
+                <CardShell title="Истекающие документы (30 дней)" icon={<IconFileWarning />} color={GC.amber} link={docs.link}>
                     {docs.items.map((it) => <InfoRow key={it.label} label={it.label} value={it.value} />)}
                 </CardShell>
-                <CardShell title="ГПХ и подрядчики" icon={<IconHandshake />} color="#a855f7" link={gph.link}>
+                <CardShell title="ГПХ и подрядчики" icon={<IconHandshake />} color={GC.violet} link={gph.link}>
                     {gph.items.map((it) => <InfoRow key={it.label} label={it.label} value={it.value} />)}
                 </CardShell>
-                <CardShell title="Экспаты" icon={<IconGlobe2 />} color="#0ea8c7" link={expats.link}>
+                <CardShell title="Экспаты" icon={<IconGlobe2 />} color={GC.cyan} link={expats.link}>
                     <div style={{ color: C.text, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Всего экспатов {expats.total}</div>
                     <div style={{ color: C.sub, fontSize: 9.5, marginBottom: 4 }}>По странам:</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -410,10 +411,10 @@ const NewHrDetail: React.FC = () => {
                         ))}
                     </div>
                 </CardShell>
-                <CardShell title="События и напоминания" icon={<IconCalendarBell />} color="#ec4899" link={events.link}>
+                <CardShell title="События и напоминания" icon={<IconCalendarBell />} color={GC.magenta} link={events.link}>
                     {events.items.map((it) => (
                         <div key={it.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '4px 0', borderBottom: `1px solid ${C.border}` }}>
-                            <NeonIcon color="#ec4899" size={20}>{EVENT_ICONS[it.icon]}</NeonIcon>
+                            <NeonIcon color={GC.magenta} size={20}>{EVENT_ICONS[it.icon]}</NeonIcon>
                             <div style={{ minWidth: 0 }}>
                                 <div style={{ color: C.text, fontSize: 10.5, fontWeight: 600 }}>{it.label}</div>
                                 <div style={{ color: C.sub, fontSize: 9.5 }}>{it.value}</div>
@@ -425,7 +426,7 @@ const NewHrDetail: React.FC = () => {
 
             {/* 5-qator */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
-                <CardShell title="Текучесть кадров" icon={<IconTrendingDown />} color="#ef4444">
+                <CardShell title="Текучесть кадров" icon={<IconTrendingDown />} color={GC.red}>
                     <div style={{ color: C.sub, fontSize: 10 }}>{turnover.period}</div>
                     <div style={{ color: C.text, fontSize: 26, fontWeight: 700, marginTop: 4 }}>{turnover.rate}%</div>
                     <div style={{ marginTop: 6, fontSize: 10.5 }}>
@@ -433,13 +434,13 @@ const NewHrDetail: React.FC = () => {
                         <span style={{ color: C.sub, marginLeft: 5 }}>{turnover.deltaLabel}</span>
                     </div>
                 </CardShell>
-                <CardShell title="Причины увольнений (топ 5)" icon={<IconTrendingDown />} color="#eab308">
-                    {reasons.items.map((it) => <ProgressBarRow key={it.label} label={it.label} pct={it.pct} color="#3b82f6" />)}
+                <CardShell title="Причины увольнений (топ 5)" icon={<IconTrendingDown />} color={GC.amber}>
+                    {reasons.items.map((it) => <ProgressBarRow key={it.label} label={it.label} pct={it.pct} color={GC.blue} />)}
                 </CardShell>
-                <CardShell title="Укомплектованность по подразделениям (топ 5)" icon={<IconTarget />} color="#22c55e" link={staffing.link}>
-                    {staffing.items.map((it) => <ProgressBarRow key={it.label} label={it.label} pct={it.pct} color="#22c55e" />)}
+                <CardShell title="Укомплектованность по подразделениям (топ 5)" icon={<IconTarget />} color={GC.green} link={staffing.link}>
+                    {staffing.items.map((it) => <ProgressBarRow key={it.label} label={it.label} pct={it.pct} color={GC.green} />)}
                 </CardShell>
-                <CardShell title="Оценка персонала" icon={<IconTarget />} color="#3b82f6" link={assessment.link}>
+                <CardShell title="Оценка персонала" icon={<IconTarget />} color={GC.blue} link={assessment.link}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
                         <div style={{ width: 64, height: 64, flexShrink: 0 }}>
                             <Doughnut data={assessmentDonut} options={donutOpts} plugins={[smallCenterText(`${assessment.coveragePct}%`, 'Охват оценкой')]} />
@@ -455,11 +456,11 @@ const NewHrDetail: React.FC = () => {
                         </div>
                     </div>
                 </CardShell>
-                <CardShell title="Обучение и развитие" icon={<IconBookOpen />} color="#a855f7" link={training.link}>
+                <CardShell title="Обучение и развитие" icon={<IconBookOpen />} color={GC.violet} link={training.link}>
                     <div style={{ color: C.sub, fontSize: 10 }}>План обучения выполнен на</div>
                     <div style={{ color: C.text, fontSize: 24, fontWeight: 700, margin: '4px 0' }}>{training.planPct}%</div>
                     <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', marginBottom: 8 }}>
-                        <div style={{ height: '100%', width: `${training.planPct}%`, background: '#a855f7', borderRadius: 3, boxShadow: '0 0 5px #a855f788' }} />
+                        <div style={{ height: '100%', width: `${training.planPct}%`, background: GC.violet, borderRadius: 3, boxShadow: `0 0 5px ${alpha(GC.violet, 0.53)}` }} />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
                         <div style={{ textAlign: 'center' }}>

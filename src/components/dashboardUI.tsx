@@ -17,15 +17,15 @@
 //     card: '#131c30',
 //     cardAlt: '#0f1626',
 //     border: 'rgba(255,255,255,0.07)',
-//     text: '#e2e8f0',
-//     sub: '#94a3b8',
+//     text: GC.slate,
+//     sub: GC.slate,
 //     grid: 'rgba(255,255,255,0.05)',
-//     up: '#22c55e',
-//     down: '#ef4444',
+//     up: GC.green,
+//     down: GC.red,
 // };
 //
 // export const MONTHS = ['Yan 2025', 'Fev 2025', 'Mar 2025', 'Apr 2025', 'May 2025', 'Iyn 2025'];
-// export const MONTH_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#ec4899', '#eab308'];
+// export const MONTH_COLORS = SERIES_COLORS;
 //
 // /* ── Raqam formatlash: 2 650,4 (probel — minglik, vergul — kasr) ── */
 // export function fmt(n: number, d = 1): string {
@@ -219,6 +219,7 @@ import {
     type Plugin,
 } from 'chart.js';
 import {useNavigate} from "react-router-dom";
+import { GC, alpha, SERIES_COLORS } from '../theme/palette';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement,
@@ -226,21 +227,24 @@ ChartJS.register(
 );
 
 /* ── Umumiy ranglar / uslub ── */
+/**
+ * Dashboard uslublari uchun qisqartma. Barcha qiymatlar `theme/palette.ts`
+ * dagi tokenlardan olinadi — bu yerda mustaqil rang saqlanmaydi.
+ */
 export const C = {
     bg: '#0a0f1d',
-    // card: '#131c30',
     card: 'linear-gradient(180deg, rgba(8, 38, 66, .78), rgba(3, 19, 35, .78))',
     cardAlt: '#0f1626',
-    border: 'rgba(22, 211, 255, .18)',
-    text: '#f1f2f6',
-    sub: '#f1f2f6',
-    grid: 'rgba(255,255,255,0.05)',
-    up: '#22c55e',
-    down: '#ef4444',
+    border: alpha(GC.icon, 0.18),
+    text: GC.text,
+    sub: GC.text,
+    grid: GC.grid,
+    up: GC.green,
+    down: GC.red,
 };
 
 export const MONTHS = ['Yan 2025', 'Fev 2025', 'Mar 2025', 'Apr 2025', 'May 2025', 'Iyn 2025'];
-export const MONTH_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#ec4899', '#eab308'];
+export const MONTH_COLORS = SERIES_COLORS;
 
 /* ── Raqam formatlash: 2 650,4 (probel — minglik, vergul — kasr) ── */
 export function fmt(n: number, d = 1): string {
@@ -330,7 +334,7 @@ export const centerText = (main: string, sub: string): Plugin<'doughnut'> => ({
 
 /* `mock` — kartadagi ma'lumot API'dan emas, namunaviy (mock) datadan olingan.
    Bunday kartalar sariq ramka bilan ajratib ko'rsatiladi. */
-export const MOCK_BORDER = '#eadaab';
+export const MOCK_BORDER = GC.amber;
 
 export const Card: React.FC<{ title?: string; children: React.ReactNode; mock?: boolean; style?: React.CSSProperties }> = ({ title, children, mock, style }) => (
     <div style={{
@@ -485,12 +489,12 @@ export const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: 
                     padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 1.8cqmin, 13px)',
                     color: C.text, fontSize: 'clamp(9px, 1.8cqmin, 13px)', whiteSpace: 'nowrap',
                 }}>
-                    {dateRange} <span style={{ color: C.sub }}>▦</span>
+                    {dateRange}
                 </div>
-                <div style={{
-                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(5px, 1.5cqmin, 11px)', color: C.sub,
-                }}>⛃</div>
+                {/*<div style={{*/}
+                {/*    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',*/}
+                {/*    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(5px, 1.5cqmin, 11px)', color: C.sub,*/}
+                {/*}}>⛃</div>*/}
                 <div style={{
                     background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
                     padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 2.1cqmin, 15px)', color: C.text,

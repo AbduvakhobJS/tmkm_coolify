@@ -84,7 +84,7 @@
     top: 6px;
     right: 8px;
     background: rgba(0,0,0,0.5);
-    color: #ff4444;
+    color: var(--gc-red);
     font-family: sans-serif;
     font-size: clamp(8px, 0.9vw, 11px);
     padding: 2px 6px;
@@ -101,7 +101,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #ff4444;
+    background: var(--gc-red);
     animation: blink 1.2s infinite;
 }
 

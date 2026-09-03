@@ -10,9 +10,9 @@
     --nnav-ar: 1900 / 235;   /* ramka rasm nisbati — kerak bo'lsa sozlang */
 
     height: 100px;
-    --cyan: #37e1ff;
-    --cyan-soft: rgba(55, 225, 255, 0.55);
-    --cyan-dim: #1c86ad;
+    --cyan: var(--gc-icon);            /* ikonka rangi — palette.ts dan */
+    --cyan-soft: rgba(var(--gc-icon-rgb), 0.55);
+    --cyan-dim: var(--gc-cyan);
     --txt: #b7c9d8;
     --txt-active: #eafaff;
 
@@ -130,7 +130,7 @@
     width: 24px;
     height: 24px;
     color: var(--cyan);
-    filter: drop-shadow(0 0 3px rgba(55,225,255,0.35));
+    filter: drop-shadow(0 0 3px rgba(var(--gc-icon-rgb), 0.35));
 }
 .nnav-btn.active .nnav-ico {
     color: #eafaff;

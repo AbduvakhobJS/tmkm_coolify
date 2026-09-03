@@ -2,17 +2,18 @@ import React, { useMemo, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { C, chartBase, axis } from '../../components/dashboardUI';
 import DATA_JSON from './financeNewDemoData.json';
+import { GC } from '../../theme/palette';
 
 /* ── Professional dumaloq ikonka (gradient fon + glow, "badge" uslubi — Finance.tsx bilan bir xil) ── */
 
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 12px ${color}66, inset 0 0 8px ${color}30`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 12px ${GC.icon}66, inset 0 0 8px ${GC.icon}30`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -110,7 +111,7 @@ type FinanceNewData = typeof DATA_JSON;
 const DATA = DATA_JSON as FinanceNewData;
 
 /* ── Ranglar (mockupdagi semantik ranglarni C palitrasiga moslashtirish) ── */
-const SEG_COLOR: Record<string, string> = { blue: '#3b82f6', purple: '#a855f7', teal: '#0ea8c7', amber: '#eab308', coral: '#f97316', gray: '#94a3b8' };
+const SEG_COLOR: Record<string, string> = { blue: GC.blue, purple: GC.violet, teal: GC.cyan, amber: GC.amber, coral: GC.amber, gray: GC.slate };
 
 /* ── Yordamchi funksiyalar (Finance.tsx bilan bir xil nomlash) ── */
 const fmtNum = (n: number, d = 0): string => {
@@ -120,8 +121,8 @@ const fmtNum = (n: number, d = 0): string => {
     const sign = n < 0 ? '-' : '';
     return dec !== undefined ? `${sign}${grouped},${dec}` : `${sign}${grouped}`;
 };
-const valueColor = (n: number) => (n < 0 ? '#ef4444' : '#22c55e');
-const deltaColor = (n: number) => (n < 0 ? '#ef4444' : '#22c55e');
+const valueColor = (n: number) => (n < 0 ? GC.red : GC.green);
+const deltaColor = (n: number) => (n < 0 ? GC.red : GC.green);
 const deltaArrow = (n: number) => (n < 0 ? '▼' : '▲');
 
 const MONTH_SHORT = DATA.trendLabels;
@@ -157,7 +158,7 @@ const SectionTitle: React.FC<{ index: number; title: string; icon: React.ReactNo
 );
 
 /* ── Karta qobig'i (ESGDetail.tsx SectionCard bilan bir xil) ── */
-const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = '#4fb3d9', hint, children, style }) => (
+const SectionCard: React.FC<{ title: string; icon?: React.ReactNode; iconColor?: string; hint?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, iconColor = GC.cyan, hint, children, style }) => (
     <div style={{ background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div style={{ color: C.text, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -217,7 +218,7 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number; fmtV
                         key={i} cx={x(i)} cy={y(v)}
                         r={hoverIdx === i ? 3.8 : i === data.length - 1 ? 3 : 2}
                         fill={color} stroke={C.card} strokeWidth={hoverIdx === i ? 1.6 : 1}
-                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${color})` } : undefined}
+                        style={hoverIdx === i ? { filter: `drop-shadow(0 0 3px ${GC.icon})` } : undefined}
                     />
                 ))}
                 {MONTH_SHORT.map((m, i) => (
@@ -228,9 +229,9 @@ const AreaTrend: React.FC<{ data: number[]; color: string; height?: number; fmtV
                 <div style={{
                     position: 'absolute', left: `${(hx / w) * 100}%`, top: `${(hy / h) * 100}%`,
                     transform: `translate(-50%, ${tooltipAbove ? '-130%' : '20%'})`,
-                    background: '#0a0f1df2', border: `1px solid ${color}99`, borderRadius: 6,
+                    background: '#0a0f1df2', border: `1px solid ${GC.icon}99`, borderRadius: 6,
                     padding: '3px 8px', whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 20,
-                    boxShadow: `0 2px 10px ${color}55`, textAlign: 'center',
+                    boxShadow: `0 2px 10px ${GC.icon}55`, textAlign: 'center',
                 }}>
                     <div style={{ color: C.sub, fontSize: 8, fontWeight: 600, textTransform: 'uppercase' }}>{MONTH_SHORT[hoverIdx as number]}</div>
                     <div style={{ color: C.text, fontSize: 11, fontWeight: 700 }}>{fmtV(data[hoverIdx as number])}</div>
@@ -256,7 +257,7 @@ const KpiTile: React.FC<{
                     {deltaArrow(delta)} {fmtNum(Math.abs(delta), 1)}{deltaUnit}
                 </div>
             ) : note ? (
-                <div style={{ color: '#94a3b8', fontSize: 10.5, fontWeight: 700, flexShrink: 0, background: 'rgba(148,163,184,0.1)', borderRadius: 6, padding: '2px 6px' }}>{note}</div>
+                <div style={{ color: GC.slate, fontSize: 10.5, fontWeight: 700, flexShrink: 0, background: 'rgba(148,163,184,0.1)', borderRadius: 6, padding: '2px 6px' }}>{note}</div>
             ) : null}
         </div>
         <div style={{ color: valueTone ?? C.text, fontSize: 19, fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -281,7 +282,7 @@ const RatioTile: React.FC<{ label: string; value: string; delta?: number | null;
             )}
         </div>
         <span style={{ color: C.text, fontSize: 22, fontWeight: 700 }}>{value}</span>
-        {tag && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: '#22c55e', background: 'rgba(34,197,94,0.13)', padding: '3px 9px', borderRadius: 6, alignSelf: 'flex-start' }}>✓ {tag}</span>}
+        {tag && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: GC.green, background: 'rgba(34,197,94,0.13)', padding: '3px 9px', borderRadius: 6, alignSelf: 'flex-start' }}>✓ {tag}</span>}
     </div>
 );
 
@@ -289,7 +290,7 @@ const RatioTile: React.FC<{ label: string; value: string; delta?: number | null;
 const CompositionTile: React.FC<{ item: FinanceNewData['composition'][number] }> = ({ item }) => (
     <div style={{ minWidth: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-            <NeonIcon color="#a855f7" size={24}><IconLayers /></NeonIcon>
+            <NeonIcon color={GC.violet} size={24}><IconLayers /></NeonIcon>
             <span style={{ color: C.sub, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
         </div>
         <div style={{ color: C.text, fontSize: 18, fontWeight: 700 }}>{item.value}</div>
@@ -360,16 +361,16 @@ const Waterfall: React.FC<{ steps: { label: string; value: number; kind: string 
             let a: number, b: number, color: string;
             if (st.kind === 'cost' || st.kind === 'inc') {
                 a = cum; b = cum + st.value; cum = b;
-                color = st.value >= 0 ? '#22c55e' : '#ef4444';
+                color = st.value >= 0 ? GC.green : GC.red;
             } else {
                 a = 0; b = st.value; cum = st.value;
-                color = st.kind === 'sub' ? '#eab308' : (st.value >= 0 ? '#3b82f6' : '#ef4444');
+                color = st.kind === 'sub' ? GC.amber : (st.value >= 0 ? GC.blue : GC.red);
             }
             floating.push([Math.min(a, b), Math.max(a, b)]);
             colors.push(color);
             boldFlags.push(isMile);
             const shown = isMile ? cum : st.value;
-            labelColors.push(isMile ? C.text : (shown >= 0 ? '#22c55e' : '#ef4444'));
+            labelColors.push(isMile ? C.text : (shown >= 0 ? GC.green : GC.red));
             displayValues.push(`${shown >= 0 ? '+' : ''}${fmtNum(Math.round(shown / 1000))}`);
         });
         return {
@@ -410,10 +411,10 @@ const CashBridge: React.FC<{ items: { label: string; value: number; total?: bool
         items.forEach((it) => {
             let a: number, b: number, color: string;
             if (it.total) {
-                a = 0; b = it.value; color = '#94a3b8';
+                a = 0; b = it.value; color = GC.slate;
             } else {
                 a = cum; b = cum + it.value; cum = b;
-                color = it.value >= 0 ? '#22c55e' : '#ef4444';
+                color = it.value >= 0 ? GC.green : GC.red;
             }
             floating.push([Math.min(a, b), Math.max(a, b)]);
             colors.push(color);
@@ -468,7 +469,7 @@ const FinanceNew: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {/*<NeonIcon color="#eab308" size={36}><IconDollar /></NeonIcon>*/}
+                    {/*<NeonIcon color={GC.amber} size={36}><IconDollar /></NeonIcon>*/}
                     <div>
                         <div style={{ color: C.text, fontSize: 'clamp(14px, 3.4cqmin, 22px)', fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.company}</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{DATA.meta.subtitle}</div>
@@ -478,41 +479,41 @@ const FinanceNew: React.FC = () => {
 
             {/* Vitals */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <KpiTile label="Tushum" value={fmtNum(DATA.vitals[0].value)} icon={<IconDollar />} color="#3b82f6"
+                <KpiTile label="Tushum" value={fmtNum(DATA.vitals[0].value)} icon={<IconDollar />} color={GC.blue}
                     delta={DATA.vitals[0].delta} trend={DATA.vitals[0].trend} />
-                <KpiTile label="Hisobot davri foydasi" value={fmtNum(DATA.vitals[1].value)} icon={<IconWalletFilled />} color="#0ea8c7"
+                <KpiTile label="Hisobot davri foydasi" value={fmtNum(DATA.vitals[1].value)} icon={<IconWalletFilled />} color={GC.cyan}
                     delta={DATA.vitals[1].delta} trend={DATA.vitals[1].trend} valueTone={valueColor(DATA.vitals[1].value)} />
-                <KpiTile label="Sof foyda marjasi" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color="#f59e0b"
+                <KpiTile label="Sof foyda marjasi" value={fmtPct(DATA.vitals[2].value)} icon={<IconPercentBadge />} color={GC.amber}
                     delta={DATA.vitals[2].delta} deltaUnit=" p.p." trend={DATA.vitals[2].trend} valueTone={valueColor(DATA.vitals[2].value)} fmtV={fmtPct} />
-                <KpiTile label="Sof pul oqimi" value={fmtNum(DATA.vitals[3].value)} icon={<IconArrowUpDown />} color="#22c55e"
+                <KpiTile label="Sof pul oqimi" value={fmtNum(DATA.vitals[3].value)} icon={<IconArrowUpDown />} color={GC.green}
                     note={(DATA.vitals[3] as any).note} trend={DATA.vitals[3].trend} />
             </div>
 
             {/* 02. Moliyaviy holat */}
-            <SectionTitle index={2} title="Moliyaviy holat" icon={<IconLayers />} color="#a855f7" hint="tarkib · ulush bo'yicha" />
+            <SectionTitle index={2} title="Moliyaviy holat" icon={<IconLayers />} color={GC.violet} hint="tarkib · ulush bo'yicha" />
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
                 {DATA.composition.map((item) => <CompositionTile key={item.label} item={item} />)}
                 {DATA.ratios.map((r) => (
-                    <RatioTile key={r.label} label={r.label} value={r.value} delta={r.deltaValue} icon={<IconScale />} color="#0ea8c7" tag={r.tag} />
+                    <RatioTile key={r.label} label={r.label} value={r.value} delta={r.deltaValue} icon={<IconScale />} color={GC.cyan} tag={r.tag} />
                 ))}
             </div>
 
             {/* 03. Likvidlik va pul */}
-            <SectionTitle index={3} title="Likvidlik va pul" icon={<IconArrowUpDown />} color="#22c55e" hint="oqim ko'prigi · bank qoldiqlari" />
+            <SectionTitle index={3} title="Likvidlik va pul" icon={<IconArrowUpDown />} color={GC.green} hint="oqim ko'prigi · bank qoldiqlari" />
             <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 8 }}>
-                <SectionCard title="Pul oqimi ko'prigi" icon={<IconArrowUpDown />} iconColor="#0ea8c7" hint={DATA.meta.currency}>
+                <SectionCard title="Pul oqimi ko'prigi" icon={<IconArrowUpDown />} iconColor={GC.cyan} hint={DATA.meta.currency}>
                     <CashBridge items={DATA.cashBridge.items} />
                     <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8 }}>{DATA.cashBridge.note}</div>
                 </SectionCard>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 8 }}>
                     {DATA.cashMetrics.map((m) => (
-                        <RatioTile key={m.label} label={m.label} value={m.value} delta={m.deltaValue} icon={<IconWalletFilled />} color={m.up === false ? '#ef4444' : '#22c55e'} />
+                        <RatioTile key={m.label} label={m.label} value={m.value} delta={m.deltaValue} icon={<IconWalletFilled />} color={m.up === false ? GC.red : GC.green} />
                     ))}
                 </div>
             </div>
 
-            <SectionCard title="Bank hisoblari — turi bo'yicha guruhlangan" icon={<IconBank />} iconColor="#eab308">
+            <SectionCard title="Bank hisoblari — turi bo'yicha guruhlangan" icon={<IconBank />} iconColor={GC.amber}>
                 <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
                         <colgroup><col style={{ width: '32%' }} /><col style={{ width: '23%' }} /><col style={{ width: '14%' }} /><col style={{ width: '31%' }} /></colgroup>
@@ -528,12 +529,12 @@ const FinanceNew: React.FC = () => {
                             {DATA.bankGroups.map((g) => (
                                 <React.Fragment key={g.name}>
                                     <tr>
-                                        <td colSpan={4} style={{ padding: '10px 8px 5px', fontSize: 10.5, fontWeight: 700, color: '#4fb3d9', textTransform: 'uppercase', letterSpacing: 0.5 }}>{g.name}</td>
+                                        <td colSpan={4} style={{ padding: '10px 8px 5px', fontSize: 10.5, fontWeight: 700, color: GC.cyan, textTransform: 'uppercase', letterSpacing: 0.5 }}>{g.name}</td>
                                     </tr>
                                     {g.rows.map((r) => (
                                         <tr key={r.name}>
                                             <td style={{ padding: '5px 8px', color: C.text, borderBottom: `1px solid ${C.border}` }}>{r.name}</td>
-                                            <td style={{ padding: '5px 8px', textAlign: 'right', color: (r as any).flag ? '#eab308' : C.text, borderBottom: `1px solid ${C.border}` }}>{r.sum}{(r as any).flag ? ' ⚑' : ''}</td>
+                                            <td style={{ padding: '5px 8px', textAlign: 'right', color: (r as any).flag ? GC.amber : C.text, borderBottom: `1px solid ${C.border}` }}>{r.sum}{(r as any).flag ? ' ⚑' : ''}</td>
                                             <td style={{ padding: '5px 8px', textAlign: 'right', color: C.sub, borderBottom: `1px solid ${C.border}` }}>{r.usd}</td>
                                             <td style={{ padding: '5px 8px', textAlign: 'right', color: C.text, borderBottom: `1px solid ${C.border}` }}>{r.sumEq}</td>
                                         </tr>
@@ -549,8 +550,8 @@ const FinanceNew: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11.5, color: '#eab308', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: 8, padding: '10px 12px', marginTop: 10 }}>
-                    <NeonIcon color="#eab308" size={22}><IconFlag /></NeonIcon>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11.5, color: GC.amber, background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: 8, padding: '10px 12px', marginTop: 10 }}>
+                    <NeonIcon color={GC.amber} size={22}><IconFlag /></NeonIcon>
                     <span>{DATA.bankFlagNote}</span>
                 </div>
             </SectionCard>

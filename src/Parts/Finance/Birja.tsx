@@ -1,16 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { C } from '../../components/dashboardUI';
 import BIRJA_DATA from './birjaData.json';
+import { GC, alpha } from '../../theme/palette';
 
 /* ── Professional dumaloq ikonka (qolgan Parts komponentlari bilan bir xil "badge" uslubi) ── */
-const NeonIcon: React.FC<{ color: string; size?: number; children: React.ReactNode }> = ({ color, size = 34, children }) => (
+const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
     <div style={{
         width: size, height: size, borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: `linear-gradient(145deg, ${color}40, ${color}12)`,
-        border: `1.3px solid ${color}70`,
-        boxShadow: `0 0 12px ${color}66, inset 0 0 8px ${color}30`,
-        color,
+        background: `linear-gradient(145deg, ${GC.icon}40, ${GC.icon}12)`,
+        border: `1.3px solid ${GC.icon}70`,
+        boxShadow: `0 0 12px ${GC.icon}66, inset 0 0 8px ${GC.icon}30`,
+        color: GC.icon,
     }}>
         {children}
     </div>
@@ -72,7 +73,7 @@ type Mineral = { symbol: string; name: string; price: number; form: 'METALL' | '
 type BirjaData = { meta: typeof BIRJA_DATA.meta; minerals: Mineral[] };
 const DATA = BIRJA_DATA as BirjaData;
 
-const FORM_COLOR: Record<string, string> = { METALL: '#0ea8c7', KUKUN: '#a855f7' };
+const FORM_COLOR: Record<string, string> = { METALL: GC.cyan, KUKUN: GC.violet };
 
 const fmtNum = (n: number, d = 0): string => {
     const s = Math.abs(n).toFixed(d);
@@ -91,7 +92,7 @@ const MineralCard: React.FC<{ m: Mineral; index: number }> = ({ m, index }) => {
     const color = FORM_COLOR[m.form];
     const up = m.changePct !== null && m.changePct >= 0;
     const flat = m.changePct === null;
-    const moveColor = flat ? C.sub : up ? '#22c55e' : '#ef4444';
+    const moveColor = flat ? C.sub : up ? GC.green : GC.red;
 
     return (
         <div
@@ -111,7 +112,7 @@ const MineralCard: React.FC<{ m: Mineral; index: number }> = ({ m, index }) => {
         >
             {m.critical && (
                 <div style={{
-                    position: 'absolute', top: 8, right: 9, color: '#eab308',
+                    position: 'absolute', top: 8, right: 9, color: GC.amber,
                     animation: 'birjaStarPulse 2.4s ease-in-out infinite',
                 }} title="Kritik mineral">
                     <IconStar />
@@ -125,7 +126,7 @@ const MineralCard: React.FC<{ m: Mineral; index: number }> = ({ m, index }) => {
                     <div style={{ color: C.text, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</div>
                     <span style={{
                         display: 'inline-block', marginTop: 2, fontSize: 8.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase',
-                        color, background: `${color}1c`, borderRadius: 5, padding: '1.5px 6px',
+                        color, background: `${GC.icon}1c`, borderRadius: 5, padding: '1.5px 6px',
                     }}>{m.form === 'METALL' ? 'Metall' : 'Kukun'}</span>
                 </div>
             </div>
@@ -152,7 +153,7 @@ const MineralRow: React.FC<{ m: Mineral; index: number }> = ({ m, index }) => {
     const color = FORM_COLOR[m.form];
     const up = m.changePct !== null && m.changePct >= 0;
     const flat = m.changePct === null;
-    const moveColor = flat ? C.sub : up ? '#22c55e' : '#ef4444';
+    const moveColor = flat ? C.sub : up ? GC.green : GC.red;
 
     return (
         <tr
@@ -169,7 +170,7 @@ const MineralRow: React.FC<{ m: Mineral; index: number }> = ({ m, index }) => {
                     </NeonIcon>
                     <span style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>{m.name}</span>
                     {m.critical && (
-                        <span style={{ color: '#eab308', animation: 'birjaStarPulse 2.4s ease-in-out infinite', display: 'flex' }} title="Kritik mineral">
+                        <span style={{ color: GC.amber, animation: 'birjaStarPulse 2.4s ease-in-out infinite', display: 'flex' }} title="Kritik mineral">
                             <IconStar />
                         </span>
                     )}
@@ -178,7 +179,7 @@ const MineralRow: React.FC<{ m: Mineral; index: number }> = ({ m, index }) => {
             <td style={{ padding: '8px 10px', borderBottom: `1px solid ${C.border}` }}>
                 <span style={{
                     fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase',
-                    color, background: `${color}1c`, borderRadius: 5, padding: '2px 8px',
+                    color, background: `${GC.icon}1c`, borderRadius: 5, padding: '2px 8px',
                 }}>{m.form === 'METALL' ? 'Metall' : 'Kukun'}</span>
             </td>
             <td style={{ padding: '8px 10px', borderBottom: `1px solid ${C.border}`, textAlign: 'right' }}>
@@ -233,7 +234,7 @@ const Birja: React.FC = () => {
             style={{
                 display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
                 border: `1px solid ${filter === key ? color : C.border}`,
-                background: filter === key ? `${color}20` : C.card,
+                background: filter === key ? `${GC.icon}20` : C.card,
                 color: filter === key ? color : C.sub,
                 borderRadius: 999, padding: '6px 13px', fontSize: 11, fontWeight: 700,
                 transition: 'all 0.15s ease',
@@ -245,9 +246,9 @@ const Birja: React.FC = () => {
         <button
             onClick={() => setSortKey(key)}
             style={{
-                cursor: 'pointer', border: `1px solid ${sortKey === key ? '#4fb3d9' : C.border}`,
+                cursor: 'pointer', border: `1px solid ${sortKey === key ? GC.cyan : C.border}`,
                 background: sortKey === key ? 'rgba(79,179,217,0.14)' : 'transparent',
-                color: sortKey === key ? '#4fb3d9' : C.sub,
+                color: sortKey === key ? GC.cyan : C.sub,
                 borderRadius: 7, padding: '5px 10px', fontSize: 10.5, fontWeight: 600,
             }}
         >{label}</button>
@@ -258,8 +259,8 @@ const Birja: React.FC = () => {
             <style>{`
                 @keyframes birjaMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
                 @keyframes birjaCardIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-                @keyframes birjaPulseDot { 0%, 100% { opacity: 1; box-shadow: 0 0 6px #22c55e; } 50% { opacity: 0.35; box-shadow: 0 0 2px #22c55e; } }
-                @keyframes birjaStarPulse { 0%, 100% { filter: drop-shadow(0 0 2px #eab308aa); opacity: 1; } 50% { filter: drop-shadow(0 0 6px #eab308); opacity: 0.75; } }
+                @keyframes birjaPulseDot { 0%, 100% { opacity: 1; box-shadow: 0 0 6px ${GC.green}; } 50% { opacity: 0.35; box-shadow: 0 0 2px ${GC.green}; } }
+                @keyframes birjaStarPulse { 0%, 100% { filter: drop-shadow(0 0 2px ${alpha(GC.amber, 0.67)}); opacity: 1; } 50% { filter: drop-shadow(0 0 6px ${GC.amber}); opacity: 0.75; } }
                 @keyframes birjaTickFlash { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
                 @keyframes birjaRowIn { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: translateX(0); } }
                 .birja-ticker-track:hover { animation-play-state: paused; }
@@ -268,15 +269,15 @@ const Birja: React.FC = () => {
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <NeonIcon color="#eab308" size={36}><IconExchange /></NeonIcon>
+                    <NeonIcon color={GC.amber} size={36}><IconExchange /></NeonIcon>
                     <div>
-                        <div style={{ color: '#4fb3d9', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.title}</div>
+                        <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{DATA.meta.title}</div>
                         <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{DATA.meta.subtitle}</div>
                     </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 12px' }}>
-                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', animation: 'birjaPulseDot 1.6s ease-in-out infinite' }} />
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: GC.green, animation: 'birjaPulseDot 1.6s ease-in-out infinite' }} />
                         <span style={{ color: C.text, fontSize: 11.5, fontWeight: 600 }}>Jonli narxlar</span>
                     </div>
                     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 12px', color: C.sub, fontSize: 11.5 }}>Yangilandi: <span style={{ color: C.text }}>{DATA.meta.updatedAt}</span></div>
@@ -289,10 +290,10 @@ const Birja: React.FC = () => {
                     {tickerItems.map((m, i) => {
                         const up = m.changePct !== null && m.changePct >= 0;
                         const flat = m.changePct === null;
-                        const mc = flat ? C.sub : up ? '#22c55e' : '#ef4444';
+                        const mc = flat ? C.sub : up ? GC.green : GC.red;
                         return (
                             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', borderRight: `1px solid ${C.border}`, flexShrink: 0 }}>
-                                <span style={{ color: '#4fb3d9', fontSize: 11, fontWeight: 800, fontFamily: 'monospace' }}>{m.symbol}</span>
+                                <span style={{ color: GC.cyan, fontSize: 11, fontWeight: 800, fontFamily: 'monospace' }}>{m.symbol}</span>
                                 <span style={{ color: C.text, fontSize: 11, fontWeight: 600 }}>{fmtNum(m.price)}$</span>
                                 <span style={{ color: mc, fontSize: 10.5, fontWeight: 700 }}>{flat ? '—' : `${up ? '▲' : '▼'} ${fmtNum(Math.abs(m.changePct as number), 2)}%`}</span>
                             </div>
@@ -304,23 +305,23 @@ const Birja: React.FC = () => {
             {/* KPI qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '11px 13px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <NeonIcon color="#4fb3d9" size={40}><IconGrid /></NeonIcon>
+                    <NeonIcon color={GC.cyan} size={40}><IconGrid /></NeonIcon>
                     <div><div style={{ color: C.sub, fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase' }}>Kuzatilayotgan minerallar</div><div style={{ color: C.text, fontSize: 21, fontWeight: 800 }}>{DATA.minerals.length}</div></div>
                 </div>
                 <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '11px 13px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <NeonIcon color="#eab308" size={40}><IconShield /></NeonIcon>
+                    <NeonIcon color={GC.amber} size={40}><IconShield /></NeonIcon>
                     <div><div style={{ color: C.sub, fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase' }}>Kritik minerallar</div><div style={{ color: C.text, fontSize: 21, fontWeight: 800 }}>{stats.critical}</div></div>
                 </div>
                 <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '11px 13px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <NeonIcon color="#22c55e" size={40}><IconTrendUp /></NeonIcon>
-                    <div><div style={{ color: C.sub, fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase' }}>O'sishda / Tushishda</div><div style={{ fontSize: 19, fontWeight: 800 }}><span style={{ color: '#22c55e' }}>{stats.up}</span><span style={{ color: C.sub }}> / </span><span style={{ color: '#ef4444' }}>{stats.down}</span></div></div>
+                    <NeonIcon color={GC.green} size={40}><IconTrendUp /></NeonIcon>
+                    <div><div style={{ color: C.sub, fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase' }}>O'sishda / Tushishda</div><div style={{ fontSize: 19, fontWeight: 800 }}><span style={{ color: GC.green }}>{stats.up}</span><span style={{ color: C.sub }}> / </span><span style={{ color: GC.red }}>{stats.down}</span></div></div>
                 </div>
                 <div style={{ background: `linear-gradient(165deg, ${C.card}, ${C.cardAlt})`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '11px 13px', display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                    <NeonIcon color={(stats.topMover?.changePct ?? 0) >= 0 ? '#22c55e' : '#ef4444'} size={40}><IconLayers /></NeonIcon>
+                    <NeonIcon color={(stats.topMover?.changePct ?? 0) >= 0 ? GC.green : GC.red} size={40}><IconLayers /></NeonIcon>
                     <div style={{ minWidth: 0 }}>
                         <div style={{ color: C.sub, fontSize: 9.5, fontWeight: 700, textTransform: 'uppercase' }}>Eng katta harakat</div>
                         <div style={{ color: C.text, fontSize: 14, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {stats.topMover?.name} <span style={{ color: (stats.topMover?.changePct ?? 0) >= 0 ? '#22c55e' : '#ef4444' }}>{(stats.topMover?.changePct ?? 0) >= 0 ? '▲' : '▼'} {fmtNum(Math.abs(stats.topMover?.changePct ?? 0), 2)}%</span>
+                            {stats.topMover?.name} <span style={{ color: (stats.topMover?.changePct ?? 0) >= 0 ? GC.green : GC.red }}>{(stats.topMover?.changePct ?? 0) >= 0 ? '▲' : '▼'} {fmtNum(Math.abs(stats.topMover?.changePct ?? 0), 2)}%</span>
                         </div>
                     </div>
                 </div>
@@ -329,8 +330,8 @@ const Birja: React.FC = () => {
             {/* Filtr va saralash paneli */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: '9px 12px' }}>
                 <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
-                    {filterBtn('all', 'Barchasi', '#4fb3d9')}
-                    {filterBtn('critical', '★ Kritik', '#eab308')}
+                    {filterBtn('all', 'Barchasi', GC.cyan)}
+                    {filterBtn('critical', '★ Kritik', GC.amber)}
                     {filterBtn('METALL', 'Metall', FORM_COLOR.METALL)}
                     {filterBtn('KUKUN', 'Kukun', FORM_COLOR.KUKUN)}
                 </div>
@@ -348,7 +349,7 @@ const Birja: React.FC = () => {
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', border: 'none',
                                 background: view === 'cards' ? 'rgba(79,179,217,0.18)' : 'transparent',
-                                color: view === 'cards' ? '#4fb3d9' : C.sub,
+                                color: view === 'cards' ? GC.cyan : C.sub,
                                 borderRadius: 6, padding: '5px 10px', fontSize: 10.5, fontWeight: 700,
                                 transition: 'all 0.15s ease',
                             }}
@@ -359,7 +360,7 @@ const Birja: React.FC = () => {
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', border: 'none',
                                 background: view === 'table' ? 'rgba(79,179,217,0.18)' : 'transparent',
-                                color: view === 'table' ? '#4fb3d9' : C.sub,
+                                color: view === 'table' ? GC.cyan : C.sub,
                                 borderRadius: 6, padding: '5px 10px', fontSize: 10.5, fontWeight: 700,
                                 transition: 'all 0.15s ease',
                             }}

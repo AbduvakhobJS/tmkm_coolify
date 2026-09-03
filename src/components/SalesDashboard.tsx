@@ -5,15 +5,16 @@ import {
     barLabel, centerText,
     Card, KpiCard, Badge, Gauge, DashHeader, DashFooter, DashRoot,
 } from './dashboardUI';
+import { GC, alpha } from '../theme/palette';
 
 /* Sotuv ma'lumotlari (mock) */
 const METALS = [
-    { name: 'Molibden', symbol: 'Mo', color: '#3b82f6', sold: 2580.0, revenue: 178.4, profit: 52.6, margin: 29.5, delta: 6.1 },
-    { name: 'Volfram', symbol: 'W', color: '#22c55e', sold: 2245.0, revenue: 132.6, profit: 34.8, margin: 26.2, delta: 4.2 },
-    { name: 'Titan', symbol: 'Ti', color: '#f59e0b', sold: 1460.0, revenue: 78.2, profit: 18.4, margin: 23.5, delta: -1.4 },
-    { name: 'Tantal', symbol: 'Ta', color: '#a855f7', sold: 958.0, revenue: 62.4, profit: 15.2, margin: 24.4, delta: 5.3 },
-    { name: 'Niobiy', symbol: 'Nb', color: '#06b6d4', sold: 505.0, revenue: 24.8, profit: 5.1, margin: 20.6, delta: -3.6 },
-    { name: 'Boshqalar', symbol: '•••', color: '#94a3b8', sold: 232.0, revenue: 9.8, profit: 2.3, margin: 23.5, delta: -4.1 },
+    { name: 'Molibden', symbol: 'Mo', color: GC.blue, sold: 2580.0, revenue: 178.4, profit: 52.6, margin: 29.5, delta: 6.1 },
+    { name: 'Volfram', symbol: 'W', color: GC.green, sold: 2245.0, revenue: 132.6, profit: 34.8, margin: 26.2, delta: 4.2 },
+    { name: 'Titan', symbol: 'Ti', color: GC.amber, sold: 1460.0, revenue: 78.2, profit: 18.4, margin: 23.5, delta: -1.4 },
+    { name: 'Tantal', symbol: 'Ta', color: GC.violet, sold: 958.0, revenue: 62.4, profit: 15.2, margin: 24.4, delta: 5.3 },
+    { name: 'Niobiy', symbol: 'Nb', color: GC.cyan, sold: 505.0, revenue: 24.8, profit: 5.1, margin: 20.6, delta: -3.6 },
+    { name: 'Boshqalar', symbol: '•••', color: GC.slate, sold: 232.0, revenue: 9.8, profit: 2.3, margin: 23.5, delta: -4.1 },
 ];
 const TOTAL_SOLD = METALS.reduce((s, m) => s + m.sold, 0);
 const TOTAL_REV = METALS.reduce((s, m) => s + m.revenue, 0);
@@ -25,11 +26,11 @@ const MONTHLY_PROFIT = [19.8, 20.4, 21.0, 21.8, 22.9, 22.5];
 const MONTHLY_COST = MONTHLY_REV.map((r, i) => +(r - MONTHLY_PROFIT[i]).toFixed(1));
 
 const MARKETS = [
-    { name: 'Mahalliy', color: '#3b82f6', pct: 37.5 },
-    { name: 'Xitoy', color: '#f59e0b', pct: 24.0 },
-    { name: 'Yevropa', color: '#22c55e', pct: 18.5 },
-    { name: 'MDH', color: '#a855f7', pct: 12.0 },
-    { name: 'Boshqa', color: '#94a3b8', pct: 8.0 },
+    { name: 'Mahalliy', color: GC.blue, pct: 37.5 },
+    { name: 'Xitoy', color: GC.amber, pct: 24.0 },
+    { name: 'Yevropa', color: GC.green, pct: 18.5 },
+    { name: 'MDH', color: GC.violet, pct: 12.0 },
+    { name: 'Boshqa', color: GC.slate, pct: 8.0 },
 ];
 const COMPARE = '01.01 - 19.06.2024 bilan solishtirganda';
 
@@ -38,17 +39,17 @@ const SalesDashboard: React.FC = () => {
         labels: METALS.map((m) => m.name),
         datasets: [{ data: METALS.map((m) => m.sold), backgroundColor: METALS.map((m) => m.color), borderColor: C.card, borderWidth: 2 }],
     };
-    const soldBar = { labels: MONTHS, datasets: [{ data: MONTHLY_SOLD, backgroundColor: '#2563eb', borderRadius: 4, barPercentage: 0.6 }] };
+    const soldBar = { labels: MONTHS, datasets: [{ data: MONTHLY_SOLD, backgroundColor: GC.blue, borderRadius: 4, barPercentage: 0.6 }] };
     const revStack = {
         labels: METALS.map((m) => m.name),
         datasets: MONTHS.map((mo, mi) => ({ label: mo, data: METALS.map((m) => +(m.revenue * MONTHLY_REV[mi] / TOTAL_REV).toFixed(1)), backgroundColor: MONTH_COLORS[mi], stack: 's', borderWidth: 0 })),
     };
-    const revBar = { labels: MONTHS, datasets: [{ data: MONTHLY_REV, backgroundColor: '#a855f7', borderRadius: 4, barPercentage: 0.6 }] };
+    const revBar = { labels: MONTHS, datasets: [{ data: MONTHLY_REV, backgroundColor: GC.violet, borderRadius: 4, barPercentage: 0.6 }] };
     const compareData = {
         labels: MONTHS,
         datasets: [
-            { label: 'Xarajat', data: MONTHLY_COST, backgroundColor: '#ef4444', borderRadius: 3, barPercentage: 0.8, categoryPercentage: 0.7 },
-            { label: 'Foyda', data: MONTHLY_PROFIT, backgroundColor: '#22c55e', borderRadius: 3, barPercentage: 0.8, categoryPercentage: 0.7 },
+            { label: 'Xarajat', data: MONTHLY_COST, backgroundColor: GC.red, borderRadius: 3, barPercentage: 0.8, categoryPercentage: 0.7 },
+            { label: 'Foyda', data: MONTHLY_PROFIT, backgroundColor: GC.green, borderRadius: 3, barPercentage: 0.8, categoryPercentage: 0.7 },
         ],
     };
     const marketsDonut = {
@@ -62,12 +63,12 @@ const SalesDashboard: React.FC = () => {
 
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
                 <KpiCard title="Umumiy sotuv hajmi" value={`${fmt(TOTAL_SOLD)} t`} delta={6.4} compare={COMPARE}
-                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: '#22c55e22', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🛒</div>} />
-                <KpiCard title="Sotuvdan tushum" value={`${fmt(TOTAL_REV)} mlrd`} delta={8.1} compare={COMPARE} badge={<Badge symbol="₮" color="#a855f7" />} />
-                <KpiCard title="Sof foyda" value={`${fmt(TOTAL_PROFIT)} mlrd`} delta={11.3} compare={COMPARE} badge={<Badge symbol="F" color="#22c55e" />} />
-                <KpiCard title="Rentabellik" value={`${fmt(TOTAL_PROFIT / TOTAL_REV * 100)}%`} delta={1.8} compare={COMPARE} badge={<Badge symbol="%" color="#3b82f6" />} />
-                <KpiCard title="Buyurtmalar" value="1 264 ta" delta={4.2} compare={COMPARE} badge={<Badge symbol="B" color="#f59e0b" />} />
-                <KpiCard title="Eksport ulushi" value="62,5%" delta={3.5} compare={COMPARE} badge={<Badge symbol="E" color="#06b6d4" />} />
+                    badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: alpha(GC.green, 0.13), color: GC.green, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🛒</div>} />
+                <KpiCard title="Sotuvdan tushum" value={`${fmt(TOTAL_REV)} mlrd`} delta={8.1} compare={COMPARE} badge={<Badge symbol="₮" color={GC.violet} />} />
+                <KpiCard title="Sof foyda" value={`${fmt(TOTAL_PROFIT)} mlrd`} delta={11.3} compare={COMPARE} badge={<Badge symbol="F" color={GC.green} />} />
+                <KpiCard title="Rentabellik" value={`${fmt(TOTAL_PROFIT / TOTAL_REV * 100)}%`} delta={1.8} compare={COMPARE} badge={<Badge symbol="%" color={GC.blue} />} />
+                <KpiCard title="Buyurtmalar" value="1 264 ta" delta={4.2} compare={COMPARE} badge={<Badge symbol="B" color={GC.amber} />} />
+                <KpiCard title="Eksport ulushi" value="62,5%" delta={3.5} compare={COMPARE} badge={<Badge symbol="E" color={GC.cyan} />} />
             </div>
 
             <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: '1fr 1fr', gap: 8 }}>
