@@ -42,7 +42,13 @@ export const FRAME_ROUTE = (frameKey: string): string => `/main/iframe/${frameKe
 
 const leftItems: NavItem[] = [
     { id: 'main', icon: TbHome, label: ['BOSH SAHIFA'], url: "/main/full" },
-    { id: 'production', icon: TbBuildingFactory2, label: ['ISHLAB CHIQARISH'], frameKey: "obzor" },
+    {
+        id: 'production', icon: TbBuildingFactory2, label: ['ISHLAB CHIQARISH'],
+        children: [
+            { id: 'production-prod', label: 'Ishlab chiqarish', frameKey: "prod" },
+            { id: 'production-obzor', label: "Umumiy ko'rsatkichlar", frameKey: "obzor" },
+        ],
+    },
     { id: 'sgp', icon: TbBuildingWarehouse, label: ['SOTISH VA', 'QOLDIQLAR (SGP)'], frameKey: "sgp" },
     {
         id: 'resource', icon: TbBolt, label: ['RESURS SARFI'],
