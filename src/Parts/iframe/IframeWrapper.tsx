@@ -29,8 +29,8 @@ const IframeWrapper = () => {
     return (
         <iframe
             ref={iframeRef}
-            src={"http://45.9.231.133:5679/?from=2026-08-01&to=2026-08-31#h2&token=" + {token}}
-            title="Dalban"
+            src={"https://tmk.bgs.uz/excel/?from=2026-08-01&to=2026-08-31#h2&token=" + {token}}
+            title="Dal"
             onLoad={handleLoad}
             style={{
                 width: "100%",
