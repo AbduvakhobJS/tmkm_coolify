@@ -20,7 +20,7 @@ import './IframeDashboard.css';
  */
 
 /** Ishlab chiqaruvchi/host o'zgarsa — shu yerda yoki `.env` orqali almashtiriladi. */
-const MONITOR_BASE = process.env.REACT_APP_MONITOR_BASE ?? 'http://45.9.231.133:5679';
+const MONITOR_BASE = process.env.REACT_APP_MONITOR_BASE ?? 'https://tmk.bgs.uz/excel';
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
 const isoDate = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
