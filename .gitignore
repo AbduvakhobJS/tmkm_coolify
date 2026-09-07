@@ -10,7 +10,7 @@
 /.claude
 
 # production build — `npm run build` bilan qayta yaratiladi, repoda saqlanmaydi
-/build
+#/build
 /build.zip
 
 # misc

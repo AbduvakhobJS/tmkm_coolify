@@ -15,7 +15,6 @@ const App: React.FC = () => {
     <>
       {/*<div id="scanline" />*/}
       <div id="grid-overlay" />
-      {/*<Header />*/}
         <NewNavbar />
         <NotificationSideBar />
       <main id="dashboard">
