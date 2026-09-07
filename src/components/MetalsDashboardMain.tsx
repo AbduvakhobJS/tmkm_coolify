@@ -168,7 +168,6 @@ const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
     /* KPI qatorida doim 5 ta plitka turadi (jami + 4 metall). Metall
        ma'lumoti kelmasa o'rni bo'sh qoladi — qator qisqarib ketmasin. */
     const metalSlots: (ViewMetal | null)[] = [0, 1, 2, 3].map((i) => v.metals[i] ?? null);
-
     const donutData = {
         labels: v.metals.map((m) => m.name),
         datasets: [{
