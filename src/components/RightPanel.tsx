@@ -2,6 +2,7 @@ import React, {Suspense, useMemo, useRef} from 'react';
 import { Canvas } from '@react-three/fiber';
 import {OrbitControls, Environment, ContactShadows, Html, useGLTF} from '@react-three/drei';
 import { FactoryViewer } from '../Parts/Map/Map3d';
+import { DRACO_DECODER_PATH } from '../Parts/FactoryModel/constants';
 import { factoryData } from '../data/factorys';
 import StreamGrid from "./VideoStream";
 import KpiCard from "./KpiCard";
@@ -24,7 +25,10 @@ export const FactoryViewer2 = ({
   rotationSpeed?: number;
   zoom?: number;
 }) => {
-  const gltf = useGLTF(modelPath) as any;
+  /* Modellar Draco bilan siqilgan. Dekoder `public/draco/` dan olinadi —
+     drei'ning standarti Google CDN (gstatic.com) bo'lib, ilova internetsiz
+     tarmoqda ishlaganda model yuklanishi jimgina osilib qolardi. */
+  const gltf = useGLTF(modelPath, DRACO_DECODER_PATH) as any;
   const clonedScene = useMemo(() => gltf.scene.clone(), [gltf.scene]);
   const ref = useRef<THREE.Group>(null);
   // useFrame o'rniga oddiy useEffect yoki alternativ ishlatish kerak, chunki bu erda Canvas Modal ichida

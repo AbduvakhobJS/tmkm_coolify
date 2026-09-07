@@ -6,6 +6,7 @@ import RightPanel from './components/RightPanel';
 import Ticker from './components/Ticker';
 import './App.css';
 import NewNavbar from "./components/NewNavbar";
+import NotificationSideBar from "./components/NotificationSideBar";
 
 const App: React.FC = () => {
   const [highlightIndex, setHighlightIndex] = useState<number>(0);
@@ -16,6 +17,7 @@ const App: React.FC = () => {
       <div id="grid-overlay" />
       {/*<Header />*/}
         <NewNavbar />
+        <NotificationSideBar />
       <main id="dashboard">
         <LeftPanel />
         <CenterPanel highlightIndex={highlightIndex} setHighlightIndex={setHighlightIndex} />

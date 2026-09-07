@@ -66,48 +66,102 @@ export const getNarastaykaPage = async (
     return response.data;
 };
 
-/* ── /dashboard — metallar dashboardi uchun yig'ma ko'rsatkichlar ──
-   Har bir son maydoni `null` bo'lishi mumkin: bu API'da (qarang Svodka/api/types.ts)
-   ma'lumot topilmagan hollarda `null` qaytariladi. Frontend shu sababli har bir
-   blokni alohida tekshiradi va yo'q bo'lsa mock dataga tushadi. */
+/* ══════════════════════════════════════════════════════════════════════════
+   GET /production-report/dashboard
+
+   "Texnologik metallar ishlab chiqarish" dashboardining BARCHA elementlari
+   shu bitta endpointdan quriladi (METAL_PRODUCTION_DASHBOARD_API.md, 5-bo'lim).
+
+   Eslatmalar (hujjatdan):
+     • javob doim `{ success, data }` konvertida keladi;
+     • `delta`/`totalDelta` — oldingi davr bilan taqqoslash. `from`/`to`
+       berilmasa yoki oldingi davr uchun ma'lumot bo'lmasa `null` qaytadi
+       (bu — normal holat, xato emas);
+     • `metals[].material` `null` bo'lishi mumkin — metall biriktirilmagan
+       guruh. Backend unga NOM BERMAYDI, ko'rsatiladigan matnni frontend
+       tanlaydi;
+     • `metals[]` hajm bo'yicha kamayish tartibida keladi.
+   ══════════════════════════════════════════════════════════════════════════ */
 
 export type DashboardMonth = {
-    /** Ekranda ko'rsatiladigan yorliq, masalan "Yan 2026". */
+    /** `YYYY-MM`. */
+    key: string;
+    /** Ekranda ko'rsatiladigan yorliq, masalan "May 2026". */
     label: string;
-    /** `YYYY-MM` — ixtiyoriy. */
-    month?: string;
 };
 
 export type DashboardMetal = {
-    /** Material belgisi, masalan "Mo". Nomi/rangi frontend tomonda aniqlanadi. */
+    /** Metall belgisi ("Mo", "W", ...). `null` — metall biriktirilmagan guruh. */
     material: string | null;
     value: number | null;
-    pct: number | null;
-    delta: number | null;
     plan: number | null;
+    /** Umumiy hajmdagi ulush, % — donut uchun tayyor qiymat. */
+    pct: number | null;
+    /** Reja bajarilishi, % (`fakt/reja×100`) — davrlar taqqoslashi EMAS. */
+    percent: number | null;
+    /** Oldingi davrga nisbatan o'zgarish, %. */
+    delta: number | null;
+    /** Oldingi davrdagi hajm (xom son). */
+    previous: number | null;
     /** Oylik dinamika — `months` bilan bir xil uzunlikda. */
     dyn: (number | null)[] | null;
+    /** Oylik reja. */
+    planDyn: (number | null)[] | null;
 };
 
 export type DashboardPlant = {
     name: string;
     /** Oylik hajm — `months` bilan bir xil uzunlikda. */
     monthly: (number | null)[] | null;
+    /** Butun davr bo'yicha jami hajm. */
+    value: number | null;
 };
 
 export type DashboardData = {
+    period: {
+        from: string | null;
+        to: string | null;
+        previous: { from: string; to: string } | null;
+    } | null;
+    /** Javobdagi barcha sonlar shu o'lchov birligida (standart `тн`). */
+    unit: string | null;
     months: DashboardMonth[] | null;
     total: number | null;
-    monthly: (number | null)[] | null;
-    avgDaily: (number | null)[] | null;
+    totalPlan: number | null;
+    /** Reja bajarilishi, %. Reja 0 bo'lsa `null`. */
+    totalPercent: number | null;
+    /** Oldingi davrga nisbatan o'zgarish, %. */
+    totalDelta: number | null;
+    previousTotal: number | null;
+    /** Metall biriktirilmagan mahsulotlarning umumiy hajmdagi ulushi, %. */
+    unknownShare: number | null;
     metals: DashboardMetal[] | null;
+    monthly: (number | null)[] | null;
+    monthlyPlan: (number | null)[] | null;
+    avgDaily: (number | null)[] | null;
+    /** Har oyda ma'lumot mavjud bo'lgan kunlar soni. */
+    days: (number | null)[] | null;
     plants: DashboardPlant[] | null;
 };
 
-/**
- * Bu API'dagi qolgan endpointlar javobni `{success, data}` konvertiga o'raydi.
- * `/dashboard` konvertsiz ham kelishi mumkin — ikkala shakl ham qabul qilinadi.
- */
+/** So'rov parametrlari — barchasi ixtiyoriy (hujjat, 2.1-bo'lim). */
+export type DashboardParams = {
+    /** `YYYY-MM-DD`. Format noto'g'ri bo'lsa backend 500 qaytarishi mumkin. */
+    from?: string;
+    to?: string;
+    /** Standart `тн` — dashboard tonna uchun mo'ljallangan. */
+    unit?: string;
+    plant?: string;
+    workshop?: string;
+    /** Bitta metall bo'yicha filtr — umumiy ko'rinish uchun BERILMAYDI. */
+    material?: string;
+    category?: string;
+    process?: string;
+    /** Xomashyo qazish hajmini chiqarib tashlaydi (standart `true`). */
+    excludeDobycha?: boolean;
+};
+
+/** Hujjat bo'yicha javob doim `{success, data}`; konvertsiz shakl ham qabul qilinadi. */
 const unwrapDashboard = (body: unknown): DashboardData => {
     if (body && typeof body === "object" && "success" in body && "data" in body) {
         return (body as { data: DashboardData }).data;
@@ -115,14 +169,15 @@ const unwrapDashboard = (body: unknown): DashboardData => {
     return body as DashboardData;
 };
 
-export const getDashboard = async (
-    from: string,
-    to: string,
-    plant?: string
-): Promise<DashboardData> => {
-    const response = await productionClient.get("/dashboard", {
-        params: { from, to, plant },
-    });
+export const getDashboard = async (params: DashboardParams = {}): Promise<DashboardData> => {
+    const { unit = "тн", excludeDobycha = true, ...rest } = params;
+    /* Bo'sh qiymatlar yuborilmaydi — backend ularni filtr deb qabul qilmasin. */
+    const query: Record<string, string | boolean> = { unit, excludeDobycha };
+    for (const [k, v] of Object.entries(rest)) {
+        if (v !== undefined && v !== null && v !== "") query[k] = v as string;
+    }
+
+    const response = await productionClient.get("/dashboard", { params: query });
     return unwrapDashboard(response.data);
 };
 

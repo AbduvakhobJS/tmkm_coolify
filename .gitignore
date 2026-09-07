@@ -9,6 +9,10 @@
 /coverage
 /.claude
 
+# production build — `npm run build` bilan qayta yaratiladi, repoda saqlanmaydi
+/build
+/build.zip
+
 # misc
 .DS_Store
 .env

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TopCenterNew, {TopCenterItem} from "./TopCenterNew";
 import Map3D from "../Parts/Map/Map3d";
 import { GC } from '../theme/palette';
+import MineMetalMarket from "../Parts/MineMetalMarket";
 
 /* ── TMK Schema data ── */
 const stages = [
@@ -465,7 +466,8 @@ const TopCenter = ({
               //         // pedestalImage="/imgs/item2.png"
               //     />
               // </div>
-                <img src="/imgs/tab3.png" style={{width:'100%', height:'100%'}} alt=""/>
+                // topInset — ustidagi absolyut joylashgan tab paneli balandligi
+                <MineMetalMarket />
 
             )}
             {activeTab === 4 && (

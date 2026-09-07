@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllNarastayka, getDashboard, getFilters } from "../services/production";
+import type { DashboardParams } from "../services/production";
 
 export const useProductionFilters = () =>
     useQuery({
@@ -9,19 +10,19 @@ export const useProductionFilters = () =>
     });
 
 /**
- * Metallar dashboardi uchun yig'ma ko'rsatkichlar.
+ * Metallar dashboardi uchun yig'ma ko'rsatkichlar
+ * (`GET /production-report/dashboard`).
  *
- * `retry: false` — endpoint hali mavjud bo'lmasa (404) yoki xato qaytarsa,
- * ekran uch marta qayta urinib kutib turmasdan darhol mock dataga tushadi.
+ * Barcha parametrlar ixtiyoriy: hech biri berilmasa backend butun davr
+ * bo'yicha ma'lumot qaytaradi. `from`/`to` berilmasa `delta` maydonlari
+ * `null` bo'ladi — taqqoslash uchun oldingi davr aniqlanmaydi.
  */
-export const useProductionDashboard = (from?: string, to?: string, plant?: string) =>
+export const useProductionDashboard = (params: DashboardParams = {}) =>
     useQuery({
-        queryKey: ["production-dashboard", from, to, plant],
-        queryFn: () => getDashboard(from as string, to as string, plant),
-        enabled: !!from && !!to,
+        queryKey: ["production-dashboard", params],
+        queryFn: () => getDashboard(params),
         staleTime: 5 * 60_000,
         refetchInterval: 5 * 60_000,
-        retry: false,
     });
 
 /** So'nggi 30 kun va undan oldingi 30 kunlik oynalar uchun detal ma'lumotlarni yig'ib beradi. */

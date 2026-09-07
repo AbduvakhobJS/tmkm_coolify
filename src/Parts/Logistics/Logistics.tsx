@@ -10,6 +10,7 @@ import ProjectDashboard from '../../components/ProjectDashboard';
 import WebRTCPlayer from '../../components/WebRTCPlayer';
 import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "../../hooks/map";
 import { GC } from '../../theme/palette';
+import { DRACO_DECODER_PATH } from '../FactoryModel/constants';
 
 
 
@@ -717,7 +718,10 @@ export const FactoryViewer = ({
     rotationSpeed?: number;
     zoom?: number;
 }) => {
-    const gltf = useGLTF(modelPath) as any;
+    /* Modellar Draco bilan siqilgan. Dekoder `public/draco/` dan olinadi —
+       drei'ning standarti Google CDN (gstatic.com) bo'lib, ilova internetsiz
+       tarmoqda ishlaganda model yuklanishi jimgina osilib qolardi. */
+    const gltf = useGLTF(modelPath, DRACO_DECODER_PATH) as any;
     const clonedScene = useMemo(() => gltf.scene.clone(), [gltf.scene]);
     const ref = useRef<THREE.Group>(null);
     // useFrame o'rniga oddiy useEffect yoki alternativ ishlatish kerak, chunki bu erda Canvas Modal ichida

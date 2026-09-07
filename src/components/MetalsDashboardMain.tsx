@@ -1,76 +1,60 @@
 import React, { useMemo } from 'react';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import {
-    C, MONTHS as MOCK_MONTHS, fmt, chartBase, noLegend, axis,
+    C, fmt, chartBase, noLegend, axis,
     barLabel, centerText,
-    Card, KpiCard, Badge, DashHeader, DashRoot,
+    Card, KpiCard, DashHeader, DashRoot,
 } from './dashboardUI';
 import { useProductionDashboard } from '../hooks/production';
 import type { DashboardData, DashboardMetal } from '../services/production';
-import { GC, alpha, ACCENT_SERIES } from '../theme/palette';
+import { GC, ACCENT_SERIES } from '../theme/palette';
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TEXNOLOGIK METALLAR ISHLAB CHIQARISH
+
+   Butun ekran BITTA endpointdan quriladi:
+     GET /production-report/dashboard
+   (hujjat: METAL_PRODUCTION_DASHBOARD_API.md, 5-bo'lim — qaysi element qaysi
+   maydondan quriladi).
+
+   Namunaviy (mock) ma'lumot YO'Q. Faqat API bergan real qiymatlar chiziladi;
+   ma'lumot kelmagan blok esa BO'SH kartochka bo'lib qoladi — soxta raqam ham,
+   xato matni ham ko'rsatilmaydi.
+   ══════════════════════════════════════════════════════════════════════════ */
 
 type ViewMetal = {
-    name: string; symbol: string; color: string;
-    value: number; pct: number; delta: number | null; plan: number | null;
+    /** Ekranda ko'rsatiladigan nom. */
+    name: string;
+    color: string;
+    value: number;
+    pct: number;
+    delta: number | null;
     dyn: number[] | null;
 };
 
-/* ── Mock data ──
-   API'dan kelmagan bloklar shu qiymatlarda qoladi va sariq ramka bilan
-   belgilanadi (`Card mock` / `KpiCard mock`). */
-const MOCK_METALS: ViewMetal[] = [
-    { name: 'Molibden', symbol: 'Mo', color: GC.accent1, value: 2650.4, pct: 32.1, delta: 6.8, plan: 2500, dyn: [812, 828, 845, 872, 918, 895] },
-    { name: 'Volfram', symbol: 'W', color: GC.accent2, value: 2312.7, pct: 28.0, delta: 3.4, plan: 2250, dyn: [602, 624, 641, 663, 701, 688] },
-    { name: 'Titan', symbol: 'Ti', color: GC.accent3, value: 1498.6, pct: 18.2, delta: -1.2, plan: 1550, dyn: [378, 388, 398, 408, 421, 414] },
-    { name: 'Boshqalar', symbol: '•••', color: GC.slate, value: 277.4, pct: 3.4, delta: -6.8, plan: 300, dyn: [44, 45, 46, 47, 49, 48] },
-];
-const MOCK_TOTAL = 8247.5;
-const MOCK_MONTHLY = [1245.6, 1289.4, 1356.7, 1412.8, 1487.2, 1455.8];
-const MOCK_AVG_DAILY = [40.2, 46.0, 43.8, 47.1, 48.0, 48.5];
-const MOCK_PLANTS = MOCK_METALS.map((m, i) => ({
-    name: `${i + 1}-zavod`,
-    monthly: MOCK_MONTHLY.map((mo) => +(m.value * mo / MOCK_TOTAL).toFixed(1)),
-}));
-const COMPARE = 'Avvalgi davr bilan solishtirganda';
-
-/* ── Material → nom / rang (frontend tomonda) ── */
+/* ── Metall belgisi → to'liq nom (backend faqat belgi qaytaradi) ── */
 const NAMES: Record<string, string> = {
-    Mo: 'Molibden', W: 'Volfram', Ti: 'Titan', Cu: 'Mis',
-    Re: 'Reniy', Bi: 'Vismut', Pb: "Qo'rg'oshin", Zn: 'Rux', Ag: 'Kumush',
+    Mo: 'Molibden', W: 'Volfram', Re: 'Reniy', Co: 'Kobalt', Fe: 'Temir',
+    Ti: 'Titan', Cu: 'Mis', Bi: 'Vismut', Pb: "Qo'rg'oshin", Zn: 'Rux', Ag: 'Kumush',
+    Other: 'Boshqalar',
 };
+
+/**
+ * `material: null` — metall biriktirilmagan guruh. Hujjatning 4-bo'limi:
+ * backend bu guruhga NOM BERMAYDI, ko'rsatiladigan matnni frontend tanlaydi.
+ */
+const UNKNOWN_LABEL = 'Aniqlanmagan';
+
 /* Barcha metallar bitta ko'k oiladan — "asosan ko'kka urg'u" (situatsion
-   markaz standarti). Kam uchraydigan qoldiq toifalar neytral (slate) rangda. */
+   markaz standarti). Qoldiq/aniqlanmagan toifalar neytral (slate) rangda. */
 const COLORS: Record<string, string> = {
-    Mo: GC.accent1, W: GC.accent2, Ti: GC.accent3, Cu: GC.accent4,
-    Re: GC.accent5, Bi: GC.accent2, Pb: GC.slate, Zn: GC.accent3, Ag: GC.accent4,
+    Mo: GC.accent1, W: GC.accent2, Re: GC.accent3, Co: GC.accent4, Fe: GC.accent5,
+    Ti: GC.accent3, Cu: GC.accent4, Bi: GC.accent2, Zn: GC.accent3, Ag: GC.accent4,
+    Pb: GC.slate, Other: GC.slate,
 };
-/* Lug'atda yo'q materiallar uchun — donut bo'laklari bir-biridan ajralib
-   tursin uchun ko'k oilaning ochiq-to'q ottenkalari navbatma-navbat beriladi. */
-const FALLBACK_COLORS = ACCENT_SERIES;
-const GREY = GC.slate;
+const NEUTRAL = GC.slate;
 
-/* KPI kartochkalari uchun ikonkalar — emoji o'rniga bitta rangli (currentColor)
-   chiziqli SVG, "ko'kka urg'u" uslubiga mos: rang metall bo'yicha farqlanadi,
-   shakl esa barchasida bir xil (minerall/kon toshi). */
-const MetalIcon: React.FC = () => (
-    <svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round">
-        <polygon points="12 2.5 20.5 7.5 20.5 16.5 12 21.5 3.5 16.5 3.5 7.5" />
-        <path d="M3.5 7.5 12 12 20.5 7.5" strokeOpacity={0.55} />
-        <path d="M12 12v9.5" strokeOpacity={0.55} />
-    </svg>
-);
-const TotalIcon: React.FC = () => (
-    <svg viewBox="0 0 24 24" width="60%" height="60%" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3.5" y="3.5" width="17" height="17" rx="2.5" />
-        <path d="M12 3.5v17M3.5 12h17" strokeOpacity={0.55} />
-    </svg>
-);
-
-/* Zavodlar bo'yicha ustunli grafikda oylar shu ko'k oiladan (to'qdan ochiqqa)
-   ajratiladi — boshqa dashboardlar ishlatadigan ko'p rangli SERIES_COLORS emas. */
-const MONTH_ACCENTS = ['#1D4ED8', GC.accent1, GC.accent2, GC.accent3, GC.accent4, GC.accent5];
-
-/* ── Qiymat tekshiruvchilari ── */
+/* ── Qiymat tekshiruvchilari — API har qanday sonni `null` qaytarishi mumkin ── */
 const num = (v: unknown): number | null =>
     typeof v === 'number' && Number.isFinite(v) ? v : null;
 
@@ -84,68 +68,57 @@ const numList = (v: unknown): number[] | null => {
 const mapMetal = (m: DashboardMetal, i: number): ViewMetal => {
     const key = (m.material ?? '').trim();
     return {
-        name: NAMES[key] ?? (key || 'Aniqlanmagan'),
-        symbol: key || '•••',
-        color: COLORS[key] ?? (key ? FALLBACK_COLORS[i % FALLBACK_COLORS.length] : GREY),
+        name: key ? (NAMES[key] ?? key) : UNKNOWN_LABEL,
+        /* Nomi ma'lum bo'lmagan metallar donutda ajralib tursin uchun ko'k
+           oilaning ottenkalari navbatma-navbat beriladi. */
+        color: key ? (COLORS[key] ?? ACCENT_SERIES[i % ACCENT_SERIES.length]) : NEUTRAL,
         value: num(m.value) ?? 0,
         pct: num(m.pct) ?? 0,
         delta: num(m.delta),
-        plan: num(m.plan),
         dyn: numList(m.dyn),
     };
 };
 
-/**
- * API javobidan ekran modelini yig'adi. Har bir blok alohida tekshiriladi:
- * ma'lumot bor bo'lsa real, yo'q bo'lsa mock + `*Mock: true`.
- */
+/** API javobidan ekran modeli. Ma'lumot yo'q bo'lsa — bo'sh massiv/`null`. */
 function buildView(data?: DashboardData) {
     const months = data?.months?.map((m) => m?.label).filter((l): l is string => !!l) ?? [];
-    const monthsOk = months.length > 0;
 
-    const rawMetals = Array.isArray(data?.metals) ? data!.metals! : [];
-    const metalsOk = rawMetals.some((m) => num(m?.value) !== null);
-    const metals: ViewMetal[] = metalsOk ? rawMetals.map(mapMetal) : MOCK_METALS.map((m) => ({ ...m }));
+    const metals: ViewMetal[] = (Array.isArray(data?.metals) ? data!.metals! : [])
+        .filter((m) => num(m?.value) !== null)
+        .map(mapMetal);
 
-    /* Jami: API bermasa metallar yig'indisidan hisoblanadi. Ikkalasi ham
-       bo'lmasagina mock qiymatga tushiladi. */
-    const apiTotal = num(data?.total);
-    const total = apiTotal ?? (metalsOk ? metals.reduce((s, m) => s + m.value, 0) : MOCK_TOTAL);
-    const totalMock = apiTotal === null && !metalsOk;
+    /* `total` — hujjat bo'yicha tayyor keladi; bermasa metallar yig'indisi. */
+    const total = num(data?.total) ?? metals.reduce((s, m) => s + m.value, 0);
 
-    /* Ulush: API bermasa qiymat/jami dan hisoblanadi. */
-    if (metalsOk && total > 0) {
-        for (const m of metals) if (!m.pct) m.pct = +(m.value / total * 100).toFixed(1);
+    /* `pct` odatda tayyor keladi (donut uchun); bo'lmasa hisoblanadi. */
+    if (total > 0) {
+        for (const m of metals) if (!m.pct) m.pct = +((m.value / total) * 100).toFixed(1);
     }
 
-    /* Dinamika — kamida bitta metalda oylik massiv bo'lishi kerak. */
-    const dynOk = metalsOk && monthsOk && metals.some((m) => m.dyn !== null);
-
-    const rawPlants = Array.isArray(data?.plants) ? data!.plants! : [];
-    const plantsList = rawPlants
-        .map((p) => ({ name: p?.name || 'Aniqlanmagan', monthly: numList(p?.monthly) }))
-        .filter((p) => p.monthly !== null) as { name: string; monthly: number[] }[];
-    const plantsOk = monthsOk && plantsList.length > 0;
-
-    const monthly = numList(data?.monthly);
-    const avgDaily = numList(data?.avgDaily);
+    /* Zavodlar gorizontal ustunda butun davr jami (`plants[].value`) bo'yicha
+       ko'rsatiladi — hujjatning 5-bo'limi shuni belgilaydi. `value` bo'lmasa
+       oylik massivdan yig'iladi. */
+    const plants = (Array.isArray(data?.plants) ? data!.plants! : [])
+        .map((p) => {
+            const monthly = numList(p?.monthly);
+            const value = num(p?.value) ?? (monthly ? monthly.reduce((s, x) => s + x, 0) : null);
+            return { name: p?.name || UNKNOWN_LABEL, value: value ?? 0 };
+        })
+        .filter((p) => p.value > 0);
 
     return {
-        months: monthsOk ? months : MOCK_MONTHS,
-        metals, metalsMock: !metalsOk,
-        total, totalMock,
-        dynMonths: dynOk ? months : MOCK_MONTHS,
-        dynMetals: dynOk ? metals : MOCK_METALS,
-        dynMock: !dynOk,
-        plants: plantsOk ? plantsList : MOCK_PLANTS,
-        plantMonths: plantsOk ? months : MOCK_MONTHS,
-        plantsMock: !plantsOk,
-        monthly: monthly && monthsOk ? monthly : MOCK_MONTHLY,
-        monthlyMonths: monthly && monthsOk ? months : MOCK_MONTHS,
-        monthlyMock: !(monthly && monthsOk),
-        avgDaily: avgDaily && monthsOk ? avgDaily : MOCK_AVG_DAILY,
-        avgMonths: avgDaily && monthsOk ? months : MOCK_MONTHS,
-        avgMock: !(avgDaily && monthsOk),
+        months,
+        unit: data?.unit ?? 'тн',
+        metals,
+        total,
+        totalDelta: num(data?.totalDelta),
+        totalPercent: num(data?.totalPercent),
+        unknownShare: num(data?.unknownShare),
+        /* Chiziqli grafik — kamida bitta metalda oylik massiv bo'lishi kerak. */
+        dynMetals: months.length > 0 ? metals.filter((m) => m.dyn) : [],
+        plants,
+        monthly: numList(data?.monthly),
+        avgDaily: numList(data?.avgDaily),
     };
 }
 
@@ -156,6 +129,13 @@ const fmtDots = (iso: string): string => {
     const [y, m, d] = iso.split('-');
     return `${d}.${m}.${y}`;
 };
+
+/**
+ * Ma'lumot bo'lmaganda kartochka BO'SH qoladi — soxta raqam ham, xato matni
+ * ham chiqmaydi. Bu blok faqat kartochka balandligini saqlab turadi, shunda
+ * setka "sakramaydi".
+ */
+const EmptyBody: React.FC = () => <div style={{ flex: 1, minHeight: 0 }} />;
 
 type Props = {
     /** `YYYY-MM-DD`. Berilmasa — joriy yil boshidan bugungacha. */
@@ -171,98 +151,194 @@ const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
         return { from: from ?? `${now.getFullYear()}-01-01`, to: to ?? isoDay(now) };
     }, [from, to]);
 
-    const { data } = useProductionDashboard(range.from, range.to, plant);
+    /* `unit`/`excludeDobycha` standart qiymatlarida qoldiriladi (hujjat, 2.1):
+       dashboard tonna uchun mo'ljallangan va xomashyo qazish hajmi grafikni
+       buzmasligi kerak. */
+    const { data } = useProductionDashboard({
+        from: range.from,
+        to: range.to,
+        plant,
+    });
+
     const v = useMemo(() => buildView(data), [data]);
+
+    const hasMetals = v.metals.length > 0;
+    const hasMonths = v.months.length > 0;
+
+    /* KPI qatorida doim 5 ta plitka turadi (jami + 4 metall). Metall
+       ma'lumoti kelmasa o'rni bo'sh qoladi — qator qisqarib ketmasin. */
+    const metalSlots: (ViewMetal | null)[] = [0, 1, 2, 3].map((i) => v.metals[i] ?? null);
 
     const donutData = {
         labels: v.metals.map((m) => m.name),
-        datasets: [{ data: v.metals.map((m) => m.value), backgroundColor: v.metals.map((m) => m.color), borderColor: C.cardAlt, borderWidth: 2 }],
+        datasets: [{
+            data: v.metals.map((m) => m.value),
+            backgroundColor: v.metals.map((m) => m.color),
+            borderColor: C.cardAlt, borderWidth: 2,
+        }],
     };
     const lineData = {
-        labels: v.dynMonths,
-        datasets: v.dynMetals
-            .filter((m) => m.dyn)
-            .map((m) => ({ label: m.name, data: m.dyn as number[], borderColor: m.color, backgroundColor: m.color, borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: m.color })),
-    };
-    const factoryData = {
-        labels: v.plants.map((p) => p.name),
-        datasets: v.plantMonths.map((mo, mi) => ({
-            label: mo,
-            data: v.plants.map((p) => p.monthly[mi] ?? 0),
-            backgroundColor: MONTH_ACCENTS[mi % MONTH_ACCENTS.length],
-            stack: 's',
-            borderWidth: 0,
+        labels: v.months,
+        datasets: v.dynMetals.map((m) => ({
+            label: m.name, data: m.dyn as number[],
+            borderColor: m.color, backgroundColor: m.color,
+            borderWidth: 2, tension: 0.4, pointRadius: 2, pointBackgroundColor: m.color,
         })),
     };
-    const monthlyBar = { labels: v.monthlyMonths, datasets: [{ data: v.monthly, backgroundColor: GC.accent1, borderRadius: 4, barPercentage: 0.6 }] };
-    const avgBar = { labels: v.avgMonths, datasets: [{ data: v.avgDaily, backgroundColor: GC.accent1, borderRadius: 4, barPercentage: 0.6 }] };
+    /* Zavodlar — bitta seriya, butun davr jami (hujjat, 5-bo'lim). */
+    const factoryData = {
+        labels: v.plants.map((p) => p.name),
+        datasets: [{
+            data: v.plants.map((p) => p.value),
+            backgroundColor: v.plants.map((_, i) => ACCENT_SERIES[i % ACCENT_SERIES.length]),
+            borderRadius: 4, borderWidth: 0, barPercentage: 0.7,
+        }],
+    };
+    const monthlyBar = {
+        labels: v.months,
+        datasets: [{ data: v.monthly ?? [], backgroundColor: GC.accent1, borderRadius: 4, barPercentage: 0.6 }],
+    };
+    const avgBar = {
+        labels: v.months,
+        datasets: [{ data: v.avgDaily ?? [], backgroundColor: GC.accent1, borderRadius: 4, barPercentage: 0.6 }],
+    };
 
     return (
         <DashRoot>
-            <DashHeader title="Texnologik metallar ishlab chiqarish" subtitle="Ko'rsatkichlar dashboardi" dateRange={`${fmtDots(range.from)} - ${fmtDots(range.to)}`} />
+            <DashHeader
+                title="Texnologik metallar ishlab chiqarish"
+                subtitle="Ko'rsatkichlar dashboardi"
+                dateRange={`${fmtDots(range.from)} - ${fmtDots(range.to)}`}
+            />
+
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
-                <KpiCard title="Umumiy hajmi" value={`${fmt(v.total)} t`} compare={COMPARE} mock={v.totalMock}
-                         icon={""} iconColor={GC.accent1} badge={""} />
-                {v.metals.slice(0,4)?.map((m) => (
-                    <KpiCard key={m.name} title={m.name} value={`${fmt(m.value)} t`} mock={v.metalsMock}
-                             delta={m.delta} compare={COMPARE} badge={""}
-                             icon={""} iconColor={m.color} />
+                <KpiCard
+                    title="Umumiy hajmi"
+                    value={hasMetals ? `${fmt(v.total)} t` : ''}
+                    /* `totalDelta` — oldingi davrga nisbatan o'zgarish. Hujjatda
+                       aytilganidek, strelka ishoradan hosil qilinadi (Delta). */
+                    delta={v.totalDelta}
+                    compare="Avvalgi davr bilan solishtirganda"
+                    icon={''} iconColor={GC.accent1} badge={''}
+                />
+                {metalSlots.map((m, i) => (
+                    <KpiCard
+                        key={m?.name ?? `bo'sh-${i}`}
+                        title={m?.name ?? ''}
+                        value={m ? `${fmt(m.value)} t` : ''}
+                        delta={m?.delta ?? null}
+                        compare="Avvalgi davr bilan solishtirganda"
+                        icon={''} iconColor={m?.color ?? GC.accent1} badge={''}
+                    />
                 ))}
             </div>
-            <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: '1fr 1fr', gap: 8 }}>
-                <Card title="Metallar bo'yicha ishlab chiqarish, tonna" mock={v.metalsMock}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minHeight: 0 }}>
-                        <div style={{ width: 138, height: 138, flexShrink: 0 }}>
-                            <Doughnut data={donutData} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[centerText(`${fmt(v.total)}`, 'Jami, t')]} />
+
+            <div style={{
+                flex: 1, minHeight: 0, display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: '1fr 1fr', gap: 8,
+            }}>
+                <Card title="Metallar bo'yicha ishlab chiqarish, tonna">
+                    {!hasMetals ? <EmptyBody /> : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minHeight: 0 }}>
+                            <div style={{ width: 138, height: 138, flexShrink: 0 }}>
+                                <Doughnut
+                                    data={donutData}
+                                    options={{ ...chartBase, cutout: '65%', ...noLegend } as any}
+                                    plugins={[centerText(`${fmt(v.total)}`, 'Jami, t')]}
+                                />
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, overflowY: 'auto' }}>
+                                {v.metals.map((m) => (
+                                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', fontSize: 11.5 }}>
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, marginRight: 5, flexShrink: 0 }} />
+                                        <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</span>
+                                        <span style={{ color: C.text, fontWeight: 600 }}>{fmt(m.value)}</span>
+                                        <span style={{ color: C.sub, marginLeft: 4 }}>{fmt(m.pct)}%</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
-                            {v.metals.map((m) => (
-                                <div key={m.name} style={{ display: 'flex', alignItems: 'center', fontSize: 11.5 }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, marginRight: 5, flexShrink: 0 }} />
-                                    <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</span>
-                                    <span style={{ color: C.text, fontWeight: 600 }}>{fmt(m.value)}</span>
-                                    <span style={{ color: C.sub, marginLeft: 4 }}>{fmt(m.pct)}%</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </Card>
-                <Card title="Ishlab chiqarish dinamikasi, tonna" mock={v.dynMock}>
-                    <div style={{ flex: 1, minHeight: 0 }}>
-                        <Line data={lineData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 10 } } } }, scales: axis({ y: { beginAtZero: true } }) } as any} />
-                    </div>
+                    )}
                 </Card>
 
-                <Card title="Zavodlar bo'yicha ishlab chiqarish, tonna" mock={v.plantsMock}>
-                    <div style={{ flex: 1, minHeight: 0 }}>
-                        <Bar data={factoryData} options={{ ...chartBase, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { stacked: true, grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 10 } } }, y: { stacked: true, grid: { display: false }, ticks: { color: C.sub, font: { size: 10 } } } } } as any} />
-                    </div>
-                </Card>
-                <Card title="Oylar bo'yicha ishlab chiqarish, tonna" mock={v.monthlyMock}>
-                    <div style={{ flex: 1, minHeight: 0 }}>
-                        <Bar data={monthlyBar} options={{ ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any} plugins={[barLabel(1)]} />
-                    </div>
-                </Card>
-                <Card title="Ishlab chiqarish tuzilmasi, %" mock={v.metalsMock}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minHeight: 0 }}>
-                        <div style={{ width: 138, height: 138, flexShrink: 0 }}>
-                            <Doughnut data={donutData} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[centerText(`${fmt(v.total)}`, 'Jami, t')]} />
+                <Card title="Ishlab chiqarish dinamikasi, tonna">
+                    {v.dynMetals.length === 0 ? <EmptyBody /> : (
+                        <div style={{ flex: 1, minHeight: 0 }}>
+                            <Line
+                                data={lineData}
+                                options={{
+                                    ...chartBase,
+                                    plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 10 } } } },
+                                    scales: axis({ y: { beginAtZero: true } }),
+                                } as any}
+                            />
                         </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0 }}>
-                            {v.metals.map((m) => (
-                                <div key={m.name} style={{ display: 'flex', alignItems: 'center', fontSize: 12 }}>
-                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, marginRight: 6, flexShrink: 0 }} />
-                                    <span style={{ color: C.text, flex: 1 }}>{m.name}</span>
-                                    <span style={{ color: C.text, fontWeight: 600 }}>{fmt(m.pct)}%</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    )}
                 </Card>
-                <Card title="O'rtacha kunlik ishlab chiqarish, tonna" mock={v.avgMock}>
-                    <div style={{ flex: 1, minHeight: 0 }}>
-                        <Bar data={avgBar} options={{ ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any} plugins={[barLabel(1)]} />
-                    </div>
+
+                <Card title="Zavodlar bo'yicha ishlab chiqarish, tonna">
+                    {v.plants.length === 0 ? <EmptyBody /> : (
+                        <div style={{ flex: 1, minHeight: 0 }}>
+                            <Bar
+                                data={factoryData}
+                                options={{
+                                    ...chartBase, indexAxis: 'y',
+                                    plugins: { legend: { display: false } },
+                                    scales: {
+                                        x: { beginAtZero: true, grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 10 } } },
+                                        y: { grid: { display: false }, ticks: { color: C.sub, font: { size: 10 } } },
+                                    },
+                                } as any}
+                            />
+                        </div>
+                    )}
+                </Card>
+
+                <Card title="Oylar bo'yicha ishlab chiqarish, tonna">
+                    {!v.monthly || !hasMonths ? <EmptyBody /> : (
+                        <div style={{ flex: 1, minHeight: 0 }}>
+                            <Bar
+                                data={monthlyBar}
+                                options={{ ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any}
+                                plugins={[barLabel(1)]}
+                            />
+                        </div>
+                    )}
+                </Card>
+
+                <Card title="Ishlab chiqarish tuzilmasi, %">
+                    {!hasMetals ? <EmptyBody /> : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minHeight: 0 }}>
+                            <div style={{ width: 138, height: 138, flexShrink: 0 }}>
+                                <Doughnut
+                                    data={donutData}
+                                    options={{ ...chartBase, cutout: '65%', ...noLegend } as any}
+                                    plugins={[centerText(`${fmt(v.total)}`, 'Jami, t')]}
+                                />
+                            </div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0, overflowY: 'auto' }}>
+                                {v.metals.map((m) => (
+                                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', fontSize: 12 }}>
+                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, marginRight: 6, flexShrink: 0 }} />
+                                        <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</span>
+                                        <span style={{ color: C.text, fontWeight: 600 }}>{fmt(m.pct)}%</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </Card>
+
+                <Card title="O'rtacha kunlik ishlab chiqarish, tonna">
+                    {!v.avgDaily || !hasMonths ? <EmptyBody /> : (
+                        <div style={{ flex: 1, minHeight: 0 }}>
+                            <Bar
+                                data={avgBar}
+                                options={{ ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any}
+                                plugins={[barLabel(1)]}
+                            />
+                        </div>
+                    )}
                 </Card>
             </div>
         </DashRoot>
