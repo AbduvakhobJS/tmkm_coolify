@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { GC } from '../../theme/palette';
+import React, {useState} from 'react';
+import {GC} from '../../theme/palette';
 import {
-    ASSETS, SEGMENTS, TOP_KPIS, Segment, ActiveUnit, PlannedUnit, TopKpi, fmtNum,
+    ASSETS, Segment, ActiveUnit, PlannedUnit, TopKpi, fmtNum,
 } from './data';
+import { useCompanyData } from './useCompanyData';
 
 /* ══════════════════════════════════════════════════════════════════════════
    MINE → METAL → MARKET — to'liq infografika.
@@ -25,38 +26,76 @@ import {
 const cq = (min: number, pref: number, max: number) => `clamp(${min}px, ${pref}cqmin, ${max}px)`;
 
 /* ── Ikonkalar ── */
-const Svg: React.FC<{ children: React.ReactNode; size?: number | string }> = ({ children, size = 16 }) => (
+const Svg: React.FC<{ children: React.ReactNode; size?: number | string }> = ({children, size = 16}) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
          strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">{children}</svg>
 );
 
 const ICONS: Record<string, React.ReactNode> = {
-    users: <><circle cx="9" cy="8" r="3.2" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /><path d="M16 5.3a3.2 3.2 0 0 1 0 5.4M17.5 14.4A6.5 6.5 0 0 1 21.5 20" strokeOpacity={0.55} /></>,
-    chart: <><path d="M3 20.5h18" /><rect x="5" y="12" width="3.4" height="8.5" rx="1" /><rect x="10.3" y="7" width="3.4" height="13.5" rx="1" /><rect x="15.6" y="4" width="3.4" height="16.5" rx="1" /></>,
-    coins: <><ellipse cx="12" cy="6.5" rx="7.5" ry="3" /><path d="M4.5 6.5v5c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-5" /><path d="M4.5 11.5v5c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-5" strokeOpacity={0.55} /></>,
-    bolt: <><path d="M13 2.5 4.5 13.5H11l-.5 8 8.5-11H12.5z" /></>,
-    drop: <><path d="M12 3s6 6.4 6 10.4a6 6 0 1 1-12 0C6 9.4 12 3 12 3z" /></>,
-    leaf: <><path d="M12 21c0-6 3.5-10 8-10.5C20 16 17 21 12 21z" /><path d="M12 21v-4" strokeOpacity={0.55} /></>,
-    mine: <><path d="M3 20.5 13 10.5" /><path d="M8.5 5.5a7 7 0 0 1 10 10z" /><path d="M14.5 3.5 20.5 9.5" strokeOpacity={0.55} /></>,
-    metal: <><path d="M3 20.5V9l6 4V9l6 4V9l6 4v7.5z" /><path d="M3 20.5h18" strokeOpacity={0.55} /></>,
-    market: <><path d="M2.5 20.5h19" /><path d="M4.5 20.5V9l7-4.5L18.5 9v11.5" /><rect x="9" y="13" width="5" height="7.5" rx="1" strokeOpacity={0.55} /></>,
-    build: <><path d="M3 20.5h18" /><path d="M6 20.5V7l6-3.5V20.5" /><path d="M12 10.5l6 3v7" strokeOpacity={0.55} /></>,
-    plan: <><rect x="4" y="3.5" width="16" height="17" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" strokeOpacity={0.65} /></>,
+    users: <>
+        <circle cx="9" cy="8" r="3.2"/>
+        <path d="M2.5 20a6.5 6.5 0 0 1 13 0"/>
+        <path d="M16 5.3a3.2 3.2 0 0 1 0 5.4M17.5 14.4A6.5 6.5 0 0 1 21.5 20" strokeOpacity={0.55}/>
+    </>,
+    chart: <>
+        <path d="M3 20.5h18"/>
+        <rect x="5" y="12" width="3.4" height="8.5" rx="1"/>
+        <rect x="10.3" y="7" width="3.4" height="13.5" rx="1"/>
+        <rect x="15.6" y="4" width="3.4" height="16.5" rx="1"/>
+    </>,
+    coins: <>
+        <ellipse cx="12" cy="6.5" rx="7.5" ry="3"/>
+        <path d="M4.5 6.5v5c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-5"/>
+        <path d="M4.5 11.5v5c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-5" strokeOpacity={0.55}/>
+    </>,
+    bolt: <>
+        <path d="M13 2.5 4.5 13.5H11l-.5 8 8.5-11H12.5z"/>
+    </>,
+    drop: <>
+        <path d="M12 3s6 6.4 6 10.4a6 6 0 1 1-12 0C6 9.4 12 3 12 3z"/>
+    </>,
+    leaf: <>
+        <path d="M12 21c0-6 3.5-10 8-10.5C20 16 17 21 12 21z"/>
+        <path d="M12 21v-4" strokeOpacity={0.55}/>
+    </>,
+    mine: <>
+        <path d="M3 20.5 13 10.5"/>
+        <path d="M8.5 5.5a7 7 0 0 1 10 10z"/>
+        <path d="M14.5 3.5 20.5 9.5" strokeOpacity={0.55}/>
+    </>,
+    metal: <>
+        <path d="M3 20.5V9l6 4V9l6 4V9l6 4v7.5z"/>
+        <path d="M3 20.5h18" strokeOpacity={0.55}/>
+    </>,
+    market: <>
+        <path d="M2.5 20.5h19"/>
+        <path d="M4.5 20.5V9l7-4.5L18.5 9v11.5"/>
+        <rect x="9" y="13" width="5" height="7.5" rx="1" strokeOpacity={0.55}/>
+    </>,
+    build: <>
+        <path d="M3 20.5h18"/>
+        <path d="M6 20.5V7l6-3.5V20.5"/>
+        <path d="M12 10.5l6 3v7" strokeOpacity={0.55}/>
+    </>,
+    plan: <>
+        <rect x="4" y="3.5" width="16" height="17" rx="2"/>
+        <path d="M8 8h8M8 12h8M8 16h5" strokeOpacity={0.65}/>
+    </>,
 };
 
-const Icon: React.FC<{ name: string; size?: number | string }> = ({ name, size = 16 }) => (
-    <Svg size={size}>{ICONS[name] ?? <circle cx="12" cy="12" r="8" />}</Svg>
+const Icon: React.FC<{ name: string; size?: number | string }> = ({name, size = 16}) => (
+    <Svg size={size}>{ICONS[name] ?? <circle cx="12" cy="12" r="8"/>}</Svg>
 );
 
-const SEGMENT_ICON: Record<string, string> = { mine: 'mine', metal: 'metal', market: 'market' };
+const SEGMENT_ICON: Record<string, string> = {mine: 'mine', metal: 'metal', market: 'market'};
 /** Obyekt kartochkasidagi "foto o'rni" uchun toifa ikonkasi. */
-const UNIT_ICON: Record<string, string> = { mine: 'mine', metal: 'metal', market: 'market' };
+const UNIT_ICON: Record<string, string> = {mine: 'mine', metal: 'metal', market: 'market'};
 
-const Delta: React.FC<{ v: number | null; size?: number | string }> = ({ v, size = 11 }) => {
-    if (v === null) return <span style={{ color: GC.textDisabled, fontSize: size, fontWeight: 700 }}>—</span>;
+const Delta: React.FC<{ v: number | null; size?: number | string }> = ({v, size = 11}) => {
+    if (v === null) return <span style={{color: GC.textDisabled, fontSize: size, fontWeight: 700}}>—</span>;
     const up = v >= 0;
     return (
-        <span style={{ color: up ? GC.success : GC.danger, fontSize: size, fontWeight: 700, whiteSpace: 'nowrap' }}>
+        <span style={{color: up ? GC.success : GC.danger, fontSize: size, fontWeight: 700, whiteSpace: 'nowrap'}}>
             {up ? '▲' : '▼'} {up ? '+' : '−'}{Math.abs(v).toFixed(1)}%
         </span>
     );
@@ -64,7 +103,7 @@ const Delta: React.FC<{ v: number | null; size?: number | string }> = ({ v, size
 
 /* ══════════════ 1) YUQORIDAGI KPI QATORI ══════════════ */
 
-const KpiCard: React.FC<{ kpi: TopKpi }> = ({ kpi }) => (
+const KpiCard: React.FC<{ kpi: TopKpi }> = ({kpi}) => (
     <div style={{
         flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: cq(5, 1.4, 13),
         background: 'linear-gradient(160deg, rgba(13, 24, 38, .88), rgba(7, 14, 23, .82))',
@@ -84,17 +123,17 @@ const KpiCard: React.FC<{ kpi: TopKpi }> = ({ kpi }) => (
             <img src={`/icons/` + kpi?.icon} alt="" style={{width: "100%"}}/>
         </span>
 
-        <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: cq(1, 0.3, 3) }}>
+        <div style={{minWidth: 0, display: 'flex', flexDirection: 'column', gap: cq(1, 0.3, 3)}}>
             <div style={{
                 color: GC.textSecondary, fontSize: cq(6, 1.6, 13), lineHeight: 1.2,
                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>{kpi.label}</div>
             <div style={{
-                color: GC.textPrimary, fontSize: cq(11, 3.1, 27), fontWeight: 800,
+                color: GC.textPrimary, fontSize: cq(11, 3.1, 22), fontWeight: 600,
                 lineHeight: 1.1, whiteSpace: 'nowrap', letterSpacing: -0.2,
             }}>{kpi.value}</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: cq(2, 0.6, 6), minWidth: 0 }}>
-                <Delta v={kpi.delta} size={cq(6, 1.65, 13.5)} />
+            <div style={{display: 'flex', alignItems: 'baseline', gap: cq(2, 0.6, 6), minWidth: 0}}>
+                <Delta v={kpi.delta} size={cq(6, 1.65, 13.5)}/>
                 {kpi.note && (
                     <span style={{
                         color: GC.textDisabled, fontSize: cq(4.5, 1.15, 9.5),
@@ -126,7 +165,7 @@ const TmkBadge: React.FC = () => {
                 src={src}
                 alt="TMK"
                 onError={() => setSrc(ASSETS.logoFallback)}
-                style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                style={{width: '100%', height: '100%', objectFit: 'contain', display: 'block'}}
             />
         </div>
     );
@@ -135,41 +174,85 @@ const TmkBadge: React.FC = () => {
 /* ══════════════ 2) ULANISH CHIZIQLARI VA UCH DOIRA ══════════════ */
 
 /**
- * TMK belgisidan uchta doiraga tarqaladigan ulanish chiziqlari.
- * Burchakli emas — silliq oval (kubik Bezye) egri chiziqlar; har biri ikki
- * marta chiziladi: pastda qalin va xiralashgan (neon nur), ustida ingichka
- * yorqin chiziq.
+ * Doiralarning gorizontal markazlari (konteyner kengligining %).
+ * Ilgari ular 1/6 – 3/6 – 5/6 da edi (markazdan 33.3% uzoqlikda); MINE va
+ * MARKET markazga 30% yaqinlashtirildi → 33.3 × 0.7 = 23.3%.
+ * Ulanish chiziqlari ham AYNAN shu nuqtalarga tushadi.
  */
-const NeonPath: React.FC<{ d: string; color: string }> = ({ d, color }) => (
-    <>
-        <path d={d} fill="none" stroke={color} strokeOpacity={0.45} strokeWidth={7}
-              strokeLinecap="round" filter="url(#mmm-neon)" />
-        <path d={d} fill="none" stroke={color} strokeOpacity={0.95} strokeWidth={2.6}
-              strokeLinecap="round" />
-    </>
-);
+const NODE_X = [26.67, 50, 73.33];
 
-const Connectors: React.FC = () => (
-    <svg
-        viewBox="0 0 300 44" preserveAspectRatio="none" aria-hidden
-        style={{ width: '100%', height: cq(12, 3.6, 40), display: 'block', flexShrink: 0, overflow: 'visible' }}
-    >
-        <defs>
-            <filter id="mmm-neon" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="2.6" />
-            </filter>
-        </defs>
-        {/* chapga — MINE */}
-        <NeonPath d="M150 0 C150 24 96 14 50 44" color={GC.success} />
-        {/* markazga — METAL */}
-        <NeonPath d="M150 0 C150 18 150 26 150 44" color="#E0912B" />
-        {/* o'ngga — MARKET */}
-        <NeonPath d="M150 0 C150 24 204 14 250 44" color={GC.accent1} />
-    </svg>
-);
+/**
+ * TMK belgisidan uchta doiraga tarqaladigan ulanish chiziqlari.
+ *
+ * Shakl — "elbow": belgidan chiqqan gorizontal shina, chetlarida YUMALOQ
+ * burilish va doiralarga tik tushish (markazdagi METAL uchun oddiy tik chiziq).
+ *
+ * DIQQAT — nega SVG emas, CSS chegaralari: konteyner juda keng (~1500px),
+ * `viewBox` esa kichkina. SVG `preserveAspectRatio="none"` bilan cho'zilganda
+ * burchak radiusi gorizontal bo'yicha ~5 barobar yoyilib, dumaloq emas,
+ * cho'zilgan ellips bo'lib qolardi. `border-radius` esa piksellarda
+ * hisoblanadi — konteyner kengligidan qat'i nazar burchak doim bir xil
+ * dumaloqlikda chiqadi. Neon nur `drop-shadow` orqali beriladi: u element
+ * shakliga (ya'ni faqat chiziqlarga) ergashadi, `box-shadow` kabi to'rtburchak
+ * hosil qilmaydi.
+ */
+const Connectors: React.FC = () => {
+    /* Gorizontal shina shu balandlikda turadi; ostidagi qism — tik tushish. */
+    const BUS_TOP = cq(4, 1.2, 12);
+    const RADIUS = cq(7, 2.2, 20);
+    const LINE = 2;
+
+    /** Chiziq uchidagi nurli nuqta. */
+    const Dot: React.FC<{ left: string; bottom?: number; top?: string; color: string }> = ({left, bottom, top, color}) => (
+        <span style={{
+            position: 'absolute', left, bottom, top,
+            width: cq(4, 1.1, 7), height: cq(4, 1.1, 7),
+            transform: 'translate(-50%, 50%)',
+            borderRadius: '50%', background: color,
+            boxShadow: `0 0 ${cq(4, 1.2, 9)} ${color}`,
+        }}/>
+    );
+
+    return (
+        <div aria-hidden style={{ position: 'relative', height: cq(14, 4.2, 46), flexShrink: 0 }}>
+            {/* Chap yelka: gorizontal shina + yumaloq burchak + MINE ga tik tushish */}
+            <div style={{
+                position: 'absolute', top: BUS_TOP, bottom: 0,
+                left: `${NODE_X[0]}%`, right: `${100 - NODE_X[1]}%`,
+                borderLeft: `${LINE}px solid ${GC.success}`,
+                borderTop: `${LINE}px solid ${GC.success}`,
+                borderTopLeftRadius: RADIUS,
+                filter: `drop-shadow(0 0 ${cq(3, 0.9, 7)} ${GC.success}cc)`,
+            }}/>
+
+            {/* O'ng yelka: MARKET ga */}
+            <div style={{
+                position: 'absolute', top: BUS_TOP, bottom: 0,
+                left: `${NODE_X[1]}%`, right: `${100 - NODE_X[2]}%`,
+                borderRight: `${LINE}px solid ${GC.accent1}`,
+                borderTop: `${LINE}px solid ${GC.accent1}`,
+                borderTopRightRadius: RADIUS,
+                filter: `drop-shadow(0 0 ${cq(3, 0.9, 7)} ${GC.accent1}cc)`,
+            }}/>
+
+            {/* Markaz: METAL ga tik chiziq */}
+            <div style={{
+                position: 'absolute', top: BUS_TOP, bottom: 0, left: `${NODE_X[1]}%`,
+                borderLeft: `${LINE}px solid #E0912B`,
+                filter: `drop-shadow(0 0 ${cq(3, 0.9, 7)} #E0912Bcc)`,
+            }}/>
+
+            {/* Belgidan chiqish nuqtasi va doiralarga tutashish nuqtalari */}
+            <Dot left={`${NODE_X[1]}%`} top={BUS_TOP} color={GC.accent2}/>
+            <Dot left={`${NODE_X[0]}%`} bottom={0} color={GC.success}/>
+            <Dot left={`${NODE_X[1]}%`} bottom={0} color="#E0912B"/>
+            <Dot left={`${NODE_X[2]}%`} bottom={0} color={GC.accent1}/>
+        </div>
+    );
+};
 
 /** MINE / METAL / MARKET doirasi. */
-const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({ seg, onClick }) => (
+const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({seg, onClick}) => (
     <button
         onClick={onClick}
         title={`${seg.title} — batafsil`}
@@ -183,8 +266,10 @@ const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({ seg, onC
             color: GC.textPrimary,
         }}
     >
-        <span style={{ color: seg.accent, display: 'flex' }}><Icon name={SEGMENT_ICON[seg.key]} size={cq(11, 2.9, 24)} /></span>
-        <span style={{ fontSize: cq(8, 2.2, 18), fontWeight: 800, letterSpacing: 0.5, lineHeight: 1.15 }}>{seg.code}</span>
+        <span style={{color: seg.accent, display: 'flex'}}><Icon name={SEGMENT_ICON[seg.key]}
+                                                                 size={cq(11, 2.9, 24)}/></span>
+        <span
+            style={{fontSize: cq(8, 2.2, 18), fontWeight: 800, letterSpacing: 0.5, lineHeight: 1.15}}>{seg.code}</span>
         <span style={{
             color: GC.textSecondary, fontSize: cq(4.5, 1.1, 10), textAlign: 'center',
             lineHeight: 1.2, padding: `0 ${cq(3, 1, 10)}`,
@@ -195,63 +280,101 @@ const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({ seg, onC
 /* ══════════════ 3) KARTOCHKA ICHIDAGI KICHIK KARTOCHKALAR ══════════════ */
 
 /** "Foto o'rni" — haqiqiy rasm qo'shilsa shu blok almashtiriladi. */
-const UnitPhoto: React.FC<{ accent: string; segKey: string; height: string }> = ({ accent, segKey, height }) => (
+const UnitPhoto: React.FC<{ accent: string; segKey: string; height: string }> = ({accent, segKey, height}) => (
     <div style={{
         height, borderRadius: cq(3, 0.9, 7), flexShrink: 0,
         background: `linear-gradient(140deg, ${accent}33, rgba(255,255,255,.04))`,
         border: `1px solid ${accent}26`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', color: `${accent}cc`,
     }}>
-        <Icon name={UNIT_ICON[segKey]} size={cq(10, 2.6, 22)} />
+        <Icon name={UNIT_ICON[segKey]} size={cq(10, 2.6, 22)}/>
     </div>
 );
 
 /** Faoliyatdagi obyekt — nom, foto, xodimlar, ishlab chiqarish + o'zgarish. */
-const ActiveUnitCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: string }> = ({ unit, accent, segKey }) => (
+const ActiveUnitCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: string }> = ({unit, accent, segKey}) => (
     <div style={{
         background: 'rgba(6, 12, 20, .62)', border: `1px solid ${GC.borderColor}`,
         borderRadius: cq(4, 1.2, 10), padding: cq(4, 1.1, 9), minWidth: 0,
         display: 'flex', flexDirection: 'column', gap: cq(2, 0.6, 6),
     }}>
         <div style={{
-            color: GC.textPrimary, fontSize: cq(6, 1.55, 12), fontWeight: 700, lineHeight: 1.25,
-        }} title={unit.name}>{unit.name}</div>
+            color: GC.textPrimary,display: "flex", justifyContent: "space-between", fontSize: cq(6, 1.55, 12), fontWeight: 700, lineHeight: 1.25,
+        }} title={unit.name}><span>
+            {unit.name}
+        </span>
+            <Delta v={unit.delta} size={cq(5.5, 1.35, 11)}/>
 
-        <UnitPhoto accent={accent} segKey={segKey} height={cq(18, 5, 46)} />
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0 }}>
-            <span style={{ color: GC.accent2, display: 'flex', flexShrink: 0 }}><Icon name="users" size={cq(6, 1.6, 13)} /></span>
-            <span style={{ color: GC.textPrimary, fontSize: cq(6, 1.5, 12), fontWeight: 700 }}>{fmtNum(unit.staff)}</span>
-            <span style={{ color: GC.textDisabled, fontSize: cq(4.5, 1.1, 9) }}>Xodimlar</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: cq(2, 0.6, 6) }}>
-            <div style={{ minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5) }}>
-                    <span style={{ color: accent, display: 'flex', flexShrink: 0 }}><Icon name="chart" size={cq(6, 1.5, 12)} /></span>
-                    <span style={{ color: GC.textPrimary, fontSize: cq(6, 1.55, 12), fontWeight: 700, whiteSpace: 'nowrap' }}>{unit.output}</span>
-                </div>
-                <div style={{ color: GC.textDisabled, fontSize: cq(4.5, 1.05, 9), lineHeight: 1.25 }}>{unit.outputLabel}</div>
+        {/*<UnitPhoto accent={accent} segKey={segKey} height={cq(18, 5, 46)}/>*/}
+        {
+            segKey === "mine" ? <img src="/imgs/re3.jpg" alt=""/> :  segKey === "metal" ? <img src="/imgs/re0.jpg" alt=""/> :  <img src="/imgs/re2.jpg" alt=""/>
+        }
+
+        <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0, justifyContent: 'space-between'}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
+            <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}>
+                {/*<Icon name="users" size={cq(6, 1.6, 13)}/>*/}
+                <img src="/icons/z4.png" alt="..." style={{width: cq(18, 5, 24)}}/>
+            </span>
+                <span>
+                <span style={{color: GC.textPrimary, fontSize: cq(6, 1.5, 14), fontWeight: 700}}>{fmtNum(unit.staff)}</span>
+            <span style={{color: GC.textDisabled, display: "block", fontSize: cq(4.5, 1.1, 12)}}>Xodimlar</span>
+             </span>
             </div>
-            <Delta v={unit.delta} size={cq(5.5, 1.35, 11)} />
+
+            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: cq(2, 0.6, 6)}}>
+                <div style={{minWidth: 0}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5)}}>
+                    <span style={{color: accent, display: 'flex', flexShrink: 0}}>
+                                       <img src="/icons/z5.png" alt="..." style={{width: cq(18, 5, 24)}}/>
+                </span>
+                        <span>
+                           <span style={{
+                               color: GC.textPrimary,
+                               fontSize: cq(6, 1.55, 12),
+                               fontWeight: 700,
+                               whiteSpace: 'nowrap'
+                           }}>{unit.output}</span>
+                         <div style={{
+                             color: GC.textDisabled,
+                             marginTop: 5,
+                             fontSize: cq(4.5, 1.05, 9),
+                             lineHeight: 1.25
+                         }}>{unit.outputLabel}
+                </div>
+                    </span>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 );
 
 /** Qurilayotgan / loyiha bosqichidagi obyekt — ochroq fonli kartochka. */
-const PlannedUnitCard: React.FC<{ unit: PlannedUnit; accent: string }> = ({ unit, accent }) => (
+const PlannedUnitCard: React.FC<{ unit: PlannedUnit; accent: string }> = ({unit, accent}) => (
     <div style={{
-        background: 'rgba(255, 255, 255, .07)', border: `1px solid ${GC.borderColor}`,
-        borderRadius: cq(4, 1.2, 10), padding: cq(4, 1.1, 9), minWidth: 0,
+        background: 'rgb(172 172 172 / 0.83)',
+        border: `1px solid  #fff`,
+        borderRadius: cq(4, 1.2, 10),
+        padding: cq(4, 1.1, 9), minWidth: 0,
         display: 'flex', flexDirection: 'column', gap: cq(2, 0.6, 6),
     }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: cq(3, 0.8, 7) }}>
+        <div style={{display: 'flex', alignItems: 'flex-start', gap: cq(3, 0.8, 7)}}>
             <span style={{
                 width: cq(12, 3.2, 26), height: cq(12, 3.2, 26), borderRadius: cq(3, 0.9, 8), flexShrink: 0,
                 background: `${accent}2b`, color: accent,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}><Icon name={unit.stage === 'Qurilish' ? 'build' : 'plan'} size={cq(6, 1.7, 14)} /></span>
-            <span style={{ color: GC.textPrimary, fontSize: cq(5.5, 1.45, 12), fontWeight: 700, lineHeight: 1.25 }}>{unit.name}</span>
+            }}><Icon name={unit.stage === 'Qurilish' ? 'build' : 'plan'} size={cq(6, 1.7, 14)}/></span>
+            <span style={{
+                color: GC.borderColor,
+                fontSize: cq(5.5, 1.45, 12),
+                fontWeight: 700,
+                lineHeight: 1.25
+            }}>{unit.name}</span>
         </div>
 
         <div style={{
@@ -259,30 +382,54 @@ const PlannedUnitCard: React.FC<{ unit: PlannedUnit; accent: string }> = ({ unit
             border: `1px solid ${GC.borderColor}`, borderRadius: cq(3, 0.9, 8),
             padding: `${cq(2, 0.5, 4)} ${cq(3, 0.9, 9)}`,
         }}>
-            <div style={{ color: GC.textSecondary, fontSize: cq(4.5, 1.05, 10) }}>{unit.stage}</div>
-            <div style={{ color: GC.textPrimary, fontSize: cq(5.5, 1.35, 11.5), fontWeight: 700, whiteSpace: 'nowrap' }}>{unit.years}</div>
+            <div style={{color: GC.borderColor, fontSize: cq(4.5, 1.05, 10)}}>{unit.stage}</div>
+            <div style={{
+                color: GC.borderColor,
+                fontSize: cq(5.5, 1.35, 11.5),
+                fontWeight: 700,
+                whiteSpace: 'nowrap'
+            }}>{unit.years}</div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0 }}>
-            <span style={{ color: GC.accent2, display: 'flex', flexShrink: 0 }}><Icon name="users" size={cq(6, 1.6, 13)} /></span>
-            <div style={{ minWidth: 0 }}>
-                <div style={{ color: GC.textPrimary, fontSize: cq(5.5, 1.45, 12), fontWeight: 700 }}>{fmtNum(unit.plannedStaff)}</div>
-                <div style={{ color: GC.textDisabled, fontSize: cq(4.5, 1.05, 9), lineHeight: 1.2 }}>Rejalashtirilgan xodimlar</div>
+        <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
+            <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}>
+                  <img src="/icons/z4.png" style={{width: "30px"}} alt=""/>
+            </span>
+            <div style={{minWidth: 0}}>
+                <div style={{
+                    color: GC.borderColor,
+                    fontSize: cq(5.5, 1.45, 12),
+                    fontWeight: 700
+                }}>{fmtNum(unit.plannedStaff)}</div>
+                <div style={{color: GC.borderColor, fontSize: cq(4.5, 1.05, 9), lineHeight: 1.2}}>Rejalashtirilgan
+                    xodimlar
+                </div>
             </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0 }}>
-            <span style={{ color: accent, display: 'flex', flexShrink: 0 }}><Icon name="chart" size={cq(6, 1.6, 13)} /></span>
-            <div style={{ minWidth: 0 }}>
-                <div style={{ color: GC.textPrimary, fontSize: cq(5.5, 1.45, 12), fontWeight: 700 }}>{unit.capacity ?? '—'}</div>
-                <div style={{ color: GC.textDisabled, fontSize: cq(4.5, 1.05, 9), lineHeight: 1.2 }}>{unit.capacityLabel}</div>
+        <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
+            <span style={{color: accent, display: 'flex', flexShrink: 0}}>
+                  <img src="/icons/z5.png" style={{width: "30px"}} alt=""/>
+
+            </span>
+            <div style={{minWidth: 0}}>
+                <div style={{
+                    color: GC.borderColor,
+                    fontSize: cq(5.5, 1.45, 12),
+                    fontWeight: 700
+                }}>{unit.capacity ?? '—'}</div>
+                <div style={{
+                    color: GC.textDisabled,
+                    fontSize: cq(4.5, 1.05, 9),
+                    lineHeight: 1.2
+                }}>{unit.capacityLabel}</div>
             </div>
         </div>
     </div>
 );
 
 /** Bo'lim sarlavhasi: rangli nuqta + nom + "N ta". */
-const BlockTitle: React.FC<{ text: string; count: number; accent: string }> = ({ text, count, accent }) => (
+const BlockTitle: React.FC<{ text: string; count: number; accent: string }> = ({text, count, accent}) => (
     <div style={{
         display: 'flex', alignItems: 'center', gap: cq(3, 0.9, 8), flexShrink: 0,
         background: `${accent}1f`, border: `1px solid ${accent}3d`,
@@ -292,86 +439,177 @@ const BlockTitle: React.FC<{ text: string; count: number; accent: string }> = ({
         <span style={{
             width: cq(4, 1.1, 9), height: cq(4, 1.1, 9), borderRadius: '50%',
             background: accent, flexShrink: 0,
-        }} />
+        }}/>
         <span style={{
             flex: 1, minWidth: 0, color: GC.textPrimary, fontSize: cq(5, 1.35, 11),
             fontWeight: 700, letterSpacing: 0.4,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>{text}</span>
         <span style={{
-            background: `${accent}33`, color: accent, fontSize: cq(4.5, 1.25, 10.5), fontWeight: 700,
-            padding: `${cq(1, 0.3, 3)} ${cq(3, 0.9, 8)}`, borderRadius: cq(3, 0.8, 6), flexShrink: 0, whiteSpace: 'nowrap',
+            background: `${accent}33`,
+            color: accent,
+            fontSize: cq(4.5, 1.25, 10.5),
+            fontWeight: 700,
+            padding: `${cq(1, 0.3, 3)} ${cq(3, 0.9, 8)}`,
+            borderRadius: cq(3, 0.8, 6),
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
         }}>{count} ta</span>
     </div>
 );
 
 /* ══════════════ BOSQICH KARTOCHKASI ══════════════ */
 
-const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({ seg, onOpen }) => (
+const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpen}) => (
     <section style={{
         display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, overflow: 'hidden',
         /* Fon — ramka rasmi (cho'zilib kartochkani to'ldiradi). */
-        backgroundImage: `url(${ASSETS.frames[seg.key]})`,
+        // backgroundImage: `url(${ASSETS.frames[seg.key]})`,
         backgroundSize: '100% 100%',
         backgroundRepeat: 'no-repeat',
-        backgroundColor: 'rgba(7, 13, 21, .6)',
-        border: `1px solid ${seg.accent}4d`,
+        // backgroundColor: `#061B2B`,
+        background: `${seg?.code === "MINE" ? "linear-gradient(145deg, #063D3B, #06212C)" : seg?.code === "METAL" ? "linear-gradient(145deg, #3D2415, #171D25)" : "linear-gradient(145deg, #073B6B, #061D30)"}`,
+        boxShadow: '0 0 12px rgba(0, 217, 255, 0.25), inset 0 0 12px rgba(0, 217, 255, 0.05)',
+        border: `1px solid ${seg?.code === "MINE" ? "#00E6A0" : seg?.code === "METAL" ? "#FF9D22" : "#178CFF"}`,
         borderRadius: cq(6, 1.8, 16),
         padding: cq(5, 1.4, 13),
     }}>
         {/* ── Sarlavha: chapda nom, O'NGDA ikkita ko'rsatkich ── */}
-        <header style={{ display: 'flex', alignItems: 'center', gap: cq(4, 1.1, 10), flexShrink: 0 }}>
-            <span style={{
-                width: cq(16, 4.2, 36), height: cq(16, 4.2, 36), borderRadius: cq(4, 1.1, 11), flexShrink: 0,
-                background: `${seg.accent}2b`, color: seg.accent,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}><Icon name={SEGMENT_ICON[seg.key]} size={cq(9, 2.4, 20)} /></span>
+        <header style={{display: 'flex', alignItems: 'center', gap: cq(4, 1.1, 10), flexShrink: 0}}>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
+
+            {
+                seg?.code === "MINE" ?
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
+                         style={{filter: "drop-shadow(0 0 10px rgba(0, 255, 170, 0.5))"}}
+
+                    >
+                        <defs>
+                            <linearGradient id="mineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00ffaa"/>
+                                <stop offset="100%" stop-color="#008855"/>
+                            </linearGradient>
+                        </defs>
+
+
+                        <path d="M8 48L24 20L36 38L44 26L56 48H8Z" fill="url(#mineGrad)" fill-opacity="0.2"
+                              stroke="url(#mineGrad)" stroke-width="2.5" stroke-linejoin="round"/>
+
+
+                        <path d="M22 28L42 48" stroke="url(#mineGrad)" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M42 28L22 48" stroke="url(#mineGrad)" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M16 22C22 20 28 22 28 22" stroke="url(#mineGrad)" stroke-width="3"
+                              stroke-linecap="round"/>
+                        <path d="M36 22C42 20 48 22 48 22" stroke="url(#mineGrad)" stroke-width="3"
+                              stroke-linecap="round"/>
+
+
+                        <circle cx="32" cy="14" r="3" fill="#00ffaa"/>
+                    </svg>
+
+                    : seg?.code === "METAL" ?
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
+                             style={{filter: "drop-shadow(0 0 10px rgba(255, 170, 0, 0.5))"}}>
+                            <defs>
+                                <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffcc00"/>
+                                    <stop offset="100%" stop-color="#ff6600"/>
+                                </linearGradient>
+                            </defs>
+
+                            <circle cx="32" cy="36" r="16" stroke="url(#metalGrad)" stroke-width="2.5"
+                                    stroke-dasharray="6 3"/>
+                            <circle cx="32" cy="36" r="8" stroke="url(#metalGrad)" stroke-width="2"/>
+
+                            <path
+                                d="M32 8C32 8 38 16 38 22C38 25.3137 35.3137 28 32 28C28.6863 28 26 25.3137 26 22C26 16 32 8 32 8Z"
+                                fill="url(#metalGrad)"/>
+                            <path
+                                d="M32 16C32 16 34.5 20 34.5 22C34.5 23.3807 33.3807 24.5 32 24.5C30.6193 24.5 29.5 23.3807 29.5 22C29.5 20 32 16 32 16Z"
+                                fill="#ffffff"/>
+                        </svg>
+
+                        :
+
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
+                             style={{filter: "drop-shadow(0 0 10px rgba(0, 170, 255, 0.5))"}}
+                        >
+                            <defs>
+                                <linearGradient id="marketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#00d4ff"/>
+                                    <stop offset="100%" stop-color="#0055ff"/>
+                                </linearGradient>
+                            </defs>
+
+
+                            <circle cx="32" cy="32" r="22" stroke="url(#marketGrad)" stroke-width="2.5"/>
+                            <ellipse cx="32" cy="32" rx="22" ry="9" stroke="url(#marketGrad)" stroke-width="2"/>
+                            <path d="M32 10V54" stroke="url(#marketGrad)" stroke-width="2"/>
+
+                            <path d="M18 42L28 32L36 38L48 22" stroke="#ffffff" stroke-width="3" stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                            <path d="M40 22H48V30" stroke="#ffffff" stroke-width="3" stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                        </svg>
+            }
+
+            <div style={{flex: 1, minWidth: 0}}>
                 <div style={{
-                    color: GC.textPrimary, fontSize: cq(7.5, 2, 17), fontWeight: 800, lineHeight: 1.2,
+                    color: GC.textPrimary, fontSize: cq(7.5, 2, 17), fontWeight: 700, lineHeight: 1.2,
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                 }} title={seg.title}>{seg.title}</div>
                 <div style={{
-                    color: GC.textSecondary, fontSize: cq(5, 1.3, 11), lineHeight: 1.25,
+                    color: GC.textSecondary, fontSize: cq(5, 1.3, 12), lineHeight: 1.25, marginTop: 5,
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                }}>{seg.tagline}</div>
+                }}>
+                    {seg.tagline}
+                </div>
             </div>
 
-            <div style={{ display: 'flex', gap: cq(4, 1.2, 14), flexShrink: 0 }}>
+            <div style={{display: 'flex', gap: cq(4, 1.2, 14), flexShrink: 0}}>
                 {seg.summary.map((s, i) => (
-                    <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 6) }}>
-                        <span style={{ color: i === 0 ? GC.accent2 : seg.accent, display: 'flex', flexShrink: 0 }}>
-                            <Icon name={i === 0 ? 'users' : 'chart'} size={cq(7, 1.9, 16)} />
-                        </span>
-                        <div>
-                            <div style={{
-                                color: GC.textPrimary, fontSize: cq(6.5, 1.7, 14), fontWeight: 700,
-                                lineHeight: 1.15, whiteSpace: 'nowrap',
-                            }}>{s.value}</div>
-                            <div style={{ color: GC.textDisabled, fontSize: cq(4.5, 1.05, 9.5), whiteSpace: 'nowrap' }}>{s.label}</div>
-                        </div>
-                    </div>
+
+                                <div key={s.label} style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 6)}}>
+                                 <span style={{color: i === 0 ? GC.accent2 : seg.accent, display: 'flex', flexShrink: 0}}>
+
+                                     {
+                                         i === 0 ?   <img src="/icons/z4.png" style={{width: "40px"}} alt=""/> :   <img src="/icons/z5.png" style={{width: "40px"}} alt=""/>
+                                     }
+                                 </span>
+                                    <div>
+                                        <div style={{
+                                            color: GC.textPrimary, fontSize: cq(6.5, 1.7, 18), fontWeight: 700,
+                                            lineHeight: 1.15, whiteSpace: 'nowrap',
+                                        }}>{s.value}</div>
+                                        <div style={{
+                                            color: GC.textDisabled,
+                                            fontSize: cq(4.5, 1.05, 12),
+                                            whiteSpace: 'nowrap'
+                                        }}>{s.label}</div>
+                                    </div>
+                                </div>
                 ))}
             </div>
         </header>
 
         {/* ── Tarkib (joy yetmasa aylantiriladi) ── */}
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>
-            <BlockTitle text={seg.activeTitle} count={seg.active.length} accent={seg.accent} />
+        <div style={{flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden'}}>
+            <BlockTitle text={seg.activeTitle} count={seg.active.length} accent={seg.accent}/>
+
             <div style={{
                 display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
             }}>
                 {seg.active.map((u) => (
-                    <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key} />
+                    <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
                 ))}
             </div>
 
-            <BlockTitle text={seg.plannedTitle} count={seg.planned.length} accent={seg.accent} />
+            <BlockTitle text={seg.plannedTitle} count={seg.planned.length} accent={seg.accent}/>
             <div style={{
                 display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
             }}>
-                {seg.planned.map((u) => <PlannedUnitCard key={u.name} unit={u} accent={seg.accent} />)}
+                {seg.planned.map((u) => <PlannedUnitCard key={u.name} unit={u} accent={seg.accent}/>)}
+
             </div>
         </div>
 
@@ -384,13 +622,14 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({ seg, onOp
                 borderRadius: cq(4, 1.1, 9), padding: `${cq(3, 0.7, 7)} ${cq(4, 1.1, 10)}`,
                 color: seg.accent, fontSize: cq(5, 1.3, 11), fontWeight: 700, whiteSpace: 'nowrap',
             }}
-        >Batafsil ko'rish →</button>
+        >Batafsil ko'rish →
+        </button>
     </section>
 );
 
 /* ══════════════ MODAL ══════════════ */
 
-const SegmentModal: React.FC<{ seg: Segment; onClose: () => void }> = ({ seg, onClose }) => (
+const SegmentModal: React.FC<{ seg: Segment; onClose: () => void }> = ({seg, onClose}) => (
     <div
         onClick={onClose}
         style={{
@@ -419,15 +658,20 @@ const SegmentModal: React.FC<{ seg: Segment; onClose: () => void }> = ({ seg, on
                     width: 40, height: 40, borderRadius: 12, flexShrink: 0,
                     background: `${seg.accent}26`, color: seg.accent,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}><Icon name={SEGMENT_ICON[seg.key]} size={22} /></span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ color: GC.textPrimary, fontSize: 17, fontWeight: 800 }}>{seg.title}</div>
-                    <div style={{ color: GC.textSecondary, fontSize: 11.5 }}>{seg.tagline}</div>
+                }}><Icon name={SEGMENT_ICON[seg.key]} size={22}/></span>
+                <div style={{flex: 1, minWidth: 0}}>
+                    <div style={{color: GC.textPrimary, fontSize: 17, fontWeight: 800}}>{seg.title}</div>
+                    <div style={{color: GC.textSecondary, fontSize: 11.5}}>{seg.tagline}</div>
                 </div>
                 {seg.summary.map((s) => (
-                    <div key={s.label} style={{ textAlign: 'right', flexShrink: 0, marginLeft: 14 }}>
-                        <div style={{ color: GC.textPrimary, fontSize: 15, fontWeight: 700, whiteSpace: 'nowrap' }}>{s.value}</div>
-                        <div style={{ color: GC.textDisabled, fontSize: 10, whiteSpace: 'nowrap' }}>{s.label}</div>
+                    <div key={s.label} style={{textAlign: 'right', flexShrink: 0, marginLeft: 14}}>
+                        <div style={{
+                            color: GC.textPrimary,
+                            fontSize: 15,
+                            fontWeight: 700,
+                            whiteSpace: 'nowrap'
+                        }}>{s.value}</div>
+                        <div style={{color: GC.textDisabled, fontSize: 10, whiteSpace: 'nowrap'}}>{s.label}</div>
                     </div>
                 ))}
                 <button
@@ -439,20 +683,27 @@ const SegmentModal: React.FC<{ seg: Segment; onClose: () => void }> = ({ seg, on
                         color: GC.textSecondary, display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                        <path d="M5 5l14 14M19 5L5 19" />
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                         strokeLinecap="round">
+                        <path d="M5 5l14 14M19 5L5 19"/>
                     </svg>
                 </button>
             </div>
 
-            <div style={{ overflowY: 'auto', padding: '10px 20px 20px' }}>
-                <BlockTitle text={seg.activeTitle} count={seg.active.length} accent={seg.accent} />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10, marginBottom: 6 }}>
-                    {seg.active.map((u) => <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key} />)}
+            <div style={{overflowY: 'auto', padding: '10px 20px 20px'}}>
+                <BlockTitle text={seg.activeTitle} count={seg.active.length} accent={seg.accent}/>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                    gap: 10,
+                    marginBottom: 6
+                }}>
+                    {seg.active.map((u) => <ActiveUnitCard key={u.name} unit={u} accent={seg.accent}
+                                                           segKey={seg.key}/>)}
                 </div>
-                <BlockTitle text={seg.plannedTitle} count={seg.planned.length} accent={seg.accent} />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 10 }}>
-                    {seg.planned.map((u) => <PlannedUnitCard key={u.name} unit={u} accent={seg.accent} />)}
+                <BlockTitle text={seg.plannedTitle} count={seg.planned.length} accent={seg.accent}/>
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 10}}>
+                    {seg.planned.map((u) => <PlannedUnitCard key={u.name} unit={u} accent={seg.accent}/>)}
                 </div>
             </div>
         </div>
@@ -470,6 +721,8 @@ type Props = {
 
 const MineMetalMarket: React.FC<Props> = () => {
     const [openSeg, setOpenSeg] = useState<Segment | null>(null);
+    /* Barcha raqamlar API'dan (COMPANY_DASHBOARD_API.md) — statik ma'lumot yo'q. */
+    const { topKpis, segments } = useCompanyData();
 
     return (
         <div style={{
@@ -489,8 +742,8 @@ const MineMetalMarket: React.FC<Props> = () => {
                     rgba(6,11,18,.52) 26%,
                     rgba(6,10,17,.78) 42%,
                     rgba(5,9,15,.95) 52%,
-                    ${GC.bg900} 60%), url(${ASSETS.background})`,
-            backgroundSize: 'cover, 100% 60%',
+                    ${GC.bg900} 30%), url(${ASSETS.background})`,
+            backgroundSize: 'contain, 100% 60%',
             backgroundPosition: 'top center, top center',
             backgroundRepeat: 'no-repeat, no-repeat',
             backgroundColor: GC.bg900,
@@ -499,21 +752,29 @@ const MineMetalMarket: React.FC<Props> = () => {
             // ...(topInset ? { paddingTop: `calc(${cq(5, 1.5, 16)} + ${topInset}px)` } : null),
         }}>
             {/* ── 1) KPI qatori + markazda TMK ── */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: cq(3, 0.9, 10), flexShrink: 0 }}>
-                {TOP_KPIS.left.map((k) => <KpiCard key={k.label} kpi={k} />)}
-                <TmkBadge />
-                {TOP_KPIS.right.map((k) => <KpiCard key={k.label} kpi={k} />)}
+            <div style={{display: 'flex', alignItems: 'center', gap: cq(3, 0.9, 10), flexShrink: 0}}>
+                {topKpis.left.map((k) => <KpiCard key={k.label} kpi={k}/>)}
+                <TmkBadge/>
+                {topKpis.right.map((k) => <KpiCard key={k.label} kpi={k}/>)}
             </div>
 
             {/* ── 2) Ulanish chiziqlari va uchta doira ── */}
-            <div style={{ flexShrink: 0 }}>
-                <Connectors />
+            <div style={{flexShrink: 0}}>
+                <Connectors/>
+                {/* Doiralar setka bilan emas, `NODE_X` foizlari bo'yicha aniq
+                    joylashtiriladi — shunda ular ulanish chiziqlarining
+                    uchlariga tik tushadi. */}
                 <div style={{
-                    display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-                    justifyItems: 'center', marginTop: `-${cq(2, 0.6, 6)}`,
+                    position: 'relative', height: cq(52, 14, 132),
+                    marginTop: `-${cq(2, 0.6, 6)}`,
                 }}>
-                    {SEGMENTS.map((s) => (
-                        <SegmentNode key={s.key} seg={s} onClick={() => setOpenSeg(s)} />
+                    {segments.map((s, i) => (
+                        <div key={s.key} style={{
+                            position: 'absolute', top: 0,
+                            left: `${NODE_X[i]}%`, transform: 'translateX(-50%)',
+                        }}>
+                            <SegmentNode seg={s} onClick={() => setOpenSeg(s)}/>
+                        </div>
                     ))}
                 </div>
             </div>
@@ -523,12 +784,12 @@ const MineMetalMarket: React.FC<Props> = () => {
                 flex: 1, minHeight: 0,
                 display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: cq(4, 1.1, 12),
             }}>
-                {SEGMENTS.map((s) => (
-                    <SegmentCard key={s.key} seg={s} onOpen={() => setOpenSeg(s)} />
+                {segments.map((s) => (
+                    <SegmentCard key={s.key} seg={s} onOpen={() => setOpenSeg(s)}/>
                 ))}
             </div>
 
-            {openSeg && <SegmentModal seg={openSeg} onClose={() => setOpenSeg(null)} />}
+            {openSeg && <SegmentModal seg={openSeg} onClose={() => setOpenSeg(null)}/>}
         </div>
     );
 };

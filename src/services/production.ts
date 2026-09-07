@@ -197,4 +197,103 @@ export const getAllNarastayka = async (from: string, to: string): Promise<Narast
     return all;
 };
 
+/* ══════════════════════════════════════════════════════════════════════════
+   "Korxona" (MINE → METAL → MARKET) dashboardi uchun qo'shimcha endpointlar.
+   Hujjat: COMPANY_DASHBOARD_API.md
+
+   Umumiy qoidalar (hujjat, 2-bo'lim):
+     • dashboard bitta joriy oyni ko'rsatadi, o'zgarish bir oy oldingisiga
+       nisbatan hisoblanadi;
+     • oylararo o'zgarishni backend FAQAT `/dashboard` da beradi — qolgan
+       endpointlar uchun frontend o'zi hisoblaydi;
+     • oylar orasida uzilish bo'lishi mumkin, shuning uchun "oldingi oy"
+       aynan bir oy oldingisi mavjud bo'lsagina hisoblanadi.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** `/chain` va `/kpi` da bir xil: oy bo'yicha reja/fakt. `null` — ma'lumot yo'q. */
+export type MonthValue = { plan: number | null; fakt: number | null; pct: number | null } | null;
+
+export type ChainStep = {
+    /** Barqaror kalit — dashboard bosqichni shu bo'yicha topadi. */
+    id: string;
+    level?: number;
+    stage?: string;
+    /** Obyekt/sex nomi. */
+    site?: string;
+    output?: string;
+    /** Birlik matni; ba'zilarida qavsda texnik izoh bor. */
+    unit?: string;
+    values: Record<string, MonthValue> | null;
+};
+
+export type ChainData = {
+    months: string[] | null;
+    steps: ChainStep[] | null;
+};
+
+export type KpiItem = {
+    /** Barqaror raqam (masalan 13 — "Численность цеха"). */
+    no: number;
+    name?: string;
+    site?: string;
+    unit?: string;
+    values: Record<string, MonthValue> | null;
+};
+
+export type KpiData = { months: string[] | null; kpis: KpiItem[] | null };
+
+export type MobplanData = {
+    source?: { importedAt?: string } | null;
+    /** Faqat "TMK Chemicals" sho'basi bo'yicha — korxona jami emas. */
+    sheetTotals?: { nomBirligi: number; shtat: number; band: number; vakansiya: number } | null;
+};
+
+export type SalesRow = {
+    month: string;
+    category: string;
+    byUnit: { baseUnit: string; value: number | null }[] | null;
+    value_base: number | null;
+};
+
+export type ElectricityRow = { month: string; type: string; kwh: number | null };
+
+const unwrap = <T,>(body: unknown): T => {
+    if (body && typeof body === "object" && "success" in body && "data" in body) {
+        return (body as { data: T }).data;
+    }
+    return body as T;
+};
+
+/** Xomashyo obyektlari, sexlar, reagentlar — 43 ta bosqich. */
+export const getChain = async (from?: string, to?: string): Promise<ChainData> => {
+    const response = await productionClient.get("/chain", { params: { from, to } });
+    return unwrap<ChainData>(response.data);
+};
+
+/** 45 ta ko'rsatkich; dashboard uchun `no: 13` (1 цех xodimlari) va `no: 23/24`. */
+export const getKpi = async (from?: string, to?: string): Promise<KpiData> => {
+    const response = await productionClient.get("/kpi", { params: { from, to } });
+    return unwrap<KpiData>(response.data);
+};
+
+/** Shtat jadvali — faqat "TMK Chemicals" sho'basi (parametr yo'q). */
+export const getMobplan = async (): Promise<MobplanData> => {
+    const response = await productionClient.get("/mobplan");
+    return unwrap<MobplanData>(response.data);
+};
+
+/** Realizatsiya va qoldiqlar — har oy × kategoriya. */
+export const getSalesMonthly = async (from?: string, to?: string): Promise<SalesRow[]> => {
+    const response = await productionClient.get("/sales/monthly", { params: { from, to } });
+    return unwrap<SalesRow[]>(response.data) ?? [];
+};
+
+/** Elektr energiya — obyekt turi kesimida, oylik. */
+export const getElectricity = async (from?: string, to?: string): Promise<ElectricityRow[]> => {
+    const response = await productionClient.get("/electricity", {
+        params: { groupBy: "type", period: "monthly", from, to },
+    });
+    return unwrap<ElectricityRow[]>(response.data) ?? [];
+};
+
 export default productionClient;
