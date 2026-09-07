@@ -466,6 +466,7 @@ const FinanceNew: React.FC = () => {
             .slice(0, 2)
     ), []);
 
+
     return (
         <div style={{
             background: C.bg,
