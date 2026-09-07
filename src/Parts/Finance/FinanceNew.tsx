@@ -509,63 +509,6 @@ const FinanceNew: React.FC = () => {
                     <RatioTile key={r.label} label={r.label} value={r.value} delta={r.deltaValue} icon={<IconScale />} color={GC.cyan} tag={r.tag} />
                 ))}
             </div>
-
-            {/* 03. Likvidlik va pul */}
-            <SectionTitle index={3} title="Likvidlik va pul" icon={<IconArrowUpDown />} color={GC.green} hint="oqim ko'prigi · bank qoldiqlari" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 8 }}>
-                <SectionCard title="Pul oqimi ko'prigi" icon={<IconArrowUpDown />} iconColor={GC.cyan} hint={DATA.meta.currency}>
-                    <CashBridge items={DATA.cashBridge.items} />
-                    <div style={{ fontSize: 11.5, color: C.sub, marginTop: 8 }}>{DATA.cashBridge.note}</div>
-                </SectionCard>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 8 }}>
-                    {DATA.cashMetrics.map((m) => (
-                        <RatioTile key={m.label} label={m.label} value={m.value} delta={m.deltaValue} icon={<IconWalletFilled />} color={m.up === false ? GC.red : GC.green} />
-                    ))}
-                </div>
-            </div>
-
-            <SectionCard title="Bank hisoblari — turi bo'yicha guruhlangan" icon={<IconBank />} iconColor={GC.amber}>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
-                        <colgroup><col style={{ width: '32%' }} /><col style={{ width: '23%' }} /><col style={{ width: '14%' }} /><col style={{ width: '31%' }} /></colgroup>
-                        <thead>
-                            <tr>
-                                <th style={{ textAlign: 'left', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>Bank</th>
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>So'm</th>
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>USD</th>
-                                <th style={{ textAlign: 'right', color: C.sub, fontWeight: 600, padding: '5px 8px', borderBottom: `1px solid ${C.border}` }}>So'm ekviv.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {DATA.bankGroups.map((g) => (
-                                <React.Fragment key={g.name}>
-                                    <tr>
-                                        <td colSpan={4} style={{ padding: '10px 8px 5px', fontSize: 10.5, fontWeight: 700, color: GC.cyan, textTransform: 'uppercase', letterSpacing: 0.5 }}>{g.name}</td>
-                                    </tr>
-                                    {g.rows.map((r) => (
-                                        <tr key={r.name}>
-                                            <td style={{ padding: '5px 8px', color: C.text, borderBottom: `1px solid ${C.border}` }}>{r.name}</td>
-                                            <td style={{ padding: '5px 8px', textAlign: 'right', color: (r as any).flag ? GC.amber : C.text, borderBottom: `1px solid ${C.border}` }}>{r.sum}{(r as any).flag ? ' ⚑' : ''}</td>
-                                            <td style={{ padding: '5px 8px', textAlign: 'right', color: C.sub, borderBottom: `1px solid ${C.border}` }}>{r.usd}</td>
-                                            <td style={{ padding: '5px 8px', textAlign: 'right', color: C.text, borderBottom: `1px solid ${C.border}` }}>{r.sumEq}</td>
-                                        </tr>
-                                    ))}
-                                    <tr>
-                                        <td style={{ padding: '6px 8px', color: C.text, fontWeight: 700 }}>Oraliq jami</td>
-                                        <td />
-                                        <td />
-                                        <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, color: C.text }}>{g.subtotal}</td>
-                                    </tr>
-                                </React.Fragment>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 11.5, color: GC.amber, background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: 8, padding: '10px 12px', marginTop: 10 }}>
-                    <NeonIcon color={GC.amber} size={22}><IconFlag /></NeonIcon>
-                    <span>{DATA.bankFlagNote}</span>
-                </div>
-            </SectionCard>
         </div>
     );
 };
