@@ -44,7 +44,7 @@ const MetalsDashboard: React.FC = () => {
         <DashRoot>
             <DashHeader title="Texnologik metallar ishlab chiqarish" subtitle="Ko'rsatkichlar dashboardi" dateRange="01.01.2025 - 19.06.2025" />
 
-            <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 , marginTop: 10}}>
                 <KpiCard title="Umumiy ishlab chiqarish hajmi" value={`${fmt(TOTAL)} t`} delta={7.3} compare={COMPARE}
                     badge={<div style={{ width: 34, height: 34, borderRadius: '50%', background: alpha(GC.green, 0.13), color: GC.green, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>▤</div>} />
                 {METALS.map((m) => (

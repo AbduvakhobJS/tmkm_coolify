@@ -110,7 +110,7 @@ const ResourceDashboardPart2: React.FC = () => {
                 dateRange="01.01.2025 - 30.04.2025"
             />
 
-            <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 8,marginTop: 6,  flexShrink: 0 }}>
                 {p.kpi.map((k, i) => (
                     <KpiTile
                         key={k.label}

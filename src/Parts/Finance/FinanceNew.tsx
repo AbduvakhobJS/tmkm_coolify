@@ -3,6 +3,7 @@ import { C } from '../../components/dashboardUI';
 import { GC } from '../../theme/palette';
 import { useFinanceDashboard } from '../../hooks/finance';
 import type { FinanceDashboardData, FinanceRow } from '../../services/finance';
+import {useNavigate} from "react-router-dom";
 
 /* ══════════════════════════════════════════════════════════════════════════
    MOLIYAVIY VAZIYAT MARKAZI
@@ -459,7 +460,7 @@ const EmptyTile: React.FC = () => (
 const FinanceNew: React.FC = () => {
     const { data } = useFinanceDashboard();
     const v = useMemo(() => buildView(data), [data]);
-
+    let navigate = useNavigate();
     const { revenue, profit, margin, netCash } = v.vitals;
     const money = (s: number[] | null) => {
         const l = lastOf(s);
@@ -484,9 +485,25 @@ const FinanceNew: React.FC = () => {
             {/* Sarlavha. Hujjatning 4-bo'limi: manbada yil yo'q, shuning uchun
                 bu yerda ham yil ko'rsatilmaydi — faqat oylar oralig'i. */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
-                <div>
-                    <div style={{ color: C.text, fontSize: 'clamp(14px, 3.4cqmin, 22px)', fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>
-                        Moliyaviy vaziyat markazi
+                <div style={{ width: "100%" }}>
+                    <div style={{ color: C.text, fontSize: 'clamp(14px, 3.4cqmin, 14px)', fontWeight: 700, width: "100%", letterSpacing: 0.4, textTransform: 'uppercase' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: "100%", alignItems: 'center', flexShrink: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <div>
+                                    <div style={{ color: 'rgb(241, 242, 246)', fontSize: 14, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>   Moliyaviy vaziyat markazi</div>
+                                </div>
+                            </div>
+
+                            <div style={{
+                                background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                                padding: '4px 10px', color: C.text,
+                                fontSize: '9px', display: 'flex', gap: 6, whiteSpace: 'nowrap',
+                                cursor: 'pointer',
+                            }}
+                                 onClick={() => navigate("/main/iframe/fin")}
+                            >Batafsil
+                            </div>
+                        </div>
                     </div>
                     <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>
                         {v.months.length > 0 ? `${v.months[0]} – ${v.months[v.months.length - 1]}` : ''}

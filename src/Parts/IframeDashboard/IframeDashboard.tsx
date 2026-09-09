@@ -64,7 +64,6 @@ const IframeDashboard: React.FC = () => {
                     );
                 })}
             </nav>
-
             <div className="ifd-root">
                 {!isValidKey ? (
                     <div className="ifd-empty">

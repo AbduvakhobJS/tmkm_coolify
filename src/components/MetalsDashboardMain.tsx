@@ -24,6 +24,8 @@ export const IFRAME_NAV_ITEMS: IframeNavItem[] = [
     { label: "Sisterna va yuklar", path: "/cist" },
     { label: "Ogarok", path: "/ogarok" },
     { label: "Ingichka", path: "/ing" },
+    { label: "Geologiya", path: "/geology" },
+    { label: "Moliyaviy ko'rsatkichlar", path: "/fin" },
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -166,8 +168,8 @@ const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string;
     const navigate = useNavigate();
     return (
         <div style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-            marginBottom: 'clamp(4px, 1.2cqmin, 10px)', flexShrink: 0, flexWrap: 'wrap', gap: 'clamp(4px, 1cqmin, 8px)',
+            display: 'flex', justifyContent: 'space-between',marginBottom: 10, alignItems: 'flex-start',
+           flexShrink: 0, flexWrap: 'wrap', gap: 'clamp(4px, 1cqmin, 8px)',
         }}>
             <div style={{ minWidth: 0 }}>
                 <div style={{
@@ -180,14 +182,14 @@ const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string;
                 {/*}}>{subtitle}</div>*/}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 1.1cqmin, 8px)', flexShrink: 0 }}>
-                <div style={{
-                    display: 'flex', alignItems: 'center', gap: 'clamp(3px, 1.1cqmin, 8px)',
-                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 1.8cqmin, 13px)',
-                    color: C.text, fontSize: 'clamp(9px, 1.8cqmin, 13px)', whiteSpace: 'nowrap',
-                }}>
-                    {dateRange}
-                </div>
+                {/*<div style={{*/}
+                {/*    display: 'flex', alignItems: 'center', gap: 'clamp(3px, 1.1cqmin, 8px)',*/}
+                {/*    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',*/}
+                {/*    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 1.8cqmin, 13px)',*/}
+                {/*    color: C.text, fontSize: 'clamp(9px, 1.8cqmin, 13px)', whiteSpace: 'nowrap',*/}
+                {/*}}>*/}
+                {/*    {dateRange}*/}
+                {/*</div>*/}
                 {/*<div style={{*/}
                 {/*    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',*/}
                 {/*    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(5px, 1.5cqmin, 11px)', color: C.sub,*/}

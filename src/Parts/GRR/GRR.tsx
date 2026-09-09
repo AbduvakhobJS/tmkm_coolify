@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import { C, chartBase, noLegend, axis, barLabel, centerText, fmt } from '../../components/dashboardUI';
-import grrData from './grrData.json';
+import { C, chartBase, noLegend, axis, centerText, fmt } from '../../components/dashboardUI';
 import { GC } from '../../theme/palette';
+import { useGeologyDashboard } from '../../hooks/geology';
+import type { GeologyProject } from '../../services/geology';
+import {useNavigate} from "react-router-dom";
 
 /* ── Neon ikonka (dizayn tizimiga mos, gradient + glow) ── */
 const NeonIcon: React.FC<{ color?: string; size?: number; children: React.ReactNode }> = ({ size = 34, children }) => (
@@ -126,11 +128,6 @@ const IconRotate = () => (
         <path d="M18 4v4h-4M6 20v-4h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
 );
-const IconArrowRight = () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-);
 
 const ICON_MAP: Record<string, React.ReactNode> = {
     folder: <IconFolder />, pulse: <IconPulse />, check: <IconCheck />, search: <IconSearch />,
@@ -156,91 +153,166 @@ const SectionCard: React.FC<{
     </div>
 );
 
-const RISK_COLORS: Record<string, string> = { low: GC.green, medium: GC.amber, high: GC.red };
-const RISK_LABELS: Record<string, string> = { low: 'Past', medium: "O'rta", high: 'Yuqori' };
-
-/* Tayyorlik progress bari — og'ish emas, oddiy ko'rsatkich: ko'k oiladan
-   (yuqori foiz — to'qroq ko'k). Xavf darajasi esa yonidagi nuqtada
-   qizil/sariq/yashil bilan alohida ko'rsatiladi (`RISK_COLORS`). */
+/* Ish rejasi bajarilish foizi bo'yicha rang — ko'k oiladan, yuqori foiz to'qroq ko'k. */
 const readinessColor = (v: number) => (v >= 60 ? GC.accent1 : v >= 40 ? GC.accent3 : GC.accent4);
 
-/* Tarkib halqasi — qiymatlar juda kichik (<2%) bo'lgani uchun guruh ichidagi maksimumga nisbatan normallashtiriladi */
-const CompositionRing: React.FC<{ label: string; value: number; maxValue: number; color: string }> = ({ label, value, maxValue, color }) => {
-    const pct = maxValue > 0 ? Math.min(100, (value / maxValue) * 100) : 0;
-    return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-            <div style={{
-                width: 60, height: 60, borderRadius: '50%',
-                background: `conic-gradient(${GC.icon} ${pct}%, rgba(255,255,255,0.08) 0)`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-                <div style={{ width: 47, height: 47, borderRadius: '50%', background: C.card, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.text, fontSize: 11.5, fontWeight: 700 }}>
-                    {fmt(value, 2)}%
-                </div>
-            </div>
-            <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 600 }}>{label}</div>
-        </div>
-    );
+/* Ish rejasi mavjud loyihalarda "Бажарилди" bandlarining ulushi.
+   Ish rejasi umuman bo'lmagan loyihalarda `null` — bu 0% bilan bir xil emas
+   (ish rejasi API §5 bo'yicha 46 tadan faqat 36 tasida bor). */
+const workReadiness = (p: GeologyProject): number | null => {
+    if (!p.works.length) return null;
+    const done = p.works.filter((w) => w.status === 'Бажарилди').length;
+    return Math.round((done / p.works.length) * 100);
 };
 
+const UZ_MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'];
+const formatAsOf = (iso: string): string => {
+    const [y, m, d] = iso.split('-').map(Number);
+    if (!y || !m || !d) return iso;
+    return `${d}-${UZ_MONTHS[m - 1]}, ${y}-yil`;
+};
+
+/* Bo'sh/mavjud bo'lmagan ma'lumot uchun umumiy holat ko'rsatkichi (kartani
+   butunlay yashirmasdan, nega bo'sh ekanini tushuntiradi). */
+const EmptyNote: React.FC<{ text: string }> = ({ text }) => (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, textAlign: 'center', padding: '0 12px' }}>
+        <span style={{ color: C.sub, opacity: 0.6 }}><IconWarning /></span>
+        <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase' }}>Ma'lumot yo'q</div>
+        <div style={{ color: C.sub, fontSize: 9.5, lineHeight: 1.45, opacity: 0.85 }}>{text}</div>
+    </div>
+);
+
 const GRR: React.FC = () => {
-    const { meta, kpis, projects, mineralZones, summary, reservesChart, elementContentChart, budgetRemainderChart, resourceDistribution, keyFindings } = grrData;
+    const { data, isLoading, isError } = useGeologyDashboard();
 
-    const maxComposition = Math.max(...summary.composition.map((c) => c.value));
+    let navigate = useNavigate();
+    const view = useMemo(() => {
+        if (!data) return null;
+        const { projects, summary, meta } = data;
 
-    const reservesData = {
-        labels: reservesChart.labels,
+        const doneWorks = summary.works.byStatus.find((s) => s.key === 'Бажарилди')?.count ?? 0;
+        const totalWorks = summary.works.total;
+
+        /* Metallar taqsimoti — 6-bo'lim: `metals` maydoni vergul bilan ajratilgan
+           erkin matn, bitta loyihada bir nechta metall bo'lishi mumkin — shuning
+           uchun foiz emas, loyiha soni ko'rsatiladi (100% ga yig'ilmaydi). */
+        const metalsCount = new Map<string, number>();
+        let metalsUnspecified = 0;
+        projects.forEach((p) => {
+            const raw = p.metals?.trim();
+            if (!raw || raw === '—') { metalsUnspecified += 1; return; }
+            raw.split(',').map((s) => s.trim()).filter(Boolean).forEach((m) => {
+                metalsCount.set(m, (metalsCount.get(m) ?? 0) + 1);
+            });
+        });
+        const metalsSorted = Array.from(metalsCount.entries()).sort((a, b) => b[1] - a[1]);
+        const topMetals = metalsSorted.slice(0, 7);
+        const restCount = metalsSorted.slice(7).reduce((s, [, c]) => s + c, 0);
+        const metalsDistribution = [
+            ...topMetals.map(([label, count]) => ({ label, count })),
+            ...(restCount > 0 ? [{ label: 'Boshqa', count: restCount }] : []),
+            ...(metalsUnspecified > 0 ? [{ label: "Ko'rsatilmagan", count: metalsUnspecified }] : []),
+        ];
+
+        const projectsWithBudget2026 = projects
+            .filter((p) => typeof p.volume?.budgetMlnUsd2026 === 'number' && (p.volume?.budgetMlnUsd2026 ?? 0) > 0)
+            .sort((a, b) => (b.volume!.budgetMlnUsd2026 as number) - (a.volume!.budgetMlnUsd2026 as number))
+            .slice(0, 10);
+
+        const missing = (sel: (p: GeologyProject) => unknown) => projects.filter((p) => sel(p) == null).length;
+
+        return {
+            projects, summary, meta, doneWorks, totalWorks,
+            metalsDistribution, projectsWithBudget2026,
+            dataQuality: {
+                cost: missing((p) => p.costMlnUsd),
+                funding: missing((p) => p.funding),
+                partner: missing((p) => p.partner),
+            },
+        };
+    }, [data]);
+
+    if (isLoading || !view) {
+        return (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.sub, fontSize: 13, fontFamily: '"Segoe UI", system-ui, sans-serif' }}>
+                {isError ? "Geologiya loyihalari ma'lumotini yuklab bo'lmadi" : 'Geologiya loyihalari yuklanmoqda…'}
+            </div>
+        );
+    }
+
+    const { projects, summary, meta, doneWorks, totalWorks, metalsDistribution, projectsWithBudget2026, dataQuality } = view;
+
+    const kpis: { label: string; value: string; unit: string; icon: string; color: string; muted?: boolean }[] = [
+        { label: 'PORTFELDAGI LOYIHALAR', value: String(summary.totalProjects), unit: 'loyiha', icon: 'folder', color: GC.accent1 },
+        ...summary.byGroup.map((g, i) => ({
+            label: g.key.toUpperCase(), value: String(g.count), unit: 'loyiha',
+            icon: i === 0 ? 'pulse' : 'search', color: i === 0 ? GC.accent2 : GC.accent3,
+        })),
+        { label: 'ISH REJASI BAJARILDI', value: `${doneWorks}/${totalWorks}`, unit: totalWorks ? `${fmt((doneWorks / totalWorks) * 100, 0)}% bandlar` : "ma'lumot yo'q", icon: 'check', color: GC.accent1 },
+        { label: 'PORTFEL BYUDJETI', value: fmt(summary.cost.totalMlnUsd, 2), unit: `mln $ · ${summary.cost.projectsWithCost}/${summary.totalProjects} loyihada`, icon: 'coins', color: GC.blue },
+        { label: '2026 YIL BYUDJETI', value: fmt(summary.volumes2026.budgetMlnUsd, 2), unit: `mln $ · ${summary.volumes2026.projectsWithVolumes}/${summary.totalProjects} loyihada`, icon: 'bars', color: GC.accent2 },
+        { label: "O'ZLASHTIRILDI", value: '—', unit: "ma'lumot manbada yo'q", icon: 'gauge', color: C.sub, muted: true },
+        { label: 'PORTFEL IRR', value: '—', unit: "moliyaviy model manbada yo'q", icon: 'trend', color: C.sub, muted: true },
+    ];
+
+    const vol = summary.volumes2026;
+    const doneIfReported = (val: number, reported: number) => (reported > 0 ? val : null);
+    const volumesData = {
+        labels: ["Burg'ilash, p.m", 'Namunalash, dona', 'Kanava, m³'],
         datasets: [
-            { label: "Razvedka qilingan zaxiralar", data: reservesChart.explored, backgroundColor: GC.accent3, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
-            { label: 'Resurslar', data: reservesChart.resources, backgroundColor: GC.accent1, borderRadius: 3, barPercentage: 0.75, categoryPercentage: 0.7 },
+            { label: 'Reja', data: [vol.drillPlan, vol.samplePlan, vol.trenchPlan], backgroundColor: GC.accent3, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
+            {
+                label: 'Bajarildi (hisobot bergan loyihalar)',
+                data: [doneIfReported(vol.drillDone, vol.drillDoneReported), doneIfReported(vol.sampleDone, vol.sampleDoneReported), doneIfReported(vol.trenchDone, vol.trenchDoneReported)],
+                backgroundColor: GC.accent1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6,
+            },
         ],
     };
 
-    const elementData = {
-        labels: elementContentChart.labels,
-        datasets: [
-            { label: "Razvedka qilingan zaxiralar", data: elementContentChart.explored, backgroundColor: GC.accent3, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
-            { label: 'Resurslar', data: elementContentChart.resources, backgroundColor: GC.accent1, borderRadius: 3, barPercentage: 0.6, categoryPercentage: 0.6 },
-        ],
-    };
-
-    const budgetData = {
-        labels: budgetRemainderChart.labels,
-        datasets: [
-            { label: "O'zlashtirildi", data: budgetRemainderChart.used, backgroundColor: GC.accent3, stack: 's', borderRadius: 2, barPercentage: 0.7 },
-            { label: 'Qoldiq', data: budgetRemainderChart.remaining, backgroundColor: GC.accent1, stack: 's', borderRadius: 2, barPercentage: 0.7 },
-        ],
+    const budget2026Data = {
+        labels: projectsWithBudget2026.map((p) => p.shortName),
+        datasets: [{ label: '2026 yil byudjeti, mln $', data: projectsWithBudget2026.map((p) => p.volume!.budgetMlnUsd2026), backgroundColor: GC.accent1, borderRadius: 2, barPercentage: 0.7 }],
     };
 
     const stagesDonut = {
-        labels: summary.stages.map((s) => s.label),
-        datasets: [{ data: summary.stages.map((s) => s.count), backgroundColor: summary.stages.map((s) => s.color), borderColor: C.card, borderWidth: 2 }],
+        labels: summary.byGroup.map((g) => g.key),
+        datasets: [{ data: summary.byGroup.map((g) => g.count), backgroundColor: [GC.accent1, GC.accent3, GC.accent4], borderColor: C.card, borderWidth: 2 }],
     };
 
-    const resourceDonut = {
-        labels: resourceDistribution.map((r) => r.label),
-        datasets: [{ data: resourceDistribution.map((r) => r.pct), backgroundColor: resourceDistribution.map((r) => r.color), borderColor: C.card, borderWidth: 2 }],
-    };
+    const maxMetal = Math.max(...metalsDistribution.map((m) => m.count), 1);
+
+    const findings = [
+        { icon: 'star', title: 'Manba', text: meta.source, color: GC.cyan },
+        { icon: 'clock', title: 'Holat sanasi', text: `Ko'rsatkichlar ${formatAsOf(meta.asOf)} holatiga`, color: GC.slate },
+        { icon: 'check', title: 'Ish rejasi bajarilishi', text: `${totalWorks} banddan ${doneWorks} tasi bajarilgan (${summary.works.projectsWithWorks}/${summary.totalProjects} loyihada ish rejasi bor)`, color: GC.green },
+        { icon: 'warning', title: "To'ldirilmagan maydonlar", text: `Byudjet — ${dataQuality.cost}/${summary.totalProjects}, moliyalash manbai — ${dataQuality.funding}/${summary.totalProjects}, hamkor — ${dataQuality.partner}/${summary.totalProjects} loyihada ko'rsatilmagan`, color: GC.amber },
+    ];
 
     return (
         <div style={{
-            // background: C.bg,
             width: '100%', height: '100%', minHeight: 0,
-            overflowY: 'auto', padding: 14, boxSizing: 'border-box',
+            overflowY: 'auto', padding: "0 14px", boxSizing: 'border-box',
             fontFamily: '"Segoe UI", system-ui, sans-serif',
             display: 'flex',
             flexDirection: 'column', gap: 10 }}>
 
             {/* Sarlavha */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexShrink: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {/*<NeonIcon color={GC.blue} size={36}><IconLayers /></NeonIcon>*/}
                     <div>
-                        <div style={{ color: 'rgb(241, 242, 246)', fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>{meta.title}</div>
-                        {/*<div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>{meta.subtitle}</div>*/}
+                        <div style={{ color: 'rgb(241, 242, 246)', fontSize: 14, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Geologiya-qidiruv ishlari boshqaruvi</div>
                     </div>
                 </div>
-                <span style={{ color: C.sub, fontSize: 11 }}>{meta.dateRange}</span>
+                {/*<span style={{ color: C.sub, fontSize: 11 }}>{formatAsOf(meta.asOf)} holatiga</span>*/}
+                <div style={{
+                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                    padding: '4px 15px', color: C.text,
+                    fontSize: '9px', display: 'flex', gap: 6, whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                }}
+                     onClick={() => navigate("/main/iframe/geology")}
+                >Batafsil
+                </div>
             </div>
 
             {/* KPI qatori */}
@@ -252,7 +324,7 @@ const GRR: React.FC = () => {
                             <span style={{ color: C.sub, fontSize: 8.7, fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase', lineHeight: 1.25 }}>{k.label}</span>
                         </div>
                         <div>
-                            <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{k.value}</div>
+                            <div style={{ color: k.muted ? C.sub : C.text, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{k.value}</div>
                             <div style={{ color: C.sub, fontSize: 10, marginTop: 3 }}>{k.unit}</div>
                         </div>
                     </div>
@@ -263,39 +335,42 @@ const GRR: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.6fr 1fr', gap: 8, minHeight: 380 }}>
 
                 {/* Portfel loyihalari */}
-                <SectionCard title="Loyihalar portfeli" icon={<IconFolder />}>
+                <SectionCard title="Loyihalar portfeli" icon={<IconFolder />} hint={`${projects.length} ta`}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, paddingBottom: 6, borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
                         <span>Loyiha</span>
-                        <span>Tayyorlik / Xavf</span>
+                        <span>Ish rejasi bajarilishi</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 9, overflowY: 'auto', flex: 1, paddingTop: 8, minHeight: 0 }}>
-                        {projects.map((p) => (
-                            <div key={p.num}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
-                                    <div style={{ minWidth: 0 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            <span style={{ color: C.sub, fontSize: 10.5, flexShrink: 0 }}>#{p.num}</span>
-                                            <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
+                        {projects.map((p) => {
+                            const readiness = workReadiness(p);
+                            return (
+                                <div key={p.id}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ minWidth: 0 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <span style={{ color: C.sub, fontSize: 10.5, flexShrink: 0 }}>#{p.projectNo}</span>
+                                                <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.shortName}</span>
+                                            </div>
+                                            <div style={{ color: GC.cyan, fontSize: 10.5, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                {p.direction}{p.region ? ` · ${p.region}` : ''}{p.endYear ? ` · ${p.endYear}` : ''}
+                                            </div>
                                         </div>
-                                        <div style={{ color: GC.cyan, fontSize: 10.5, marginTop: 1 }}>{p.stage}</div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                                            {readiness !== null
+                                                ? <span style={{ color: C.text, fontSize: 11.5, fontWeight: 700 }}>{readiness}%</span>
+                                                : <span style={{ color: C.sub, fontSize: 9.5 }}>reja yo'q</span>}
+                                        </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                                        <span style={{ color: C.text, fontSize: 11.5, fontWeight: 700 }}>{p.readiness}%</span>
-                                        <span title={RISK_LABELS[p.risk]} style={{ width: 9, height: 9, borderRadius: '50%', background: RISK_COLORS[p.risk], boxShadow: `0 0 6px ${RISK_COLORS[p.risk]}` }} />
+                                    <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 5 }}>
+                                        <div style={{ width: `${readiness ?? 0}%`, height: '100%', background: readiness !== null ? readinessColor(readiness) : 'transparent', borderRadius: 3 }} />
                                     </div>
                                 </div>
-                                <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 5 }}>
-                                    <div style={{ width: `${p.readiness}%`, height: '100%', background: readinessColor(p.readiness), borderRadius: 3 }} />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, color: GC.cyan, fontSize: 11, fontWeight: 600, paddingTop: 9, marginTop: 6, borderTop: `1px solid ${C.border}`, cursor: 'pointer', flexShrink: 0 }}>
-                        Barcha loyihalarni ko'rish <IconArrowRight />
+                            );
+                        })}
                     </div>
                 </SectionCard>
 
-                {/* 3D geologik model */}
+                {/* 3D geologik model — manbada bunday ma'lumot yo'q, rasm o'zgarishsiz qoladi */}
                 <SectionCard title="3D geologik model" icon={<IconCube />} bodyStyle={{ gap: 8 }}>
                     <div style={{ position: 'relative', flex: 1, minHeight: 0, borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.border}` }}>
                         <img src="/imgs/r6.jpg" alt="3D geologik model" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'saturate(1.05) brightness(0.85)' }} />
@@ -311,7 +386,17 @@ const GRR: React.FC = () => {
                                 Mineralizatsiya zonalari
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                {mineralZones.map((m) => (
+                                {[
+                                    { label: 'Cu-Sb-W-Bi-Co-Zn-Pb', color: '#1D4ED8' },
+                                    { label: 'Li (litiyli)', color: '#3B82F6' },
+                                    { label: 'W (volframli)', color: '#60A5FA' },
+                                    { label: 'REE (noyob yer elementlari)', color: '#93C5FD' },
+                                    { label: 'Au (oltin konlari)', color: '#DBEAFE' },
+                                    { label: 'U (uranli)', color: '#BFDBFE' },
+                                    { label: 'Fosforitli', color: '#1D4ED8' },
+                                    { label: 'Grafitli', color: '#94a3b8' },
+                                    { label: 'Istiqbolli tuzilmalar', color: '#e2e8f0' },
+                                ].map((m) => (
                                     <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                         <span style={{ width: 7, height: 7, borderRadius: 2, background: m.color, flexShrink: 0, boxShadow: `0 0 4px ${m.color}` }} />
                                         <span style={{ color: C.text, fontSize: 9, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.label}</span>
@@ -351,7 +436,11 @@ const GRR: React.FC = () => {
                 {/* Loyihalar bo'yicha xulosa */}
                 <SectionCard title="Loyihalar bo'yicha xulosa" icon={<IconBars />} bodyStyle={{ overflowY: 'auto' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, flexShrink: 0, marginBottom: 10 }}>
-                        {summary.stageCounts.map((s) => (
+                        {[
+                            { label: 'Jami loyihalar', value: summary.totalProjects },
+                            ...summary.byGroup.map((g) => ({ label: g.key, value: g.count })),
+                            { label: 'Ish rejasi bajarildi', value: `${doneWorks}/${totalWorks}` },
+                        ].map((s) => (
                             <div key={s.label} style={{ textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 4px' }}>
                                 <div style={{ color: C.text, fontSize: 16, fontWeight: 700 }}>{s.value}</div>
                                 <div style={{ color: C.sub, fontSize: 8, marginTop: 2, lineHeight: 1.2 }}>{s.label}</div>
@@ -362,65 +451,58 @@ const GRR: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 11.5, marginBottom: 10 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: C.sub }}>Portfel byudjeti:</span>
-                            <span style={{ color: C.text, fontWeight: 700 }}>{summary.budget.total}</span>
+                            <span style={{ color: C.text, fontWeight: 700 }}>{fmt(summary.cost.totalMlnUsd, 2)} mln $</span>
                         </div>
-                        <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: C.sub }}>O'zlashtirildi ({summary.budget.usedPct}%):</span>
-                                <span style={{ color: C.text, fontWeight: 700 }}>{summary.budget.used}</span>
-                            </div>
-                            <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 4 }}>
-                                <div style={{ width: `${summary.budget.usedPct}%`, height: '100%', background: GC.accent1, borderRadius: 3 }} />
-                            </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: C.sub }}>2026 yil byudjeti:</span>
+                            <span style={{ color: C.text, fontWeight: 700 }}>{fmt(summary.volumes2026.budgetMlnUsd, 2)} mln $</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: C.sub }}>Kutilayotgan tushum:</span>
-                            <span style={{ color: C.text, fontWeight: 700 }}>{summary.revenue.expected}</span>
+                            <span style={{ color: C.sub, fontWeight: 600 }}>Ma'lumot yo'q</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: C.sub }}>Diskontlangan tushum:</span>
-                            <span style={{ color: C.text, fontWeight: 700 }}>{summary.revenue.discounted}</span>
+                            <span style={{ color: C.sub, fontWeight: 600 }}>Ma'lumot yo'q</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: C.sub }}>Kutilayotgan NPV (8%):</span>
-                            <span style={{ color: C.up, fontWeight: 700 }}>{summary.revenue.npv8}</span>
+                            <span style={{ color: C.sub, fontWeight: 600 }}>Ma'lumot yo'q</span>
                         </div>
                     </div>
 
                     <div style={{ color: GC.cyan, fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>
                         Portfelning o'rtacha vaznli tarkibi
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 4, marginBottom: 12 }}>
-                        {summary.composition.map((c, i) => (
-                            <CompositionRing key={c.label} label={c.label} value={c.value} maxValue={maxComposition} color={[GC.accent1, GC.accent2, GC.accent3, GC.accent4, GC.accent5][i % 5]} />
-                        ))}
+                    <div style={{ color: C.sub, fontSize: 10, lineHeight: 1.45, marginBottom: 12 }}>
+                        Ma'lumot yo'q — element tarkibi (greyd, %) faqat 10/{summary.totalProjects} loyihada, u ham erkin matn ichida (masalan «Vanadiy 81,5 ming t, tarkibi 0,89%») — tuzilgan raqamli maydon sifatida mavjud emas.
                     </div>
 
                     <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                         <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 4px' }}>
                             <div style={{ color: C.sub, fontSize: 9 }}>Loyihalar bahosi (NPV10%, mln dollar)</div>
-                            <div style={{ color: C.text, fontSize: 18, fontWeight: 700, marginTop: 3 }}>{summary.npv10}</div>
+                            <div style={{ color: C.sub, fontSize: 15, fontWeight: 700, marginTop: 3 }}>Ma'lumot yo'q</div>
                         </div>
                         <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 4px' }}>
                             <div style={{ color: C.sub, fontSize: 9 }}>Portfel IRR</div>
-                            <div style={{ color: C.up, fontSize: 18, fontWeight: 700, marginTop: 3 }}>{summary.irr}</div>
+                            <div style={{ color: C.sub, fontSize: 15, fontWeight: 700, marginTop: 3 }}>Ma'lumot yo'q</div>
                         </div>
                     </div>
 
                     <div style={{ color: GC.cyan, fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 }}>
-                        Loyiha bosqichlari
+                        Loyiha guruhlari
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 84, height: 84, flexShrink: 0 }}>
-                            <Doughnut data={stagesDonut} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[centerText(`${projects.length}`, 'loyiha')]} />
+                            <Doughnut data={stagesDonut} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[centerText(`${summary.totalProjects}`, 'loyiha')]} />
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
-                            {summary.stages.map((s) => (
-                                <div key={s.label} style={{ display: 'flex', alignItems: 'center', fontSize: 10.5 }}>
-                                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.color, marginRight: 5, flexShrink: 0 }} />
-                                    <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label}</span>
-                                    <span style={{ color: C.text, fontWeight: 600 }}>{s.count}</span>
-                                    <span style={{ color: C.sub, marginLeft: 4 }}>({s.pct}%)</span>
+                            {summary.byGroup.map((g, i) => (
+                                <div key={g.key} style={{ display: 'flex', alignItems: 'center', fontSize: 10.5 }}>
+                                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: [GC.accent1, GC.accent3, GC.accent4][i % 3], marginRight: 5, flexShrink: 0 }} />
+                                    <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{g.key}</span>
+                                    <span style={{ color: C.text, fontWeight: 600 }}>{g.count}</span>
+                                    <span style={{ color: C.sub, marginLeft: 4 }}>({fmt((g.count / summary.totalProjects) * 100, 0)}%)</span>
                                 </div>
                             ))}
                         </div>
@@ -430,50 +512,58 @@ const GRR: React.FC = () => {
 
             {/* Pastki grafiklar qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, height: 450 }}>
-                <SectionCard title="Loyihalar bo'yicha zaxira va resurslar, mln t" icon={<IconLayers />} iconColor={GC.accent1}>
+                <SectionCard title="2026 yil ish hajmlari — reja va bajarilishi" icon={<IconLayers />} iconColor={GC.accent1}>
                     <div style={{ flex: 1, minHeight: 0 }}>
-                        <Bar data={reservesData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } }, scales: axis({ x: { ticks: { font: { size: 8.5 } } }, y: { beginAtZero: true } }) } as any} />
+                        <Bar data={volumesData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 8.5 } } } }, scales: axis({ x: { ticks: { font: { size: 8.5 } } }, y: { beginAtZero: true } }) } as any} />
                     </div>
+                    {summary.volumes2026.trenchDoneReported === 0 && (
+                        <div style={{ color: C.sub, fontSize: 8.5, marginTop: 6, lineHeight: 1.35, flexShrink: 0 }}>
+                            * Kanava bo'yicha bajarilgan hajm birorta loyihada hisobot qilinmagan (hisobot yo'q, 0 bajarilgan emas).
+                        </div>
+                    )}
                 </SectionCard>
 
                 <SectionCard title="Element guruhlari bo'yicha o'rtacha tarkib" icon={<IconGauge />} iconColor={GC.violet}>
-                    <div style={{ flex: 1, minHeight: 0 }}>
-                        <Bar data={elementData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } }, scales: axis({ y: { beginAtZero: true } }) } as any} />
-                    </div>
+                    <EmptyNote text="Tarkib (greyd, %) manbada faqat 10/46 loyihada, erkin matn ichida — tuzilgan raqamli maydon sifatida yo'q, diagramma qurib bo'lmaydi." />
                 </SectionCard>
 
-                <SectionCard title="Loyihalar bo'yicha byudjet qoldig'i, mln dollar" icon={<IconCoins />} iconColor={GC.cyan}>
-                    <div style={{ flex: 1, minHeight: 0 }}>
-                        <Bar data={budgetData} options={{
-                            ...chartBase, indexAxis: 'y' as const,
-                            plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } } },
-                            scales: { x: { stacked: true, grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 9 } } }, y: { stacked: true, grid: { display: false }, ticks: { color: C.sub, font: { size: 8.5 } } } },
-                        } as any} />
-                    </div>
-                </SectionCard>
-
-                <SectionCard title="Guruhlar bo'yicha resurslar taqsimoti" icon={<IconPie />} iconColor={GC.amber}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minHeight: 0 }}>
-                        <div style={{ width: 108, height: 108, flexShrink: 0 }}>
-                            <Doughnut data={resourceDonut} options={{ ...chartBase, cutout: '62%', ...noLegend } as any} plugins={[centerText('100%', 'resurslar')]} />
+                <SectionCard title="2026 yil byudjeti — loyihalar kesimida, mln $" icon={<IconCoins />} iconColor={GC.cyan} hint={`${projectsWithBudget2026.length}/${summary.totalProjects} loyihada`}>
+                    {projectsWithBudget2026.length ? (
+                        <div style={{ flex: 1, minHeight: 0 }}>
+                            <Bar data={budget2026Data} options={{
+                                ...chartBase, indexAxis: 'y' as const, ...noLegend,
+                                scales: { x: { grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 9 } } }, y: { grid: { display: false }, ticks: { color: C.sub, font: { size: 8.5 } } } },
+                            } as any} />
                         </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
-                            {resourceDistribution.map((r) => (
-                                <div key={r.label} style={{ display: 'flex', alignItems: 'center', fontSize: 9.5 }}>
-                                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: r.color, marginRight: 5, flexShrink: 0 }} />
-                                    <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.label}</span>
-                                    <span style={{ color: C.text, fontWeight: 600 }}>{r.pct}%</span>
+                    ) : (
+                        <EmptyNote text="2026 yil byudjeti bo'yicha loyiha kesimidagi ma'lumot yo'q." />
+                    )}
+                </SectionCard>
+
+                <SectionCard title="Metallar bo'yicha taqsimot" icon={<IconPie />} iconColor={GC.amber} hint="loyiha soni">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7, flex: 1, overflowY: 'auto', minHeight: 0 }}>
+                        {metalsDistribution.map((m, i) => (
+                            <div key={m.label}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 3 }}>
+                                    <span style={{ color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
+                                    <span style={{ color: C.sub, flexShrink: 0, marginLeft: 6 }}>{m.count} loyiha</span>
                                 </div>
-                            ))}
-                        </div>
+                                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+                                    <div style={{ width: `${(m.count / maxMetal) * 100}%`, height: '100%', background: [GC.accent1, GC.accent2, GC.accent3, GC.accent4, GC.accent5][i % 5], borderRadius: 3 }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ color: C.sub, fontSize: 8.5, marginTop: 8, lineHeight: 1.35, flexShrink: 0 }}>
+                        Bitta loyihada bir nechta metall bo'lishi mumkin — shuning uchun ulush emas, loyiha soni ko'rsatilgan.
                     </div>
                 </SectionCard>
             </div>
 
-            {/* Asosiy xulosalar va risklar */}
+            {/* Asosiy xulosalar */}
             <SectionCard title="" style={{ padding: '12px 14px', flexShrink: 0 }} bodyStyle={{ flexDirection: 'row', gap: 0 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, width: '100%' }}>
-                    {keyFindings.map((f) => (
+                    {findings.map((f) => (
                         <div key={f.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, minWidth: 0 }}>
                             <NeonIcon color={f.color} size={30}>{ICON_MAP[f.icon]}</NeonIcon>
                             <div style={{ minWidth: 0 }}>
