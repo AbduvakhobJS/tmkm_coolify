@@ -254,7 +254,7 @@ const Connectors: React.FC = () => {
 /** MINE / METAL / MARKET doirasi. */
 const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({seg, onClick}) => (
     <button
-        onClick={onClick}
+        // onClick={onClick}
         title={`${seg.title} — batafsil`}
         style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -266,8 +266,12 @@ const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({seg, onCl
             color: GC.textPrimary,
         }}
     >
-        <span style={{color: seg.accent, display: 'flex'}}><Icon name={SEGMENT_ICON[seg.key]}
-                                                                 size={cq(11, 2.9, 24)}/></span>
+        {/*<span style={{color: seg.accent, display: 'flex'}}>*/}
+        {/*    <Icon name={SEGMENT_ICON[seg.key]}*/}
+        {/*                                                         */}
+        {/*                                                         size={cq(11, 2.9, 24)}/>*/}
+        {/*</span>*/}
+
         <span
             style={{fontSize: cq(8, 2.2, 18), fontWeight: 800, letterSpacing: 0.5, lineHeight: 1.15}}>{seg.code}</span>
         <span style={{
@@ -316,7 +320,7 @@ const ActiveUnitCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: strin
             <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
             <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}>
                 {/*<Icon name="users" size={cq(6, 1.6, 13)}/>*/}
-                <img src="/icons/z4.png" alt="..." style={{width: cq(18, 5, 24)}}/>
+                <img src="/icons/z4.png" alt="..." style={{width: cq(14, 4.6, 30), height: 'auto'}}/>
             </span>
                 <span>
                 <span style={{color: GC.textPrimary, fontSize: cq(6, 1.5, 14), fontWeight: 700}}>{fmtNum(unit.staff)}</span>
@@ -328,7 +332,7 @@ const ActiveUnitCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: strin
                 <div style={{minWidth: 0}}>
                     <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5)}}>
                     <span style={{color: accent, display: 'flex', flexShrink: 0}}>
-                                       <img src="/icons/z5.png" alt="..." style={{width: cq(18, 5, 24)}}/>
+                                       <img src="/icons/z5.png" alt="..." style={{width: cq(14, 4.6, 30), height: 'auto'}}/>
                 </span>
                         <span>
                            <span style={{
@@ -393,7 +397,7 @@ const PlannedUnitCard: React.FC<{ unit: PlannedUnit; accent: string }> = ({unit,
 
         <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
             <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}>
-                  <img src="/icons/z4.png" style={{width: "30px"}} alt=""/>
+                  <img src="/icons/z4.png" style={{width: cq(16, 5.2, 34), height: 'auto'}} alt=""/>
             </span>
             <div style={{minWidth: 0}}>
                 <div style={{
@@ -409,7 +413,7 @@ const PlannedUnitCard: React.FC<{ unit: PlannedUnit; accent: string }> = ({unit,
 
         <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
             <span style={{color: accent, display: 'flex', flexShrink: 0}}>
-                  <img src="/icons/z5.png" style={{width: "30px"}} alt=""/>
+                  <img src="/icons/z5.png" style={{width: cq(16, 5.2, 34), height: 'auto'}} alt=""/>
 
             </span>
             <div style={{minWidth: 0}}>
@@ -573,7 +577,7 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
                                  <span style={{color: i === 0 ? GC.accent2 : seg.accent, display: 'flex', flexShrink: 0}}>
 
                                      {
-                                         i === 0 ?   <img src="/icons/z4.png" style={{width: "40px"}} alt=""/> :   <img src="/icons/z5.png" style={{width: "40px"}} alt=""/>
+                                         i === 0 ?   <img src="/icons/z4.png" style={{width: cq(20, 6.8, 46), height: 'auto'}} alt=""/> :   <img src="/icons/z5.png" style={{width: cq(20, 6.8, 46), height: 'auto'}} alt=""/>
                                      }
                                  </span>
                                     <div>

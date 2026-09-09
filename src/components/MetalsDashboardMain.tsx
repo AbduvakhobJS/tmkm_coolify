@@ -3,11 +3,28 @@ import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import {
     C, fmt, chartBase, noLegend, axis,
     barLabel, centerText,
-    Card, KpiCard, DashHeader, DashRoot,
+    Card, KpiCard, DashRoot,
 } from './dashboardUI';
 import { useProductionDashboard } from '../hooks/production';
 import type { DashboardData, DashboardMetal } from '../services/production';
 import { GC, ACCENT_SERIES } from '../theme/palette';
+import {useNavigate} from "react-router-dom";
+
+/** "Batafsil" bosilganda ochiladigan iframe sahifasi (`/main/iframe/:key`)
+ *  yuqori navbaridagi bandlar. `path` — `/main/iframe`ga qo'shiladigan
+ *  segment (masalan "/prod" → to'liq manzil `/main/iframe/prod`). */
+export type IframeNavItem = { label: string; path: string };
+
+export const IFRAME_NAV_ITEMS: IframeNavItem[] = [
+    { label: "Ishlab chiqarish", path: "/prod" },
+    { label: "Sotish va qoldiqlar", path: "/sgp" },
+    { label: "Elektr energiya", path: "/energy" },
+    { label: "Quyosh stansiyalar", path: "/solar" },
+    { label: "Vodorod", path: "/h2" },
+    { label: "Sisterna va yuklar", path: "/cist" },
+    { label: "Ogarok", path: "/ogarok" },
+    { label: "Ingichka", path: "/ing" },
+];
 
 /* ══════════════════════════════════════════════════════════════════════════
    TEXNOLOGIK METALLAR ISHLAB CHIQARISH
@@ -145,7 +162,53 @@ type Props = {
     plant?: string;
 };
 
+const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string; link: string }> = ({ title, subtitle, dateRange, link }) => {
+    const navigate = useNavigate();
+    return (
+        <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+            marginBottom: 'clamp(4px, 1.2cqmin, 10px)', flexShrink: 0, flexWrap: 'wrap', gap: 'clamp(4px, 1cqmin, 8px)',
+        }}>
+            <div style={{ minWidth: 0 }}>
+                <div style={{
+                    color: C.text,textTransform: "uppercase", fontSize: 'clamp(14px, 3.4cqmin, 24px)', fontWeight: 700,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>{title}</div>
+                {/*<div style={{*/}
+                {/*    color: C.sub, fontSize: 'clamp(9px, 2cqmin, 14px)', marginTop: 2,*/}
+                {/*    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',*/}
+                {/*}}>{subtitle}</div>*/}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 1.1cqmin, 8px)', flexShrink: 0 }}>
+                <div style={{
+                    display: 'flex', alignItems: 'center', gap: 'clamp(3px, 1.1cqmin, 8px)',
+                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 1.8cqmin, 13px)',
+                    color: C.text, fontSize: 'clamp(9px, 1.8cqmin, 13px)', whiteSpace: 'nowrap',
+                }}>
+                    {dateRange}
+                </div>
+                {/*<div style={{*/}
+                {/*    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',*/}
+                {/*    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(5px, 1.5cqmin, 11px)', color: C.sub,*/}
+                {/*}}>⛃</div>*/}
+                <div style={{
+                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 2.1cqmin, 15px)', color: C.text,
+                    fontSize: 'clamp(9px, 1.8cqmin, 13px)', display: 'flex', gap: 6, whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                }}
+                     onClick={() => navigate(link)}
+                >Batafsil
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
+
     const range = useMemo(() => {
         const now = new Date();
         return { from: from ?? `${now.getFullYear()}-01-01`, to: to ?? isoDay(now) };
@@ -208,6 +271,7 @@ const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
                 title="Texnologik metallar ishlab chiqarish"
                 subtitle="Ko'rsatkichlar dashboardi"
                 dateRange={`${fmtDots(range.from)} - ${fmtDots(range.to)}`}
+                link="/main/iframe/prod"
             />
 
             <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>

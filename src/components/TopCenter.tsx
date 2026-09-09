@@ -3,6 +3,7 @@ import TopCenterNew, {TopCenterItem} from "./TopCenterNew";
 import Map3D from "../Parts/Map/Map3d";
 import { GC } from '../theme/palette';
 import MineMetalMarket from "../Parts/MineMetalMarket";
+import {useNavigate} from "react-router-dom";
 
 /* ── TMK Schema data ── */
 const stages = [
@@ -71,7 +72,7 @@ const TopCenter = ({
     setHighlightIndex: React.Dispatch<React.SetStateAction<number>>;
 }) => {
     const [activeTab, setActiveTab] = useState(4);
-
+    const navigate = useNavigate();
 
     // Har bir qavat uchun widgetlar (piramida ko'rinishida)
     const layers: WidgetData[][] = [
@@ -136,7 +137,7 @@ const TopCenter = ({
                 </button>
                 <button
                     className={`top-center-tab${activeTab === 3 ? ' active' : ''}`}
-                    onClick={() => setActiveTab(3)}
+                    onClick={() => navigate("/main/mmm")}
                 >
                     STRUKTURA 3
                 </button>

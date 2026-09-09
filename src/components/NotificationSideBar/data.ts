@@ -14,6 +14,11 @@ export type AlarmType =
 /** Og'ish darajasi — situatsion markaz standartiga mos (qizil/sariq/ko'k). */
 export type Severity = 'kritik' | 'ogohlantirish' | 'axborot' | 'normal';
 
+/* Filtr yorlig'i kaliti. "Arxiv" og'ish darajasi EMAS — u hodisaning hayot
+   sikli holati, shuning uchun `Severity` ga qo'shilmaydi: arxivlangan hodisa
+   ham o'z darajasini (kritik/ogohlantirish/...) saqlab qoladi. */
+export type FilterKey = 'all' | Severity | 'arxiv';
+
 export type AlarmEvent = {
     id: string;
     /** `HH:MM` — ro'yxatda shu ko'rinishda chiqadi. */
@@ -22,6 +27,9 @@ export type AlarmEvent = {
     location: string;
     description: string;
     severity: Severity;
+    /** `true` — ko'rib chiqilgan/yopilgan hodisa; faqat "Arxiv" yorlig'ida
+        ko'rinadi va boshqa yorliqlardan chiqarib tashlanadi. */
+    archived?: boolean;
     /** Modalda ko'rsatiladigan toifaga xos qo'shimcha maydonlar. */
     details: { label: string; value: string }[];
 };
@@ -74,11 +82,12 @@ export const barColor = (e: AlarmEvent): string =>
     TYPE_ACCENT[e.type] ?? SEVERITY[e.severity].accent;
 
 /* ── Filtr yorliqlari ── */
-export const FILTERS: { key: 'all' | Severity; label: string }[] = [
+export const FILTERS: { key: FilterKey; label: string }[] = [
     { key: 'all', label: 'Barchasi' },
     { key: 'kritik', label: 'Kritik' },
     { key: 'ogohlantirish', label: 'Ogohlantirish' },
     { key: 'axborot', label: 'Axborot' },
+    { key: 'arxiv', label: 'Arxiv' },
 ];
 
 /* ── Namunaviy hodisalar ──
@@ -176,7 +185,7 @@ export const ALARM_EVENTS: AlarmEvent[] = [
     },
     {
         id: 'a10', time: '14:00', type: "Yong'in", location: 'Laboratoriya',
-        description: 'Datchik testi bajarildi', severity: 'normal',
+        description: 'Datchik testi bajarildi', severity: 'normal', archived: true,
         details: [
             { label: 'Datchik', value: 'FD-19 · issiqlik datchigi' },
             { label: 'Test turi', value: 'Rejali o\'z-o\'zini tekshirish' },
@@ -186,7 +195,7 @@ export const ALARM_EVENTS: AlarmEvent[] = [
     },
     {
         id: 'a11', time: '13:55', type: 'SKUD', location: 'Ombor-3',
-        description: 'Eshik majburan ochildi', severity: 'ogohlantirish',
+        description: 'Eshik majburan ochildi', severity: 'ogohlantirish', archived: true,
         details: [
             { label: 'Nuqta', value: 'DR-11 · Ombor-3 yon eshigi' },
             { label: 'Signal', value: 'Majburiy ochilish datchigi' },
@@ -196,7 +205,7 @@ export const ALARM_EVENTS: AlarmEvent[] = [
     },
     {
         id: 'a12', time: '13:48', type: 'SCADA', location: 'Energetika bloki',
-        description: 'Kuchlanish past', severity: 'axborot',
+        description: 'Kuchlanish past', severity: 'axborot', archived: true,
         details: [
             { label: 'Teg', value: 'PWR.BUS1.VOLTAGE' },
             { label: 'Joriy qiymat', value: '9.8 kV' },

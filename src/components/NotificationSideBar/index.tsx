@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { GC } from '../../theme/palette';
-import { ALARM_EVENTS, AlarmEvent, FILTERS, SEVERITY, Severity, barColor } from './data';
+import { ALARM_EVENTS, AlarmEvent, FILTERS, FilterKey, SEVERITY, Severity, barColor } from './data';
 import EventModal, { TypeIcon } from './EventModal';
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -28,7 +28,11 @@ const PANEL_WIDTH = 'max(340px, 20vw)';
    matniga qarab hisoblaydi — natijada "Kritik" va "Ogohlantirish" qatorlarida
    ustunlar bir-biriga to'g'ri kelmay, jadval "sakrab" ketadi. Shu sabab eng
    uzun tabletka ("Ogohlantirish") bo'yicha qat'iy kenglik berilgan. */
-const GRID_COLUMNS = '44px 84px 1fr 1.5fr 92px';
+/* Birinchi ustun — toifa ikonkasi (Videotahlil / Yong'in / SCADA / ...).
+   Panel tor bo'lgani uchun uning o'rni "Tur" ustunidan olindi (84 → 76):
+   ikonka toifani ko'z bilan ajratib beradi, matn esa `title` tooltipida
+   to'liq ko'rinadi. */
+const GRID_COLUMNS = '22px 44px 76px 1fr 1.5fr 92px';
 const GRID_GAP = 6;
 
 type SortKey = 'new' | 'old' | 'severity';
@@ -137,6 +141,14 @@ const EventRow: React.FC<{ event: AlarmEvent; striped: boolean; onOpen: () => vo
                 cursor: 'pointer', transition: 'background .12s',
             }}
         >
+            {/* Toifa ikonkasi — rangi chap chetidagi chiziq bilan bir xil
+                (`barColor`), shuning uchun ikonka rang kodlashini takrorlaydi
+                va toifani bir qarashda ajratib beradi. */}
+            <span aria-hidden style={{
+                color: barColor(event), display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+                <TypeIcon type={event.type} size={16} />
+            </span>
             <span style={{ color: GC.textPrimary, fontSize: 12.5, fontVariantNumeric: 'tabular-nums' }}>{event.time}</span>
             {/* Tor panelda matn qisqarishi mumkin — `title` orqali to'liq
                 ko'rinadi (panel kengligi ekranning 1/5 qismi bilan cheklangan). */}
@@ -183,7 +195,7 @@ const AllEventsModal: React.FC<{ events: AlarmEvent[]; onPick: (e: AlarmEvent) =
             <div
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                    width: 'min(760px, 100%)', maxHeight: '86vh', display: 'flex', flexDirection: 'column',
+                    width: 'min(760px, 100%)', maxHeight: '86vh',padding: 20, display: 'flex', flexDirection: 'column',
                     background: GC.bg800, border: `1px solid ${GC.borderColor}`, borderRadius: 16,
                     fontFamily: '"Segoe UI", system-ui, sans-serif', boxSizing: 'border-box',
                 }}
@@ -236,25 +248,35 @@ const AllEventsModal: React.FC<{ events: AlarmEvent[]; onPick: (e: AlarmEvent) =
 /* ══════════════════════════════════════════════════════════════════════════ */
 const NotificationSideBar: React.FC = () => {
     const [open, setOpen] = useState(false);
-    const [filter, setFilter] = useState<'all' | Severity>('all');
+    const [filter, setFilter] = useState<FilterKey>('all');
     const [query, setQuery] = useState('');
     const [sort, setSort] = useState<SortKey>('new');
     const [selected, setSelected] = useState<AlarmEvent | null>(null);
     const [showAll, setShowAll] = useState(false);
 
-    /* Yorliqlardagi sonlar ma'lumotdan hisoblanadi — qo'lda yozilmaydi. */
-    const counts = useMemo(() => ({
-        all: ALARM_EVENTS.length,
-        kritik: ALARM_EVENTS.filter((e) => e.severity === 'kritik').length,
-        ogohlantirish: ALARM_EVENTS.filter((e) => e.severity === 'ogohlantirish').length,
-        axborot: ALARM_EVENTS.filter((e) => e.severity === 'axborot').length,
-        normal: ALARM_EVENTS.filter((e) => e.severity === 'normal').length,
-    }), []);
+    /* Yorliqlardagi sonlar ma'lumotdan hisoblanadi — qo'lda yozilmaydi.
+       Daraja bo'yicha sonlar faqat FAOL hodisalarni sanaydi, chunki
+       arxivlanganlari o'sha yorliqlarda ko'rsatilmaydi — aks holda son
+       ro'yxatdagi qatorlar soniga to'g'ri kelmay qolardi. */
+    const counts: Record<FilterKey, number> = useMemo(() => {
+        const live = ALARM_EVENTS.filter((e) => !e.archived);
+        return {
+            all: live.length,
+            kritik: live.filter((e) => e.severity === 'kritik').length,
+            ogohlantirish: live.filter((e) => e.severity === 'ogohlantirish').length,
+            axborot: live.filter((e) => e.severity === 'axborot').length,
+            normal: live.filter((e) => e.severity === 'normal').length,
+            arxiv: ALARM_EVENTS.filter((e) => e.archived).length,
+        };
+    }, []);
 
     const visible = useMemo(() => {
         const q = query.trim().toLowerCase();
         const list = ALARM_EVENTS.filter((e) => {
-            if (filter !== 'all' && e.severity !== filter) return false;
+            /* Arxiv — darajadan mustaqil o'q: arxivlangan hodisa FAQAT "Arxiv"
+               yorlig'ida, qolgan yorliqlarda faqat faol hodisalar ko'rinadi. */
+            if (filter === 'arxiv' ? !e.archived : e.archived) return false;
+            if (filter !== 'all' && filter !== 'arxiv' && e.severity !== filter) return false;
             if (!q) return true;
             return [e.type, e.location, e.description, e.time].some((v) => v.toLowerCase().includes(q));
         });
@@ -267,8 +289,12 @@ const NotificationSideBar: React.FC = () => {
     /* Ikonka ustidagi belgi — ko'rib chiqilmagan kritik/ogohlantirishlar soni. */
     const badge = counts.kritik + counts.ogohlantirish;
 
-    const tabAccent = (key: 'all' | Severity) =>
-        key === 'all' ? GC.warning : SEVERITY[key].accent;
+    /* "Arxiv" — neytral kulrang: u ogohlantirish emas, shuning uchun boshqa
+       yorliqlar kabi diqqatni tortmasligi kerak. */
+    const tabAccent = (key: FilterKey) =>
+        key === 'all' ? GC.warning
+            : key === 'arxiv' ? GC.textDisabled
+                : SEVERITY[key].accent;
 
     return (
         <>
@@ -276,7 +302,7 @@ const NotificationSideBar: React.FC = () => {
             <button
                 onClick={() => setOpen((v) => !v)}
                 aria-label={open ? 'Bildirishnomalarni yopish' : 'Bildirishnomalarni ochish'}
-                title="Alarmlar va hodisalar"
+                title="Hodisalar"
                 style={{
                     position: 'fixed', top: TOP_OFFSET, left: open ? PANEL_WIDTH : 0, zIndex: 1100,
                     width: 42, height: 42, cursor: 'pointer',
@@ -321,7 +347,7 @@ const NotificationSideBar: React.FC = () => {
             >
                 {/* Sarlavha */}
                 <div style={{ padding: '18px 18px 0', flexShrink: 0 }}>
-                    <div style={{ color: GC.textPrimary, fontSize: 20, fontWeight: 700 }}>Alarmlar va hodisalar</div>
+                    <div style={{ color: GC.textPrimary, fontSize: 20, fontWeight: 700 }}>Hodisalar</div>
                 </div>
 
                 {/* Filtr yorliqlari */}
@@ -390,6 +416,9 @@ const NotificationSideBar: React.FC = () => {
                     borderBottom: `1px solid ${GC.borderColor}`,
                     color: GC.textDisabled, fontSize: 11,
                 }}>
+                    {/* Ikonka ustuni sarlavhasiz — bo'sh katakcha ustunlarni
+                        qatorlar bilan bir xil holatda ushlab turadi. */}
+                    <span />
                     <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                         <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
                             <path d="M8 5v14M8 19l-3.5-3.5M16 19V5M16 5l3.5 3.5" />
