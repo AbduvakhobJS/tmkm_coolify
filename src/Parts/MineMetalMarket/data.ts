@@ -1,4 +1,7 @@
 import { GC } from '../../theme/palette';
+import type { InvestProjectListItem } from '../../services/map';
+
+export type { InvestProjectListItem };
 
 /* ══════════════════════════════════════════════════════════════════════════
    MINE → METAL → MARKET — kombinatning to'liq ishlab chiqarish zanjiri.
@@ -42,20 +45,6 @@ export type ActiveUnit = {
     delta: number | null;
 };
 
-/** Qurilayotgan yoki loyiha bosqichidagi obyekt. */
-export type PlannedUnit = {
-    name: string;
-    code?: string;
-
-    /** "Qurilish" yoki "Loyiha". */
-    stage: 'Qurilish' | 'Loyiha';
-    years: string;
-    plannedStaff: number;
-    /** Reja quvvati; `null` bo'lsa faqat izoh chiqadi. */
-    capacity: string | null;
-    capacityLabel: string;
-};
-
 export type Segment = {
     key: SegmentKey;
     /** Doiradagi qisqa nom — MINE / METAL / MARKET. */
@@ -69,8 +58,9 @@ export type Segment = {
     summary: { value: string; label: string }[];
     activeTitle: string;
     active: ActiveUnit[];
-    plannedTitle: string;
-    planned: PlannedUnit[];
+    investTitle: string;
+    /** GET /invest-projects?type= dan — qurilayotgan/reja bosqichidagi investitsiya loyihalari. */
+    investProjects: InvestProjectListItem[];
 };
 
 /* ── Yuqoridagi umumiy KPI qatori ── */

@@ -6,7 +6,7 @@ import { OrbitControls, useGLTF, Environment, ContactShadows, Html } from '@reac
 import * as THREE from 'three';
 import { io, Socket } from 'socket.io-client';
 import { uzbekistanBorder, loadUzbekistanBorder } from '../../components/uzbekistanBorder';
-import {useGetMapObjects, useGetGeologyProjectDetail, useGetInvestProjectDetail} from "../../hooks/map";
+import {useGetMapObjects, useGetGeologyProjectDetail, useGetInvestProjectDetail, useGetFactoryDetail} from "../../hooks/map";
 import type { MapItem, MapLinkRef, MapFactoryDetail, MapGeologyDetail, MapInvestDetail } from "../../services/map";
 import { GC, alpha } from '../../theme/palette';
 import { DRACO_DECODER_PATH } from '../FactoryModel/constants';
@@ -394,7 +394,7 @@ const ElementChips: React.FC<{ elements?: string[] | null; accent: string }> = (
 };
 
 const Card: React.FC<{ title: string; titleColor: string; borderColor: string; children: React.ReactNode }> = ({ title, titleColor, borderColor, children }) => (
-    <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '14px', height: "100%",  borderRadius: '8px', border: `1px solid ${borderColor}` }}>
+    <div style={{ background: GC.panelBg, padding: '14px', height: "100%",  borderRadius: '8px', border: `1px solid ${borderColor}` }}>
         <div style={{ marginBottom: '10px', color: titleColor, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{children}</div>
     </div>
@@ -531,7 +531,58 @@ const DEMO_FACTORY_AI_EVENTS: { time: string; text: string; status: string; leve
     { time: '10:52', text: 'Tutun aniqlangan', status: "Yolg'on signal", level: 'muted' },
 ];
 
-const DEMO_SEX_LIST = Array.from({ length: 12 }).map((_, i) => ({ id: `sex-${i + 1}`, label: `Sex-${i + 1}` }));
+const SEX_STATUS_META: Record<'active' | 'maintenance' | 'idle', { label: string; color: string }> = {
+    active: { label: 'Ishlab turibdi', color: GC.green },
+    maintenance: { label: 'Texnik xizmat', color: GC.amber },
+    idle: { label: "To'xtab turibdi", color: GC.slate },
+};
+
+// `raw` — API'dan kelgan xom obyekt (bo'lsa), SexDetailModal'da qo'shimcha
+// maydonlarni (manager, shiftMode va h.k.) pickField orqali o'qish uchun.
+type SexListItem = { id: string; label: string; status: keyof typeof SEX_STATUS_META; utilization: number; staff: number; raw?: any };
+
+const SEX_NAMES = ['Maydalash', 'Tegirmon', 'Flotatsiya', 'Filtrlash', 'Quritish', 'Qadoqlash', 'Boyitish-1', 'Boyitish-2', 'Reagent', 'Nasos stansiyasi', 'Ombor', 'Energiya bloki'];
+const DEMO_SEX_LIST: SexListItem[] = SEX_NAMES.map((name, i) => ({
+    id: `sex-${i + 1}`,
+    label: name,
+    status: i === 3 ? 'maintenance' : i === 10 ? 'idle' : 'active',
+    utilization: 74 + ((i * 7) % 24),
+    staff: 14 + ((i * 5) % 26),
+}));
+
+// Xom holat matnini (API'dan qanday kelishi noma'lum) uchta bilinigan
+// toifaga moslaydi — hech biriga to'g'ri kelmasa "ishlab turibdi" deb olinadi.
+const normalizeSexStatus = (raw: any): keyof typeof SEX_STATUS_META => {
+    if (raw === false) return 'idle';
+    const s = String(raw ?? '').toUpperCase();
+    if (/(MAINT|TEXNIK|XIZMAT|REPAIR|TA'MIR)/.test(s)) return 'maintenance';
+    if (/(IDLE|STOP|INACTIVE|TO'XTA|TOXTA|OFF)/.test(s)) return 'idle';
+    return 'active';
+};
+
+// `/factory/:id` javobidagi sexlar/uchastkalar ro'yxatini o'qiydi — maydon
+// nomi hali hujjatlashtirilmagan, shu sabab bir nechta ehtimoliy kalit va
+// har bir element uchun bir nechta ehtimoliy nom moslashuvchan sinaladi
+// (geology/invest modallaridagi kabi). Mos massiv topilmasa `null` qaytadi —
+// shunda chaqiruvchi tomon DEMO_SEX_LIST bilan namuna ko'rsatadi.
+const readFactorySexList = (detail: any): SexListItem[] | null => {
+    const rawList = pickField(detail, ['sexes', 'shops', 'workshops', 'sections', 'departments', 'sexList', 'shopFloors', 'factoryShops', 'units']);
+    if (!Array.isArray(rawList) || rawList.length === 0) return null;
+    return rawList.map((s: any, i: number) => ({
+        id: String(pickField(s, ['id', 'sexId', 'code']) ?? `sex-${i + 1}`),
+        label: pickField(s, ['name', 'label', 'title', 'sexName']) ?? `Sex-${i + 1}`,
+        status: normalizeSexStatus(pickField(s, ['status', 'state'])),
+        utilization: (() => {
+            const v = pickField(s, ['utilization', 'workPercent', 'loadPercent', 'work_persent']);
+            return typeof v === 'number' ? v : 80;
+        })(),
+        staff: (() => {
+            const v = pickField(s, ['staff', 'staffCount', 'employeeCount', 'totalStaff']);
+            return typeof v === 'number' ? v : 20;
+        })(),
+        raw: s,
+    }));
+};
 
 const IconFactorySmall = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -549,51 +600,67 @@ const IconPersonSmall = () => (
 /* ── Sex (ichki bo'lim) tafsiloti — factory modali ustiga ochiladigan
    ikkinchi qatlam modal, 4 ga bo'lingan: chap-tepa ma'lumotlar, o'ng-tepa
    ko'rsatkichlar, chap-past rasmi, o'ng-past kameralar. To'liq demo. ── */
-const SexDetailModal: React.FC<{ sexLabel: string; onClose: () => void }> = ({ sexLabel, onClose }) => {
+const SexDetailModal: React.FC<{ sex: SexListItem; onClose: () => void }> = ({ sex, onClose }) => {
     const titleColor = GC.accent2;
+    // `sex.raw` faqat API'dan (`/factory/:id`) haqiqiy sexlar ro'yxati kelganda
+    // to'ladi — shunda mos maydon topilsa haqiqiy qiymat, topilmasa (yoki
+    // butunlay demo elementda) "namuna" belgili standart qiymat ko'rsatiladi.
+    const field = (keys: string[], fallback: string): { value: string; demo: boolean } => {
+        const v = pickField(sex.raw, keys);
+        return v != null && v !== '' ? { value: String(v), demo: false } : { value: fallback, demo: true };
+    };
+    const type = field(['type', 'category', 'kind'], "Ishlab chiqarish bo'limi");
+    const launchYear = field(['launchYear', 'startYear', 'commissionedYear'], '2021');
+    const shiftMode = field(['shiftMode'], '3 smena, 24/7');
+    const manager = field(['manager', 'responsiblePerson', 'head'], '—');
+    const lastInspection = field(['lastInspection', 'lastTxh', 'lastMaintenance'], '15.02.2026');
+    const outputVolume = field(['outputVolume', 'productionVolume', 'volume'], '410');
+    const efficiency = field(['efficiency', 'productivity'], '92.4');
+    const energyUsage = field(['energyUsage', 'powerUsage'], '38');
+    const faults = field(['faults', 'issues', 'incidents'], '1');
     return (
         <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 900000001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
             <div onClick={(e) => e.stopPropagation()} style={{
-                width: '92vw', maxWidth: '980px', maxHeight: '88vh', background: '#020B18',
+                width: '96vw', maxWidth: '1470px', maxHeight: '94vh', background: '#020B18',
                 border: `1px solid ${alpha(GC.amber, 0.45)}`, borderRadius: '12px', overflow: 'hidden',
                 display: 'flex', flexDirection: 'column', color: '#e0f0ff', boxShadow: '0 0 50px rgba(0,0,0,0.6)',
             }}>
-                <div style={{ padding: '16px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${alpha(titleColor, 0.3)}`, background: `linear-gradient(90deg, ${alpha(titleColor, 0.25)}, #020B18)` }}>
+                <div style={{ padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${alpha(titleColor, 0.3)}`, background: `linear-gradient(90deg, ${alpha(titleColor, 0.25)}, #020B18)` }}>
                     <div>
-                        <div style={{ fontSize: '10px', letterSpacing: '2px', color: titleColor, fontWeight: 700 }}>SEX TAFSILOTI</div>
-                        <h3 style={{ margin: '2px 0 0', fontSize: '18px', fontWeight: 700, color: '#fff' }}>{sexLabel}</h3>
+                        <div style={{ fontSize: '11px', letterSpacing: '2px', color: titleColor, fontWeight: 700 }}>SEX TAFSILOTI</div>
+                        <h3 style={{ margin: '3px 0 0', fontSize: '24px', fontWeight: 700, color: '#fff' }}>{sex.label}</h3>
                     </div>
                     <button onClick={onClose} style={closeBtnStyle}>✕</button>
                 </div>
-                <div style={{ flex: 1, overflow: 'auto', padding: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: '14px', minHeight: 0 }}>
+                <div style={{ flex: 1, overflow: 'auto', padding: '22px 28px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: '18px', minHeight: 0 }}>
                     <Card title="Ma'lumotlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                        <PassportRow label="Sex nomi" value={sexLabel} />
-                        <PassportRow label="Turi" value="Ishlab chiqarish bo'limi" />
-                        <PassportRow label="Ishga tushirilgan" value="2021" />
-                        <PassportRow label="Xodimlar soni" value="34" />
-                        <PassportRow label="Smena rejimi" value="3 smena, 24/7" />
-                        <PassportRow label="Mas'ul shaxs" value="—" />
-                        <PassportRow label="Holati" value="Ishlab turibdi" />
-                        <PassportRow label="Oxirgi TXH" value="15.02.2026" />
+                        <PassportRow label="Sex nomi" value={sex.label} />
+                        <PassportRow label="Turi" value={type.value} />
+                        <PassportRow label="Ishga tushirilgan" value={launchYear.value} />
+                        <PassportRow label="Xodimlar soni" value={sex.staff} />
+                        <PassportRow label="Smena rejimi" value={shiftMode.value} />
+                        <PassportRow label="Mas'ul shaxs" value={manager.value} />
+                        <PassportRow label="Holati" value={SEX_STATUS_META[sex.status].label} />
+                        <PassportRow label="Oxirgi TXH" value={lastInspection.value} />
                     </Card>
                     <Card title="Ko'rsatkichlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                            <KpiTile label="Ishlab chiqarish hajmi" value="410" unit="t/kun" delta="+1.8%" demo />
-                            <KpiTile label="Unumdorlik" value="92.4" unit="%" delta="+0.4%" demo />
-                            <KpiTile label="Energiya sarfi" value="38" unit="kWh/t" delta="-1.2%" demo />
-                            <KpiTile label="Nosozliklar" value="1" demo />
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                            <KpiTile label="Ishlab chiqarish hajmi" value={outputVolume.value} unit="t/kun" delta="+1.8%" demo={outputVolume.demo} />
+                            <KpiTile label="Unumdorlik" value={efficiency.value} unit="%" delta="+0.4%" demo={efficiency.demo} />
+                            <KpiTile label="Energiya sarfi" value={energyUsage.value} unit="kWh/t" delta="-1.2%" demo={energyUsage.demo} />
+                            <KpiTile label="Nosozliklar" value={faults.value} demo={faults.demo} />
                         </div>
                     </Card>
-                    <ImageFillCard title="Sex rasmi" accent={titleColor} src={`/imgs/factory/${sexLabel.toLowerCase()}.jpg`} icon={<Icon3DCube />} />
+                    <ImageFillCard title="Sex rasmi" accent={titleColor} src={`/imgs/factory/${sex.label.toLowerCase()}.jpg`} icon={<Icon3DCube />} />
                     <div style={{ minHeight: 0 }}>
-                        <SubPanel title="Kameralar" minWidth={200} demo>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
+                        <SubPanel title="Kameralar" minWidth={260} demo>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                                 {DEMO_FACTORY_CAMERAS.map((c, i) => (
-                                    <div key={i} style={{ position: 'relative', height: '58px', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                    <div key={i} style={{ position: 'relative', height: '92px', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
                                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
                                             <IconCamSmall />
                                         </div>
-                                        <span style={{ position: 'absolute', top: 3, left: 4, fontSize: '7.5px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
+                                        <span style={{ position: 'absolute', top: 4, left: 5, fontSize: '8.5px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
                                     </div>
                                 ))}
                             </div>
@@ -605,15 +672,68 @@ const SexDetailModal: React.FC<{ sexLabel: string; onClose: () => void }> = ({ s
     );
 };
 
+// Sex kartasi — "Sexlar ro'yxati" bo'limidagi har bir bo'lim uchun: nomi,
+// joriy holati (rang bilan), yuklama % (progress) va smenadagi xodimlar soni.
+// Bosilganda SexDetailModal ochiladi.
+const SexCard: React.FC<{ sex: SexListItem; accent: string; onClick: () => void }> = ({ sex, accent, onClick }) => {
+    const meta = SEX_STATUS_META[sex.status];
+    const [hover, setHover] = React.useState(false);
+    return (
+        <button
+            onClick={onClick}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            style={{
+                textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '9px',
+                padding: '11px 12px', borderRadius: '8px', cursor: 'pointer', font: 'inherit',
+                background: GC.cardBg,
+                border: `1px solid ${hover ? accent : GC.border}`,
+                transform: hover ? 'translateY(-2px)' : 'none',
+                transition: 'background 0.15s ease, border-color 0.15s ease, transform 0.15s ease',
+            }}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sex.label}</span>
+                <StatusDot color={meta.color} />
+            </div>
+            <span style={{ fontSize: '9.5px', color: meta.color, fontWeight: 600 }}>{meta.label}</span>
+            <div>
+                <div style={{ height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                    <div style={{ width: `${sex.utilization}%`, height: '100%', background: accent, borderRadius: '2px' }} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '9px', color: GC.slate }}>
+                    <span>Yuklama</span>
+                    <span style={{ color: '#dfe9f5', fontWeight: 700 }}>{sex.utilization}%</span>
+                </div>
+            </div>
+            <span style={{ fontSize: '9.5px', color: GC.slate }}>{sex.staff} xodim smenada</span>
+        </button>
+    );
+};
+
 const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> = ({ object, onClose }) => {
     const titleColor = GC.accent2; // #00213F juda to'q — UI uchun ochroq ko'k ishlatiladi
-    const detail = (object.detail || {}) as MapFactoryDetail;
-    const [selectedSex, setSelectedSex] = React.useState<string | null>(null);
+    const staticDetail = (object.detail || {}) as MapFactoryDetail;
+    // `/map/objects` dagi `id` — "factory-12" ko'rinishida; `/factory/:id`
+    // haqiqiy zavod raqamini kutadi, shu sababli prefiks olib tashlanadi.
+    const rawId = staticDetail.factoryId ?? String(object.id).replace(/^factory-/, '');
+    const { data: fullDetailRaw, isLoading: detailLoading, isError: detailIsError } = useGetFactoryDetail(rawId, 'uz');
+    // To'liq javob kelguncha ham modal darhol `/map/objects`dagi qisqa ma'lumot bilan to'ladi;
+    // to'liq javob kelgach ustiga qo'shiladi (mavjud maydonlar ustiga yoziladi).
+    const detail: any = { ...staticDetail, ...(fullDetailRaw || {}) };
+    const [selectedSex, setSelectedSex] = React.useState<SexListItem | null>(null);
+    // `/factory/:id` javobida sexlar ro'yxati topilsa — haqiqiy ma'lumot;
+    // topilmasa (maydon hali API'da yo'q) — DEMO_SEX_LIST bilan "namuna" ko'rsatiladi.
+    const realSexList = readFactorySexList(detail);
+    const sexList = realSexList ?? DEMO_SEX_LIST;
+    const sexListIsDemo = realSexList === null;
 
     const projectCode = pickField(detail, ['projectCode', 'code']) || `OPR-${detail.factoryId ?? object.id}`;
     const statusLabel = object.status ? (FACTORY_STATUS_LABEL[object.status] || object.status) : null;
     const isImportant = detail.importance === 'HIGH' || !!detail.importanceRaw;
     const lastUpdatedText = React.useMemo(() => new Date().toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }), []);
+    const workPercentValue = detail.workPercent != null ? detail.workPercent : 94.8;
+    const workPercentIsDemo = detail.workPercent == null;
 
     return (
         <div style={{
@@ -646,16 +766,43 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                 </div>
                 <button onClick={onClose} style={closeBtnStyle}>✕</button>
             </div>
-            <div style={{ padding: '4px 24px 0', textAlign: 'right', fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>
-                Oxirgi yangilanish: {lastUpdatedText}
+            {/* Holat lentasi — bosh sahifaning "hero" o'qish nuqtasi: zavod
+                shu daqiqada qanday ishlayotgani bitta qarashda ko'rinadi. */}
+            <div style={{ padding: '10px 24px', display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <StatusDot color={statusLabel ? GC.green : GC.slate} />
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#dfe9f5' }}>{statusLabel || "Holati noma'lum"}</span>
+                </div>
+                <span style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.08)' }} />
+                <div>
+                    <div style={{ fontSize: '10px', color: GC.slate }}>Bugungi konsentrat</div>
+                    <div style={{ fontSize: '26px', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>
+                        286<span style={{ fontSize: '12px', fontWeight: 600, color: GC.slate, marginLeft: '4px' }}>t</span>
+                        <span style={{ fontSize: '7px', fontWeight: 700, color: GC.amber, marginLeft: '6px', verticalAlign: 'top' }}>namuna</span>
+                    </div>
+                </div>
+                <span style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.08)' }} />
+                <div>
+                    <div style={{ fontSize: '10px', color: GC.slate }}>Reja bajarilishi</div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#fff' }}>
+                        {workPercentValue}%
+                        {workPercentIsDemo && <span style={{ fontSize: '7px', fontWeight: 700, color: GC.amber, marginLeft: '5px' }}>namuna</span>}
+                    </div>
+                </div>
+                <span style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.08)' }} />
+                <div>
+                    <div style={{ fontSize: '10px', color: GC.slate }}>Ochiq nosozliklar</div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: GC.amber }}>3<span style={{ fontSize: '7px', fontWeight: 700, marginLeft: '5px' }}>namuna</span></div>
+                </div>
+                <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>Oxirgi yangilanish: {lastUpdatedText}</span>
             </div>
 
             {/* Body */}
             <div style={{ flex: 1, overflow: 'auto', padding: '12px 24px 20px', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: 0 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: '14px' }}>
-                    {/* 1. Obyekt pasporti */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.25fr', gridTemplateRows: 'auto auto', gap: '14px' }}>
+                    {/* Obyekt pasporti */}
                     <div style={{ gridColumn: '1', gridRow: '1' }}>
-                        <Card title="1. Obyekt pasporti" titleColor="#ffffff" borderColor={alpha(titleColor, 0.3)}>
+                        <Card title="Obyekt pasporti" titleColor="#ffffff" borderColor={alpha(titleColor, 0.3)}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
                                 <div>
                                     <PassportRow label="Obyekt nomi" value={object.name} />
@@ -684,9 +831,9 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                         </Card>
                     </div>
 
-                    {/* 2. Ishlab chiqarish va sarf-xarajatlar holati */}
+                    {/* Ishlab chiqarish va sarf-xarajatlar holati */}
                     <div style={{ gridColumn: '2', gridRow: '1' }}>
-                        <Card title="2. Ishlab chiqarish va sarf-xarajatlar holati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                        <Card title="Ishlab chiqarish va sarf-xarajatlar holati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
                                 {DEMO_FACTORY_KPI.map((t, i) => <KpiTile key={i} {...t} demo />)}
                                 <KpiTile label="Reja bajarilishi" value={detail.workPercent != null ? String(detail.workPercent) : '94.8'} unit="%" delta="+2.2%" demo={detail.workPercent == null} />
@@ -694,42 +841,14 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                 <SubPanel title="Oylar kesimida ishlab chiqarish dinamikasi" minWidth={170} demo>
-                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '58px' }}>
-                                        {DEMO_ORE_MONTHLY.map((v, i) => {
-                                            const max = Math.max(...DEMO_ORE_MONTHLY) * 1.1;
-                                            const cmax = Math.max(...DEMO_CONC_MONTHLY) * 1.1;
-                                            return (
-                                                <div key={i} style={{ flex: 1, display: 'flex', gap: '1px', alignItems: 'flex-end', height: '100%' }}>
-                                                    <div style={{ flex: 1, height: `${(v / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
-                                                    <div style={{ flex: 1, height: `${(DEMO_CONC_MONTHLY[i] / cmax) * 100}%`, background: GC.green, borderRadius: '2px 2px 0 0' }} />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '3px', marginTop: '4px' }}>
-                                        {DEMO_MONTHS.map((m, i) => <div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{m}</div>)}
-                                    </div>
+                                    <DualBarChart seriesA={DEMO_ORE_MONTHLY} seriesB={DEMO_CONC_MONTHLY} labels={DEMO_MONTHS} colorA={GC.accent1} colorB={GC.green} height={58} />
                                     <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Ruda</span>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.green} />Konsentrat</span>
                                     </div>
                                 </SubPanel>
                                 <SubPanel title="So'nggi 7 kunlik ishlab chiqarish" minWidth={170} demo>
-                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '58px' }}>
-                                        {DEMO_WEEK_ORE.map((v, i) => {
-                                            const max = Math.max(...DEMO_WEEK_ORE) * 1.1;
-                                            const cmax = Math.max(...DEMO_WEEK_CONC) * 1.1;
-                                            return (
-                                                <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
-                                                    <div style={{ flex: 1, height: `${(v / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
-                                                    <div style={{ flex: 1, height: `${(DEMO_WEEK_CONC[i] / cmax) * 100}%`, background: GC.green, borderRadius: '2px 2px 0 0' }} />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                                        {DEMO_WEEK_DAYS.map((d, i) => <div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{d}</div>)}
-                                    </div>
+                                    <DualBarChart seriesA={DEMO_WEEK_ORE} seriesB={DEMO_WEEK_CONC} labels={DEMO_WEEK_DAYS} colorA={GC.accent1} colorB={GC.green} height={58} />
                                 </SubPanel>
                                 <SubPanel title="Xarajatlar tarkibi (OPEX)" minWidth={170} demo>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -754,18 +873,19 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                                     ))}
                                 </SubPanel>
                             </div>
+                            {detailLoading && <div style={{ fontSize: 11, color: GC.slate, marginTop: 10 }}>To'liq ma'lumot yuklanmoqda...</div>}
                         </Card>
                     </div>
 
-                    {/* 3. Obyekt 3D modeli */}
+                    {/* Obyekt 3D modeli */}
                     <div style={{ gridColumn: '1', gridRow: '2', display: 'flex', alignItems: 'flex-start', minWidth: 0 }}>
-                        {/*<ImageFillCard title="3. Obyekt 3D modeli" accent={GC.amber} src={`/imgs/factory/${object.id}.jpg`} icon={<Icon3DCube />} />*/}
+                        {/*<ImageFillCard title="Obyekt 3D modeli" accent={GC.amber} src={`/imgs/factory/${object.id}.jpg`} icon={<Icon3DCube />} />*/}
                         <FactoryModel embedded />
                     </div>
 
-                    {/* 4. Video, xodimlar va SKUD */}
+                    {/* Video, xodimlar va SKUD */}
                     <div style={{ gridColumn: '2', gridRow: '2', minHeight: 0 }}>
-                        <Card title="4. Video, xodimlar va SKUD" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                        <Card title="Video, xodimlar va SKUD" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
                                 <SubPanel title="Onlayn kameralar" minWidth={230} demo>
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
@@ -798,17 +918,7 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                                     </div>
                                 </SubPanel>
                                 <SubPanel title="Kirish/chiqish dinamikasi (so'nggi 7 kun)" minWidth={180} demo>
-                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '50px' }}>
-                                        {DEMO_WEEK_DAYS.map((d, i) => {
-                                            const max = Math.max(...DEMO_FACTORY_ENTRY, ...DEMO_FACTORY_EXIT) * 1.1;
-                                            return (
-                                                <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
-                                                    <div style={{ flex: 1, height: `${(DEMO_FACTORY_ENTRY[i] / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
-                                                    <div style={{ flex: 1, height: `${(DEMO_FACTORY_EXIT[i] / max) * 100}%`, background: GC.accent3, borderRadius: '2px 2px 0 0' }} />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                    <DualBarChart seriesA={DEMO_FACTORY_ENTRY} seriesB={DEMO_FACTORY_EXIT} labels={DEMO_WEEK_DAYS} colorA={GC.accent1} colorB={GC.accent3} height={50} />
                                     <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Kirish</span>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Chiqish</span>
@@ -852,29 +962,22 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                 </div>
 
                 {/* Sexlar ro'yxati */}
-                <Card title="Sexlar ro'yxati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {DEMO_SEX_LIST.map((s) => (
-                            <button
-                                key={s.id}
-                                onClick={() => setSelectedSex(s.label)}
-                                style={{
-                                    width: '86px', height: '58px', borderRadius: '6px',
-                                    background: 'rgba(3,13,34,0.7)', border: `1px solid ${alpha(titleColor, 0.35)}`,
-                                    color: '#dfe9f5', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
-                                }}
-                                onMouseOver={(e) => { e.currentTarget.style.borderColor = titleColor; }}
-                                onMouseOut={(e) => { e.currentTarget.style.borderColor = alpha(titleColor, 0.35); }}
-                            >
-                                {s.label}
-                            </button>
+                <Card title="Sexlar ro'yxati" titleColor="#ffffff" borderColor={alpha(sexListIsDemo ? GC.amber : titleColor, 0.4)}>
+                    {sexListIsDemo && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-6px' }}>
+                            <span style={{ fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase', letterSpacing: '0.5px' }}>namuna</span>
+                        </div>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(152px, 1fr))', gap: '10px' }}>
+                        {sexList.map((s) => (
+                            <SexCard key={s.id} sex={s} accent={titleColor} onClick={() => setSelectedSex(s)} />
                         ))}
                     </div>
                 </Card>
             </div>
 
             {selectedSex && (
-                <SexDetailModal sexLabel={selectedSex} onClose={() => setSelectedSex(null)} />
+                <SexDetailModal sex={selectedSex} onClose={() => setSelectedSex(null)} />
             )}
         </div>
     );
@@ -1008,7 +1111,7 @@ const DEMO_ANALYSIS_RESULTS: { element: string; value: string; unit: string; nor
 // Shunda ramka sariq bo'ladi va burchakda kichik "namuna" belgisi chiqadi —
 // foydalanuvchi qaysi widget hali demo ekanini bir qarashda ko'radi.
 const SubPanel: React.FC<{ title: string; children: React.ReactNode; minWidth?: number; demo?: boolean }> = ({ title, children, minWidth = 170, demo }) => (
-    <div style={{ flex: `1 1 ${minWidth}px`, minWidth, background: 'rgba(3,13,34,0.55)', border: `1px solid ${demo ? alpha(GC.amber, 0.45) : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', padding: '10px 12px' }}>
+    <div style={{ flex: `1 1 ${minWidth}px`, minWidth, background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: '8px', padding: '10px 12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '8px' }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#dfe9f5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
             {demo && <span style={{ fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>namuna</span>}
@@ -1026,7 +1129,7 @@ const TrendArrow: React.FC<{ trend: 'up' | 'down' | 'flat' }> = ({ trend }) => {
 const KpiTile: React.FC<{ label: string; value: string; unit?: string; delta?: string; demo?: boolean }> = ({ label, value, unit, delta, demo }) => {
     const isDown = !!delta && delta.trim().startsWith('-');
     return (
-        <div style={{ background: 'rgba(3,13,34,0.7)', border: `1px solid ${demo ? alpha(GC.amber, 0.45) : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', padding: '10px 12px', flex: '1 1 108px', minWidth: '108px' }}>
+        <div style={{ background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: '8px', padding: '10px 12px', flex: '1 1 108px', minWidth: '108px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
                 <div style={{ fontSize: '9.5px', color: GC.slate, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
                 {demo && <span style={{ fontSize: '7px', fontWeight: 700, color: GC.amber, flexShrink: 0 }}>namuna</span>}
@@ -1058,6 +1161,28 @@ const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string }
                 ))}
             </div>
             <div style={{ display: 'flex', gap: '3px', marginTop: '4px' }}>
+                {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
+            </div>
+        </div>
+    );
+};
+
+// Ikki seriyali (Reja/Fakt, Kirish/Chiqish kabi) ustunli grafik — har bir
+// nuqtada ikkita ustun yonma-yon, umumiy shkala bo'yicha (MiniBarChart'ning
+// ikki seriyali varianti).
+const DualBarChart: React.FC<{ seriesA: number[]; seriesB: number[]; labels: string[]; colorA: string; colorB: string; height?: number }> = ({ seriesA, seriesB, labels, colorA, colorB, height = 58 }) => {
+    const max = Math.max(...seriesA, ...seriesB) * 1.12;
+    return (
+        <div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: `${height}px` }}>
+                {labels.map((l, i) => (
+                    <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
+                        <div title={`${l}: ${seriesA[i]}`} style={{ flex: 1, height: `${Math.max((seriesA[i] / max) * 100, 3)}%`, background: colorA, borderRadius: '2px 2px 0 0' }} />
+                        <div title={`${l}: ${seriesB[i]}`} style={{ flex: 1, height: `${Math.max((seriesB[i] / max) * 100, 3)}%`, background: colorB, borderRadius: '2px 2px 0 0' }} />
+                    </div>
+                ))}
+            </div>
+            <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
                 {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
             </div>
         </div>
@@ -1282,7 +1407,7 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
 
                    {/* 4 & 5. 3D / Geologik model — rasm butun kartani qoplaydi */}
                    <div style={{ gridColumn: '2', gridRow: '2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', minHeight: '120px' }}>
-                       <ImageFillCard title="4. Loyiha 3D modeli" accent={accent} src={`/imgs/geology/${object.id}-3d.jpg`} icon={<Icon3DCube />} />
+                       <ImageFillCard title="4. Loyiha 3D modeli" accent={accent} src={`https://tmk.bgs.uz/upload/mnt/tmkupload/photoPath/${object.photoPath}-3d.jpg`} icon={<Icon3DCube />} />
                        <ImageFillCard title="5. Geologik model" accent={GC.violet} src={`/imgs/geology/${object.id}-geo.jpg`} icon={<IconStrata />} />
                    </div>
                </div>
@@ -2565,7 +2690,7 @@ const Map3D = ({
                     border: '1px solid rgba(0, 245, 255, 0.3)',
                     borderRadius: '8px',
                     padding: '8px 10px',
-                    zIndex: 10,
+                    zIndex: 9999,
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '5px',

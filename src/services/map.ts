@@ -198,3 +198,43 @@ export const getInvestProjectDetail = async (id: number | string, lang: string =
     });
     return response.data?.data ?? response.data;
 }
+
+/* ── /invest-projects?type= — MINE / METALL / MARKET investitsiya loyihalari ro'yxati ──
+   Backendning o'z nomlashi: `type` qiymatlari aynan "mine" | "metall" | "market"
+   (METAL emas — "L" ikkita). Har biri hali qurilayotgan yoki reja bosqichidagi
+   loyiha; maydonlar to'liq ro'yxati quyida — javob hujjatlashtirilmagan, shu
+   sabab kengroq tip (`[key: string]: any`) bilan qaytariladi. */
+export type InvestProjectType = 'mine' | 'metall' | 'market';
+
+export interface InvestProjectListItem {
+    id: number;
+    key: string;
+    type: InvestProjectType;
+    projectCode: string | null;
+    enterprise: string | null;
+    name: string;
+    region: string | null;
+    goal: string | null;
+    kind: string | null;
+    progressShare: number | null;
+    state: string | null;
+    priority: number | null;
+    capacity: string | null;
+    durationMonths: number | null;
+    startDateText: string | null;
+    endDateText: string | null;
+    totalCostMlnUsd: number | null;
+    disbursedMlnUsd: number | null;
+    jobs: number | null;
+    product: string | null;
+    commissioningText: string | null;
+    fsState: string | null;
+    [key: string]: any;
+}
+
+export const getInvestProjectsList = async (type: InvestProjectType, lang: string = "uz"): Promise<InvestProjectListItem[]> => {
+    const response = await factoryClient.get("/invest-projects", {
+        params: { type, lang },
+    });
+    return response.data?.data ?? response.data ?? [];
+}

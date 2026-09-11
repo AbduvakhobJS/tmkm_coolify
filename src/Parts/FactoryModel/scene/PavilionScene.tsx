@@ -1,43 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { ContactShadows, Environment, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { MACHINE_MARKERS, ORBIT_DAMPING, PAVILION_GROUND_RADIUS } from "../constants";
-import type { MachineMarker } from "../types";
+import { ORBIT_DAMPING, PAVILION_GROUND_RADIUS } from "../constants";
 import { useFurnaceTelemetry } from "../hooks/useFurnaceTelemetry";
 import FpsControls from "./FpsControls";
-import MachineMarkerMesh from "./MachineMarkerMesh";
-import PavilionCameraRig from "./PavilionCameraRig";
 import PavilionModelMesh from "./PavilionModelMesh";
-
-interface PavilionSceneProps {
-    activeMachine: MachineMarker | null;
-    onSelectMachine: (machine: MachineMarker) => void;
-}
 
 /**
  * All in-Canvas content for the pavilion-interior walkthrough: warm interior
- * lighting, the normalised det.glb model, ground + contact shadow, orbit
- * look-around + WASD walk (reusing the same FpsControls as the main scene),
- * the 10 in-scene machine number buttons, and the fly-to rig that glides the
- * camera to a selected machine.
+ * lighting, the normalised det.glb model (its 6 furnaces tinted + a live
+ * instrument readout floating above each one, both driven by ThingsBoard
+ * telemetry — see PavilionModelMesh), ground + contact shadow, and orbit
+ * look-around + WASD walk (reusing the same FpsControls as the main scene).
  */
-const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMachine }) => {
+const PavilionScene: React.FC = () => {
     const controlsRef = useRef<OrbitControlsImpl | null>(null);
     const modelRef = useRef<THREE.Group | null>(null);
 
     // Only polls ThingsBoard while this scene is actually mounted (i.e. the
     // pavilion modal is open) — see useFurnaceTelemetry.
-    const furnaces = useFurnaceTelemetry(true);
-
-    // The info panel only appears once the camera has actually landed on the
-    // machine — kept separate from `activeMachine` (the fly-to target) so the
-    // popup doesn't pop up mid-flight. Closing (activeMachine -> null) hides
-    // it immediately, no flight needed.
-    const [panelMachine, setPanelMachine] = useState<MachineMarker | null>(null);
-    useEffect(() => {
-        if (!activeMachine) setPanelMachine(null);
-    }, [activeMachine]);
+    const { furnaces, setHistoryRange } = useFurnaceTelemetry(true);
 
     return (
         <>
@@ -67,18 +50,11 @@ const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMa
                 <meshStandardMaterial color="#0b1420" roughness={0.92} metalness={0.06} />
             </mesh>
 
-            <PavilionModelMesh onReady={(g) => (modelRef.current = g)} furnaces={furnaces} />
-
-            {/* ── Machine number buttons ──────────────────────────────────────── */}
-            {MACHINE_MARKERS.map((machine) => (
-                <MachineMarkerMesh
-                    key={machine.id}
-                    marker={machine}
-                    isSelected={activeMachine?.id === machine.id}
-                    isPanelOpen={panelMachine?.id === machine.id}
-                    onSelect={onSelectMachine}
-                />
-            ))}
+            <PavilionModelMesh
+                onReady={(g) => (modelRef.current = g)}
+                furnaces={furnaces}
+                onHistoryRangeChange={setHistoryRange}
+            />
 
             <ContactShadows
                 position={[0, 0.01, 0]}
@@ -105,11 +81,6 @@ const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMa
                 makeDefault
             />
             <FpsControls controlsRef={controlsRef} modelRef={modelRef} />
-            <PavilionCameraRig
-                controlsRef={controlsRef}
-                activeMachine={activeMachine}
-                onArrive={setPanelMachine}
-            />
         </>
     );
 };

@@ -12,30 +12,53 @@ interface MarkerFlyRigProps {
     target: BuildingMarker | null;
     /** Called once the fly-in lands, so the caller can open the marker's modal. */
     onArrive: (marker: BuildingMarker) => void;
+    /** True while FactoryIntoModal is open for the marker this rig flew to. */
+    paused?: boolean;
+    /** Called the instant the fly-back-out (on modal close) starts. */
+    onReturnStart?: () => void;
+    /** Called once the fly-back-out lands, so the caller can release the lock it set on onReturnStart. */
+    onReturnDone?: () => void;
 }
 
 /**
  * Zooms the main-scene camera in close to a clicked building marker, easing
  * straight into the approach point (descending from the overview height,
  * never overshooting past the marker and pulling back) before handing off
- * to onArrive, which opens FactoryIntoModal.
+ * to onArrive, which opens FactoryIntoModal. Once that modal closes (`paused`
+ * flips back to false), flies the camera back out to wherever it was parked
+ * before the approach — without this, the camera stayed sitting right next
+ * to the marker forever, which made that marker's Html billboard (scaled by
+ * camera distance) look permanently huge no matter how the user zoomed/orbited
+ * afterwards, since orbiting only moves relative to that now-very-close spot.
  *
  * IMPORTANT: OrbitControls is disabled (see FactoryScene's `controlsLocked`)
- * for the duration of this flight, so — just like IntroFlyThrough — its
+ * for the duration of either flight, so — just like IntroFlyThrough — its
  * internal update() loop won't reorient the camera on its own even though we
  * mutate controls.target. We drive orientation ourselves via camera.lookAt()
  * each frame instead.
  */
-const MarkerFlyRig: React.FC<MarkerFlyRigProps> = ({ controlsRef, target, onArrive }) => {
+const MarkerFlyRig: React.FC<MarkerFlyRigProps> = ({
+    controlsRef,
+    target,
+    onArrive,
+    paused,
+    onReturnStart,
+    onReturnDone,
+}) => {
     const { camera } = useThree();
 
     const anim = useRef({
         active: false,
+        mode: "in" as "in" | "out",
         t: 0,
         fromPos: new THREE.Vector3(),
         fromTarget: new THREE.Vector3(),
         toPos: new THREE.Vector3(),
         toTarget: new THREE.Vector3(),
+        // Camera/target right before the approach flight — where "out" returns to.
+        preFlightPos: new THREE.Vector3(),
+        preFlightTarget: new THREE.Vector3(),
+        hasPreFlight: false,
         marker: null as BuildingMarker | null,
     }).current;
 
@@ -52,15 +75,40 @@ const MarkerFlyRig: React.FC<MarkerFlyRigProps> = ({ controlsRef, target, onArri
         if (pullback.lengthSq() < 1e-6) pullback.set(0, 0, 1);
         pullback.normalize();
 
+        anim.preFlightPos.copy(camera.position);
+        anim.preFlightTarget.copy(controls.target);
+        anim.hasPreFlight = true;
+
         anim.fromPos.copy(camera.position);
         anim.fromTarget.copy(controls.target);
         anim.toPos.copy(markerPos).addScaledVector(pullback, MARKER_APPROACH_DISTANCE);
         anim.toPos.y = markerPos.y + MARKER_APPROACH_HEIGHT;
         anim.toTarget.copy(markerPos);
         anim.marker = target;
+        anim.mode = "in";
         anim.t = 0;
         anim.active = true;
     }, [target, camera, controlsRef, anim]);
+
+    // paused: false → true → false is "modal opened, then closed" — fly back
+    // out only on that closing edge, and only if we actually flew in first.
+    const wasPaused = useRef(false);
+    useEffect(() => {
+        const controls = controlsRef.current;
+        if (wasPaused.current && !paused && controls && anim.hasPreFlight) {
+            anim.fromPos.copy(camera.position);
+            anim.fromTarget.copy(controls.target);
+            anim.toPos.copy(anim.preFlightPos);
+            anim.toTarget.copy(anim.preFlightTarget);
+            anim.hasPreFlight = false;
+            anim.marker = null;
+            anim.mode = "out";
+            anim.t = 0;
+            anim.active = true;
+            onReturnStart?.();
+        }
+        wasPaused.current = !!paused;
+    }, [paused, camera, controlsRef, anim, onReturnStart]);
 
     useFrame((_, delta) => {
         const controls = controlsRef.current;
@@ -75,9 +123,13 @@ const MarkerFlyRig: React.FC<MarkerFlyRigProps> = ({ controlsRef, target, onArri
 
         if (anim.t >= 1) {
             anim.active = false;
-            const arrived = anim.marker;
-            anim.marker = null;
-            if (arrived) onArrive(arrived);
+            if (anim.mode === "in") {
+                const arrived = anim.marker;
+                anim.marker = null;
+                if (arrived) onArrive(arrived);
+            } else {
+                onReturnDone?.();
+            }
         }
     });
 

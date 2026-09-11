@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { useGLTF, useProgress } from "@react-three/drei";
+import { FiMaximize2, FiMinimize2 } from "react-icons/fi";
 import {
     CAMERA_FAR,
     CAMERA_FOV,
@@ -55,6 +56,15 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
     // ── Left/right dashboard panels: hidden by default ───────────────────────
     const [panelsOn, setPanelsOn] = useState(false);
 
+    // Embedded tiles (e.g. inside the map's factory-detail panel) can expand
+    // to fill the viewport — but sit below the app's own top navbar (see
+    // .fm-root--fullscreen), never over it, so wayfinding stays available.
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    // Full render quality only makes sense once it's actually filling the
+    // screen — a fullscreen-but-still-tile-quality render would look worse
+    // than the small tile did, for no GPU savings (it's the same pixel count).
+    const renderAsTile = embedded && !isFullscreen;
+
     // Once the main factory scene has finished loading (drei's global loading
     // manager goes idle again after having been active), warm up the pavilion
     // walkthrough in the background — both its 30 MB det.glb and its
@@ -104,7 +114,21 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
     }, [selected, streams]);
 
     return (
-        <div className={`fm-root${embedded ? " fm-root--embedded" : ""}`}>
+        <div
+            className={`fm-root${embedded ? " fm-root--embedded" : ""}${isFullscreen ? " fm-root--fullscreen" : ""}`}
+        >
+            {embedded && (
+                <button
+                    type="button"
+                    className="fm-fullscreen-toggle"
+                    onClick={() => setIsFullscreen((v) => !v)}
+                    aria-label={isFullscreen ? "Kichraytirish" : "To'liq ekran"}
+                    title={isFullscreen ? "Kichraytirish" : "To'liq ekran"}
+                >
+                    {isFullscreen ? <FiMinimize2 size={14} /> : <FiMaximize2 size={14} />}
+                </button>
+            )}
+
             {panelsOn && <SidePanel side="left" />}
             {panelsOn && <SidePanel side="right" />}
 
@@ -116,7 +140,7 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
             />
 
             {/* ── 3D scene ─────────────────────────────────────────────────── */}
-            {/* Embedded (a small dashboard tile, rendering alongside the map and
+            {/* Tile-quality (small dashboard tile, rendering alongside the map and
                other widgets) caps the device-pixel-ratio at 1 instead of up to 2 —
                on a HiDPI screen that's a 4x fragment-shader cost difference for a
                tile a fraction of the screen, invisible at that size but very much
@@ -124,7 +148,7 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
             <Canvas
                 className="fm-canvas"
                 shadows
-                dpr={embedded ? 1 : [1, 2]}
+                dpr={renderAsTile ? 1 : [1, 2]}
                 gl={{ antialias: true, powerPreference: "high-performance" }}
                 camera={{
                     position: CAMERA_INITIAL_POSITION,
@@ -143,7 +167,7 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
                         onToggleWarning={handleToggleWarning}
                         onExpandWarning={handleExpandWarning}
                         paused={selected?.type === "into"}
-                        lowQuality={embedded}
+                        lowQuality={renderAsTile}
                     />
                 </Suspense>
             </Canvas>

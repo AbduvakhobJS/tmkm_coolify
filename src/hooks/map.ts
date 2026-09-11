@@ -1,5 +1,5 @@
 import {useQuery} from "@tanstack/react-query";
-import {getTypeObject, getFactoryMarkers, getFactoryDetail, getMapObjects, getGeologyProjectDetail, getInvestProjectDetail, FactoryMarkerParams} from "../services/map";
+import {getTypeObject, getFactoryMarkers, getFactoryDetail, getMapObjects, getGeologyProjectDetail, getInvestProjectDetail, getInvestProjectsList, InvestProjectType, FactoryMarkerParams} from "../services/map";
 
 export const useGetTypeObjectAll = () => {
     return useQuery({
@@ -77,5 +77,18 @@ export const useGetInvestProjectDetail = (id: number | string | null | undefined
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
+    });
+}
+
+// MINE / METALL / MARKET investitsiya loyihalari ro'yxati (GET /invest-projects?type=).
+export const useGetInvestProjectsList = (type: InvestProjectType, lang: string = "uz") => {
+    return useQuery({
+        queryKey: ["invest-projects-list", type, lang],
+        queryFn: () => getInvestProjectsList(type, lang),
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        refetchOnMount: false,
     });
 }

@@ -1,7 +1,6 @@
 import {
     FiActivity,
     FiAlertTriangle,
-    FiClock,
     FiCpu,
     FiDroplet,
     FiShield,
@@ -10,17 +9,8 @@ import {
     FiVideo,
     FiZap,
 } from "react-icons/fi";
-import {
-    GiCircuitry,
-    GiFurnace,
-    GiGears,
-    GiPowerButton,
-    GiSpeedometer,
-    GiSunbeams,
-    GiWeightScale,
-} from "react-icons/gi";
 import { TbBuildingFactory2, TbGauge } from "react-icons/tb";
-import type { BuildingMarker, MachineMarker, Vec3, VideoMarker, WarningMarker, WidgetGroup } from "./types";
+import type { BuildingMarker, Vec3, VideoMarker, WarningMarker, WidgetGroup } from "./types";
 
 /* ─── Backend / stream config ──────────────────────────────────────────────── */
 
@@ -452,8 +442,10 @@ export const LEFT_WIDGETS: WidgetGroup[] = [
 ];
 
 /* ─── Pavilion interior (FactoryIntoModal) ────────────────────────────────────
- * Fullscreen up-close walkthrough of a single pavilion (det.glb) with 10
- * machines laid out in two facing rows either side of a centre aisle.
+ * Fullscreen up-close walkthrough of a single pavilion (det.glb): 6 furnaces,
+ * each with a live instrument readout anchored at its `page_panel_N` node
+ * (see FurnacePanels.tsx) — positions come from the model itself, not from
+ * hand-authored constants.
  * ---------------------------------------------------------------------------- */
 
 /** Largest bounding-box dimension the pavilion model is normalised to. Bigger
@@ -462,173 +454,6 @@ export const PAVILION_TARGET_SIZE = 40;
 export const PAVILION_GROUND_RADIUS = 30;
 export const PAVILION_CAMERA_FOV = 50;
 export const PAVILION_CAMERA_INITIAL_POSITION: [number, number, number] = [0, 6, 22];
-/** Seconds for the camera to glide to a selected machine's viewpoint. */
-export const PAVILION_FLY_DURATION = 1.1;
-/** How far back from the machine the camera stops (world units), approaching from wherever it currently is. */
-export const PAVILION_APPROACH_DISTANCE = 5;
-/** Camera eye height above the machine's own y when parked in front of it. */
-export const PAVILION_APPROACH_HEIGHT = 2.2;
-
-/**
- * 10 machines laid out in two facing rows: #1–3 are identical CNC processing
- * units, #4–6 are the three parallel tungsten-reduction furnaces, #7–8 are
- * the second-stage (sintering) furnace pair, #9 is the drying chamber that
- * follows them, and #10 is the section's electrical switchgear.
- */
-export const MACHINE_MARKERS: MachineMarker[] = [
-    {
-        id: "machine-1",
-        number: 1,
-        name: "CNC qayta ishlash stanogi №1",
-        icon: GiGears,
-        status: "running",
-        description: "Volfram sterjenlarini aylantirib qayta ishlaydigan CNC stanogi.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
-            { icon: GiSpeedometer, label: "Aylanish tezligi", value: "1 450 aylanma/daq" },
-            { icon: GiWeightScale, label: "Yuklama", value: "78%" },
-            { icon: FiThermometer, label: "Shpindel harorati", value: "42 °C" },
-        ],
-        position: [1, 1, 1],
-    },
-    {
-        id: "machine-2",
-        number: 2,
-        name: "CNC qayta ishlash stanogi №2",
-        icon: GiGears,
-        status: "running",
-        description: "Volfram sterjenlarini aylantirib qayta ishlaydigan CNC stanogi.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
-            { icon: GiSpeedometer, label: "Aylanish tezligi", value: "1 390 aylanma/daq" },
-            { icon: GiWeightScale, label: "Yuklama", value: "84%" },
-            { icon: FiThermometer, label: "Shpindel harorati", value: "45 °C" },
-        ],
-        position: [1, 1, -7],
-    },
-    {
-        id: "machine-3",
-        number: 3,
-        name: "CNC qayta ishlash stanogi №3",
-        icon: GiGears,
-        status: "maintenance",
-        description: "Volfram sterjenlarini aylantirib qayta ishlaydigan CNC stanogi.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Texnik xizmatda" },
-            { icon: GiSpeedometer, label: "Aylanish tezligi", value: "0 aylanma/daq" },
-            { icon: GiWeightScale, label: "Yuklama", value: "0%" },
-            { icon: FiClock, label: "To‘xtab turgan vaqt", value: "2 soat 15 daq" },
-        ],
-        position: [1, 1, -15],
-    },
-
-    {
-        id: "machine-4",
-        number: 4,
-        name: "Volfram qaytarish pechi №1",
-        icon: GiFurnace,
-        status: "running",
-        description: "Vodorod muhitida volfram oksidini metall kukunigacha qaytaruvchi pech.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
-            { icon: FiThermometer, label: "Pech harorati", value: "1 150 °C" },
-            { icon: GiWeightScale, label: "Volfram kukuni chiqishi", value: "38 kg/soat" },
-            { icon: FiZap, label: "Energiya sarfi", value: "62 kWh" },
-        ],
-        position: [-2.5, 1, -4.8],
-    },
-    {
-        id: "machine-5",
-        number: 5,
-        name: "Volfram qaytarish pechi №2",
-        icon: GiFurnace,
-        status: "running",
-        description: "Vodorod muhitida volfram oksidini metall kukunigacha qaytaruvchi pech.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
-            { icon: FiThermometer, label: "Pech harorati", value: "1 180 °C" },
-            { icon: GiWeightScale, label: "Volfram kukuni chiqishi", value: "41 kg/soat" },
-            { icon: FiZap, label: "Energiya sarfi", value: "65 kWh" },
-        ],
-        position: [-4, 1, -4.8],
-    },
-    {
-        id: "machine-6",
-        number: 6,
-        name: "Volfram qaytarish pechi №3",
-        icon: GiFurnace,
-        status: "warning",
-        description: "Vodorod muhitida volfram oksidini metall kukunigacha qaytaruvchi pech.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Haroratdan ogish" },
-            { icon: FiThermometer, label: "Pech harorati", value: "1 240 °C" },
-            { icon: GiWeightScale, label: "Volfram kukuni chiqishi", value: "33 kg/soat" },
-            { icon: FiZap, label: "Energiya sarfi", value: "70 kWh" },
-        ],
-        position: [-5.8, 1, -4.8],
-    },
-
-    {
-        id: "machine-7",
-        number: 7,
-        name: "2-etap pechi №1",
-        icon: GiSunbeams,
-        status: "running",
-        description: "Volfram kukunini yuqori haroratda spekaydigan ikkinchi bosqich pechi.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
-            { icon: FiThermometer, label: "Pech harorati", value: "2 300 °C" },
-            { icon: GiSpeedometer, label: "Sikl davomiyligi", value: "5 soat 40 daq" },
-            { icon: FiZap, label: "Energiya sarfi", value: "118 kWh" },
-        ],
-        position: [-5.5, 1, 6.5],
-    },
-    {
-        id: "machine-8",
-        number: 8,
-        name: "2-etap pechi №2",
-        icon: GiSunbeams,
-        status: "running",
-        description: "Volfram kukunini yuqori haroratda spekaydigan ikkinchi bosqich pechi.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Ishlamoqda" },
-            { icon: FiThermometer, label: "Pech harorati", value: "2 280 °C" },
-            { icon: GiSpeedometer, label: "Sikl davomiyligi", value: "5 soat 55 daq" },
-            { icon: FiZap, label: "Energiya sarfi", value: "121 kWh" },
-        ],
-        position: [-3.5, 1, 6.5],
-    },
-    {
-        id: "machine-9",
-        number: 9,
-        name: "Quritish kamerasi",
-        icon: FiDroplet,
-        status: "running",
-        description: "Spekangan volfram sterjenlarini keyingi bosqichdan oldin quritadigan kamera.",
-        specs: [
-            { icon: FiActivity, label: "Holati", value: "Quritilmoqda" },
-            { icon: FiThermometer, label: "Kamera harorati", value: "180 °C" },
-            { icon: FiDroplet, label: "Namlik darajasi", value: "6%" },
-            { icon: FiClock, label: "Quritish vaqti", value: "1 soat 20 daq" },
-        ],
-        position: [2.4, 1, 7.6],
-    },
-    {
-        id: "machine-10",
-        number: 10,
-        name: "Elektr shchiti",
-        icon: GiCircuitry,
-        status: "running",
-        description: "Sexning barcha pech va stanoklarini quvvat bilan ta'minlovchi asosiy taqsimot shchiti.",
-        specs: [
-            { icon: GiPowerButton, label: "Holati", value: "Nazoratda" },
-            { icon: FiZap, label: "Kuchlanish", value: "380 V" },
-            { icon: FiActivity, label: "Tok yuklamasi", value: "72%" },
-            { icon: FiShield, label: "Himoya tizimi", value: "Faol" },
-        ],
-        position: [5.5, 2, 11.6],
-    },
-];
 
 export const RIGHT_WIDGETS: WidgetGroup[] = [
     {

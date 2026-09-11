@@ -32,6 +32,48 @@
     border-radius: 14px;
 }
 
+/* Expanded from its dashboard tile. Sits below the app's own top navbar
+   (.nnav, 100px) rather than at inset:0 — a plain z-index trick would still
+   let this cover it, since .nnav isn't itself position:fixed, and covering
+   the one piece of chrome that lets someone navigate away is the one thing
+   a "fullscreen" toggle must never do. */
+.fm-root--embedded.fm-root--fullscreen {
+    position: fixed;
+    inset: auto;
+    top: 100px;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 100px);
+    z-index: 400;
+    border-radius: 0;
+    border-width: 0 0 0 1px;
+}
+
+.fm-fullscreen-toggle {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 26;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    color: #cfe9f2;
+    background: rgba(3, 13, 34, 0.6);
+    border: 1px solid rgba(var(--fm-cyan), 0.35);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.fm-fullscreen-toggle:hover {
+    background: rgba(var(--fm-cyan), 0.22);
+    border-color: rgba(var(--fm-cyan), 0.6);
+    color: #eafaff;
+}
+
 .fm-root *, .fm-root *::before, .fm-root *::after {
     box-sizing: inherit;
 }
@@ -1095,186 +1137,239 @@
     z-index: 30;
 }
 
-/* ─── In-scene machine markers (round number buttons anchored per machine) ── */
+/* ─── Furnace instrument panels (live readout anchored above each furnace) ──
+ * A 3h trend chart (one line per zone, ThingsBoard history) over a 5-column
+ * stat strip — the shape mirrors what the zones actually are (5 parallel
+ * temperature channels over time), and a zone's colour always matches its
+ * shell segment's tint on the furnace itself (see FurnacePanels.tsx /
+ * FurnaceVisuals.tsx). Always open, never intercepts pointer events. A
+ * furnace ThingsBoard hasn't answered for yet shows hand-tuned placeholder
+ * numbers instead of a blank "—" wall, flagged amber + "namuna" — the same
+ * demo-data convention the map dashboard's SubPanel/KpiTile already use.
+ * ---------------------------------------------------------------------------- */
 
-.fm-pavilion-marker {
+.fm-furnace-panel {
     position: relative;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    filter: drop-shadow(0 20px 44px rgba(1, 4, 10, 0.65));
 }
 
-.fm-pavilion-marker__btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    font-size: 13px;
-    font-weight: 700;
-    font-family: inherit;
-    color: #eafdff;
-    background: rgba(var(--fm-cyan), 0.32);
-    border: 1.5px solid rgba(var(--fm-cyan), 0.75);
-    box-shadow: 0 0 16px rgba(var(--fm-cyan), 0.6), 0 0 3px rgba(255, 255, 255, 0.5) inset;
-    cursor: pointer;
-    animation: fm-marker-glow 2.4s ease-in-out infinite;
-    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease,
-        border-color 0.18s ease;
-}
-
-@keyframes fm-marker-glow {
-    0%,
-    100% {
-        box-shadow: 0 0 16px rgba(var(--fm-cyan), 0.6), 0 0 3px rgba(255, 255, 255, 0.5) inset;
-    }
-    50% {
-        box-shadow: 0 0 24px rgba(var(--fm-cyan), 0.9), 0 0 5px rgba(255, 255, 255, 0.7) inset;
-    }
-}
-
-.fm-pavilion-marker__btn:hover {
-    transform: scale(1.14);
-    background: rgba(var(--fm-cyan), 0.48);
-    box-shadow: 0 0 26px rgba(var(--fm-cyan), 0.85);
-}
-
-.fm-pavilion-marker__btn--active {
-    color: #04141a;
-    background: rgb(var(--fm-cyan));
-    border-color: #eafdff;
-    animation: none;
-    box-shadow: 0 0 0 3px rgba(var(--fm-cyan), 0.3), 0 0 26px rgba(var(--fm-cyan), 0.85);
-}
-
-.fm-pavilion-marker-panel {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-bottom: 12px;
-    width: 300px;
-    padding: 14px 16px;
-    border-radius: 12px;
-    background: linear-gradient(160deg, rgba(8, 24, 48, 0.94), rgba(3, 13, 34, 0.97));
-    border: 1px solid rgba(var(--fm-cyan), 0.45);
-    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6), 0 0 30px rgba(var(--fm-cyan), 0.15);
-    backdrop-filter: blur(10px);
-    cursor: default;
-}
-
-.fm-pavilion-marker-panel__head {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(var(--fm-cyan), 0.2);
-}
-
-.fm-pavilion-marker-panel__head-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    color: rgb(var(--fm-cyan));
-    background: rgba(var(--fm-cyan), 0.16);
-    border: 1px solid rgba(var(--fm-cyan), 0.35);
-}
-
-.fm-pavilion-marker-panel__heading {
+.fm-furnace-panel__body {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    min-width: 0;
-}
-
-.fm-pavilion-marker-panel__title {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
-    line-height: 1.3;
-    color: #eafaff;
-}
-
-.fm-pavilion-marker-panel__status {
-    align-self: flex-start;
-    font-size: 9.5px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    padding: 2px 7px;
+    align-items: stretch;
+    gap: 18px;
+    width: 600px;
+    padding: 26px 30px 24px;
     border-radius: 20px;
+    background: linear-gradient(165deg, rgba(6, 15, 30, 0.94), rgba(3, 9, 20, 0.97));
+    border: 1.5px solid rgba(var(--fm-cyan), 0.32);
+    backdrop-filter: blur(6px);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
-.fm-pavilion-marker-panel__status--running {
-    color: var(--gc-green);
-    background: rgba(34, 197, 94, 0.16);
-    border: 1px solid rgba(34, 197, 94, 0.4);
+.fm-furnace-panel__body--sariq {
+    border-color: rgba(245, 197, 66, 0.6);
+    box-shadow: 0 0 22px rgba(245, 197, 66, 0.2);
 }
 
-.fm-pavilion-marker-panel__status--idle {
-    color: var(--gc-slate);
-    background: rgba(148, 163, 184, 0.16);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+.fm-furnace-panel__body--qizil {
+    border-color: rgba(229, 72, 77, 0.65);
+    box-shadow: 0 0 22px rgba(229, 72, 77, 0.26);
 }
 
-.fm-pavilion-marker-panel__status--maintenance {
-    color: var(--gc-blue);
-    background: rgba(59, 130, 246, 0.16);
-    border: 1px solid rgba(59, 130, 246, 0.4);
+.fm-furnace-panel__body--demo {
+    border-color: rgba(245, 197, 66, 0.5);
+    border-style: dashed;
 }
 
-.fm-pavilion-marker-panel__status--warning {
-    color: var(--gc-amber);
-    background: rgba(245, 158, 11, 0.18);
-    border: 1px solid rgba(245, 158, 11, 0.45);
+.fm-furnace-panel--off .fm-furnace-panel__body {
+    border-color: rgba(148, 163, 184, 0.25);
 }
 
-.fm-pavilion-marker-panel__text {
-    margin: 0 0 10px;
-    font-size: 11.5px;
-    line-height: 1.6;
-    color: #bfe0ec;
+.fm-furnace-panel--off .fm-furnace-panel__body:not(.fm-furnace-panel__body--demo) {
+    opacity: 0.78;
 }
 
-.fm-pavilion-marker-panel__specs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
-
-.fm-pavilion-marker-panel__spec {
+.fm-furnace-panel__head {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding: 7px 8px;
-    border-radius: 8px;
-    background: rgba(var(--fm-cyan), 0.07);
-    border: 1px solid rgba(var(--fm-cyan), 0.18);
-}
-
-.fm-pavilion-marker-panel__spec-icon {
-    display: flex;
-    align-items: center;
-    color: rgb(var(--fm-cyan));
-    opacity: 0.9;
-}
-
-.fm-pavilion-marker-panel__spec-label {
-    font-size: 9.5px;
-    letter-spacing: 0.2px;
-    color: #8fb4c2;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 650;
+    letter-spacing: 0.1px;
+    color: #eafaff;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.fm-pavilion-marker-panel__spec-value {
+.fm-furnace-panel__dot {
+    align-self: center;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #64798d;
+    flex: none;
+}
+
+.fm-furnace-panel:not(.fm-furnace-panel--off) .fm-furnace-panel__dot {
+    background: #22c55e;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.85);
+    animation: fm-furnace-pulse 1.7s ease-in-out infinite;
+}
+
+@keyframes fm-furnace-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.fm-furnace-panel__title {
+    flex: none;
+}
+
+.fm-furnace-panel__status {
+    font-size: 16px;
+    font-weight: 600;
+    color: #8fb4c2;
+}
+
+.fm-furnace-panel__demo-badge {
+    margin-left: auto;
     font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #f5c542;
+    background: rgba(245, 197, 66, 0.14);
+    border: 1px solid rgba(245, 197, 66, 0.4);
+    border-radius: 7px;
+    padding: 3px 9px;
+    flex: none;
+}
+
+.fm-furnace-panel__range {
+    display: flex;
+    gap: 4px;
+    flex: none;
+    margin-left: auto;
+}
+
+.fm-furnace-panel__range-btn {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8fb4c2;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 7px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.fm-furnace-panel__range-btn:hover {
     color: #eafaff;
+    border-color: rgba(var(--fm-cyan), 0.4);
+}
+
+.fm-furnace-panel__range-btn--active {
+    color: #04141a;
+    background: rgb(var(--fm-cyan));
+    border-color: rgb(var(--fm-cyan));
+}
+
+.fm-furnace-panel__chart {
+    position: relative;
+    height: 150px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+.fm-furnace-panel__chart svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.fm-furnace-panel__grid {
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 1;
+    stroke-dasharray: 3 5;
+}
+
+.fm-furnace-panel__chart-scale {
+    position: absolute;
+    top: 7px;
+    right: 10px;
+    bottom: 7px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #6f8ba0;
+    pointer-events: none;
+}
+
+.fm-furnace-panel__stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.fm-furnace-panel__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 4px 10px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.035);
+    border-top: 3px solid #3d5064;
+}
+
+.fm-furnace-panel__stat--yashil { border-top-color: #22c55e; }
+.fm-furnace-panel__stat--sariq { border-top-color: #f5c542; }
+.fm-furnace-panel__stat--qizil { border-top-color: #e5484d; }
+
+.fm-furnace-panel__stat-zone {
+    font-size: 13px;
+    color: #7fa2b8;
+    margin-bottom: 3px;
+}
+
+.fm-furnace-panel__stat-value {
+    font-family: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+    font-size: 27px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: #eafaff;
+    line-height: 1.1;
+}
+
+.fm-furnace-panel__stat-sp {
+    font-size: 12.5px;
+    color: #6f8ba0;
+    margin-top: 2px;
+}
+
+.fm-furnace-panel__stat-delta {
+    margin-top: 5px;
+    font-family: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.fm-furnace-panel__stat-delta--pos {
+    color: #e5484d;
+    background: rgba(229, 72, 77, 0.14);
+}
+
+.fm-furnace-panel__stat-delta--neg {
+    color: #6fb4ff;
+    background: rgba(111, 180, 255, 0.14);
 }

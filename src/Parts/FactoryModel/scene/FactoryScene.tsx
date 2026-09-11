@@ -95,7 +95,11 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
         [onSelectMarker]
     );
 
-    const controlsLocked = paused || introPlaying || !!flyingMarker;
+    // True for the brief fly-back-out once FactoryIntoModal closes — keeps
+    // OrbitControls locked so the user can't fight the return animation.
+    const [returningFromMarker, setReturningFromMarker] = useState(false);
+
+    const controlsLocked = paused || introPlaying || !!flyingMarker || returningFromMarker;
 
     return (
         <>
@@ -234,7 +238,14 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
             {introPlaying && (
                 <IntroFlyThrough controlsRef={controlsRef} onDone={() => setIntroPlaying(false)} />
             )}
-            <MarkerFlyRig controlsRef={controlsRef} target={flyingMarker} onArrive={handleMarkerArrive} />
+            <MarkerFlyRig
+                controlsRef={controlsRef}
+                target={flyingMarker}
+                onArrive={handleMarkerArrive}
+                paused={paused}
+                onReturnStart={() => setReturningFromMarker(true)}
+                onReturnDone={() => setReturningFromMarker(false)}
+            />
         </>
     );
 };

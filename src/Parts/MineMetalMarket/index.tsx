@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {GC} from '../../theme/palette';
 import {
-    ASSETS, Segment, ActiveUnit, PlannedUnit, TopKpi, fmtNum,
+    ASSETS, Segment, ActiveUnit, InvestProjectListItem, TopKpi, fmtNum,
 } from './data';
 import { useCompanyData } from './useCompanyData';
 
@@ -88,8 +88,6 @@ const Icon: React.FC<{ name: string; size?: number | string }> = ({name, size = 
 );
 
 const SEGMENT_ICON: Record<string, string> = {mine: 'mine', metal: 'metal', market: 'market'};
-/** Obyekt kartochkasidagi "foto o'rni" uchun toifa ikonkasi. */
-const UNIT_ICON: Record<string, string> = {mine: 'mine', metal: 'metal', market: 'market'};
 
 const Delta: React.FC<{ v: number | null; size?: number | string }> = ({v, size = 11}) => {
     if (v === null) return <span style={{color: GC.textDisabled, fontSize: size, fontWeight: 700}}>—</span>;
@@ -283,153 +281,164 @@ const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({seg, onCl
 
 /* ══════════════ 3) KARTOCHKA ICHIDAGI KICHIK KARTOCHKALAR ══════════════ */
 
-/** "Foto o'rni" — haqiqiy rasm qo'shilsa shu blok almashtiriladi. */
-const UnitPhoto: React.FC<{ accent: string; segKey: string; height: string }> = ({accent, segKey, height}) => (
-    <div style={{
-        height, borderRadius: cq(3, 0.9, 7), flexShrink: 0,
-        background: `linear-gradient(140deg, ${accent}33, rgba(255,255,255,.04))`,
-        border: `1px solid ${accent}26`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', color: `${accent}cc`,
-    }}>
-        <Icon name={UNIT_ICON[segKey]} size={cq(10, 2.6, 22)}/>
-    </div>
-);
+/** Segment kaliti bo'yicha obyekt fotosi — haqiqiy rasm ulanmagani uchun vakillik. */
+const UNIT_PHOTO: Record<string, string> = {
+    mine: '/imgs/re3.jpg', metal: '/imgs/re0.jpg', market: '/imgs/re2.jpg',
+};
 
-/** Faoliyatdagi obyekt — nom, foto, xodimlar, ishlab chiqarish + o'zgarish. */
-const ActiveUnitCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: string }> = ({unit, accent, segKey}) => (
-    <div style={{
-        background: 'rgba(6, 12, 20, .62)', border: `1px solid ${GC.borderColor}`,
-        borderRadius: cq(4, 1.2, 10), padding: cq(4, 1.1, 9), minWidth: 0,
-        display: 'flex', flexDirection: 'column', gap: cq(2, 0.6, 6),
-    }}>
+/** Faoliyatdagi obyekt — foto, nom + o'zgarish, ishlab chiqarish (+ xodimlar, bo'lsa). */
+const ActiveUnitCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: string }> = ({unit, accent, segKey}) => {
+    const hasStaff = unit.staff > 0;
+    return (
         <div style={{
-            color: GC.textPrimary,display: "flex", justifyContent: "space-between", fontSize: cq(6, 1.55, 12), fontWeight: 700, lineHeight: 1.25,
-        }} title={unit.name}><span>
-            {unit.name}
-        </span>
-            <Delta v={unit.delta} size={cq(5.5, 1.35, 11)}/>
+            background: 'rgba(6, 12, 20, .62)', border: `1px solid ${GC.borderColor}`,
+            borderRadius: cq(4, 1.2, 10), padding: cq(3.5, 1, 8), minWidth: 0,
+            display: 'flex', flexDirection: 'column', gap: cq(2.5, 0.7, 7),
+        }}>
+            <img
+                src={UNIT_PHOTO[segKey] ?? UNIT_PHOTO.mine} alt=""
+                style={{
+                    width: '100%', height: cq(18, 4.8, 42), objectFit: 'cover',
+                    borderRadius: cq(3, 0.8, 6), display: 'block', flexShrink: 0,
+                }}
+            />
 
-        </div>
-
-        {/*<UnitPhoto accent={accent} segKey={segKey} height={cq(18, 5, 46)}/>*/}
-        {
-            segKey === "mine" ? <img src="/imgs/re3.jpg" alt=""/> :  segKey === "metal" ? <img src="/imgs/re0.jpg" alt=""/> :  <img src="/imgs/re2.jpg" alt=""/>
-        }
-
-        <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0, justifyContent: 'space-between'}}>
-            <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
-            <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}>
-                {/*<Icon name="users" size={cq(6, 1.6, 13)}/>*/}
-                <img src="/icons/z4.png" alt="..." style={{width: cq(14, 4.6, 30), height: 'auto'}}/>
-            </span>
-                <span>
-                <span style={{color: GC.textPrimary, fontSize: cq(6, 1.5, 14), fontWeight: 700}}>{fmtNum(unit.staff)}</span>
-            <span style={{color: GC.textDisabled, display: "block", fontSize: cq(4.5, 1.1, 12)}}>Xodimlar</span>
-             </span>
+            <div style={{
+                color: GC.textPrimary, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+                gap: cq(2, 0.5, 5), fontSize: cq(5.5, 1.4, 11.5), fontWeight: 700, lineHeight: 1.25,
+            }}>
+                <span style={{
+                    minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis',
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                }} title={unit.name}>{unit.name}</span>
+                <Delta v={unit.delta} size={cq(5, 1.25, 10)}/>
             </div>
 
-            <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: cq(2, 0.6, 6)}}>
-                <div style={{minWidth: 0}}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5)}}>
+            <div style={{
+                display: 'flex', alignItems: 'flex-end', justifyContent: hasStaff ? 'space-between' : 'flex-start',
+                gap: cq(3, 0.8, 8), minWidth: 0, marginTop: 'auto',
+            }}>
+                <div style={{display: 'flex', alignItems: 'center', gap: cq(1.5, 0.45, 4.5), minWidth: 0}}>
                     <span style={{color: accent, display: 'flex', flexShrink: 0}}>
-                                       <img src="/icons/z5.png" alt="..." style={{width: cq(14, 4.6, 30), height: 'auto'}}/>
-                </span>
-                        <span>
-                           <span style={{
-                               color: GC.textPrimary,
-                               fontSize: cq(6, 1.55, 12),
-                               fontWeight: 700,
-                               whiteSpace: 'nowrap'
-                           }}>{unit.output}</span>
-                         <div style={{
-                             color: GC.textDisabled,
-                             marginTop: 5,
-                             fontSize: cq(4.5, 1.05, 9),
-                             lineHeight: 1.25
-                         }}>{unit.outputLabel}
-                </div>
+                        <Icon name="chart" size={cq(6.5, 1.7, 13)}/>
                     </span>
-
-                    </div>
+                    <span style={{minWidth: 0}}>
+                        <div style={{
+                            color: GC.textPrimary, fontSize: cq(5.5, 1.45, 11.5), fontWeight: 700,
+                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                        }}>{unit.output}</div>
+                        <div style={{
+                            color: GC.textDisabled, fontSize: cq(4.2, 1, 8.5), lineHeight: 1.25,
+                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                        }}>{unit.outputLabel}</div>
+                    </span>
                 </div>
 
+                {hasStaff && (
+                    <div style={{display: 'flex', alignItems: 'center', gap: cq(1.5, 0.45, 4.5), flexShrink: 0}}>
+                        <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}>
+                            <Icon name="users" size={cq(6.5, 1.7, 13)}/>
+                        </span>
+                        <span>
+                            <div style={{color: GC.textPrimary, fontSize: cq(5.5, 1.45, 11.5), fontWeight: 700}}>{fmtNum(unit.staff)}</div>
+                            <div style={{color: GC.textDisabled, fontSize: cq(4.2, 1, 8.5)}}>Xodimlar</div>
+                        </span>
+                    </div>
+                )}
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 /** Qurilayotgan / loyiha bosqichidagi obyekt — ochroq fonli kartochka. */
-const PlannedUnitCard: React.FC<{ unit: PlannedUnit; accent: string }> = ({unit, accent}) => (
+/** Investitsiya summasi — "41 mln $" / "54,6 mln $". Butun son bo'lsa kasr chiqmaydi. */
+const fmtUsd = (n: number | null | undefined): string => {
+    if (n === null || n === undefined) return '—';
+    const r = Math.round(n * 10) / 10;
+    const s = Number.isInteger(r) ? String(r) : String(r).replace('.', ',');
+    return `${s} mln $`;
+};
+
+/** Ulush — `0.35` → `"35%"`. */
+const fmtShare = (v: number | null | undefined): string =>
+    v === null || v === undefined ? '—' : `${Math.round(v * 100)}%`;
+
+/**
+ * Investitsiya loyihasi kartochkasi — GET /invest-projects?type= dan.
+ * Faoliyatdagi obyektlarning to'q shisha kartochkalaridan farqli, ONGROQ
+ * fonda: hali qurilmagan/reja bosqichidagi loyiha — "chizma" kabi ochroq.
+ */
+const InvestProjectCard: React.FC<{ p: InvestProjectListItem; accent: string }> = ({p, accent}) => (
     <div style={{
-        background: 'rgb(172 172 172 / 0.83)',
-        border: `1px solid  #fff`,
-        borderRadius: cq(4, 1.2, 10),
-        padding: cq(4, 1.1, 9), minWidth: 0,
-        display: 'flex', flexDirection: 'column', gap: cq(2, 0.6, 6),
+        background: 'linear-gradient(160deg, #F6F8FA, #E4E9EE)',
+        border: '1px solid rgba(13, 23, 33, .09)',
+        borderRadius: cq(4, 1.2, 10), padding: cq(4, 1.05, 9), minWidth: 0,
+        display: 'flex', flexDirection: 'column', gap: cq(2.5, 0.7, 7),
+        boxShadow: '0 1px 4px rgba(13,23,33,.1)',
     }}>
-        <div style={{display: 'flex', alignItems: 'flex-start', gap: cq(3, 0.8, 7)}}>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: cq(2, 0.6, 6)}}>
             <span style={{
-                width: cq(12, 3.2, 26), height: cq(12, 3.2, 26), borderRadius: cq(3, 0.9, 8), flexShrink: 0,
-                background: `${accent}2b`, color: accent,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}><Icon name={unit.stage === 'Qurilish' ? 'build' : 'plan'} size={cq(6, 1.7, 14)}/></span>
-            <span style={{
-                color: GC.borderColor,
-                fontSize: cq(5.5, 1.45, 12),
-                fontWeight: 700,
-                lineHeight: 1.25
-            }}>{unit.name}</span>
+                background: `${accent}1c`, color: accent, fontWeight: 700,
+                fontSize: cq(4.2, 1, 8.5), padding: `${cq(1, 0.3, 3)} ${cq(2.2, 0.6, 6)}`,
+                borderRadius: cq(3, 0.7, 6), whiteSpace: 'nowrap', overflow: 'hidden',
+                textOverflow: 'ellipsis', minWidth: 0,
+            }} title={p.kind ?? undefined}>{p.kind ?? 'Loyiha'}</span>
+            <span style={{color: accent, fontWeight: 800, fontSize: cq(5, 1.25, 11), flexShrink: 0}}>
+                {fmtShare(p.progressShare)}
+            </span>
         </div>
 
         <div style={{
-            alignSelf: 'flex-start', background: 'rgba(255,255,255,.07)',
-            border: `1px solid ${GC.borderColor}`, borderRadius: cq(3, 0.9, 8),
-            padding: `${cq(2, 0.5, 4)} ${cq(3, 0.9, 9)}`,
-        }}>
-            <div style={{color: GC.borderColor, fontSize: cq(4.5, 1.05, 10)}}>{unit.stage}</div>
+            color: '#16212C', fontSize: cq(5.5, 1.4, 11.5), fontWeight: 700, lineHeight: 1.3,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+        }} title={p.name}>{p.name}</div>
+
+        <div style={{height: cq(1.2, 0.3, 3), borderRadius: 3, background: 'rgba(13,23,33,.12)', overflow: 'hidden', flexShrink: 0}}>
             <div style={{
-                color: GC.borderColor,
-                fontSize: cq(5.5, 1.35, 11.5),
-                fontWeight: 700,
-                whiteSpace: 'nowrap'
-            }}>{unit.years}</div>
+                width: `${Math.max(0, Math.min(100, Math.round((p.progressShare ?? 0) * 100)))}%`,
+                height: '100%', background: accent, borderRadius: 3,
+            }}/>
         </div>
 
-        <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
-            <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}>
-                  <img src="/icons/z4.png" style={{width: cq(16, 5.2, 34), height: 'auto'}} alt=""/>
-            </span>
-            <div style={{minWidth: 0}}>
-                <div style={{
-                    color: GC.borderColor,
-                    fontSize: cq(5.5, 1.45, 12),
-                    fontWeight: 700
-                }}>{fmtNum(unit.plannedStaff)}</div>
-                <div style={{color: GC.borderColor, fontSize: cq(4.5, 1.05, 9), lineHeight: 1.2}}>Rejalashtirilgan
-                    xodimlar
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: cq(2, 0.6, 6), minWidth: 0}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: cq(1.3, 0.4, 4), minWidth: 0}}>
+                <span style={{color: accent, display: 'flex', flexShrink: 0}}><Icon name="coins" size={cq(6, 1.5, 12)}/></span>
+                <span style={{color: '#16212C', fontSize: cq(5, 1.25, 10.5), fontWeight: 700, whiteSpace: 'nowrap'}}>
+                    {fmtUsd(p.totalCostMlnUsd)}
+                </span>
+            </div>
+            {!!p.jobs && (
+                <div style={{display: 'flex', alignItems: 'center', gap: cq(1.3, 0.4, 4), minWidth: 0, flexShrink: 0}}>
+                    <span style={{color: '#5B6B7A', display: 'flex', flexShrink: 0}}><Icon name="users" size={cq(6, 1.5, 12)}/></span>
+                    <span style={{color: '#16212C', fontSize: cq(5, 1.25, 10.5), fontWeight: 700, whiteSpace: 'nowrap'}}>
+                        {fmtNum(p.jobs)}
+                    </span>
                 </div>
-            </div>
+            )}
         </div>
 
-        <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 5), minWidth: 0}}>
-            <span style={{color: accent, display: 'flex', flexShrink: 0}}>
-                  <img src="/icons/z5.png" style={{width: cq(16, 5.2, 34), height: 'auto'}} alt=""/>
-
+        <div style={{
+            display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: cq(2, 0.6, 6),
+            borderTop: '1px solid rgba(13,23,33,.09)', paddingTop: cq(2, 0.5, 5), minWidth: 0,
+        }}>
+            <span style={{
+                color: '#5B6B7A', fontSize: cq(4.2, 0.95, 8.5), whiteSpace: 'nowrap',
+                overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0,
+            }} title={p.region ?? undefined}>{p.region ?? '—'}</span>
+            <span style={{color: '#5B6B7A', fontSize: cq(4.2, 0.95, 8.5), whiteSpace: 'nowrap', flexShrink: 0}}>
+                {p.commissioningText ?? p.endDateText ?? ''}
             </span>
-            <div style={{minWidth: 0}}>
-                <div style={{
-                    color: GC.borderColor,
-                    fontSize: cq(5.5, 1.45, 12),
-                    fontWeight: 700
-                }}>{unit.capacity ?? '—'}</div>
-                <div style={{
-                    color: GC.textDisabled,
-                    fontSize: cq(4.5, 1.05, 9),
-                    lineHeight: 1.2
-                }}>{unit.capacityLabel}</div>
-            </div>
         </div>
     </div>
+);
+
+/** Investitsiya loyihalari hali yo'q bo'lganda ko'rsatiladigan bo'sh holat. */
+const InvestEmpty: React.FC = () => (
+    <div style={{
+        gridColumn: '1 / -1', textAlign: 'center', color: 'rgba(230,237,243,.5)',
+        fontSize: cq(4.8, 1.2, 10.5), border: `1px dashed ${GC.borderColor}`,
+        borderRadius: cq(4, 1.2, 10), padding: cq(6, 1.6, 14),
+    }}>Hozircha investitsiya loyihalari yo'q</div>
 );
 
 /** Bo'lim sarlavhasi: rangli nuqta + nom + "N ta". */
@@ -484,46 +493,42 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
 
             {
                 seg?.code === "MINE" ?
-                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
-                         style={{filter: "drop-shadow(0 0 10px rgba(0, 255, 170, 0.5))"}}
-
+                    <svg width={cq(24, 6.5, 46)} height={cq(24, 6.5, 46)} viewBox="0 0 64 64" fill="none"
+                         xmlns="http://www.w3.org/2000/svg" style={{flexShrink: 0, filter: "drop-shadow(0 0 10px rgba(0, 255, 170, 0.5))"}}
                     >
                         <defs>
                             <linearGradient id="mineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#00ffaa"/>
-                                <stop offset="100%" stop-color="#008855"/>
+                                <stop offset="0%" stopColor="#00ffaa"/>
+                                <stop offset="100%" stopColor="#008855"/>
                             </linearGradient>
                         </defs>
 
+                        <path d="M8 48L24 20L36 38L44 26L56 48H8Z" fill="url(#mineGrad)" fillOpacity={0.2}
+                              stroke="url(#mineGrad)" strokeWidth={2.5} strokeLinejoin="round"/>
 
-                        <path d="M8 48L24 20L36 38L44 26L56 48H8Z" fill="url(#mineGrad)" fill-opacity="0.2"
-                              stroke="url(#mineGrad)" stroke-width="2.5" stroke-linejoin="round"/>
-
-
-                        <path d="M22 28L42 48" stroke="url(#mineGrad)" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M42 28L22 48" stroke="url(#mineGrad)" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M16 22C22 20 28 22 28 22" stroke="url(#mineGrad)" stroke-width="3"
-                              stroke-linecap="round"/>
-                        <path d="M36 22C42 20 48 22 48 22" stroke="url(#mineGrad)" stroke-width="3"
-                              stroke-linecap="round"/>
-
+                        <path d="M22 28L42 48" stroke="url(#mineGrad)" strokeWidth={3} strokeLinecap="round"/>
+                        <path d="M42 28L22 48" stroke="url(#mineGrad)" strokeWidth={3} strokeLinecap="round"/>
+                        <path d="M16 22C22 20 28 22 28 22" stroke="url(#mineGrad)" strokeWidth={3}
+                              strokeLinecap="round"/>
+                        <path d="M36 22C42 20 48 22 48 22" stroke="url(#mineGrad)" strokeWidth={3}
+                              strokeLinecap="round"/>
 
                         <circle cx="32" cy="14" r="3" fill="#00ffaa"/>
                     </svg>
 
                     : seg?.code === "METAL" ?
-                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
-                             style={{filter: "drop-shadow(0 0 10px rgba(255, 170, 0, 0.5))"}}>
+                        <svg width={cq(24, 6.5, 46)} height={cq(24, 6.5, 46)} viewBox="0 0 64 64" fill="none"
+                             xmlns="http://www.w3.org/2000/svg" style={{flexShrink: 0, filter: "drop-shadow(0 0 10px rgba(255, 170, 0, 0.5))"}}>
                             <defs>
                                 <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#ffcc00"/>
-                                    <stop offset="100%" stop-color="#ff6600"/>
+                                    <stop offset="0%" stopColor="#ffcc00"/>
+                                    <stop offset="100%" stopColor="#ff6600"/>
                                 </linearGradient>
                             </defs>
 
-                            <circle cx="32" cy="36" r="16" stroke="url(#metalGrad)" stroke-width="2.5"
-                                    stroke-dasharray="6 3"/>
-                            <circle cx="32" cy="36" r="8" stroke="url(#metalGrad)" stroke-width="2"/>
+                            <circle cx="32" cy="36" r="16" stroke="url(#metalGrad)" strokeWidth={2.5}
+                                    strokeDasharray="6 3"/>
+                            <circle cx="32" cy="36" r="8" stroke="url(#metalGrad)" strokeWidth={2}/>
 
                             <path
                                 d="M32 8C32 8 38 16 38 22C38 25.3137 35.3137 28 32 28C28.6863 28 26 25.3137 26 22C26 16 32 8 32 8Z"
@@ -535,25 +540,24 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
 
                         :
 
-                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"
-                             style={{filter: "drop-shadow(0 0 10px rgba(0, 170, 255, 0.5))"}}
+                        <svg width={cq(24, 6.5, 46)} height={cq(24, 6.5, 46)} viewBox="0 0 64 64" fill="none"
+                             xmlns="http://www.w3.org/2000/svg" style={{flexShrink: 0, filter: "drop-shadow(0 0 10px rgba(0, 170, 255, 0.5))"}}
                         >
                             <defs>
                                 <linearGradient id="marketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#00d4ff"/>
-                                    <stop offset="100%" stop-color="#0055ff"/>
+                                    <stop offset="0%" stopColor="#00d4ff"/>
+                                    <stop offset="100%" stopColor="#0055ff"/>
                                 </linearGradient>
                             </defs>
 
+                            <circle cx="32" cy="32" r="22" stroke="url(#marketGrad)" strokeWidth={2.5}/>
+                            <ellipse cx="32" cy="32" rx="22" ry="9" stroke="url(#marketGrad)" strokeWidth={2}/>
+                            <path d="M32 10V54" stroke="url(#marketGrad)" strokeWidth={2}/>
 
-                            <circle cx="32" cy="32" r="22" stroke="url(#marketGrad)" stroke-width="2.5"/>
-                            <ellipse cx="32" cy="32" rx="22" ry="9" stroke="url(#marketGrad)" stroke-width="2"/>
-                            <path d="M32 10V54" stroke="url(#marketGrad)" stroke-width="2"/>
-
-                            <path d="M18 42L28 32L36 38L48 22" stroke="#ffffff" stroke-width="3" stroke-linecap="round"
-                                  stroke-linejoin="round"/>
-                            <path d="M40 22H48V30" stroke="#ffffff" stroke-width="3" stroke-linecap="round"
-                                  stroke-linejoin="round"/>
+                            <path d="M18 42L28 32L36 38L48 22" stroke="#ffffff" strokeWidth={3} strokeLinecap="round"
+                                  strokeLinejoin="round"/>
+                            <path d="M40 22H48V30" stroke="#ffffff" strokeWidth={3} strokeLinecap="round"
+                                  strokeLinejoin="round"/>
                         </svg>
             }
 
@@ -608,26 +612,27 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
                 ))}
             </div>
 
-            <BlockTitle text={seg.plannedTitle} count={seg.planned.length} accent={seg.accent}/>
+            <BlockTitle text={seg.investTitle} count={seg.investProjects.length} accent={seg.accent}/>
             <div style={{
-                display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
+                display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
             }}>
-                {seg.planned.map((u) => <PlannedUnitCard key={u.name} unit={u} accent={seg.accent}/>)}
-
+                {seg.investProjects.length
+                    ? seg.investProjects.map((p) => <InvestProjectCard key={p.id} p={p} accent={seg.accent}/>)
+                    : <InvestEmpty/>}
             </div>
         </div>
 
         {/* Katakcha kichik bo'lganda to'liq ko'rish uchun */}
-        <button
-            onClick={onOpen}
-            style={{
-                marginTop: cq(3, 0.8, 8), flexShrink: 0, cursor: 'pointer', fontFamily: 'inherit',
-                background: `${seg.accent}1f`, border: `1px solid ${seg.accent}4d`,
-                borderRadius: cq(4, 1.1, 9), padding: `${cq(3, 0.7, 7)} ${cq(4, 1.1, 10)}`,
-                color: seg.accent, fontSize: cq(5, 1.3, 11), fontWeight: 700, whiteSpace: 'nowrap',
-            }}
-        >Batafsil ko'rish →
-        </button>
+        {/*<button*/}
+        {/*    onClick={onOpen}*/}
+        {/*    style={{*/}
+        {/*        marginTop: cq(3, 0.8, 8), flexShrink: 0, cursor: 'pointer', fontFamily: 'inherit',*/}
+        {/*        background: `${seg.accent}1f`, border: `1px solid ${seg.accent}4d`,*/}
+        {/*        borderRadius: cq(4, 1.1, 9), padding: `${cq(3, 0.7, 7)} ${cq(4, 1.1, 10)}`,*/}
+        {/*        color: seg.accent, fontSize: cq(5, 1.3, 11), fontWeight: 700, whiteSpace: 'nowrap',*/}
+        {/*    }}*/}
+        {/*>Batafsil ko'rish →*/}
+        {/*</button>*/}
     </section>
 );
 
@@ -705,9 +710,11 @@ const SegmentModal: React.FC<{ seg: Segment; onClose: () => void }> = ({seg, onC
                     {seg.active.map((u) => <ActiveUnitCard key={u.name} unit={u} accent={seg.accent}
                                                            segKey={seg.key}/>)}
                 </div>
-                <BlockTitle text={seg.plannedTitle} count={seg.planned.length} accent={seg.accent}/>
-                <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 10}}>
-                    {seg.planned.map((u) => <PlannedUnitCard key={u.name} unit={u} accent={seg.accent}/>)}
+                <BlockTitle text={seg.investTitle} count={seg.investProjects.length} accent={seg.accent}/>
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10}}>
+                    {seg.investProjects.length
+                        ? seg.investProjects.map((p) => <InvestProjectCard key={p.id} p={p} accent={seg.accent}/>)
+                        : <InvestEmpty/>}
                 </div>
             </div>
         </div>

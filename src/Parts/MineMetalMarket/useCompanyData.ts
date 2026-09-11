@@ -6,6 +6,7 @@ import {
     ChainStep, KpiItem, MonthValue, SalesRow, ElectricityRow,
 } from '../../services/production';
 import { getFinanceDashboard } from '../../services/finance';
+import { getInvestProjectsList } from '../../services/map';
 import { ActiveUnit, Segment, TopKpi } from './data';
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -101,6 +102,12 @@ export const useCompanyData = () => {
         ...opts,
     });
     const finance = useQuery({ queryKey: ['finance-dashboard'], queryFn: getFinanceDashboard, ...opts });
+
+    /* Investitsiya loyihalari — MINE/METALL/MARKET bo'yicha alohida ro'yxat
+       (GET /invest-projects?type=). API'ning o'z nomlashi bo'yicha "metall". */
+    const investMine = useQuery({ queryKey: ['invest-projects', 'mine'], queryFn: () => getInvestProjectsList('mine'), ...opts });
+    const investMetall = useQuery({ queryKey: ['invest-projects', 'metall'], queryFn: () => getInvestProjectsList('metall'), ...opts });
+    const investMarket = useQuery({ queryKey: ['invest-projects', 'market'], queryFn: () => getInvestProjectsList('market'), ...opts });
 
     return useMemo(() => {
         /* ── Yordamchilar ── */
@@ -261,10 +268,8 @@ export const useCompanyData = () => {
                 ],
                 activeTitle: "FAOLIYATDA BO'LGAN OBYEKTLAR",
                 active: mineActive,
-                plannedTitle: "QURILAYOTGAN / LOYIHA BOSQICHIDAGI OBYEKTLAR",
-                /* Hujjat, 9-bo'lim: investitsiya loyihalari reestri uchun
-                   endpoint hali yo'q. */
-                planned: [],
+                investTitle: "INVESTITSIYA LOYIHALARI",
+                investProjects: investMine.data ?? [],
             },
             {
                 key: 'metal', code: 'METAL',
@@ -281,8 +286,8 @@ export const useCompanyData = () => {
                 ],
                 activeTitle: "FAOLIYATDA BO'LGAN ZAVOD VA SEXLAR",
                 active: metalActive,
-                plannedTitle: "QURILAYOTGAN / LOYIHA BOSQICHIDAGI ZAVODLAR",
-                planned: [],
+                investTitle: "INVESTITSIYA LOYIHALARI",
+                investProjects: investMetall.data ?? [],
             },
             {
                 key: 'market', code: 'MARKET',
@@ -296,11 +301,14 @@ export const useCompanyData = () => {
                 ],
                 activeTitle: "SOTUV VA QOLDIQLAR",
                 active: marketActive,
-                plannedTitle: 'QURILAYOTGAN / LOYIHA BOSQICHIDAGI LOYIHALAR',
-                planned: [],
+                investTitle: 'INVESTITSIYA LOYIHALARI',
+                investProjects: investMarket.data ?? [],
             },
         ];
 
         return { topKpis, segments };
-    }, [chain.data, kpi.data, mobplan.data, sales.data, power.data, prod.data, finance.data]);
+    }, [
+        chain.data, kpi.data, mobplan.data, sales.data, power.data, prod.data, finance.data,
+        investMine.data, investMetall.data, investMarket.data,
+    ]);
 };

@@ -28,7 +28,7 @@ const leftItems: NavItem[] = [
     { id: 'production', icon: TbBuildingFactory2, label: ['MOLIYA'], url: "/main/finance-new" },
     { id: 'finance', icon: TbChartBar, label: ['INVESTITSIYALAR'], url: "/main/investing" },
     { id: 'transport', icon: TbTruck, label: ['TRANSPORT'], url: "/main/logistics" },
-    { id: 'rasxod', icon: TbSitemap, label: ['XARAJAT'], url: "/main/9" },
+    { id: 'rasxod', icon: TbSitemap, label: ['XARAJAT'], url: "/main/single-treasury" },
 ];
 
 const rightItems: NavItem[] = [
