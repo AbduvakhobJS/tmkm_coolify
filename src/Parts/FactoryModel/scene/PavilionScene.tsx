@@ -4,6 +4,7 @@ import * as THREE from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { MACHINE_MARKERS, ORBIT_DAMPING, PAVILION_GROUND_RADIUS } from "../constants";
 import type { MachineMarker } from "../types";
+import { useFurnaceTelemetry } from "../hooks/useFurnaceTelemetry";
 import FpsControls from "./FpsControls";
 import MachineMarkerMesh from "./MachineMarkerMesh";
 import PavilionCameraRig from "./PavilionCameraRig";
@@ -24,6 +25,10 @@ interface PavilionSceneProps {
 const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMachine }) => {
     const controlsRef = useRef<OrbitControlsImpl | null>(null);
     const modelRef = useRef<THREE.Group | null>(null);
+
+    // Only polls ThingsBoard while this scene is actually mounted (i.e. the
+    // pavilion modal is open) — see useFurnaceTelemetry.
+    const furnaces = useFurnaceTelemetry(true);
 
     // The info panel only appears once the camera has actually landed on the
     // machine — kept separate from `activeMachine` (the fly-to target) so the
@@ -62,7 +67,7 @@ const PavilionScene: React.FC<PavilionSceneProps> = ({ activeMachine, onSelectMa
                 <meshStandardMaterial color="#0b1420" roughness={0.92} metalness={0.06} />
             </mesh>
 
-            <PavilionModelMesh onReady={(g) => (modelRef.current = g)} />
+            <PavilionModelMesh onReady={(g) => (modelRef.current = g)} furnaces={furnaces} />
 
             {/* ── Machine number buttons ──────────────────────────────────────── */}
             {MACHINE_MARKERS.map((machine) => (

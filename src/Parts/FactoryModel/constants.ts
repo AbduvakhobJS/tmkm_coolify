@@ -211,7 +211,7 @@ const MARKER_HEIGHT = 0.6;
 
 export const BUILDING_MARKERS: BuildingMarker[] = [
     { id: "bld-01", building: "Production",   cameraName: "Shourm tashkil etish",    position: [6.5, MARKER_HEIGHT, -0.5], streamIndex: 0, type: "into" },
-    { id: "bld-01", building: "Production",   cameraName: "Situatsion markaz",    position: [6.1, MARKER_HEIGHT, 0.5], streamIndex: 0, type: "into" },
+    { id: "bld-01b", building: "Production",   cameraName: "Situatsion markaz",    position: [6.1, MARKER_HEIGHT, 0.5], streamIndex: 0, type: "into" },
     { id: "bld-02", building: "Electrolysis Plant",  cameraName: "Ma'muriy bino",    position: [6, MARKER_HEIGHT, 1.5], streamIndex: 1, type: "into" },
     { id: "bld-03", building: "Production",    cameraName: "Kutubxona",    position: [7,  MARKER_HEIGHT, -1.5], streamIndex: 2, type: "into" },
     { id: "bld-04", building: "Power Substation",    cameraName: "O‘tkazish nazorat punkti",      position: [7,  MARKER_HEIGHT, 4], streamIndex: 2, type: "into" },

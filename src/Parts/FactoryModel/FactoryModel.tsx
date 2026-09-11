@@ -30,7 +30,15 @@ import "./factoryModel.css";
 // main bundle; it only loads when this route is visited.
 const FactoryScene = lazy(() => import("./scene/FactoryScene"));
 
-const FactoryModel: React.FC = () => {
+interface FactoryModelProps {
+    /**
+     * Render as a block that fills its parent instead of a fixed, full-screen
+     * layer. Used when the scene is embedded inside another panel/modal.
+     */
+    embedded?: boolean;
+}
+
+const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
     const { time, date } = useClock();
     const { streams } = useCameraStreams();
     const [selected, setSelected] = useState<BuildingMarker | null>(null);
@@ -96,7 +104,7 @@ const FactoryModel: React.FC = () => {
     }, [selected, streams]);
 
     return (
-        <div className="fm-root">
+        <div className={`fm-root${embedded ? " fm-root--embedded" : ""}`}>
             {panelsOn && <SidePanel side="left" />}
             {panelsOn && <SidePanel side="right" />}
 

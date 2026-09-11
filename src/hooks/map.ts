@@ -1,5 +1,5 @@
 import {useQuery} from "@tanstack/react-query";
-import {getTypeObject, getFactoryMarkers, getFactoryDetail, FactoryMarkerParams} from "../services/map";
+import {getTypeObject, getFactoryMarkers, getFactoryDetail, getMapObjects, getGeologyProjectDetail, getInvestProjectDetail, FactoryMarkerParams} from "../services/map";
 
 export const useGetTypeObjectAll = () => {
     return useQuery({
@@ -34,6 +34,47 @@ export const useGetFactoryDetail = (id: number | string | null | undefined, lang
         queryFn: () => getFactoryDetail(id as number | string, lang),
         enabled: id !== null && id !== undefined,
         retry: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+    });
+}
+
+// Xaritadagi barcha obyektlar — factory, geology, invest — bittа so'rovda
+// (GET /map/objects, `items[].type` bo'yicha ajratiladi). Filtrlash (toifa,
+// active/inactive) frontendda.
+export const useGetMapObjects = (lang: string = "uz") => {
+    return useQuery({
+        queryKey: ["map-objects", lang],
+        queryFn: () => getMapObjects(lang),
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        refetchOnMount: false,
+    });
+}
+
+// Geologiya loyihasining to'liq "pasport" kartochkasi (GET /geology-projects/:id).
+export const useGetGeologyProjectDetail = (id: number | string | null | undefined, lang: string = "uz") => {
+    return useQuery({
+        queryKey: ["geology-project-detail", id, lang],
+        queryFn: () => getGeologyProjectDetail(id as number | string, lang),
+        enabled: id !== null && id !== undefined && id !== '',
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+    });
+}
+
+// Investitsiya loyihasining to'liq "pasport" kartochkasi (GET /invest-projects/:id).
+export const useGetInvestProjectDetail = (id: number | string | null | undefined, lang: string = "uz") => {
+    return useQuery({
+        queryKey: ["invest-project-detail", id, lang],
+        queryFn: () => getInvestProjectDetail(id as number | string, lang),
+        enabled: id !== null && id !== undefined && id !== '',
+        retry: false,
+        staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
     });

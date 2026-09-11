@@ -758,6 +758,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
+
 }
 
 .top-center-tabs {
@@ -766,7 +767,7 @@ body {
   left: 18px;
   display: flex;
   gap: 4px;
-  z-index: 9999999999999999;
+  z-index: 99;
   opacity: 0.6;
 }
 

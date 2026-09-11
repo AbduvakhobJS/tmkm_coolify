@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import {
@@ -44,6 +44,49 @@ const enableShadows = (model: THREE.Object3D) => {
     });
 };
 
+interface NormalizedFactory {
+    model: THREE.Object3D;
+    scale: number;
+    offset: THREE.Vector3;
+}
+
+/**
+ * This component only ever mounts once per session (it's the always-on main
+ * scene), so caching mainly guards against dev-time HMR remounts — but the
+ * pattern mirrors PavilionModelMesh's, where the same clone + Box3.setFromObject
+ * + shadow-traversal sequence WAS the cause of a multi-second freeze on every
+ * remount, since useGLTF's cached `scene` reference is stable and this work
+ * doesn't need to repeat against it.
+ */
+const normalizedCache = new WeakMap<THREE.Object3D, NormalizedFactory>();
+
+const buildNormalizedFactory = (scene: THREE.Object3D): NormalizedFactory => {
+    const cached = normalizedCache.get(scene);
+    if (cached) return cached;
+
+    const model = scene.clone(true);
+    const box = new THREE.Box3().setFromObject(model);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+    box.getSize(size);
+    box.getCenter(center);
+
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    const scale = MODEL_TARGET_SIZE / maxDim;
+    // Centre horizontally, and drop the model so its base rests on y = 0.
+    const offset = new THREE.Vector3(
+        -center.x * scale,
+        -box.min.y * scale + MODEL_GROUND_OFFSET,
+        -center.z * scale
+    );
+
+    enableShadows(model);
+
+    const result: NormalizedFactory = { model, scale, offset };
+    normalizedCache.set(scene, result);
+    return result;
+};
+
 /**
  * Loads factory_model.glb and Daraxtlar.glb (trees), then centres the
  * factory model on the origin and uniformly scales it so its largest
@@ -56,36 +99,15 @@ const FactoryModelMesh: React.FC<FactoryModelMeshProps> = ({ onReady }) => {
     const { scene } = useGLTF(MODEL_URL, DRACO_DECODER_PATH);
     const { scene: treesScene } = useGLTF(TREES_MODEL_URL, DRACO_DECODER_PATH);
 
-    // Clone so the cached GLTF is never mutated (safe across remounts / HMR).
-    const model = useMemo(() => scene.clone(true), [scene]);
-    const treesModel = useMemo(() => treesScene.clone(true), [treesScene]);
-
-    // Compute the normalising transform once per model instance.
-    const { scale, offset } = useMemo(() => {
-        const box = new THREE.Box3().setFromObject(model);
-        const size = new THREE.Vector3();
-        const center = new THREE.Vector3();
-        box.getSize(size);
-        box.getCenter(center);
-
-        const maxDim = Math.max(size.x, size.y, size.z) || 1;
-        const s = MODEL_TARGET_SIZE / maxDim;
-
-        // Centre horizontally, and drop the model so its base rests on y = 0.
-        return {
-            scale: s,
-            offset: new THREE.Vector3(
-                -center.x * s,
-                -box.min.y * s + MODEL_GROUND_OFFSET,
-                -center.z * s
-            ),
-        };
-    }, [model]);
-
-    useLayoutEffect(() => {
-        enableShadows(model);
-        enableShadows(treesModel);
-    }, [model, treesModel]);
+    const { model, scale, offset } = useMemo(() => buildNormalizedFactory(scene), [scene]);
+    const treesModel = useMemo(() => {
+        const cached = normalizedCache.get(treesScene);
+        if (cached) return cached.model;
+        const clone = treesScene.clone(true);
+        enableShadows(clone);
+        normalizedCache.set(treesScene, { model: clone, scale: 1, offset: new THREE.Vector3() });
+        return clone;
+    }, [treesScene]);
 
     return (
         <group

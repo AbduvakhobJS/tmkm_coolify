@@ -18,6 +18,20 @@
     color: #e6f3f8;
 }
 
+/* Embedded variant: fills the parent cell instead of covering the viewport.
+   Overlay modals inside keep their own `position: fixed` so they still cover
+   the whole screen when opened. */
+.fm-root--embedded {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 39vh;
+    flex: 1 1 auto;
+    align-self: flex-start;
+    border: 1px solid rgba(var(--fm-cyan), 0.28);
+    border-radius: 14px;
+}
+
 .fm-root *, .fm-root *::before, .fm-root *::after {
     box-sizing: inherit;
 }
@@ -217,7 +231,8 @@
     border-radius: 50%;
     border: 3px solid rgba(var(--fm-cyan), 0.18);
     border-top-color: rgb(var(--fm-cyan));
-    animation: fm-spin 0.9s linear infinite;
+    /* Half-turn swing instead of a full 360° spin — 2x less rotation, same duration. */
+    animation: fm-spin 0.9s ease-in-out infinite alternate;
 }
 
 .fm-loader__bar {
@@ -243,8 +258,11 @@
 }
 
 @keyframes fm-spin {
+    from {
+        transform: rotate(0deg);
+    }
     to {
-        transform: rotate(360deg);
+        transform: rotate(180deg);
     }
 }
 

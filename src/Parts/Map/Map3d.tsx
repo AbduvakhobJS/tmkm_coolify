@@ -6,65 +6,37 @@ import { OrbitControls, useGLTF, Environment, ContactShadows, Html } from '@reac
 import * as THREE from 'three';
 import { io, Socket } from 'socket.io-client';
 import { uzbekistanBorder, loadUzbekistanBorder } from '../../components/uzbekistanBorder';
-import ProjectDashboard from '../../components/ProjectDashboard';
-import WebRTCPlayer from '../../components/WebRTCPlayer';
-import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "../../hooks/map";
+import {useGetMapObjects, useGetGeologyProjectDetail, useGetInvestProjectDetail} from "../../hooks/map";
+import type { MapItem, MapLinkRef, MapFactoryDetail, MapGeologyDetail, MapInvestDetail } from "../../services/map";
 import { GC, alpha } from '../../theme/palette';
 import { DRACO_DECODER_PATH } from '../FactoryModel/constants';
+import FactoryModel from "../FactoryModel/FactoryModel";
 
 
 
-// Zavod modallari uchun 3D model yo'llari — har bir zavod uchun real model ma'lumoti
-// bo'lmagani sababli, modal ochilganda shu ro'yxatdan tasodifiy biri tanlanadi.
-const factoryModels = [
-    // '/models/factory.glb',
-    '/models/factory2.glb',
-    '/models/factory3.glb'
-];
-
-// Factory API "coords" maydoni amalda turlicha kelishi mumkin:
-// - JSON-string ko'rinishidagi massiv: '["66.729483","40.278469"]' (=> [lng, lat])
-// - to'g'ridan-to'g'ri massiv: [66.729483, 40.278469] (=> [lng, lat])
-// - "lat,lng" vergul bilan ajratilgan string (docs'da yozilgan format)
-// maplibre esa har doim [lng, lat] tartibini kutadi.
-const parseFactoryCoords = (coords: any): [number, number] | null => {
-    if (!coords) return null;
-
-    let value: any = coords;
-    if (typeof value === 'string') {
-        try {
-            value = JSON.parse(value);
-        } catch {
-            // JSON emas — pastdagi vergul bilan ajratish logikasi ishlaydi
-        }
-    }
-
-    if (Array.isArray(value) && value.length === 2) {
-        const lng = Number(value[0]);
-        const lat = Number(value[1]);
-        return isNaN(lng) || isNaN(lat) ? null : [lng, lat];
-    }
-
-    if (typeof value === 'string') {
-        const parts = value.split(',').map((p: string) => parseFloat(p.trim()));
-        if (parts.length === 2 && !parts.some((n: number) => isNaN(n))) {
-            return [parts[1], parts[0]];
-        }
-    }
-
-    return null;
+// GET /map/objects `items[].type` diskriminatoriga ko'ra marker rangi —
+// uchalasi ham ko'k oilasidan, bir-biridan farqlanishi uchun ochiq/to'q
+// darajasi boshqacha. `geology` — avvalgi marker rangi (GC.marker) saqlanadi.
+const SOURCE_COLORS: Record<string, string> = {
+    geology: GC.marker,
+    factory: '#5391ca',
+    invest: '#4C9EF8',
 };
 
-const CATEGORY_TOIFA: Record<string, string> = {
-    factory: 'toifa-1',
-    mine: 'toifa-2',
-    'mine-cart': 'toifa-3',
+const SOURCE_LABELS: Record<string, string> = {
+    geology: 'Geologiya',
+    factory: 'Sanoat',
+    invest: 'Investitsiya',
 };
 
-const CATEGORY_ICON: Record<string, string> = {
-    factory: '/icons/factory3.png',
-    mine: '/icons/factory3.png',
-    'mine-cart': '/icons/factory3.png',
+// `factory` uchun aniqlangan #00213F to'q rang xarita foniga deyarli qo'shilib
+// ketadi — panel/tugma/matn kabi UI elementlarida shu rang o'rniga ochroq
+// (lekin bir xil ko'k oiladagi) variant ishlatiladi, faqat legibility uchun.
+// Xarita markeri/klaster to'ldirishi hamon aniq SOURCE_COLORS'dan oladi.
+const SOURCE_UI_ACCENT: Record<string, string> = {
+    geology: SOURCE_COLORS.geology,
+    factory: GC.accent2,
+    invest: SOURCE_COLORS.invest,
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -79,28 +51,38 @@ const IMPORTANCE_COLORS: Record<string, string> = {
     LOW: GC.slate,
 };
 
+// Pin ichidagi kichik ikonka — turga qarab (asset taxmin qilib ishlatilmaydi,
+// har doim to'g'ri ko'rinishi uchun inline SVG, rang pin chegarasiga mos).
+const getMarkerTypeIcon = (type: string, color: string): string => {
+    if (type === 'factory') {
+        return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21V10.5l4.5 3V10.5l4.5 3V10.5l4.5 3V21H3z" fill="${color}"/><rect x="3" y="19.5" width="16.5" height="1.6" fill="${color}"/></svg>`;
+    }
+    if (type === 'invest') {
+        return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 17l5-5 4 4 8-9" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h5v5" stroke="${color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    }
+    // geology (standart)
+    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 20L9 8l3.5 5.5L14.5 11 21.5 20H2.5z" fill="${color}"/></svg>`;
+};
+
+// Marker teg (title) matnini qisqartiradi — uzunroq nomlar bitta so'zgacha,
+// ancha uzun bo'lsa "..." bilan kesiladi.
+const formatMarkerText = (text = "", count: number) => {
+    if (!text) return "";
+    const value = text.trim();
+    if (value.length > count) return value.slice(0, count) + "...";
+    const firstSpaceIndex = value.indexOf(" ");
+    return firstSpaceIndex === -1 ? value : value.slice(0, firstSpaceIndex);
+};
+
 // Markerlarni "declutter" (ustma-ustlikni yashirish) uchun piksellardagi radiuslar.
 // Ikki marker markazi orasidagi ekran masofasi (r1 + r2) dan kichik bo'lsa —
 // ustuvorroq (avval kelgan) marker ko'rinib qoladi, ikkinchisi yashiriladi.
 // Kartani yaqinlashtirsangiz masofa oshadi => ko'proq marker ochiladi,
 // uzoqlashtirsangiz => yaqinlari birlashib, bittasi qoladi. Cluster ikonkasi yo'q.
 // Qiymatlarni ko'paytirsangiz kamroq, kamaytirsangiz ko'proq marker ko'rinadi.
-const FACTORY_CLUSTER_R = 58;   // fabrika markeri katta (pin + sarlavha qutisi)
+// Fabrika/geologiya/investitsiya markerlari endi GL cluster qatlami orqali
+// chiziladi (declutter shart emas) — bu radius faqat mineral markerlar uchun qoladi.
 const MINERAL_CLUSTER_R = 12;   // mineral markeri kichik (14px shakl)
-
-// /factory/:id javobidagi "cameras" massivi elementidan WebRTC stream URL yasaydi.
-// Kamera obyektining aniq maydon nomlari docs'da berilmagan — shuning uchun bir nechta
-// mumkin bo'lgan maydon nomini sinab ko'ramiz (global /cameras endpointi bilan bir xil shakl deb taxmin qilinadi).
-const buildCameraStreamUrl = (cam: any): string | undefined => {
-    if (!cam) return undefined;
-    if (cam.streamUrl) return cam.streamUrl;
-    if (cam.stream_url) return cam.stream_url;
-    if (cam.url) return cam.url;
-    if (cam.webrtc_server && cam.stream_uuid) {
-        return `${cam.webrtc_server}/stream/${cam.stream_uuid}/channel/1/webrtc?uuid=${cam.stream_uuid}&channel=1`;
-    }
-    return undefined;
-};
 
 
 /* ── Baza xarita uslubidagi YASHIL/TEAL qatlamlarni ko'kka o'tkazish ─────
@@ -218,11 +200,13 @@ const MARKER_STYLES = `
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .marker-line {
         width: 3px;
         height: 80px;
-        background: ${GC.marker};
         margin-left: 0px;
         margin-top: -2px;
     }
@@ -235,7 +219,6 @@ const MARKER_STYLES = `
         min-width: 180px;
     }
     .marker-title-tag {
-        background: ${GC.marker};
         color: white;
         padding: 4px 12px;
         font-size: 16px;
@@ -247,12 +230,6 @@ const MARKER_STYLES = `
         justify-content: space-between;
         align-items: center;
     }
-    .marker-info-small {
-        font-size: 10px;
-        opacity: 0.8;
-        font-weight: normal;
-        margin-left: 10px;
-    }
     .marker-info-box {
         background: rgba(10, 10, 10, 0.85);
         color: white;
@@ -260,7 +237,7 @@ const MARKER_STYLES = `
         margin-left: 5%;
         font-size: 13px;
         border-radius: 4px;
-        border-left: 4px solid ${GC.marker};
+        border-left: 4px solid;
         backdrop-filter: blur(4px);
         display: flex;
         justify-content: space-between;
@@ -271,34 +248,19 @@ const MARKER_STYLES = `
         color: ${GC.amber};
         margin-left: 10px;
     }
-
-    /* Toifalar ranglari — Metall (toifa-1), Kon (toifa-2), Market (toifa-3)
-       uchalasi ham bitta rangda: GC.marker. Matn har doim oq. */
-    .toifa-1 .marker-pin,
-    .toifa-2 .marker-pin,
-    .toifa-3 .marker-pin { border-color: ${GC.marker}; }
-
-    .toifa-1 .marker-line,
-    .toifa-2 .marker-line,
-    .toifa-3 .marker-line { background: ${GC.marker}; }
-
-    .toifa-1 .marker-title-tag,
-    .toifa-2 .marker-title-tag,
-    .toifa-3 .marker-title-tag { background: ${GC.marker}; color: ${GC.white}; }
-
-    .toifa-1 .marker-info-box,
-    .toifa-2 .marker-info-box,
-    .toifa-3 .marker-info-box { border-left-color: ${GC.marker}; }
-
-    .toifa-4 .marker-pin { border-color: ${GC.amber}; }
-    .toifa-4 .marker-line { background: ${GC.amber}; }
-    .toifa-4 .marker-title-tag { background: ${GC.amber}; }
-    .toifa-4 .marker-info-box { border-left-color: ${GC.amber}; }
-
-    .toifa-5 .marker-pin { border-color: ${GC.violet}; }
-    .toifa-5 .marker-line { background: ${GC.violet}; }
-    .toifa-5 .marker-title-tag { background: ${GC.violet}; }
-    .toifa-5 .marker-info-box { border-left-color: ${GC.violet}; }
+    .mineral-popup .maplibregl-popup-content {
+        background: rgba(2, 11, 24, 0.92);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 245, 255, 0.3);
+    }
+    .mineral-popup .maplibregl-popup-tip {
+        border-top-color: rgba(2, 11, 24, 0.92);
+        border-bottom-color: rgba(2, 11, 24, 0.92);
+    }
 `;
 
 // Mineral markers array (name, type, color, coords)
@@ -387,6 +349,1401 @@ export const FactoryViewer = ({
     );
 };
 
+/* ── Marker modallari uchun umumiy kichik qismlar ─────────────────────────
+   3 ta obyekt turi (factory/geology/invest) uchun 3 xil ko'rinishdagi modal
+   quyida alohida-alohida yozilgan; faqat qator/chip kabi eng kichik
+   qismlar shu yerda umumlashtirilgan. */
+const closeBtnStyle: React.CSSProperties = {
+    width: '32px', height: '32px', border: '1px solid rgba(255,255,255,0.35)',
+    background: 'rgba(255,255,255,0.12)', color: 'white', borderRadius: '8px',
+    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+};
+
+const InfoRow: React.FC<{ label: string; value?: React.ReactNode; valueColor?: string }> = ({ label, value, valueColor }) => {
+    if (value === undefined || value === null || value === '') return null;
+    return (
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+            <span style={{ color: GC.slate, fontSize: '13px', flexShrink: 0 }}>{label}:</span>
+            <span style={{ fontWeight: 600, fontSize: '13px', textAlign: 'right', color: valueColor || '#e0f0ff' }}>{value}</span>
+        </div>
+    );
+};
+
+// Uzun erkin matn maydonlari uchun (masalan geologiya rejasi, invest xavflari) —
+// InfoRow'ning qator (label: qiymat) shakli emas, label ustida, matn pastida.
+const TextBlock: React.FC<{ label: string; value?: string | null }> = ({ label, value }) => {
+    if (!value) return null;
+    return (
+        <div>
+            <div style={{ color: GC.slate, fontSize: '11px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
+            <div style={{ fontSize: '13px', color: '#e0f0ff', lineHeight: 1.5 }}>{value}</div>
+        </div>
+    );
+};
+
+const ElementChips: React.FC<{ elements?: string[] | null; accent: string }> = ({ elements, accent }) => {
+    if (!elements || elements.length === 0) return null;
+    return (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {elements.map((el, i) => (
+                <span key={i} style={{ fontSize: '12px', fontWeight: 600, color: accent, border: `1px solid ${accent}`, borderRadius: '4px', padding: '3px 10px' }}>{el}</span>
+            ))}
+        </div>
+    );
+};
+
+const Card: React.FC<{ title: string; titleColor: string; borderColor: string; children: React.ReactNode }> = ({ title, titleColor, borderColor, children }) => (
+    <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '14px', height: "100%",  borderRadius: '8px', border: `1px solid ${borderColor}` }}>
+        <div style={{ marginBottom: '10px', color: titleColor, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{children}</div>
+    </div>
+);
+
+// `paybackYears`/`irrShare`/`npvMlnUsd`/`annualOutputQty` kabi "ikki qavatli"
+// maydonlar uchun: son bo'lsa formatlanadi, bo'lmasa mos *Text ("ТИАда
+// аниқланади" kabi aniq izoh) ko'rsatiladi — bo'sh katak emas.
+const numOrText = (num: number | null | undefined, text: string | null | undefined, format?: (n: number) => string): string | undefined => {
+    if (num != null) return format ? format(num) : String(num);
+    if (text) return text;
+    return undefined;
+};
+
+// `coordsSource === 'linked'` bo'lganda ko'rsatiladigan shaffoflik ogohlantirishi —
+// MAP_API'ga ko'ra bu "ochiq belgilanishi shart": nuqta zavoddan meros
+// qilingan, ya'ni taxminiy joylashuv.
+const LinkedCoordsNotice: React.FC<{ linkedFrom?: string | null }> = ({ linkedFrom }) => (
+    <div style={{
+        display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px',
+        color: GC.amber, background: alpha(GC.amber, 0.1), border: `1px solid ${alpha(GC.amber, 0.3)}`,
+        borderRadius: '4px', padding: '5px 9px', marginTop: '6px',
+    }}>
+        <span>⚠</span>
+        <span>Taxminiy joylashuv{linkedFrom ? ` — ${linkedFrom} dan meros qilingan` : ''}</span>
+    </div>
+);
+
+const LINK_TYPE_LABEL: Record<string, string> = { factory: 'Sanoat', geology: 'Geologiya', invest: 'Investitsiya' };
+
+// Obyektga bog'langan boshqa elementlar (ikki tomonlama havolalar, `links[]`).
+const LinkedItemsCard: React.FC<{ links?: MapLinkRef[]; accent: string }> = ({ links, accent }) => {
+    if (!links || links.length === 0) return null;
+    return (
+        <Card title="Bog'langan loyihalar" titleColor={accent} borderColor={alpha(accent, 0.2)}>
+            {links.map((l, i) => (
+                <div key={`${l.type}-${l.id}-${i}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: '12px', color: '#e0f0ff' }}>
+                        <span style={{ color: SOURCE_UI_ACCENT[l.type] || GC.slate, fontWeight: 700 }}>{LINK_TYPE_LABEL[l.type] || l.type}: </span>
+                        {l.name || l.id}
+                    </span>
+                    <span style={{ fontSize: '10px', color: l.confidence === 'exact' ? GC.accent1 : GC.slate, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                        {l.confidence === 'exact' ? 'aniq' : 'taxminiy'}
+                    </span>
+                </div>
+            ))}
+        </Card>
+    );
+};
+
+/* ── FACTORY modali — geology/invest bilan bir xil to'liq ekran ("dashboard")
+   ko'rinishi. `/map/objects`dagi haqiqiy maydonlar (nom, hudud, obyekt turi,
+   bajarilish %, muhimlik) bor joyda ishlatiladi, qolgani hozircha demo —
+   shu sabab 2/3/4-kartalar sariq ramkali. Pastdagi "Sexlar ro'yxati"dan
+   birortasini bossa ustiga yana bir (sex tafsiloti) modal ochiladi. ── */
+const FACTORY_STATUS_LABEL: Record<string, string> = {
+    REGISTRATION: "Ro'yxatdan o'tgan",
+    CONSTRUCTION: 'Qurilmoqda',
+    STARTED: 'Ishlab turibdi',
+};
+
+const DEMO_FACTORY_KPI: { label: string; value: string; unit?: string; delta?: string }[] = [
+    { label: 'Qabul qilingan ruda', value: '4 820', unit: 't/kun', delta: '+2.4%' },
+    { label: 'Qayta ishlangan ruda', value: '4 360', unit: 't/kun', delta: '+1.8%' },
+    { label: 'Volfram kontsentrati', value: '286', unit: 't', delta: '+3.1%' },
+    { label: 'Ajratib olish', value: '87.6', unit: '%', delta: '+0.6%' },
+    { label: 'OPEX', value: '124', unit: 'ming $/kun', delta: '-4.1%' },
+    { label: '1 tonna tannarx', value: '28.4', unit: '$', delta: '-3.6%' },
+    { label: "Energiya sig'imi", value: '214', unit: 'kWh/t', delta: '-2.5%' },
+    { label: 'Suv sarfi', value: '1.86', unit: 'm³/t', delta: '+1.9%' },
+];
+
+const DEMO_ORE_MONTHLY = [120, 128, 132, 140, 145, 150, 158, 162, 168, 172, 178, 182];
+const DEMO_CONC_MONTHLY = [78, 82, 85, 90, 93, 96, 100, 103, 107, 110, 113, 116];
+const DEMO_WEEK_DAYS = ['28.08', '29.08', '30.08', '31.08', '01.09', '02.09', '03.09'];
+const DEMO_WEEK_ORE = [4700, 4750, 4800, 4820, 4790, 4810, 4820];
+const DEMO_WEEK_CONC = [280, 282, 284, 286, 283, 285, 286];
+
+const DEMO_OPEX_BREAKDOWN = [
+    { label: 'Energiya', pct: 42, color: GC.accent1 },
+    { label: 'Reagentlar', pct: 26, color: GC.amber },
+    { label: 'Ish haqi', pct: 14, color: GC.violet },
+    { label: 'Servis', pct: 11, color: GC.accent3 },
+    { label: 'Boshqa', pct: 7, color: GC.slate },
+];
+
+const DEMO_SECTION_PLAN_FACT = [
+    { name: 'Maydalash', plan: 1200, fact: 1140, pct: 95 },
+    { name: 'Tegirmon', plan: 1100, fact: 1015, pct: 92 },
+    { name: 'Flotatsiya', plan: 780, fact: 725, pct: 93 },
+    { name: 'Filtrlash', plan: 420, fact: 398, pct: 95 },
+    { name: 'Qadoqlash', plan: 300, fact: 282, pct: 94 },
+];
+
+const DEMO_FACTORY_CAMERAS = [
+    { code: 'KAM-01', label: 'Kirish darvozasi' },
+    { code: 'KAM-02', label: 'Flotatsiya sexi' },
+    { code: 'KAM-03', label: 'Tayyor mahsulot ombori' },
+    { code: 'KAM-04', label: 'Umumiy hudud' },
+];
+
+const DEMO_FACTORY_STAFF_STATS: { label: string; value: string; warn?: boolean }[] = [
+    { label: 'Maydondagi xodimlar', value: '146' },
+    { label: 'Bugun kirganlar', value: '392' },
+    { label: 'Bugun chiqqanlar', value: '374' },
+    { label: 'Faol propusklar', value: '158' },
+    { label: 'Xavfli zonadagi xodimlar', value: '4', warn: true },
+    { label: 'Pudratchilar', value: '12' },
+];
+
+const DEMO_FACTORY_STAFF_COMPOSITION = [
+    { label: 'Ishlab chiqarish', pct: 52, color: GC.accent1 },
+    { label: 'Texnik xizmat', pct: 18, color: GC.amber },
+    { label: "Ma'muriy", pct: 12, color: GC.violet },
+    { label: 'Xavfsizlik', pct: 8, color: GC.red },
+    { label: 'Boshqa', pct: 10, color: GC.slate },
+];
+
+const DEMO_FACTORY_ENTRY = [370, 380, 375, 390, 385, 392, 392];
+const DEMO_FACTORY_EXIT = [355, 365, 360, 372, 368, 374, 374];
+
+const DEMO_FACTORY_SKUD_EVENTS = [
+    { time: '14:24', staff: 'M. Karimov', event: 'Kirish (RFID)' },
+    { time: '14:18', staff: 'S. Tursunov', event: 'Chiqish (RFID)' },
+    { time: '14:12', staff: 'A. Qudratov', event: 'Kirish (QR)' },
+    { time: '14:05', staff: 'N. Saidova', event: 'Kirish (RFID)' },
+    { time: '13:57', staff: 'D. Xolikov', event: 'Chiqish (RFID)' },
+];
+
+const DEMO_FACTORY_AI_EVENTS: { time: string; text: string; status: string; level: keyof typeof AI_LEVEL_COLOR }[] = [
+    { time: '14:20', text: 'PPE qoidasi buzilishi', status: "Ko'rib chiqilmoqda", level: 'warn' },
+    { time: '13:48', text: 'Ruxsatsiz zona kirish', status: 'Aniqlangan', level: 'warn' },
+    { time: '12:16', text: "Texnika to'xtashi", status: 'Bartaraf etildi', level: 'ok' },
+    { time: '10:52', text: 'Tutun aniqlangan', status: "Yolg'on signal", level: 'muted' },
+];
+
+const DEMO_SEX_LIST = Array.from({ length: 12 }).map((_, i) => ({ id: `sex-${i + 1}`, label: `Sex-${i + 1}` }));
+
+const IconFactorySmall = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 21V10.5l4.5 3V10.5l4.5 3V10.5l4.5 3V21H3z" fill="currentColor" />
+        <rect x="3" y="19.5" width="16.5" height="1.6" fill="currentColor" />
+    </svg>
+);
+const IconPersonSmall = () => (
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M4 21c0-4 3.5-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+);
+
+/* ── Sex (ichki bo'lim) tafsiloti — factory modali ustiga ochiladigan
+   ikkinchi qatlam modal, 4 ga bo'lingan: chap-tepa ma'lumotlar, o'ng-tepa
+   ko'rsatkichlar, chap-past rasmi, o'ng-past kameralar. To'liq demo. ── */
+const SexDetailModal: React.FC<{ sexLabel: string; onClose: () => void }> = ({ sexLabel, onClose }) => {
+    const titleColor = GC.accent2;
+    return (
+        <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 900000001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{
+                width: '92vw', maxWidth: '980px', maxHeight: '88vh', background: '#020B18',
+                border: `1px solid ${alpha(GC.amber, 0.45)}`, borderRadius: '12px', overflow: 'hidden',
+                display: 'flex', flexDirection: 'column', color: '#e0f0ff', boxShadow: '0 0 50px rgba(0,0,0,0.6)',
+            }}>
+                <div style={{ padding: '16px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${alpha(titleColor, 0.3)}`, background: `linear-gradient(90deg, ${alpha(titleColor, 0.25)}, #020B18)` }}>
+                    <div>
+                        <div style={{ fontSize: '10px', letterSpacing: '2px', color: titleColor, fontWeight: 700 }}>SEX TAFSILOTI</div>
+                        <h3 style={{ margin: '2px 0 0', fontSize: '18px', fontWeight: 700, color: '#fff' }}>{sexLabel}</h3>
+                    </div>
+                    <button onClick={onClose} style={closeBtnStyle}>✕</button>
+                </div>
+                <div style={{ flex: 1, overflow: 'auto', padding: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: '14px', minHeight: 0 }}>
+                    <Card title="Ma'lumotlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                        <PassportRow label="Sex nomi" value={sexLabel} />
+                        <PassportRow label="Turi" value="Ishlab chiqarish bo'limi" />
+                        <PassportRow label="Ishga tushirilgan" value="2021" />
+                        <PassportRow label="Xodimlar soni" value="34" />
+                        <PassportRow label="Smena rejimi" value="3 smena, 24/7" />
+                        <PassportRow label="Mas'ul shaxs" value="—" />
+                        <PassportRow label="Holati" value="Ishlab turibdi" />
+                        <PassportRow label="Oxirgi TXH" value="15.02.2026" />
+                    </Card>
+                    <Card title="Ko'rsatkichlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            <KpiTile label="Ishlab chiqarish hajmi" value="410" unit="t/kun" delta="+1.8%" demo />
+                            <KpiTile label="Unumdorlik" value="92.4" unit="%" delta="+0.4%" demo />
+                            <KpiTile label="Energiya sarfi" value="38" unit="kWh/t" delta="-1.2%" demo />
+                            <KpiTile label="Nosozliklar" value="1" demo />
+                        </div>
+                    </Card>
+                    <ImageFillCard title="Sex rasmi" accent={titleColor} src={`/imgs/factory/${sexLabel.toLowerCase()}.jpg`} icon={<Icon3DCube />} />
+                    <div style={{ minHeight: 0 }}>
+                        <SubPanel title="Kameralar" minWidth={200} demo>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
+                                {DEMO_FACTORY_CAMERAS.map((c, i) => (
+                                    <div key={i} style={{ position: 'relative', height: '58px', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
+                                            <IconCamSmall />
+                                        </div>
+                                        <span style={{ position: 'absolute', top: 3, left: 4, fontSize: '7.5px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </SubPanel>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> = ({ object, onClose }) => {
+    const titleColor = GC.accent2; // #00213F juda to'q — UI uchun ochroq ko'k ishlatiladi
+    const detail = (object.detail || {}) as MapFactoryDetail;
+    const [selectedSex, setSelectedSex] = React.useState<string | null>(null);
+
+    const projectCode = pickField(detail, ['projectCode', 'code']) || `OPR-${detail.factoryId ?? object.id}`;
+    const statusLabel = object.status ? (FACTORY_STATUS_LABEL[object.status] || object.status) : null;
+    const isImportant = detail.importance === 'HIGH' || !!detail.importanceRaw;
+    const lastUpdatedText = React.useMemo(() => new Date().toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }), []);
+
+    return (
+        <div style={{
+            position: 'fixed', top: FULLSCREEN_TOP_OFFSET, left: 0, right: 0, bottom: 0, zIndex: 900000000,
+            background: '#020B18', display: 'flex', flexDirection: 'column', color: '#e0f0ff', overflow: 'hidden',
+            borderTop: `1px solid ${alpha(titleColor, 0.4)}`,
+        }}>
+            {/* Breadcrumb */}
+            <div style={{ padding: '7px 24px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'rgba(255,255,255,0.45)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <IconHomeSmall />
+                <span>TMK</span>
+                <span>›</span>
+                <span>Interaktiv xarita</span>
+                <span>›</span>
+                <span style={{ color: 'rgba(255,255,255,0.75)' }}>Obyekt tafsiloti</span>
+            </div>
+
+            {/* Header */}
+            <div style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(titleColor, 0.3)}`, background: `linear-gradient(90deg, ${alpha(titleColor, 0.25)}, #020B18)`, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ width: 38, height: 38, borderRadius: 9, background: alpha(titleColor, 0.18), border: `1px solid ${alpha(titleColor, 0.5)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: titleColor, flexShrink: 0 }}>
+                        <IconFactorySmall />
+                    </div>
+                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#fff' }}>{object.name || detail.enterpriseName || 'Zavod'}</h2>
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', padding: '3px 8px', borderRadius: '5px', whiteSpace: 'nowrap' }}>{projectCode}</span>
+                    {statusLabel && <StatusPill color={GC.green} text={statusLabel} />}
+                    <StatusPill color={GC.accent1} text="Onlayn monitoring" />
+                    {isImportant && <StatusPill color={GC.amber} text="Muhim obyekt" />}
+                    {object.coordsSource === 'linked' && <LinkedCoordsNotice linkedFrom={object.linkedFrom} />}
+                </div>
+                <button onClick={onClose} style={closeBtnStyle}>✕</button>
+            </div>
+            <div style={{ padding: '4px 24px 0', textAlign: 'right', fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>
+                Oxirgi yangilanish: {lastUpdatedText}
+            </div>
+
+            {/* Body */}
+            <div style={{ flex: 1, overflow: 'auto', padding: '12px 24px 20px', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: 0 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto auto', gap: '14px' }}>
+                    {/* 1. Obyekt pasporti */}
+                    <div style={{ gridColumn: '1', gridRow: '1' }}>
+                        <Card title="1. Obyekt pasporti" titleColor="#ffffff" borderColor={alpha(titleColor, 0.3)}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
+                                <div>
+                                    <PassportRow label="Obyekt nomi" value={object.name} />
+                                    <PassportRow label="Obyekt turi" value={detail.objectType} />
+                                    <PassportRow label="Joylashuv" value={object.region} />
+                                    <PassportRow label="Ishga tushirilgan yil" value={pickField(detail, ['startYear', 'launchYear']) || '2021'} />
+                                    <PassportRow label="Loyiha quvvati" value={pickField(detail, ['capacity']) || '1,6 mln t/yil ruda'} />
+                                    <PassportRow label="Joriy yuklama" value={pickField(detail, ['currentLoad']) || '92%'} />
+                                    <PassportRow label="Asosiy mahsulot" value={pickField(detail, ['mainProduct']) || (object.elements?.length ? object.elements.join(', ') : 'Volfram kontsentrati')} />
+                                    <PassportRow label="Qo'shimcha mahsulot" value={pickField(detail, ['byProduct']) || 'Molibden aralash mahsuloti'} />
+                                    <PassportRow label="Boshqaruvchi bo'linma" value={detail.enterpriseName || 'Boyitish direksiyasi'} />
+                                    <PassportRow label="Smena rejimi" value={pickField(detail, ['shiftMode']) || '3 smena, 24/7'} />
+                                </div>
+                                <div>
+                                    <PassportRow label="Jami xodimlar" value={pickField(detail, ['totalStaff']) || '428'} />
+                                    <PassportRow label="Hozir smenada" value={pickField(detail, ['onShiftStaff']) || '146'} />
+                                    <PassportRow label="Asosiy uskunalar" value={pickField(detail, ['equipment']) || 'maydalagichlar, tegirmonlar, flotatsiya bloklari, nasoslar, filtrlash uskunalari'} />
+                                    <PassportRow label="Elektr talabi" value={pickField(detail, ['powerDemand']) || '18,4 MW'} />
+                                    <PassportRow label="Suv talabi" value={pickField(detail, ['waterDemand']) || '520 m³/soat'} />
+                                    <PassportRow label="Ombor zaxirasi" value={pickField(detail, ['stockDays']) || '18 kun'} />
+                                    <PassportRow label="Xavf toifasi" value={pickField(detail, ['hazardClass']) || "O'rta"} />
+                                    <PassportRow label="Aloqa holati" value="Barqaror" />
+                                    <PassportRow label="Obyekt rahbari" value={pickField(detail, ['manager']) || 'B. Raximov'} />
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* 2. Ishlab chiqarish va sarf-xarajatlar holati */}
+                    <div style={{ gridColumn: '2', gridRow: '1' }}>
+                        <Card title="2. Ishlab chiqarish va sarf-xarajatlar holati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                                {DEMO_FACTORY_KPI.map((t, i) => <KpiTile key={i} {...t} demo />)}
+                                <KpiTile label="Reja bajarilishi" value={detail.workPercent != null ? String(detail.workPercent) : '94.8'} unit="%" delta="+2.2%" demo={detail.workPercent == null} />
+                                <KpiTile label="Ochiq nosozliklar" value="3" demo />
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                <SubPanel title="Oylar kesimida ishlab chiqarish dinamikasi" minWidth={170} demo>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '58px' }}>
+                                        {DEMO_ORE_MONTHLY.map((v, i) => {
+                                            const max = Math.max(...DEMO_ORE_MONTHLY) * 1.1;
+                                            const cmax = Math.max(...DEMO_CONC_MONTHLY) * 1.1;
+                                            return (
+                                                <div key={i} style={{ flex: 1, display: 'flex', gap: '1px', alignItems: 'flex-end', height: '100%' }}>
+                                                    <div style={{ flex: 1, height: `${(v / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
+                                                    <div style={{ flex: 1, height: `${(DEMO_CONC_MONTHLY[i] / cmax) * 100}%`, background: GC.green, borderRadius: '2px 2px 0 0' }} />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '3px', marginTop: '4px' }}>
+                                        {DEMO_MONTHS.map((m, i) => <div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{m}</div>)}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Ruda</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.green} />Konsentrat</span>
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="So'nggi 7 kunlik ishlab chiqarish" minWidth={170} demo>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '58px' }}>
+                                        {DEMO_WEEK_ORE.map((v, i) => {
+                                            const max = Math.max(...DEMO_WEEK_ORE) * 1.1;
+                                            const cmax = Math.max(...DEMO_WEEK_CONC) * 1.1;
+                                            return (
+                                                <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
+                                                    <div style={{ flex: 1, height: `${(v / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
+                                                    <div style={{ flex: 1, height: `${(DEMO_WEEK_CONC[i] / cmax) * 100}%`, background: GC.green, borderRadius: '2px 2px 0 0' }} />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                                        {DEMO_WEEK_DAYS.map((d, i) => <div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{d}</div>)}
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="Xarajatlar tarkibi (OPEX)" minWidth={170} demo>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <DonutChart segments={DEMO_OPEX_BREAKDOWN} centerValue="$124" centerLabel="ming/kun" size={88} />
+                                        <DonutLegend segments={DEMO_OPEX_BREAKDOWN} />
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="Reja va fakt (uchastkalar kesimida)" minWidth={210} demo>
+                                    <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px' }}>
+                                        <span style={{ flex: 1 }}>Uchastka</span>
+                                        <span style={{ width: '40px', textAlign: 'right' }}>Reja</span>
+                                        <span style={{ width: '40px', textAlign: 'right' }}>Fakt</span>
+                                        <span style={{ width: '34px', textAlign: 'right' }}>%</span>
+                                    </div>
+                                    {DEMO_SECTION_PLAN_FACT.map((s, i) => (
+                                        <div key={i} style={{ display: 'flex', fontSize: '10px', alignItems: 'center', padding: '2px 0' }}>
+                                            <span style={{ flex: 1, color: '#dfe9f5' }}>{s.name}</span>
+                                            <span style={{ width: '40px', textAlign: 'right', color: GC.slate }}>{s.plan}</span>
+                                            <span style={{ width: '40px', textAlign: 'right', color: '#fff' }}>{s.fact}</span>
+                                            <span style={{ width: '34px', textAlign: 'right', color: s.pct >= 94 ? GC.green : GC.amber, fontWeight: 700 }}>{s.pct}%</span>
+                                        </div>
+                                    ))}
+                                </SubPanel>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* 3. Obyekt 3D modeli */}
+                    <div style={{ gridColumn: '1', gridRow: '2', display: 'flex', alignItems: 'flex-start', minWidth: 0 }}>
+                        {/*<ImageFillCard title="3. Obyekt 3D modeli" accent={GC.amber} src={`/imgs/factory/${object.id}.jpg`} icon={<Icon3DCube />} />*/}
+                        <FactoryModel embedded />
+                    </div>
+
+                    {/* 4. Video, xodimlar va SKUD */}
+                    <div style={{ gridColumn: '2', gridRow: '2', minHeight: 0 }}>
+                        <Card title="4. Video, xodimlar va SKUD" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                                <SubPanel title="Onlayn kameralar" minWidth={230} demo>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                                        {DEMO_FACTORY_CAMERAS.map((c, i) => (
+                                            <div key={i} style={{ position: 'relative', height: '58px', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
+                                                    <IconCamSmall />
+                                                </div>
+                                                <span style={{ position: 'absolute', top: 3, left: 4, fontSize: '7px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="Asosiy ko'rsatkichlar" minWidth={160} demo>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        {DEMO_FACTORY_STAFF_STATS.map((s, i) => (
+                                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
+                                                <span style={{ color: GC.slate }}>{s.label}</span>
+                                                <span style={{ color: s.warn ? GC.red : '#fff', fontWeight: 700 }}>{s.value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </SubPanel>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                                <SubPanel title="Xodimlar tarkibi (bo'limlar kesimida)" minWidth={180} demo>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <DonutChart segments={DEMO_FACTORY_STAFF_COMPOSITION} centerValue={String(pickField(detail, ['totalStaff']) || '428')} centerLabel="jami" size={82} />
+                                        <DonutLegend segments={DEMO_FACTORY_STAFF_COMPOSITION} />
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="Kirish/chiqish dinamikasi (so'nggi 7 kun)" minWidth={180} demo>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '50px' }}>
+                                        {DEMO_WEEK_DAYS.map((d, i) => {
+                                            const max = Math.max(...DEMO_FACTORY_ENTRY, ...DEMO_FACTORY_EXIT) * 1.1;
+                                            return (
+                                                <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
+                                                    <div style={{ flex: 1, height: `${(DEMO_FACTORY_ENTRY[i] / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
+                                                    <div style={{ flex: 1, height: `${(DEMO_FACTORY_EXIT[i] / max) * 100}%`, background: GC.accent3, borderRadius: '2px 2px 0 0' }} />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Kirish</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Chiqish</span>
+                                    </div>
+                                </SubPanel>
+                                <div style={{ flex: '1 1 150px', minWidth: '150px', position: 'relative', borderRadius: '8px', overflow: 'hidden', border: `1px solid ${alpha(GC.red, 0.35)}`, background: '#04101f', minHeight: '110px' }}>
+                                    <div style={{ position: 'absolute', top: 6, left: 8, zIndex: 2, fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase' }}>namuna</div>
+                                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: alpha(GC.red, 0.5) }}>
+                                        <IconPersonSmall />
+                                    </div>
+                                    <span style={{ position: 'absolute', top: 6, right: 6, fontSize: '9px', fontWeight: 700, color: '#fff', background: GC.red, borderRadius: '4px', padding: '2px 6px' }}>AI</span>
+                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(2,11,24,0.85)', padding: '5px 8px' }}>
+                                        <div style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>PPE qoidasi buzilishi</div>
+                                        <div style={{ fontSize: '8px', color: GC.slate }}>Flotatsiya sexi</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                <SubPanel title="So'nggi SKUD hodisalari" minWidth={220} demo>
+                                    {DEMO_FACTORY_SKUD_EVENTS.map((e, i) => (
+                                        <div key={i} style={{ display: 'flex', fontSize: '9.5px', padding: '3px 0', borderBottom: i < DEMO_FACTORY_SKUD_EVENTS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', gap: '6px' }}>
+                                            <span style={{ color: GC.slate, width: '32px', flexShrink: 0 }}>{e.time}</span>
+                                            <span style={{ flex: 1, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.staff}</span>
+                                            <span style={{ color: e.event.startsWith('Kirish') ? GC.green : GC.amber, fontWeight: 600, flexShrink: 0 }}>{e.event}</span>
+                                        </div>
+                                    ))}
+                                </SubPanel>
+                                <SubPanel title="AI video hodisalari" minWidth={200} demo>
+                                    {DEMO_FACTORY_AI_EVENTS.map((e, i) => (
+                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9.5px', padding: '3px 0' }}>
+                                            <StatusDot color={AI_LEVEL_COLOR[e.level]} />
+                                            <span style={{ color: GC.slate, width: '30px', flexShrink: 0 }}>{e.time}</span>
+                                            <span style={{ color: '#dfe9f5', flex: 1 }}>{e.text}</span>
+                                            <span style={{ color: GC.slate, fontSize: '8.5px', flexShrink: 0 }}>{e.status}</span>
+                                        </div>
+                                    ))}
+                                </SubPanel>
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+
+                {/* Sexlar ro'yxati */}
+                <Card title="Sexlar ro'yxati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {DEMO_SEX_LIST.map((s) => (
+                            <button
+                                key={s.id}
+                                onClick={() => setSelectedSex(s.label)}
+                                style={{
+                                    width: '86px', height: '58px', borderRadius: '6px',
+                                    background: 'rgba(3,13,34,0.7)', border: `1px solid ${alpha(titleColor, 0.35)}`,
+                                    color: '#dfe9f5', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.borderColor = titleColor; }}
+                                onMouseOut={(e) => { e.currentTarget.style.borderColor = alpha(titleColor, 0.35); }}
+                            >
+                                {s.label}
+                            </button>
+                        ))}
+                    </div>
+                </Card>
+            </div>
+
+            {selectedSex && (
+                <SexDetailModal sexLabel={selectedSex} onClose={() => setSelectedSex(null)} />
+            )}
+        </div>
+    );
+};
+
+/* ── GEOLOGY modali — to'liq ekran ("dashboard" ko'rinishi), faqat tepada
+   ilova navbari ko'rinib turadi (FULLSCREEN_TOP_OFFSET). 5 ta karta:
+   Loyiha Pasporti / Asosiy ko'rsatkichlar / Geologik ma'lumotlar /
+   Loyiha 3D modeli / Geologik model. `/map/objects`dagi qisqa `detail` bilan
+   darhol chiziladi, so'ng `GET /geology-projects/:id` orqali to'liq
+   "pasport" ma'lumoti kelganda ustiga qo'shiladi (javob shakli hali to'liq
+   hujjatlashtirilmagan — shuning uchun moslashuvchan o'qiladi). ── */
+const FULLSCREEN_TOP_OFFSET = 100; // px — NavbarOverlay balandligiga mos (NavbarOverlay.css)
+
+// Backend'dan turli nom bilan kelishi mumkin bo'lgan maydonni birinchi topilgani bo'yicha o'qiydi.
+const pickField = (obj: any, keys: string[]): any => {
+    if (!obj) return undefined;
+    for (const k of keys) {
+        if (obj[k] !== undefined && obj[k] !== null && obj[k] !== '') return obj[k];
+    }
+    return undefined;
+};
+
+const PassportRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <span style={{ color: GC.slate, fontSize: '14px', flexShrink: 0 }}>{label}</span>
+        <span style={{ color: '#e7f1ff', fontSize: '14px', fontWeight: 600, textAlign: 'right' }}>{value ?? '—'}</span>
+    </div>
+);
+
+const StatTile: React.FC<{ label: string; value: React.ReactNode; accent: string }> = ({ label, value, accent }) => (
+    <div style={{ background: 'rgba(3,13,34,0.7)', border: `1px solid ${alpha(accent, 0.25)}`, borderRadius: '8px', padding: '10px 14px', minWidth: '120px', flex: '1 1 120px' }}>
+        <div style={{ fontSize: '10px', color: GC.slate, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
+        <div style={{ fontSize: '18px', fontWeight: 700, color: accent, marginTop: '4px' }}>{value}</div>
+    </div>
+);
+
+const Icon3DCube = () => (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2l8 4.6v10.8L12 22l-8-4.6V6.6L12 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M4 6.6L12 11l8-4.4M12 11v11" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+    </svg>
+);
+
+const IconStrata = () => (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6h18M3 11h18M3 16h18M3 21h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M3 6l18 0M6 3v3M18 3v3" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
+    </svg>
+);
+
+// Karta ichini to'liq qoplaydigan rasm — hali rasm bo'lmasa (404) chiroyli
+// ikonkali placeholder ko'rsatadi, siniq-rasm belgisi chiqmaydi.
+const ImageFillCard: React.FC<{ title: string; accent: string; src: string; icon: React.ReactNode }> = ({ title, accent, src, icon }) => {
+    const [errored, setErrored] = React.useState(false);
+    return (
+        <div style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', border: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(145deg, ${alpha(accent, 0.12)}, #04101f)`, minHeight: '200px', height: '100%' }}>
+            <div style={{ position: 'absolute', top: 10, left: 12, zIndex: 2, fontSize: 11, fontWeight: 700, letterSpacing: 1, color: '#ffffff', textTransform: 'uppercase', textShadow: '0 1px 6px rgba(0,0,0,0.85)' }}>{title}</div>
+            {!errored ? (
+                <img src={src} alt={title} onError={() => setErrored(true)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', color: alpha(accent, 0.7) }}>
+                    {icon}
+                    <span style={{ fontSize: '11px', color: GC.slate }}>Rasm hali yuklanmagan</span>
+                </div>
+            )}
+        </div>
+    );
+};
+
+/* ── "2. Asosiy ko'rsatkichlar" va "3. Geologik ma'lumotlar" uchun demo
+   (namuna) ko'rsatkichlar — bunday darajadagi tafsilot hozircha API'da yo'q,
+   shu sababli joylashuvni ko'rsatish uchun statik namuna bilan shakllantirilgan. ── */
+const DEMO_MONTHS = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn', 'Iyl', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'];
+const DEMO_DRILLING = [18, 22, 25, 24, 29, 33, 36, 40, 43, 47, 45, 48];
+const DEMO_SAMPLES = [90, 115, 140, 150, 168, 188, 205, 222, 238, 252, 262, 270];
+
+const DEMO_KPI_TILES: { label: string; value: string; unit?: string; delta?: string }[] = [
+    { label: 'Uchastka maydoni', value: '245.6', unit: 'km²', delta: '+12%' },
+    { label: 'Prognoz zaxira', value: '520', unit: 'mln t', delta: '+8%' },
+    { label: "Cu (o'rtacha)", value: '0.42', unit: '%', delta: '+5%' },
+    { label: "Mo (o'rtacha)", value: '0.018', unit: '%', delta: '+6%' },
+    { label: "Burg'ulash", value: '48.2', unit: 'ming m', delta: '+14%' },
+    { label: 'Namunalar', value: '1 260', unit: 'ta', delta: '+11%' },
+    { label: 'Tahlil natijalari', value: '892', unit: 'ta', delta: '+9%' },
+    { label: 'Qamrov', value: '68', unit: '%', delta: '+7%' },
+];
+
+const DEMO_JORC = [
+    { label: 'Measured (M)', pct: 22, color: GC.accent1 },
+    { label: 'Indicated (I)', pct: 41, color: GC.accent2 },
+    { label: 'Inferred (Inf)', pct: 28, color: GC.violet },
+    { label: 'Potential (P)', pct: 9, color: GC.slate },
+];
+
+const DEMO_PROGRESS_SEGMENTS = [
+    { label: 'Geologiya', pct: 70, color: GC.accent1 },
+    { label: "Burg'ulash", pct: 62, color: GC.amber },
+    { label: 'Tahlil', pct: 65, color: GC.violet },
+    { label: 'Hisobot', pct: 45, color: GC.accent3 },
+];
+const DEMO_PROGRESS_OVERALL = 68;
+
+const DEMO_MINERAL_COMPOSITION = [
+    { label: 'Mis (Cu)', pct: 62, color: GC.accent1 },
+    { label: 'Molibden (Mo)', pct: 18, color: GC.amber },
+    { label: 'Oltin (Au)', pct: 8, color: '#E0C070' },
+    { label: 'Kumush (Ag)', pct: 6, color: '#C7CDD6' },
+    { label: 'Boshqalar', pct: 6, color: GC.slate },
+];
+
+const DEMO_GEOLOGIC_LAYERS = [
+    { label: 'Qoplama qatlam', range: '5 – 50', pct: 12, color: GC.accent2 },
+    { label: 'Oksidlanish zonasi', range: '50 – 200', pct: 18, color: GC.amber },
+    { label: 'Sulfid zonasi', range: '200 – 600', pct: 35, color: GC.violet },
+    { label: 'Ruda zonasi', range: '600 – 1000', pct: 25, color: GC.red },
+    { label: 'Meta-sedimentlar', range: '1000 – 1200', pct: 10, color: GC.slate },
+];
+
+const DEMO_ANALYSIS_RESULTS: { element: string; value: string; unit: string; norm: string; trend: 'up' | 'down' | 'flat' }[] = [
+    { element: 'Cu', value: '0.38', unit: '%', norm: '≥ 0.3', trend: 'up' },
+    { element: 'Mo', value: '0.015', unit: '%', norm: '≥ 0.010', trend: 'up' },
+    { element: 'Au', value: '0.28', unit: 'g/t', norm: '≥ 0.1', trend: 'up' },
+    { element: 'Ag', value: '1.2', unit: 'g/t', norm: '≥ 1.0', trend: 'down' },
+    { element: 'Zn', value: '0.05', unit: '%', norm: '< 0.2', trend: 'flat' },
+    { element: 'Pb', value: '0.03', unit: '%', norm: '< 0.1', trend: 'down' },
+];
+
+// `demo` — bu sub-panel hali haqiqiy API maydoniga ega bo'lmagan, faqat
+// joylashuvni ko'rsatish uchun namuna ma'lumot bilan chizilgan bo'lsa true.
+// Shunda ramka sariq bo'ladi va burchakda kichik "namuna" belgisi chiqadi —
+// foydalanuvchi qaysi widget hali demo ekanini bir qarashda ko'radi.
+const SubPanel: React.FC<{ title: string; children: React.ReactNode; minWidth?: number; demo?: boolean }> = ({ title, children, minWidth = 170, demo }) => (
+    <div style={{ flex: `1 1 ${minWidth}px`, minWidth, background: 'rgba(3,13,34,0.55)', border: `1px solid ${demo ? alpha(GC.amber, 0.45) : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', padding: '10px 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '8px' }}>
+            <div style={{ fontSize: '10px', fontWeight: 700, color: '#dfe9f5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
+            {demo && <span style={{ fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>namuna</span>}
+        </div>
+        {children}
+    </div>
+);
+
+const TrendArrow: React.FC<{ trend: 'up' | 'down' | 'flat' }> = ({ trend }) => {
+    if (trend === 'up') return <span style={{ color: GC.green }}>▲</span>;
+    if (trend === 'down') return <span style={{ color: GC.red }}>▼</span>;
+    return <span style={{ color: GC.slate }}>—</span>;
+};
+
+const KpiTile: React.FC<{ label: string; value: string; unit?: string; delta?: string; demo?: boolean }> = ({ label, value, unit, delta, demo }) => {
+    const isDown = !!delta && delta.trim().startsWith('-');
+    return (
+        <div style={{ background: 'rgba(3,13,34,0.7)', border: `1px solid ${demo ? alpha(GC.amber, 0.45) : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', padding: '10px 12px', flex: '1 1 108px', minWidth: '108px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                <div style={{ fontSize: '9.5px', color: GC.slate, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+                {demo && <span style={{ fontSize: '7px', fontWeight: 700, color: GC.amber, flexShrink: 0 }}>namuna</span>}
+            </div>
+            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff', marginTop: '4px' }}>
+                {value}{unit && <span style={{ fontSize: '10px', color: GC.slate, fontWeight: 500, marginLeft: '3px' }}>{unit}</span>}
+            </div>
+            {delta && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '4px', fontSize: '10px', color: isDown ? GC.red : GC.green, fontWeight: 700 }}>
+                    {isDown ? (
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 20L5 12h5V4h4v8h5l-7 8z" fill="currentColor" /></svg>
+                    ) : (
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 4l7 8h-5v8h-4v-8H5l7-8z" fill="currentColor" /></svg>
+                    )}
+                    {delta}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string }> = ({ data, labels, color }) => {
+    const max = Math.max(...data) * 1.15;
+    return (
+        <div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '64px' }}>
+                {data.map((v, i) => (
+                    <div key={i} title={`${labels[i]}: ${v}`} style={{ flex: 1, height: `${Math.max((v / max) * 100, 3)}%`, background: i === data.length - 1 ? color : alpha(color, 0.55), borderRadius: '2px 2px 0 0' }} />
+                ))}
+            </div>
+            <div style={{ display: 'flex', gap: '3px', marginTop: '4px' }}>
+                {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
+            </div>
+        </div>
+    );
+};
+
+const CategoryBarRow: React.FC<{ label: string; pct: number; color: string }> = ({ label, pct, color }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10px', marginBottom: '6px' }}>
+        <span style={{ width: '76px', color: '#dfe9f5', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+        <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '3px' }} />
+        </div>
+        <span style={{ width: '30px', textAlign: 'right', color: '#fff', fontWeight: 700, flexShrink: 0 }}>{pct}%</span>
+    </div>
+);
+
+const DonutChart: React.FC<{ segments: { label: string; pct: number; color: string }[]; centerValue: string; centerLabel?: string; size?: number }> = ({ segments, centerValue, centerLabel, size = 104 }) => {
+    const r = size / 2 - 12;
+    const c = size / 2;
+    const circumference = 2 * Math.PI * r;
+    let acc = 0;
+    return (
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            {segments.map((s, i) => {
+                const len = (s.pct / 100) * circumference;
+                const dashoffset = -acc;
+                acc += len;
+                return (
+                    <circle key={i} cx={c} cy={c} r={r} fill="none" stroke={s.color} strokeWidth={13}
+                        strokeDasharray={`${len} ${circumference - len}`} strokeDashoffset={dashoffset}
+                        transform={`rotate(-90 ${c} ${c})`} />
+                );
+            })}
+            <text x={c} y={c - 1} textAnchor="middle" fontSize={size * 0.17} fontWeight={700} fill="#fff">{centerValue}</text>
+            {centerLabel && <text x={c} y={c + 15} textAnchor="middle" fontSize={size * 0.09} fill={GC.slate}>{centerLabel}</text>}
+        </svg>
+    );
+};
+
+const DonutLegend: React.FC<{ segments: { label: string; pct: number; color: string }[] }> = ({ segments }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {segments.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9.5px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: s.color, flexShrink: 0 }} />
+                <span style={{ color: '#dfe9f5', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
+                <span style={{ color: '#fff', fontWeight: 700 }}>{s.pct}%</span>
+            </div>
+        ))}
+    </div>
+);
+
+const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> = ({ object, onClose }) => {
+    const accent = SOURCE_COLORS.geology;
+    const staticDetail = (object.detail || {}) as MapGeologyDetail;
+    // `/map/objects` dagi `id` — "geology-3" ko'rinishida; /geology-projects/:id
+    // haqiqiy loyiha raqamini kutadi, shu sababli prefiks olib tashlanadi.
+    const rawId = staticDetail.projectNo ?? String(object.id).replace(/^geology-/, '');
+    const { data: fullDetailRaw, isLoading: detailLoading, isError: detailIsError } = useGetGeologyProjectDetail(rawId, 'uz');
+    // To'liq javob kelguncha ham modal darhol `/map/objects`dagi qisqa ma'lumot bilan to'ladi;
+    // to'liq javob kelgach ustiga qo'shiladi (mavjud maydonlar ustiga yoziladi).
+    const detail: any = { ...staticDetail, ...(fullDetailRaw || {}) };
+
+    const projectCode = pickField(detail, ['code', 'projectCode', 'licenseNumber']) || `GR-${detail.projectNo ?? object.id}`;
+
+    return (
+        <div style={{
+            position: 'fixed', top: FULLSCREEN_TOP_OFFSET, left: 0, right: 0, bottom: 0, zIndex: 90000000000,
+            background: '#020B18', display: 'flex', flexDirection: 'column', color: '#e0f0ff', overflow: 'hidden',
+            borderTop: `1px solid ${alpha(accent, 0.4)}`,
+        }}>
+            {/* Header */}
+           <div>
+               <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(90deg, ${alpha(accent, 0.28)}, #020B18)`, flexWrap: 'wrap' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+
+                       <img src="/icons/grricon.png" style={{width: 40, height: 40}} alt="."/>
+
+                       <div>
+                           <h2 style={{ margin: 0, fontSize: '19px', fontWeight: 700, color: '#fff' }}>{object.name || detail.fullName || 'Geologiya loyihasi'}</h2>
+                           <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>#{projectCode}{object.region ? ` · ${object.region}` : ''}</div>
+                       </div>
+                       {object.status && (
+                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: alpha(GC.green, 0.15), border: `1px solid ${alpha(GC.green, 0.4)}`, color: GC.green, whiteSpace: 'nowrap' }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
+                               {object.status}
+                        </span>
+                       )}
+                       {pickField(detail, ['importance', 'priority', 'significance']) && (
+                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: alpha(GC.amber, 0.15), border: `1px solid ${alpha(GC.amber, 0.4)}`, color: GC.amber, whiteSpace: 'nowrap' }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
+                               {pickField(detail, ['importance', 'priority', 'significance'])}
+                        </span>
+                       )}
+                       {object.coordsSource === 'linked' && <LinkedCoordsNotice linkedFrom={object.linkedFrom} />}
+                   </div>
+                   <button onClick={onClose} style={closeBtnStyle}>✕</button>
+               </div>
+
+               {/* Body — 1&3 chapda, 2 o'ngda-tepa, 4&5 o'ngda-pastda yonma-yon (dizayn maketiga mos) */}
+               <div style={{
+                   flex: 1, overflow: 'auto', padding: '16px 24px', display: 'grid',
+                   gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto 1fr', gap: '16px', minHeight: 0,
+               }}>
+                   {/* 1. Loyiha Pasporti */}
+                   <div style={{ gridColumn: '1', gridRow: '1' }}>
+                       <Card title="1. Loyiha Pasporti" titleColor="#ffffff" borderColor={alpha(accent, 0.3)}>
+                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0 20px' }}>
+                               <div>
+                                   <PassportRow label="Obyekt nomi" value={object.name || detail.fullName} />
+                                   <PassportRow label="Loyiha kodi" value={projectCode} />
+                                   <PassportRow label="Joylashuvi" value={object.region} />
+                                   <PassportRow label="Ma'muriy hudud" value={detail.district} />
+                                   <PassportRow label="Loyiha turi" value={detail.category} />
+                                   <PassportRow label="Foydali qazilma" value={detail.mineral || detail.metals} />
+                                   <PassportRow label="Loyiha bosqichi" value={detail.groupName} />
+                                   <PassportRow label="Litsenziya raqami" value={pickField(detail, ['licenseNumber', 'license_no', 'licenseNo'])} />
+                                   <PassportRow label="Litsenziya muddati" value={pickField(detail, ['licenseValidity', 'licenseTerm'])} />
+                               </div>
+                               <div>
+                                   <PassportRow label="Yo'nalish" value={detail.direction} />
+                                   <PassportRow label="Hamkor tashkilot" value={detail.partner} />
+                                   <PassportRow label="Moliyalashtirish" value={detail.funding} />
+                                   <PassportRow label="Umumiy qiymati" value={object.costMlnUsd != null ? `$${object.costMlnUsd} mln` : undefined} />
+                                   <PassportRow label="Tugash yili" value={detail.endYear} />
+                                   <PassportRow label="Mas'ul rahbar" value={pickField(detail, ['manager', 'responsiblePerson'])} />
+                                   <PassportRow label="Jamoa soni" value={pickField(detail, ['teamSize', 'staffCount'])} />
+                                   <PassportRow label="So'nggi yangilanish" value={pickField(detail, ['updatedAt', 'lastUpdated'])} />
+                                   <PassportRow label="Holati" value={object.status} />
+                               </div>
+                               <div>
+
+
+                                   <PassportRow label="Mineral" value={detail.mineral} />
+                                   <PassportRow label="Metallar" value={detail.metals} />
+                                   <PassportRow label="Ruda zaxirasi" value={detail.oreReserve} />
+                                   <PassportRow label="Metall zaxirasi" value={detail.metalReserve} />
+                                   <PassportRow label="2026-yil rejasi" value={detail.plan2026} />
+                                   <PassportRow label="Bajarildi" value={detail.done2026} />
+                                   <PassportRow label="Natija" value={detail.result} />
+                                   {/*<PassportRow label="Izoh" value={detail.note} /> */}
+                               </div>
+                           </div>
+                       </Card>
+                   </div>
+
+                   {/* 2. Asosiy ko'rsatkichlar */}
+                   <div style={{ gridColumn: '2', gridRow: '1' }}>
+                       <Card title="2. Asosiy ko'rsatkichlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                               {DEMO_KPI_TILES.map((t, i) => <KpiTile key={i} {...t} demo />)}
+                           </div>
+                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                               <SubPanel title="Burg'ulash hajmi (ming metr)" minWidth={150} demo>
+                                   <MiniBarChart data={DEMO_DRILLING} labels={DEMO_MONTHS} color={GC.accent1} />
+                               </SubPanel>
+                               <SubPanel title="Geologik namunalar soni" minWidth={150} demo>
+                                   <MiniBarChart data={DEMO_SAMPLES} labels={DEMO_MONTHS} color={GC.accent2} />
+                               </SubPanel>
+                               <SubPanel title="Resurslar toifasi (JORC)" minWidth={160} demo>
+                                   {DEMO_JORC.map((j, i) => <CategoryBarRow key={i} label={j.label} pct={j.pct} color={j.color} />)}
+                               </SubPanel>
+                               <SubPanel title="Loyiha bajarilish darajasi" minWidth={190} demo>
+                                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                       <DonutChart segments={DEMO_PROGRESS_SEGMENTS} centerValue={`${DEMO_PROGRESS_OVERALL}%`} size={92} />
+                                       <DonutLegend segments={DEMO_PROGRESS_SEGMENTS} />
+                                   </div>
+                               </SubPanel>
+                           </div>
+                           {detailLoading && <div style={{ fontSize: 11, color: GC.slate, marginTop: 10 }}>To'liq ma'lumot yuklanmoqda...</div>}
+                           {/*{detailIsError && <div style={{ fontSize: 11, color: GC.red, marginTop: 10 }}>To'liq pasport ma'lumoti olinmadi — mavjud qisqa ma'lumot ko'rsatilmoqda</div>}*/}
+                       </Card>
+                   </div>
+
+                   {/* 3. Geologik ma'lumotlar */}
+                   <div style={{ gridColumn: '1', gridRow: '2', minHeight: 0, overflow: 'auto' }}>
+                       <Card title="3. Geologik ma'lumotlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+                               <SubPanel title="Foydali qazilma tarkibi (prognoz)" minWidth={200} demo>
+                                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                       <DonutChart
+                                           segments={DEMO_MINERAL_COMPOSITION}
+                                           centerValue={detail.oreReserve ? String(detail.oreReserve).split(' ')[0] : (object.costMlnUsd != null ? String(object.costMlnUsd) : '520')}
+                                           centerLabel={detail.oreReserve ? undefined : 'mln t'}
+                                           size={160}
+                                       />
+                                       <DonutLegend segments={DEMO_MINERAL_COMPOSITION} />
+                                   </div>
+                               </SubPanel>
+                               <SubPanel title="Geologik qatlamlar" minWidth={220} demo>
+                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, marginBottom: '4px' }}>
+                                       <span style={{ flex: '0 0 84px' }} />
+                                       <span style={{ flex: 1 }}>Qalinlik (m)</span>
+                                       <span style={{ width: '30px', textAlign: 'right' }}>Ulushi</span>
+                                   </div>
+                                   {DEMO_GEOLOGIC_LAYERS.map((l, i) => (
+                                       <div key={i} style={{ marginBottom: '6px' }}>
+                                           <CategoryBarRow label={l.label} pct={l.pct} color={l.color} />
+                                           <div style={{ fontSize: '8.5px', color: GC.slate, marginLeft: '84px', marginTop: '-3px' }}>{l.range} m</div>
+                                       </div>
+                                   ))}
+                               </SubPanel>
+                               <SubPanel title="So'nggi tahlil natijalari" minWidth={190} demo>
+                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px' }}>
+                                       <span style={{ flex: 1 }}>Element</span>
+                                       <span style={{ width: '52px', textAlign: 'right' }}>Qiymat</span>
+                                       <span style={{ width: '52px', textAlign: 'right' }}>Me'yor</span>
+                                       <span style={{ width: '16px' }} />
+                                   </div>
+                                   {DEMO_ANALYSIS_RESULTS.map((r, i) => (
+                                       <div key={i} style={{ display: 'flex', fontSize: '10.5px', alignItems: 'center', padding: '2px 0' }}>
+                                           <span style={{ flex: 1, color: '#dfe9f5', fontWeight: 600 }}>{r.element}</span>
+                                           <span style={{ width: '52px', textAlign: 'right', color: '#fff' }}>{r.value}{r.unit}</span>
+                                           <span style={{ width: '52px', textAlign: 'right', color: GC.slate }}>{r.norm}</span>
+                                           <span style={{ width: '16px', textAlign: 'right' }}><TrendArrow trend={r.trend} /></span>
+                                       </div>
+                                   ))}
+                               </SubPanel>
+                           </div>
+
+                       </Card>
+                   </div>
+
+                   {/* 4 & 5. 3D / Geologik model — rasm butun kartani qoplaydi */}
+                   <div style={{ gridColumn: '2', gridRow: '2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', minHeight: '120px' }}>
+                       <ImageFillCard title="4. Loyiha 3D modeli" accent={accent} src={`/imgs/geology/${object.id}-3d.jpg`} icon={<Icon3DCube />} />
+                       <ImageFillCard title="5. Geologik model" accent={GC.violet} src={`/imgs/geology/${object.id}-geo.jpg`} icon={<IconStrata />} />
+                   </div>
+               </div>
+           </div>
+        </div>
+    );
+};
+
+/* ── 3) INVEST modali — chapda ochiq-ko'k statistik panel, o'ngda tafsilot —
+   "profil" ko'rinishidagi layout, boshqa ikkalasidan farqli. ── */
+/* ── INVEST modali uchun demo (namuna) ko'rsatkichlar — foydalanuvchi yuborgan
+   maketga 1:1 mos struktura, lekin ko'p sub-panel uchun hali API maydoni yo'q.
+   Shu sababli bunday joylar sariq ramka bilan aniq "namuna" deb belgilanadi;
+   haqiqiy maydon mavjud bo'lgan joylarda (byudjet, o'zlashtirilgan, bajarilish %,
+   ish o'rinlari va h.k.) haqiqiy qiymat ishlatiladi. ── */
+const DEMO_INVEST_WORK_PACKAGES = [
+    { label: 'Yer ishlari', pct: 100, color: GC.green },
+    { label: 'Beton ishlari', pct: 68, color: GC.green },
+    { label: 'Metallokonstruksiya', pct: 45, color: GC.accent1 },
+    { label: 'Texnologik uskunalar', pct: 32, color: GC.red },
+    { label: 'Elektr ishlari', pct: 28, color: GC.accent1 },
+    { label: 'Avtomatika', pct: 18, color: GC.accent1 },
+    { label: "Ichki yo'llar", pct: 55, color: GC.accent1 },
+    { label: 'Infratuzilma', pct: 40, color: GC.accent1 },
+];
+
+const DEMO_CAPEX_MONTHLY = [12, 18, 22, 20, 28, 32, 35, 38, 42, 45, 40, 44];
+
+const DEMO_CONTRACT_PACKAGES = [
+    { no: 1, name: 'Yer ishlari', fact: 48, status: 'ok' },
+    { no: 2, name: 'Asosiy bino (beton)', fact: 82, status: 'warn' },
+    { no: 3, name: 'Metallokonstruksiya', fact: 50, status: 'warn' },
+    { no: 4, name: 'Texnologik uskunalar', fact: 80, status: 'warn' },
+    { no: 5, name: 'Elektr va AVT', fact: 25, status: 'warn' },
+    { no: 6, name: 'Infratuzilma', fact: 32, status: 'ok' },
+    { no: 7, name: 'Boshqa xarajatlar', fact: 27, status: 'ok' },
+];
+
+const DEMO_SITE_PINS = [
+    { label: "Maydalash bo'limi", color: GC.accent1, x: 26, y: 28 },
+    { label: 'Flotatsiya sexi', color: GC.amber, x: 58, y: 20 },
+    { label: 'Bosh korpus', color: GC.accent1, x: 42, y: 46 },
+    { label: 'Reagent ombori', color: GC.green, x: 18, y: 54 },
+    { label: 'Qurilish lageri', color: GC.slate, x: 16, y: 78 },
+    { label: "Ma'muriy bino", color: GC.accent1, x: 38, y: 82 },
+    { label: "Temir yo'l tarmog'i", color: GC.slate, x: 66, y: 72 },
+    { label: 'Podstansiya', color: GC.accent1, x: 72, y: 44 },
+];
+
+const DEMO_SITE_LEGEND = [
+    { label: 'Asosiy binolar', color: GC.accent1 },
+    { label: 'Yordamchi inshootlar', color: GC.green },
+    { label: 'Qurilish jarayoni', color: GC.amber },
+    { label: 'Rejalashtirilgan', color: GC.slate },
+];
+
+const DEMO_CAMERAS = [
+    { code: 'KAM-01', label: 'Bosh korpus' },
+    { code: 'KAM-02', label: 'Flotatsiya sexi' },
+    { code: 'KAM-03', label: 'Ombor hududi' },
+    { code: 'KAM-04', label: "Umumiy ko'rinish" },
+];
+
+const DEMO_STAFF_STATS: { label: string; value: string; warn?: boolean }[] = [
+    { label: 'Maydondagi xodimlar', value: '318 / 520' },
+    { label: 'Pudratchilar', value: '7 ta' },
+    { label: 'Bugun kirganlar', value: '412 kishi' },
+    { label: 'Bugun chiqqanlar', value: '394 kishi' },
+    { label: 'Faol propusklar', value: '318 ta' },
+    { label: 'Xavfli zonadagi xodimlar', value: '2 kishi', warn: true },
+    { label: 'Texnika kirishlari', value: '56 ta' },
+];
+
+const DEMO_STAFF_COMPOSITION = [
+    { label: 'Enter Engineering', pct: 45, color: GC.accent1 },
+    { label: 'Chinese MCC', pct: 25, color: GC.red },
+    { label: "O'zbektroy", pct: 14, color: GC.amber },
+    { label: 'TMK (nazorat)', pct: 9, color: GC.green },
+    { label: 'Boshqalar', pct: 7, color: GC.slate },
+];
+
+const DEMO_ENTRY_EXIT_DAYS = ['28.08', '29.08', '30.08', '31.08', '01.09', '02.09', '03.09'];
+const DEMO_ENTRY = [380, 410, 395, 420, 405, 415, 412];
+const DEMO_EXIT = [360, 390, 380, 400, 388, 398, 394];
+
+const DEMO_SKUD_EVENTS = [
+    { time: '14:21', staff: 'A. Karimov', event: 'Kirish' },
+    { time: '13:56', staff: 'S. Liu', event: 'Chiqish' },
+    { time: '13:18', staff: 'B. Toshov', event: 'Kirish' },
+    { time: '12:15', staff: 'D. Chen', event: 'Kirish' },
+    { time: '12:04', staff: 'M. Qodirov', event: 'Chiqish' },
+];
+
+const AI_LEVEL_COLOR: Record<string, string> = { danger: GC.red, warn: GC.amber, muted: GC.slate, ok: GC.green };
+const DEMO_AI_EVENTS: { time: string; text: string; level: keyof typeof AI_LEVEL_COLOR }[] = [
+    { time: '14:21', text: 'PPE qoidasi buzilishi (2 kishi)', level: 'danger' },
+    { time: '13:56', text: "Og'ir texnika harakati", level: 'warn' },
+    { time: '12:40', text: 'Ruxsatsiz zonaga kirish', level: 'warn' },
+    { time: '11:22', text: 'Tutun aniqlandi (soxta signal)', level: 'muted' },
+    { time: '09:15', text: 'Xavfsizlik himoyasi mavjud', level: 'ok' },
+];
+
+// Haqiqiy QR generatori ulanmagan — faqat vizual "QR kodga o'xshash" namuna (5x5).
+const QR_DEMO_PATTERN = [
+    1, 1, 1, 0, 1,
+    1, 0, 1, 0, 0,
+    1, 1, 1, 0, 1,
+    0, 0, 0, 1, 0,
+    1, 0, 1, 0, 1,
+];
+
+const actionBtnStyle: React.CSSProperties = {
+    fontSize: '11px', fontWeight: 600, padding: '7px 12px', borderRadius: '6px',
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
+    color: '#dfe9f5', cursor: 'default', display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
+};
+
+const StatusDot: React.FC<{ color: string }> = ({ color }) => (
+    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
+);
+
+const StatusPill: React.FC<{ color: string; text: string }> = ({ color, text }) => (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: alpha(color, 0.15), border: `1px solid ${alpha(color, 0.4)}`, color, whiteSpace: 'nowrap' }}>
+        <StatusDot color="currentColor" />
+        {text}
+    </span>
+);
+
+const IconDiamond = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2l4.5 3.2-1.7 5.5H9.2L7.5 5.2 12 2z" fill="currentColor" opacity="0.9" />
+        <path d="M9.2 10.7L4 14.3 8.3 22h7.4l4.3-7.7-5.2-3.6H9.2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+);
+const IconHomeSmall = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-9z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>
+);
+const IconLayersSmall = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 5-9 5-9-5 9-5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M3 13l9 5 9-5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
+);
+const IconExpandSmall = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+);
+const IconPinSmall = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /><circle cx="12" cy="10" r="2.3" stroke="currentColor" strokeWidth="1.6" /></svg>
+);
+const IconRulerSmall = () => (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="8" width="19" height="8" rx="1.5" transform="rotate(-8 12 12)" stroke="currentColor" strokeWidth="1.4" /></svg>
+);
+const IconCamSmall = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="6" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M16.5 10.5l5-3v9l-5-3" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
+);
+
+// Passport kartasidagi kichik rasm + demo QR — hali rasm bo'lmasa (404) ikonkali fallback.
+const PassportPhotoQR: React.FC<{ src: string; accent: string; caption: string }> = ({ src, accent, caption }) => {
+    const [errored, setErrored] = React.useState(false);
+    return (
+        <div style={{ width: '150px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ position: 'relative', height: '105px', borderRadius: '8px', overflow: 'hidden', border: `1px solid ${alpha(accent, 0.25)}`, background: `linear-gradient(145deg, ${alpha(accent, 0.12)}, #04101f)` }}>
+                {!errored ? (
+                    <img src={src} alt="" onError={() => setErrored(true)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: alpha(accent, 0.6) }}>
+                        <Icon3DCube />
+                    </div>
+                )}
+            </div>
+            <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '9.5px', color: '#dfe9f5', fontWeight: 600 }}>{caption}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '2px', width: '64px', margin: '6px auto 0', padding: '6px', background: '#fff', borderRadius: '4px' }}>
+                    {QR_DEMO_PATTERN.map((on, i) => (
+                        <div key={i} style={{ aspectRatio: '1', background: on ? '#020B18' : '#fff' }} />
+                    ))}
+                </div>
+                <div style={{ fontSize: '8.5px', color: GC.slate, marginTop: '4px' }}>Skanerlash orqali to'liq ma'lumot</div>
+            </div>
+        </div>
+    );
+};
+
+const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> = ({ object, onClose }) => {
+    const accent = SOURCE_COLORS.invest;
+    const staticDetail = (object.detail || {}) as MapInvestDetail;
+    // `/map/objects` dagi `id` — "invest-ingichka" ko'rinishida; `/invest-projects/:id`
+    // `detail.key` (backend `invest_projects.key`) yoki xom id'ni kutishi mumkin.
+    const rawId = (staticDetail as any).key ?? String(object.id).replace(/^invest-/, '');
+    const { data: fullDetailRaw, isLoading: detailLoading, isError: detailIsError } = useGetInvestProjectDetail(rawId, 'uz');
+    const detail: any = { ...staticDetail, ...(fullDetailRaw || {}) };
+
+    const projectCode = pickField(detail, ['projectCode', 'code']) || detail.key || object.id;
+    const progressPct = typeof object.progress === 'number' ? Math.round(object.progress * 100) : null;
+    const remainingMlnUsd = (object.costMlnUsd != null && detail.disbursedMlnUsd != null) ? Math.max(object.costMlnUsd - detail.disbursedMlnUsd, 0) : null;
+    const budgetPctReal = (object.costMlnUsd != null && detail.disbursedMlnUsd != null && object.costMlnUsd > 0)
+        ? Math.round((detail.disbursedMlnUsd / object.costMlnUsd) * 100) : null;
+    const budgetPct = budgetPctReal ?? 42;
+    const budgetSegments = [
+        { label: "O'zlashtirilgan", pct: budgetPct, color: accent },
+        { label: 'Qolgan', pct: 100 - budgetPct, color: GC.slate },
+    ];
+    const lastUpdatedText = React.useMemo(() => new Date().toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }), []);
+
+    return (
+        <div style={{
+            position: 'fixed', top: FULLSCREEN_TOP_OFFSET, left: 0, right: 0, bottom: 0, zIndex: 900000000,
+            background: '#020B18', display: 'flex', flexDirection: 'column', color: '#e0f0ff', overflow: 'hidden',
+            borderTop: `1px solid ${alpha(accent, 0.4)}`,
+        }}>
+            {/* Breadcrumb */}
+            <div style={{ padding: '7px 24px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'rgba(255,255,255,0.45)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <IconHomeSmall />
+                <span>TMK</span>
+                <span>›</span>
+                <span>Interaktiv xarita</span>
+                <span>›</span>
+                <span style={{ color: 'rgba(255,255,255,0.75)' }}>Obyekt tafsiloti</span>
+            </div>
+
+            {/* Header */}
+            <div style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(90deg, ${alpha(accent, 0.25)}, #020B18)`, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ width: 38, height: 38, borderRadius: 9, background: alpha(accent, 0.18), border: `1px solid ${alpha(accent, 0.5)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: accent, flexShrink: 0 }}>
+                        <IconDiamond />
+                    </div>
+                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#fff' }}>{object.name || 'Investitsiya loyihasi'}</h2>
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', padding: '3px 8px', borderRadius: '5px', whiteSpace: 'nowrap' }}>{projectCode}</span>
+                    {object.status && <StatusPill color={GC.green} text={object.status} />}
+                    {detail.priority != null && <StatusPill color={GC.amber} text="Ustuvor investitsiya" />}
+                    {progressPct != null && <StatusPill color={GC.accent1} text={`Bajarilish: ${progressPct}%`} />}
+                    {object.coordsSource === 'linked' && <LinkedCoordsNotice linkedFrom={object.linkedFrom} />}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <button style={actionBtnStyle}>🛡 Ma'lumot</button>
+                    <button style={actionBtnStyle}>📄 Hisobot</button>
+                    <button style={actionBtnStyle}>🧊 3D ko'rish ▾</button>
+                    <button onClick={onClose} style={closeBtnStyle}>✕</button>
+                </div>
+            </div>
+            <div style={{ padding: '4px 24px 0', textAlign: 'right', fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>
+                Oxirgi yangilanish: {lastUpdatedText}
+            </div>
+
+            {/* Body — 2x2 karta */}
+            <div style={{
+                flex: 1, overflow: 'auto', padding: '12px 24px', display: 'grid',
+                gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto 1fr', gap: '14px', minHeight: 0,
+            }}>
+                {/* 1. Loyiha Pasporti */}
+                <div style={{ gridColumn: '1', gridRow: '1' }}>
+                    <Card title="1. Loyiha Pasporti" titleColor="#ffffff" borderColor={alpha(accent, 0.3)}>
+                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                            <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
+                                <div>
+                                    <PassportRow label="Loyiha nomi" value={object.name} />
+                                    <PassportRow label="Loyiha kodi" value={projectCode} />
+                                    <PassportRow label="Joylashuv" value={object.region} />
+                                    <PassportRow label="Obyekt turi" value={detail.objectKind} />
+                                    <PassportRow label="Buyurtmachi" value={pickField(detail, ['customer', 'buyurtmachi']) || detail.enterprise} />
+                                    <PassportRow label="Bosh pudratchi" value={pickField(detail, ['contractor', 'mainContractor'])} />
+                                    <PassportRow label="Loyiha quvvati" value={detail.capacity} />
+                                    <PassportRow label="Ishga tushgach xodimlar" value={detail.jobs} />
+                                    <PassportRow label="Asosiy risklar" value={detail.risks} />
+                                    <PassportRow label="Ruxsatnomalar holati" value={detail.docState} />
+                                </div>
+                                <div>
+                                    <PassportRow label="Amaldagi bosqich" value={detail.fsState || object.status} />
+                                    <PassportRow label="Yer maydoni" value={detail.areaHa != null ? `${detail.areaHa} ga` : undefined} />
+                                    <PassportRow label="Maqsadli mahsulot" value={detail.product} />
+                                    <PassportRow label="Umumiy qiymati" value={object.costMlnUsd != null ? `${object.costMlnUsd} mln $` : undefined} />
+                                    <PassportRow label="Moliyalashtirish manbai" value={detail.funding} />
+                                    <PassportRow label="Qurilish boshlangan sana" value={detail.buildStartText || detail.startDateText} />
+                                    <PassportRow label="Reja yakuni" value={detail.commissioningText || detail.endDateText} />
+                                    <PassportRow label="Viloyat kesimi" value={object.regionGroup} />
+                                    <PassportRow label="Maqsad" value={detail.goal} />
+                                </div>
+                            </div>
+                            {/*<PassportPhotoQR src={`/imgs/invest/${object.id}.jpg`} accent={accent} caption="Loyiha pasporti QR-kod" />*/}
+                        </div>
+                        {/*<LinkedItemsCard links={object.links} accent={accent} />*/}
+                        {/*{detailLoading && <div style={{ fontSize: 11, color: GC.slate, marginTop: 8 }}>To'liq ma'lumot yuklanmoqda...</div>}*/}
+                        {/*{detailIsError && <div style={{ fontSize: 11, color: GC.red, marginTop: 8 }}>To'liq pasport ma'lumoti olinmadi — mavjud qisqa ma'lumot ko'rsatilmoqda</div>}*/}
+                    </Card>
+                </div>
+
+                {/* 2. Moliyaviy o'zlashtirish va qurilish holati */}
+                <div style={{ gridColumn: '2', gridRow: '1' }}>
+                    <Card title="2. Moliyaviy o'zlashtirish va qurilish holati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                            <KpiTile label="Umumiy budjet" value={object.costMlnUsd != null ? String(object.costMlnUsd) : '—'} unit="mln $" />
+                            <KpiTile label="O'zlashtirilgan" value={detail.disbursedMlnUsd != null ? String(detail.disbursedMlnUsd) : '—'} unit="mln $" />
+                            <KpiTile label="Qolgan" value={remainingMlnUsd != null ? String(remainingMlnUsd) : '—'} unit="mln $" />
+                            <KpiTile label="Qurilish bajarilishi" value={progressPct != null ? String(progressPct) : '—'} unit="%" />
+                            <KpiTile label="SMR" value="38" unit="%" demo />
+                            <KpiTile label="Uskunalar yetkazilishi" value="56" unit="%" demo />
+                            <KpiTile label="Montaj" value="28" unit="%" demo />
+                            <KpiTile label="Tayyorgarlik" value="12" unit="%" demo />
+                            <KpiTile label="Pudratchilar soni" value={object.links?.length ? String(object.links.length) : '7'} demo={!object.links?.length} />
+                            <KpiTile label="Ochiq masalalar" value="5" demo />
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                            <SubPanel title="CAPEX va o'zlashtirish dinamikasi (mln $)" minWidth={160} demo>
+                                <MiniBarChart data={DEMO_CAPEX_MONTHLY} labels={DEMO_MONTHS} color={accent} />
+                            </SubPanel>
+                            <SubPanel title="Ish paketlari bo'yicha bajarilish" minWidth={175} demo>
+                                {DEMO_INVEST_WORK_PACKAGES.map((w, i) => <CategoryBarRow key={i} label={w.label} pct={w.pct} color={w.color} />)}
+                            </SubPanel>
+                            <SubPanel title="Budjet o'zlashtirish" minWidth={170} demo={budgetPctReal == null}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <DonutChart segments={budgetSegments} centerValue={`${budgetPct}%`} size={88} />
+                                    <DonutLegend segments={budgetSegments} />
+                                </div>
+                            </SubPanel>
+                            <SubPanel title="Shartnoma paketlari" minWidth={210} demo>
+                                <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px' }}>
+                                    <span style={{ width: '14px' }}>#</span>
+                                    <span style={{ flex: 1 }}>Paket</span>
+                                    <span style={{ width: '42px', textAlign: 'right' }}>Fakt</span>
+                                    <span style={{ width: '14px' }} />
+                                </div>
+                                {DEMO_CONTRACT_PACKAGES.map((p) => (
+                                    <div key={p.no} style={{ display: 'flex', fontSize: '10px', alignItems: 'center', padding: '2px 0' }}>
+                                        <span style={{ width: '14px', color: GC.slate }}>{p.no}</span>
+                                        <span style={{ flex: 1, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                                        <span style={{ width: '42px', textAlign: 'right', color: '#fff' }}>{p.fact}</span>
+                                        <span style={{ width: '14px', textAlign: 'right' }}><StatusDot color={p.status === 'ok' ? GC.green : GC.amber} /></span>
+                                    </div>
+                                ))}
+                            </SubPanel>
+                        </div>
+                    </Card>
+                </div>
+
+                {/* 3. Loyiha 3D modeli */}
+                <div style={{ gridColumn: '1', gridRow: '2', minHeight: 0 }}>
+                    <Card title="3. Loyiha 3D modeli" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                        <div style={{ position: 'relative', minHeight: '220px', height: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: `linear-gradient(145deg, ${alpha(accent, 0.1)}, #04101f)` }}>
+                            <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 3, background: 'rgba(2,11,24,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 8px' }}>
+                                <div style={{ fontSize: '8.5px', fontWeight: 700, color: '#dfe9f5', marginBottom: '4px' }}>Obyektlar</div>
+                                {DEMO_SITE_LEGEND.map((l, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '8px', color: '#c7d2dd', marginBottom: '2px' }}>
+                                        <StatusDot color={l.color} />{l.label}
+                                    </div>
+                                ))}
+                            </div>
+                            <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 3, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                {[IconHomeSmall, IconLayersSmall, IconExpandSmall, IconPinSmall, IconRulerSmall].map((Ic, i) => (
+                                    <div key={i} style={{ width: '22px', height: '22px', borderRadius: '5px', background: 'rgba(2,11,24,0.8)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c7d2dd' }}>
+                                        <Ic />
+                                    </div>
+                                ))}
+                            </div>
+                            {DEMO_SITE_PINS.map((p, i) => (
+                                <div key={i} style={{ position: 'absolute', left: `${p.x}%`, top: `${p.y}%`, zIndex: 2, display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(2,11,24,0.82)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '2px 7px 2px 5px', fontSize: '8px', color: '#e7f1ff', whiteSpace: 'nowrap' }}>
+                                    <StatusDot color={p.color} />{p.label}
+                                </div>
+                            ))}
+                            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: alpha(accent, 0.3), pointerEvents: 'none' }}>
+                                <Icon3DCube />
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                {/* 4. Qurilish jarayoni, video va xodimlar */}
+                <div style={{ gridColumn: '2', gridRow: '2', minHeight: 0, overflow: 'auto' }}>
+                    <Card title="4. Qurilish jarayoni, video va xodimlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                        <div style={{ marginBottom: '12px' }}>
+                            <SubPanel title="Onlayn kameralar (4/12)" minWidth={300} demo>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                                    {DEMO_CAMERAS.map((c, i) => (
+                                        <div key={i} style={{ position: 'relative', height: '62px', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
+                                                <IconCamSmall />
+                                            </div>
+                                            <span style={{ position: 'absolute', top: 3, left: 4, fontSize: '7.5px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
+                                            <span style={{ position: 'absolute', bottom: 3, right: 4, fontSize: '7px', fontWeight: 700, color: GC.red, display: 'flex', alignItems: 'center', gap: '3px' }}><StatusDot color={GC.red} />LIVE</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </SubPanel>
+                        </div>
+
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                            <SubPanel title="Asosiy ko'rsatkichlar" minWidth={170} demo>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    {DEMO_STAFF_STATS.map((s, i) => (
+                                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
+                                            <span style={{ color: GC.slate }}>{s.label}</span>
+                                            <span style={{ color: s.warn ? GC.red : '#fff', fontWeight: 700 }}>{s.value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </SubPanel>
+                            <SubPanel title="Xodimlar tarkibi (pudratchilar bo'yicha)" minWidth={190} demo>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <DonutChart segments={DEMO_STAFF_COMPOSITION} centerValue={String(detail.jobs ?? 318)} centerLabel="jami" size={86} />
+                                    <DonutLegend segments={DEMO_STAFF_COMPOSITION} />
+                                </div>
+                            </SubPanel>
+                            <SubPanel title="Kirish-chiqish dinamikasi (so'nggi 7 kun)" minWidth={190} demo>
+                                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '52px' }}>
+                                    {DEMO_ENTRY_EXIT_DAYS.map((d, i) => {
+                                        const max = Math.max(...DEMO_ENTRY, ...DEMO_EXIT) * 1.1;
+                                        return (
+                                            <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
+                                                <div style={{ flex: 1, height: `${(DEMO_ENTRY[i] / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
+                                                <div style={{ flex: 1, height: `${(DEMO_EXIT[i] / max) * 100}%`, background: GC.accent3, borderRadius: '2px 2px 0 0' }} />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+                                    {DEMO_ENTRY_EXIT_DAYS.map((d, i) => <div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{d}</div>)}
+                                </div>
+                                <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Kirish</span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Chiqish</span>
+                                </div>
+                            </SubPanel>
+                        </div>
+
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                            <SubPanel title="So'nggi SKUD hodisalari" minWidth={210} demo>
+                                {DEMO_SKUD_EVENTS.map((e, i) => (
+                                    <div key={i} style={{ display: 'flex', fontSize: '9.5px', padding: '3px 0', borderBottom: i < DEMO_SKUD_EVENTS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', gap: '6px' }}>
+                                        <span style={{ color: GC.slate, width: '34px', flexShrink: 0 }}>{e.time}</span>
+                                        <span style={{ flex: 1, color: '#dfe9f5' }}>{e.staff}</span>
+                                        <span style={{ color: e.event === 'Kirish' ? GC.green : GC.amber, fontWeight: 600 }}>{e.event}</span>
+                                    </div>
+                                ))}
+                            </SubPanel>
+                            <SubPanel title="AI video hodisalari" minWidth={190} demo>
+                                {DEMO_AI_EVENTS.map((e, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9.5px', padding: '3px 0' }}>
+                                        <StatusDot color={AI_LEVEL_COLOR[e.level]} />
+                                        <span style={{ color: GC.slate, width: '32px', flexShrink: 0 }}>{e.time}</span>
+                                        <span style={{ color: '#dfe9f5', flex: 1 }}>{e.text}</span>
+                                    </div>
+                                ))}
+                            </SubPanel>
+                        </div>
+                    </Card>
+                </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding: '8px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '10px', color: 'rgba(255,255,255,0.45)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <span>Ma'lumot manbalari:</span>
+                    {['TMK GIS', 'ERP', 'SCADA', 'SKUD', 'Kameralar', 'Qurilish PMO'].map((s, i) => (
+                        <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><StatusDot color={GC.green} />{s}</span>
+                    ))}
+                </div>
+                <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                    <span>So'nggi sinxronizatsiya: {lastUpdatedText}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><StatusDot color={GC.green} />Tizim holati: Onlayn</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // 5. ASOSIY MAP KOMPONENTI
 const Map3D = ({
                    highlightIndex,
@@ -402,65 +1759,53 @@ const Map3D = ({
        o'qiladigan o'zgaruvchan qiymatlar state emas, ref orqali beriladi. */
     const wsConnectedRef = useRef(false);
     const [isManual, setIsManual] = React.useState(false);
-    const [openDetailId, setOpenDetailId] = React.useState<number | string | null>(null);
+    // Tanlangan xarita obyekti (factory | geology | invest) — /map/objects
+    // javobidan olingan to'liq ma'lumot bilan, qo'shimcha so'rovsiz.
+    const [selectedObject, setSelectedObject] = React.useState<MapItem | null>(null);
+    const [mineralsOpen, setMineralsOpen] = React.useState(false);
+    const [carsOpen, setCarsOpen] = React.useState(false);
     const timerRef = useRef<any>(null);
-    const markersRef = useRef<Record<string, maplibregl.Marker>>({});
     const vehicleMarkersRef = useRef<Record<number, maplibregl.Marker>>({});
     const mineralMarkersRef = useRef<maplibregl.Marker[]>([]);
+    const mineralPopupRef = useRef<maplibregl.Popup | null>(null);
+    // Klasterlanmagan (alohida ko'rinadigan) factory/geology/invest markerlari —
+    // asl pin+teg dizayni bilan HTML marker sifatida chiziladi (GL doira emas),
+    // faqat qaysi nuqtalar hozir klasterlanmagan ekanini GL manbasi hal qiladi.
+    const objectMarkersRef = useRef<Record<string, maplibregl.Marker>>({});
+    // Xarita GL cluster manbasidan bosilgan nuqtaning to'liq ma'lumotini topish uchun
+    // (faqat xaritaga tushgan — koordinatali — elementlar).
+    const objectsByIdRef = useRef<Record<string, MapItem>>({});
+    // `links[]` orqali bog'langan elementlarni (koordinatasi bo'lmasa ham) topish uchun —
+    // filtrdan qat'i nazar HAMMA item shu yerda.
+    const allItemsByIdRef = useRef<Record<string, MapItem>>({});
+    const [mapLoaded, setMapLoaded] = React.useState(false);
     const [visibleToifas, setVisibleToifas] = React.useState<string[]>([]);
-    const [projectCategory, setProjectCategory] = React.useState<string>('');
-    const [objectTypeFilter, setObjectTypeFilter] = React.useState<string>('');
+    // '' = barchasi, aks holda 'factory' | 'geology' | 'invest'
+    const [sourceFilter, setSourceFilter] = React.useState<string>('');
     const [vehicles, setVehicles] = React.useState<any[]>([]);
     const [selectedVehicle, setSelectedVehicle] = React.useState<any | null>(null);
     const [wsConnected, setWsConnected] = React.useState(false);
 
-    const {data: typeObject} = useGetTypeObjectAll();
-    const {data: markersData, isError: markersIsError, error: markersErrorObj, isLoading: markersLoading} = useGetFactoryMarkers({
-        lang: 'uz',
-        ...(projectCategory ? { project_category: projectCategory } : {}),
-        ...(objectTypeFilter ? { object_type: objectTypeFilter } : {}),
-    });
-    const {data: factoryDetail} = useGetFactoryDetail(openDetailId, 'uz');
+    const {data: mapObjectsData, isError: mapObjectsIsError, error: mapObjectsErrorObj, isLoading: mapObjectsLoading} = useGetMapObjects('uz');
 
-    // Backend javobi turli ko'rinishda kelishi mumkin — barchasini tekshirib chiqamiz
-    const unwrapList = (payload: any): any[] => {
-        if (!payload) return [];
-        if (Array.isArray(payload)) return payload;
-        if (Array.isArray(payload.factories)) return payload.factories;
-        if (Array.isArray(payload.data)) return payload.data;
-        if (Array.isArray(payload.data?.factories)) return payload.data.factories;
-        if (Array.isArray(payload.items)) return payload.items;
-        if (Array.isArray(payload.result)) return payload.result;
-        return [];
-    };
+    useEffect(() => {
+        const map2: Record<string, MapItem> = {};
+        (mapObjectsData?.items ?? []).forEach((it) => { map2[it.id] = it; });
+        allItemsByIdRef.current = map2;
+    }, [mapObjectsData]);
 
-    const factorys = useMemo(() => {
-        const list = unwrapList(markersData);
-        if (process.env.NODE_ENV !== 'production') {
-            // eslint-disable-next-line no-console
-            console.debug('[factory/marker] raw:', markersData, '-> parsed:', list);
-        }
-        return list;
-    }, [markersData]);
+    // Sidebar (OBYEKTLAR) — turi bo'yicha filtrlangan, koordinatasi bo'lmasa ham
+    // ro'yxatda ko'rinadi (MAP_API (2).md: ~35 ta itemsWithoutAnyCoords bor).
+    const filteredItems = useMemo<MapItem[]>(() => {
+        const list = mapObjectsData?.items ?? [];
+        return sourceFilter ? list.filter((o) => o.type === sourceFilter) : list;
+    }, [mapObjectsData, sourceFilter]);
 
-    const objectTypeOptions = useMemo(() => {
-        const raw = unwrapList(typeObject);
-        const options = raw.map((item: any) => {
-            if (typeof item === 'string') return { value: item, label: item };
-            const value = item.value ?? item.object_type ?? item.code ?? item.key ?? item.slug ?? item.id ?? item.name ?? item.title;
-            const label = item.label ?? item.name ?? item.title ?? item.nameUz ?? String(value ?? '');
-            return { value, label };
-        }).filter((opt: any) => opt.value !== undefined && opt.value !== null && opt.value !== '');
-        if (process.env.NODE_ENV !== 'production') {
-            // eslint-disable-next-line no-console
-            console.debug('[factory/object-types] raw:', typeObject, '-> parsed:', options);
-        }
-        return options;
-    }, [typeObject]);
+    // Xarita GL manbasi — faqat haqiqiy koordinatali (o'z yoki meros) elementlar.
+    const mappableItems = useMemo<MapItem[]>(() => {
+        return filteredItems.filter((o) => typeof o.lat === 'number' && typeof o.lon === 'number');
+    }, [filteredItems]);
 
-    const randomFactoryModel = useMemo(() => {
-        return factoryModels[Math.floor(Math.random() * factoryModels.length)];
-    }, [openDetailId]);
 
     // O'zbekiston chegara neon animatsiyasi uchun state yoki ref
     const animationFrameRef = useRef<number>();
@@ -468,9 +1813,10 @@ const Map3D = ({
     // Markerlarni declutter qilish (bir freymda faqat bir marta ishlashi uchun rAF throttle)
     const declutterRafRef = useRef<number | null>(null);
 
-    // Ekran koordinatalari bo'yicha yaqin markerlarni yashirib, faqat bittasini qoldiradi.
+    // Ekran koordinatalari bo'yicha yaqin mineral markerlarni yashirib, faqat bittasini qoldiradi.
     // Faqat visibility'ni almashtiradi — marker/data/dizaynga tegmaydi.
-    // Vehicle (transport) markerlari bu yerga QO'SHILMAYDI: ular real-time yangilanadi.
+    // Fabrika/geologiya/investitsiya markerlari endi GL cluster qatlami orqali chiziladi,
+    // shuning uchun bu yerga kirmaydi (o'z clustering'i bor).
     const declutterMarkers = useCallback(() => {
         const mapInstance = map.current;
         if (!mapInstance) return;
@@ -478,11 +1824,6 @@ const Map3D = ({
         type Item = { el: HTMLElement; lngLat: maplibregl.LngLat; r: number };
         const items: Item[] = [];
 
-        // 1) Fabrika markerlari — ustuvor (avval joy egallaydi)
-        Object.values(markersRef.current).forEach((m) => {
-            items.push({ el: m.getElement(), lngLat: m.getLngLat(), r: FACTORY_CLUSTER_R });
-        });
-        // 2) Mineral markerlari — keyin (fabrika yonida bo'lsa yashiriladi)
         mineralMarkersRef.current.forEach((m) => {
             items.push({ el: m.getElement(), lngLat: m.getLngLat(), r: MINERAL_CLUSTER_R });
         });
@@ -519,6 +1860,90 @@ const Map3D = ({
             declutterMarkers();
         });
     }, [declutterMarkers]);
+
+    // Asl pin+teg dizayni: rangli aylanacha pin, ostida vertikal chiziq, yoniga
+    // nom/teg va hudud/status qutisi — 3 turga (factory/geology/invest) mos rangda.
+    const buildObjectMarkerEl = useCallback((obj: MapItem) => {
+        const color = SOURCE_COLORS[obj.type] || GC.marker;
+        const el = document.createElement('div');
+        el.className = 'custom-html-marker';
+        // `coordsSource: 'linked'` — zavoddan meros qilingan taxminiy joylashuv,
+        // shaffoflik uchun xiraroq (MAP_API'ning "ochiq belgilanishi shart" talabi).
+        el.style.opacity = obj.coordsSource === 'linked' ? '0.65' : '1';
+
+        const name = obj.name || '';
+        const regionLabel = obj.region || 'Hudud';
+        const statusLabel = obj.status || '';
+
+        el.innerHTML = `
+            <div class="marker-pin-wrapper" style="transform: scale(0.65); transform-origin: bottom left;">
+                    <div class="marker-content-box">
+                        <div class="marker-title-tag" style="background:${color};">
+                            ${formatMarkerText(name, 12)}
+                        </div>
+                        <div class="marker-info-box" style="border-left-color:${color};">
+                            <span>${formatMarkerText(regionLabel, 10)}</span>
+                            ${statusLabel ? `<span class="marker-info-value">${statusLabel}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="marker-pin" style="border-color:${color};">
+                        <div class="marker-icon-inner">${getMarkerTypeIcon(obj.type, color)}</div>
+                    </div>
+                    <div class="marker-line" style="background:${color};"></div>
+                </div>
+        `;
+
+        el.onclick = (e) => {
+            e.stopPropagation();
+            handleManualOpen(0);
+            setSelectedObject(obj);
+        };
+
+        return el;
+    }, []);
+
+    // GL cluster manbasi qaysi nuqtalarni "alohida" (klasterlanmagan) deb hisoblasa,
+    // aynan o'shalar uchun HTML pin marker yaratadi/yangilaydi; qolganlarini olib tashlaydi.
+    // Klaster (son bilan aylana) chizig'i alohida GL qatlamida ('map-clusters') qoladi.
+    const syncObjectMarkers = useCallback(() => {
+        const mapInstance = map.current;
+        if (!mapInstance || !mapInstance.getSource('map-objects')) return;
+
+        let features: any[] = [];
+        try {
+            features = mapInstance.querySourceFeatures('map-objects', { filter: ['!', ['has', 'point_count']] });
+        } catch {
+            return; // manba/uslub hali to'liq tayyor bo'lmasligi mumkin
+        }
+
+        const currentIds = new Set<string>();
+        features.forEach((f) => {
+            const id = f.properties?.id != null ? String(f.properties.id) : null;
+            if (!id || currentIds.has(id)) return;
+            currentIds.add(id);
+
+            const obj = objectsByIdRef.current[id];
+            if (!obj || typeof obj.lon !== 'number' || typeof obj.lat !== 'number') return;
+
+            const existing = objectMarkersRef.current[id];
+            if (existing) {
+                existing.setLngLat([obj.lon, obj.lat]);
+            } else {
+                const el = buildObjectMarkerEl(obj);
+                const marker = new maplibregl.Marker({ element: el, anchor: 'bottom-left' })
+                    .setLngLat([obj.lon, obj.lat])
+                    .addTo(mapInstance);
+                objectMarkersRef.current[id] = marker;
+            }
+        });
+
+        Object.keys(objectMarkersRef.current).forEach((id) => {
+            if (!currentIds.has(id)) {
+                objectMarkersRef.current[id].remove();
+                delete objectMarkersRef.current[id];
+            }
+        });
+    }, [buildObjectMarkerEl]);
 
     useEffect(() => {
         if (!mapContainer.current) return;
@@ -637,12 +2062,75 @@ const Map3D = ({
                 animateNeon();
             }
 
-            // 2. MINERAL MARKERLARINI QO'SHISH
-            // Fabrika markerlari bu yerda CHAQIRILMAYDI: bu effekt faqat bir marta (mount'da)
-            // ishlaydi va shu paytdagi "factorys" closure orqali eski (bo'sh) qiymatni ushlab qoladi.
-            // Style 'load' hodisasi so'rov tugagandan KEYIN kelib qolsa, o'sha eski bo'sh ro'yxat bilan
-            // updateMarkers() chaqirilib, allaqachon chizilgan markerlarni o'chirib yuborardi.
-            // Fabrika markerlari pastdagi [visibleToifas, factorys] effektida chiziladi.
+            // 2. XARITA OBYEKTLARI (factory / geology / invest) —
+            // GL cluster manbasi: uzoqlashtirilganda soni bilan aylana (cluster), yaqinlashtirilganda
+            // alohida markerlar. Ma'lumot bo'sh boshlanadi, pastdagi [mappableItems, mapLoaded]
+            // effektida to'ldiriladi (bu yerda "mapObjectsData" hali kelmagan bo'lishi mumkin).
+            map.current.addSource('map-objects', {
+                type: 'geojson',
+                data: { type: 'FeatureCollection', features: [] },
+                cluster: true,
+                clusterMaxZoom: 14,
+                clusterRadius: 50,
+            });
+
+            map.current.addLayer({
+                id: 'map-clusters',
+                type: 'circle',
+                source: 'map-objects',
+                filter: ['has', 'point_count'],
+                paint: {
+                    'circle-color': GC.accent2,
+                    'circle-opacity': 0.88,
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#ffffff',
+                    'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
+                },
+            });
+
+            map.current.addLayer({
+                id: 'map-cluster-count',
+                type: 'symbol',
+                source: 'map-objects',
+                filter: ['has', 'point_count'],
+                layout: {
+                    'text-field': ['get', 'point_count_abbreviated'],
+                    'text-size': 12,
+                    'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                },
+                paint: { 'text-color': '#ffffff' },
+            });
+
+            // Alohida (klasterlanmagan) nuqtalar endi GL doira emas — asl pin+teg
+            // dizayni bilan HTML marker sifatida chiziladi (syncObjectMarkers).
+            // Klaster ustiga bosilsa — supercluster kengaytirish zoomigacha yaqinlashadi,
+            // shu joydagi alohida markerlar ochiladi.
+            map.current.on('click', 'map-clusters', (e) => {
+                const mapInstance = map.current;
+                if (!mapInstance) return;
+                const features = mapInstance.queryRenderedFeatures(e.point, { layers: ['map-clusters'] });
+                const clusterId = features[0]?.properties?.cluster_id;
+                if (clusterId == null) return;
+                const src = mapInstance.getSource('map-objects') as maplibregl.GeoJSONSource;
+                src.getClusterExpansionZoom(clusterId).then((zoom) => {
+                    mapInstance.easeTo({ center: (features[0].geometry as any).coordinates, zoom: zoom + 0.5 });
+                }).catch(() => { /* xarita allaqachon yopilgan bo'lishi mumkin */ });
+            });
+
+            map.current.on('mouseenter', 'map-clusters', () => { map.current!.getCanvas().style.cursor = 'pointer'; });
+            map.current.on('mouseleave', 'map-clusters', () => { map.current!.getCanvas().style.cursor = ''; });
+
+            // Klasterlash zoom/harakatda supercluster ichida qayta hisoblanadi —
+            // shuning uchun HTML pinlar shu hodisalarda qayta sinxronlanadi.
+            map.current.on('moveend', syncObjectMarkers);
+            map.current.on('zoomend', syncObjectMarkers);
+            map.current.on('sourcedata', (e) => {
+                if (e.sourceId === 'map-objects' && e.isSourceLoaded) syncObjectMarkers();
+            });
+
+            setMapLoaded(true);
+
+            // 3. MINERAL MARKERLARINI QO'SHISH
             addMineralMarkers();
         });
 
@@ -650,6 +2138,7 @@ const Map3D = ({
             if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
             if (declutterRafRef.current != null) cancelAnimationFrame(declutterRafRef.current);
             mineralMarkersRef.current.forEach(m => m.remove());
+            Object.values(objectMarkersRef.current).forEach(m => m.remove());
             map.current?.remove();
         };
     }, []);
@@ -661,23 +2150,22 @@ const Map3D = ({
         timerRef.current = setTimeout(() => setIsManual(false), 30000);
     };
 
-    const handleOpenDetails = (id: number | string, index: number = 0) => {
+    const handleOpenDetails = (obj: MapItem, index: number = 0) => {
         handleManualOpen(index);
-        setOpenDetailId(id);
+        setSelectedObject(obj);
     };
 
     const handleCloseDetails = () => {
-        setOpenDetailId(null);
+        setSelectedObject(null);
     };
 
-    // Sidebar ro'yxatidan bosilganda: xaritani o'sha markerga fokuslaydi VA detail modalni ochadi —
-    // marker ustiga bosilganda ham xuddi shu handleOpenDetails ishlaydi.
-    const focusFactory = (f: any, index: number) => {
-        const coords = parseFactoryCoords(f.coords);
-        if (coords && map.current) {
-            map.current.flyTo({ center: coords, zoom: 12, pitch: 45, speed: 1.2 });
+    // Sidebar ro'yxatidan bosilganda: xaritani o'sha markerga fokuslaydi VA turiga mos modalni ochadi —
+    // marker ustiga bosilganda ham xuddi shu oqim ishlaydi (map 'click' handleri, yuqorida).
+    const focusObject = (obj: MapItem, index: number) => {
+        if (map.current && typeof obj.lon === 'number' && typeof obj.lat === 'number') {
+            map.current.flyTo({ center: [obj.lon, obj.lat], zoom: 12, pitch: 45, speed: 1.2 });
         }
-        handleOpenDetails(f.id, index);
+        handleOpenDetails(obj, index);
     };
 
     const addMineralMarkers = () => {
@@ -709,6 +2197,16 @@ const Map3D = ({
                 inner.style.transform = 'scale(0.7)';
                 inner.style.filter = `drop-shadow(0 0 3px ${mineral.color})`;
             };
+            // Marker ustiga bosilganda — faqat nomi ko'rsatilgan popup.
+            el.onclick = (e) => {
+                e.stopPropagation();
+                if (!map.current) return;
+                mineralPopupRef.current?.remove();
+                mineralPopupRef.current = new maplibregl.Popup({ offset: 14, closeButton: false, className: 'mineral-popup' })
+                    .setLngLat(mineral.coords)
+                    .setText(mineral.name)
+                    .addTo(map.current);
+            };
 
             const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
                 .setLngLat(mineral.coords)
@@ -719,84 +2217,6 @@ const Map3D = ({
         // Mineral markerlari qo'shilgach declutter (fabrikalar bilan birga)
         scheduleDeclutter();
     };
-    const formatText = (text = "", count: number) => {
-        if (!text) return "";
-
-        const value = text.trim();
-
-        // 10 ta belgidan ko'p bo'lsa
-        if (value.length > count) {
-            return value.slice(0, count) + "...";
-        }
-
-        // 10 tadan kam yoki teng bo'lsa
-        const firstSpaceIndex = value.indexOf(" ");
-
-        return firstSpaceIndex === -1
-            ? value
-            : value.slice(0, firstSpaceIndex);
-    };
-    const updateMarkers = () => {
-        if (!map.current) return;
-
-        // Eskilarini tozalash
-        Object.values(markersRef.current).forEach(m => m.remove());
-        markersRef.current = {};
-
-        factorys.forEach((f: any, index: number) => {
-            const coords = parseFactoryCoords(f.coords);
-            if (!coords) return;
-
-            // alert('test')
-            const el = document.createElement('div');
-            const toifaClass = CATEGORY_TOIFA[f.marker_icon] || 'toifa-1';
-            el.className = `custom-html-marker ${toifaClass}`;
-
-            const iconPath = CATEGORY_ICON[f.marker_icon] || '/icons/factory3.png';
-            const name = f.name || f.title || '';
-            const subInfo = f.objectType || f.object_type || '';
-            const regionLabel = f.region || 'Hudud';
-            const statusLabel = f.status || '';
-
-            el.innerHTML = `
-            <div class="marker-pin-wrapper" style="transform: scale(0.65); transform-origin: bottom left;">
-                    <div class="marker-content-box">
-                        <div class="marker-title-tag">
-                            ${formatText(name, 10)}
-<!--                            <span class="marker-info-small">${subInfo}</span>-->
-                        </div>
-                        <div class="marker-info-box">
-                            <span>${formatText(regionLabel, 8)}</span>
-                            <span class="marker-info-value">${statusLabel}</span>
-                        </div>
-                    </div>
-                    <div class="marker-pin">
-                        <div class="marker-icon-inner" style="background-image: url(${iconPath})"></div>
-                    </div>
-                    <div class="marker-line"></div>
-                </div>
-            `;
-
-            el.onclick = () => {
-                handleOpenDetails(f.id, index);
-            };
-
-            const marker = new maplibregl.Marker({
-                element: el,
-                anchor: 'bottom-left'
-            })
-                .setLngLat(coords)
-                .addTo(map.current!);
-
-            markersRef.current[f.id] = marker;
-        });
-
-        updateVehicleMarkers();
-
-        // Yangi chizilgan markerlarni darhol declutter qilish (ustma-ustlikni yashirish)
-        scheduleDeclutter();
-    };
-
     const updateVehicleMarkers = () => {
         if (!map.current) return;
 
@@ -1072,15 +2492,32 @@ const Map3D = ({
         });
     };
 
-    // Filtr yoki fabrika ma'lumotlari o'zgarganda markerlarni yangilash.
-    // Vaqtinchalik xatolik (fon rejimidagi so'rov muvaffaqiyatsiz bo'lsa) allaqachon
-    // chizilgan markerlarni bekorga o'chirib yubormasligi uchun bunday holatda yangilanish o'tkazib yuboriladi.
+    // Transport (active/inactive) filtri o'zgarganda mashina markerlarini qayta chizish.
     useEffect(() => {
-        if (markersIsError && factorys.length === 0 && Object.keys(markersRef.current).length > 0) {
-            return;
-        }
-        updateMarkers();
-    }, [visibleToifas, factorys, markersIsError]);
+        updateVehicleMarkers();
+    }, [visibleToifas]);
+
+    // /map/objects natijasi yoki toifa filtri o'zgarganda GL cluster manbasini yangilash.
+    // `mapLoaded` xarita 'load' hodisasidan keyin true bo'ladi — undan oldin manba mavjud emas.
+    useEffect(() => {
+        const mapInstance = map.current;
+        if (!mapInstance || !mapLoaded) return;
+        const source = mapInstance.getSource('map-objects') as maplibregl.GeoJSONSource | undefined;
+        if (!source) return;
+
+        const byId: Record<string, MapItem> = {};
+        const features = mappableItems.map((o) => {
+            byId[String(o.id)] = o;
+            return {
+                type: 'Feature' as const,
+                id: o.id,
+                geometry: { type: 'Point' as const, coordinates: [o.lon as number, o.lat as number] },
+                properties: { id: o.id, type: o.type, coordsSource: o.coordsSource },
+            };
+        });
+        objectsByIdRef.current = byId;
+        source.setData({ type: 'FeatureCollection', features } as any);
+    }, [mappableItems, mapLoaded]);
 
 
     return (
@@ -1090,146 +2527,223 @@ const Map3D = ({
         }}>
             <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
 
-            {/* Minerals Legend Panel */}
-            <div style={{
-                position: 'absolute',
-                bottom: '2%',
-                left: "2%",
-                width: 'auto',
-                background: 'rgba(2, 11, 24, 0.55)',
-                border: '1px solid rgba(0, 245, 255, 0.3)',
-                borderRadius: '0 0 8px 0',
-                padding: '8px 10px',
-                zIndex: 10,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '5px',
-                backdropFilter: 'blur(8px)',
-            }}>
-                <div style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', borderBottom: '1px solid rgba(0,245,255,0.2)', paddingBottom: '4px', textAlign: 'center', letterSpacing: '1px' }}>
-                    MINERALLAR
+            {/* Minerals — burchakdagi kichik toggle icon, bosilsa to'liq panel ochiladi */}
+            {!mineralsOpen ? (
+                <button
+                    onClick={() => setMineralsOpen(true)}
+                    title="Minerallar"
+                    style={{
+                        position: 'absolute',
+                        bottom: '2%',
+                        left: '2%',
+                        width: '34px',
+                        height: '34px',
+                        borderRadius: '8px',
+                        background: 'rgba(2, 11, 24, 0.65)',
+                        border: '1px solid rgba(0, 245, 255, 0.35)',
+                        backdropFilter: 'blur(8px)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10,
+                        color: 'rgba(0,245,255,0.85)',
+                    }}
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2l4.5 3.2-1.7 5.5H9.2L7.5 5.2 12 2z" fill="currentColor" opacity="0.9" />
+                        <path d="M9.2 10.7L4 14.3 8.3 22h7.4l4.3-7.7-5.2-3.6H9.2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                    </svg>
+                </button>
+            ) : (
+                <div style={{
+                    position: 'absolute',
+                    bottom: '2%',
+                    left: '2%',
+                    width: 'auto',
+                    background: 'rgba(2, 11, 24, 0.55)',
+                    border: '1px solid rgba(0, 245, 255, 0.3)',
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    zIndex: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '5px',
+                    backdropFilter: 'blur(8px)',
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', borderBottom: '1px solid rgba(0,245,255,0.2)', paddingBottom: '4px' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', letterSpacing: '1px' }}>
+                            MINERALLAR
+                        </span>
+                        <button
+                            onClick={() => setMineralsOpen(false)}
+                            style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '11px', lineHeight: 1, padding: 0 }}
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: '0 10px', alignItems: 'start' }}>
+                        {[
+                            MINERAL_MARKERS.filter(m => m.type === 'triangle' || m.type === 'circle'),
+                            MINERAL_MARKERS.filter(m => m.type === 'rhombus'  || m.type === 'star'),
+                            MINERAL_MARKERS.filter(m => m.type === 'square'),
+                        ].map((col, ci) => (
+                            <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: '3px', borderRight: ci < 2 ? '1px solid rgba(0,245,255,0.1)' : 'none', paddingRight: ci < 2 ? '10px' : 0 }}>
+                                {col.map(m => (
+                                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span style={{ flexShrink: 0, lineHeight: 0, filter: `drop-shadow(0 0 2px ${m.color})` }} dangerouslySetInnerHTML={{ __html: getMineralSVG(m.type, m.color) }} />
+                                        <span style={{ fontSize: '8px', color: "#fff", fontWeight: 'bold', whiteSpace: 'nowrap' }}>{m.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: '0 10px', alignItems: 'start' }}>
-                    {[
-                        MINERAL_MARKERS.filter(m => m.type === 'triangle' || m.type === 'circle'),
-                        MINERAL_MARKERS.filter(m => m.type === 'rhombus'  || m.type === 'star'),
-                        MINERAL_MARKERS.filter(m => m.type === 'square'),
-                    ].map((col, ci) => (
-                        <div key={ci} style={{ display: 'flex', flexDirection: 'column', gap: '3px', borderRight: ci < 2 ? '1px solid rgba(0,245,255,0.1)' : 'none', paddingRight: ci < 2 ? '10px' : 0 }}>
-                            {col.map(m => (
-                                <div key={m.name} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <span style={{ flexShrink: 0, lineHeight: 0, filter: `drop-shadow(0 0 2px ${m.color})` }} dangerouslySetInnerHTML={{ __html: getMineralSVG(m.type, m.color) }} />
-                                    <span style={{ fontSize: '8px', color: "#fff", fontWeight: 'bold', whiteSpace: 'nowrap' }}>{m.name}</span>
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-            </div>
+            )}
 
-            {/* Filter Panel — top-left, horizontal row */}
+            {/* Transport (Active/Inactive) — MINERALLAR bilan bir xil uslubda,
+               bosilsa ochiladigan/yopiladigan kichik toggle, minerallar ikonkasi yonida. */}
+            {!carsOpen ? (
+                <button
+                    onClick={() => setCarsOpen(true)}
+                    title="Transport"
+                    style={{
+                        position: 'absolute',
+                        bottom: '2%',
+                        left: 'calc(2% + 44px)',
+                        width: '34px',
+                        height: '34px',
+                        borderRadius: '8px',
+                        background: 'rgba(2, 11, 24, 0.65)',
+                        border: '1px solid rgba(0, 245, 255, 0.35)',
+                        backdropFilter: 'blur(8px)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10,
+                        color: 'rgba(0,245,255,0.85)',
+                    }}
+                >
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 16v-3.5L6 7h12l2 5.5V16" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                        <path d="M4 16h16v2.2a0.8 0.8 0 0 1-.8.8H16a0.8 0.8 0 0 1-.8-.8V17H8.8v1.2a0.8 0.8 0 0 1-.8.8H4.8a0.8 0.8 0 0 1-.8-.8V16z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+                        <circle cx="7.5" cy="13.2" r="1.1" fill="currentColor" />
+                        <circle cx="16.5" cy="13.2" r="1.1" fill="currentColor" />
+                    </svg>
+                </button>
+            ) : (
+                <div style={{
+                    position: 'absolute',
+                    bottom: '2%',
+                    left: 'calc(2% + 44px)',
+                    width: 'auto',
+                    background: 'rgba(2, 11, 24, 0.55)',
+                    border: '1px solid rgba(0, 245, 255, 0.3)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    zIndex: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px',
+                    backdropFilter: 'blur(8px)',
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', borderBottom: '1px solid rgba(0,245,255,0.2)', paddingBottom: '4px' }}>
+                        <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', letterSpacing: '1px' }}>
+                            TRANSPORT
+                        </span>
+                        <button
+                            onClick={() => setCarsOpen(false)}
+                            style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '11px', lineHeight: 1, padding: 0 }}
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
+                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.accent1, boxShadow: `0 0 6px ${GC.accent1}` }}></div>
+                            <span style={{ color: GC.accent1, fontWeight: 'bold' }}>Active</span>
+                            <input
+                                type="checkbox"
+                                checked={visibleToifas.includes('active_car')}
+                                onChange={() => toggleToifa('active_car')}
+                                style={{ cursor: 'pointer', accentColor: GC.accent1, width: '13px', height: '13px' }}
+                            />
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
+                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.red, boxShadow: `0 0 6px ${GC.red}` }}></div>
+                            <span style={{ color: GC.red, fontWeight: 'bold' }}>Inactive</span>
+                            <input
+                                type="checkbox"
+                                checked={visibleToifas.includes('inactive_car')}
+                                onChange={() => toggleToifa('inactive_car')}
+                                style={{ cursor: 'pointer', accentColor: GC.red, width: '13px', height: '13px' }}
+                            />
+                        </label>
+                    </div>
+                </div>
+            )}
+
+            {/* Chap-tepa: FILTRLASH */}
             <div style={{
                 position: 'absolute',
                 top: '6%',
                 left: '2%',
                 maxWidth: 'calc(100% - 260px)',
                 width: 'fit-content',
-                background: 'rgba(2, 11, 24, 0.55)',
-                border: '1px solid rgba(0, 245, 255, 0.3)',
-                borderRadius: '8px',
-                padding: '10px 14px',
                 zIndex: 10,
                 display: 'flex',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                gap: '16px',
-                alignItems: 'center',
-                backdropFilter: 'blur(8px)',
-                color: 'white',
+                flexDirection: 'column',
+                gap: '8px',
             }}>
-                <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', letterSpacing: '1px', paddingRight: '10px', borderRight: '1px solid rgba(0,245,255,0.2)' }}>
-                    FILTRLASH
-                </div>
+                {/* FILTRLASH — obyekt turi (source) bo'yicha */}
+                <div style={{
+                    background: 'rgba(2, 11, 24, 0.55)',
+                    border: '1px solid rgba(0, 245, 255, 0.3)',
+                    borderRadius: '8px',
+                    padding: '10px 14px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    gap: '16px',
+                    alignItems: 'center',
+                    backdropFilter: 'blur(8px)',
+                    color: 'white',
+                }}>
+                    <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', letterSpacing: '1px', paddingRight: '10px', borderRight: '1px solid rgba(0,245,255,0.2)' }}>
+                        FILTRLASH
+                    </div>
 
-                {/* Loyiha kategoriyasi */}
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    {[
-                        /* `text` — tugma matni. Toifalarda (Metall/Kon/Market) doim oq;
-                           "Barchasi" foni och rangda bo'lgani uchun tanlanganda to'q matn. */
-                        { value: '', label: 'Barchasi', color: 'var(--gc-title)', text: projectCategory === '' ? '#020B18' : 'var(--gc-title)' },
-                        { value: 'factory', label: 'Metall', color: GC.marker, text: GC.white },
-                        { value: 'mine', label: 'Kon', color: GC.marker, text: GC.white },
-                        { value: 'mine-cart', label: 'Market', color: GC.marker, text: GC.white },
-                    ].map(opt => (
-                        <button
-                            key={opt.value}
-                            onClick={() => setProjectCategory(opt.value)}
-                            style={{
-                                fontSize: '11px',
-                                fontWeight: 'bold',
-                                padding: '5px 10px',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                color: opt.text,
-                                background: projectCategory === opt.value ? opt.color : 'transparent',
-                                border: `1px solid ${opt.color}`,
-                                transition: 'all 0.2s',
-                            }}
-                        >
-                            {opt.label}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Obyekt turi */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)' }}>Obyekt turi:</span>
-                    <select
-                        value={objectTypeFilter}
-                        onChange={(e) => setObjectTypeFilter(e.target.value)}
-                        style={{
-                            fontSize: '11px',
-                            background: 'rgba(2, 11, 24, 0.8)',
-                            color: 'white',
-                            border: '1px solid rgba(0,245,255,0.4)',
-                            borderRadius: '4px',
-                            padding: '5px 8px',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <option value="">Barchasi</option>
-                        {objectTypeOptions.map((opt: any, i: number) => (
-                            <option key={`${opt.value}-${i}`} value={opt.value}>{opt.label}</option>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        {[
+                            { value: '', label: 'Barchasi', color: 'var(--gc-title)', text: sourceFilter === '' ? '#020B18' : 'var(--gc-title)' },
+                            { value: 'geology', label: SOURCE_LABELS.geology, color: SOURCE_UI_ACCENT.geology, text: GC.white },
+                            { value: 'factory', label: SOURCE_LABELS.factory, color: SOURCE_UI_ACCENT.factory, text: '#020B18' },
+                            { value: 'invest', label: SOURCE_LABELS.invest, color: SOURCE_UI_ACCENT.invest, text: '#020B18' },
+                        ].map(opt => (
+                            <button
+                                key={opt.value}
+                                onClick={() => setSourceFilter(opt.value)}
+                                style={{
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    padding: '5px 10px',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    color: sourceFilter === opt.value ? opt.text : opt.color,
+                                    background: sourceFilter === opt.value ? opt.color : 'transparent',
+                                    border: `1px solid ${opt.color}`,
+                                    transition: 'all 0.2s',
+                                }}
+                            >
+                                {opt.label}
+                            </button>
                         ))}
-                    </select>
-                </div>
-
-                {/* Transport holati */}
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.accent1, boxShadow: `0 0 6px ${GC.accent1}` }}></div>
-                        <span style={{ color: GC.accent1, fontWeight: 'bold' }}>Active</span>
-                        <input
-                            type="checkbox"
-                            checked={visibleToifas.includes('active_car')}
-                            onChange={() => toggleToifa('active_car')}
-                            style={{ cursor: 'pointer', accentColor: GC.accent1, width: '13px', height: '13px' }}
-                        />
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontSize: '11px' }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: GC.red, boxShadow: `0 0 6px ${GC.red}` }}></div>
-                        <span style={{ color: GC.red, fontWeight: 'bold' }}>Inactive</span>
-                        <input
-                            type="checkbox"
-                            checked={visibleToifas.includes('inactive_car')}
-                            onChange={() => toggleToifa('inactive_car')}
-                            style={{ cursor: 'pointer', accentColor: GC.red, width: '13px', height: '13px' }}
-                        />
-                    </label>
+                    </div>
                 </div>
             </div>
 
-            {/* Fabrika ro'yxati — o'ng tomondagi sidebar */}
+            {/* Obyektlar ro'yxati — o'ng tomondagi sidebar */}
             <div style={{
                 position: 'absolute',
                 top: '6%',
@@ -1248,16 +2762,16 @@ const Map3D = ({
                 color: 'white',
             }}>
                 <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(0,245,255,0.8)', borderBottom: '1px solid rgba(0,245,255,0.2)', paddingBottom: '6px', textAlign: 'center', letterSpacing: '1px' }}>
-                    OBYEKTLAR ({factorys.length})
+                    OBYEKTLAR ({filteredItems.length})
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto', flex: 1 }}>
-                    {factorys.map((f: any, index: number) => {
-                        /* Metall / Kon / Market — uchala toifa bir xil rangda */
-                        const color = GC.marker;
+                    {filteredItems.map((obj, index) => {
+                        const color = SOURCE_UI_ACCENT[obj.type] || GC.marker;
+                        const hasCoords = typeof obj.lat === 'number' && typeof obj.lon === 'number';
                         return (
                             <div
-                                key={f.id ?? index}
-                                onClick={() => focusFactory(f, index)}
+                                key={obj.id ?? index}
+                                onClick={() => focusObject(obj, index)}
                                 style={{
                                     display: 'flex',
                                     flexDirection: 'column',
@@ -1267,30 +2781,32 @@ const Map3D = ({
                                     borderLeft: `3px solid ${color}`,
                                     background: 'rgba(255,255,255,0.04)',
                                     cursor: 'pointer',
+                                    opacity: hasCoords ? 1 : 0.7,
                                 }}
                                 onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0,245,255,0.1)'; }}
                                 onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                             >
                                 <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {f.name || f.title}
+                                    {obj.name || '—'}
                                 </span>
                                 <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.55)' }}>
-                                    {f.region || f.objectType || ''}
+                                    {obj.region || SOURCE_LABELS[obj.type] || ''}
+                                    {!hasCoords ? ' · koordinatasiz' : obj.coordsSource === 'linked' ? ' · taxminiy' : ''}
                                 </span>
                             </div>
                         );
                     })}
-                    {markersLoading && (
+                    {mapObjectsLoading && (
                         <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '10px 0' }}>
                             Yuklanmoqda...
                         </div>
                     )}
-                    {markersIsError && (
+                    {mapObjectsIsError && (
                         <div style={{ fontSize: '11px', color: GC.red, textAlign: 'center', padding: '10px 0' }}>
-                            Xatolik: {(markersErrorObj as any)?.response?.status === 401 ? 'Token yo\'q yoki muddati o\'tgan, qayta login qiling' : ((markersErrorObj as any)?.message || 'ma\'lumot olinmadi')}
+                            Xatolik: {(mapObjectsErrorObj as any)?.response?.status === 401 ? 'Token yo\'q yoki muddati o\'tgan, qayta login qiling' : ((mapObjectsErrorObj as any)?.message || 'ma\'lumot olinmadi')}
                         </div>
                     )}
-                    {!markersLoading && !markersIsError && factorys.length === 0 && (
+                    {!mapObjectsLoading && !mapObjectsIsError && filteredItems.length === 0 && (
                         <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '10px 0' }}>
                             Obyektlar topilmadi
                         </div>
@@ -1557,220 +3073,16 @@ const Map3D = ({
                 </div>
             )}
 
-            {openDetailId !== null && (
-                <div
-                    onClick={handleCloseDetails}
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0, 0, 0, 0.75)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 900000000,
-                        pointerEvents: 'auto',
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            width: '100vw',
-                            maxWidth: '100vw',
-                            height: '95vh',
-                            maxHeight: '95vh',
-                            background: '#020B18',
-                            // border: '1px solid rgba(0,245,255,0.3)',
-                            // borderRadius: '12px',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            color: '#e0f0ff',
-                            fontFamily: 'var(--font-body), sans-serif',
-                            // boxShadow: '0 0 30px rgba(0,245,255,0.15)',
-                        }}
-                    >
-                        {/* Header */}
-                        <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,245,255,0.2)' }}>
-                            <div>
-                                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: 'var(--gc-title)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                    {factoryDetail?.name || factoryDetail?.enterprise_name || 'Zavod'}
-                                </h3>
-                                {factoryDetail?.status && (
-                                    <div style={{
-                                        display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', marginTop: '6px',
-                                        color: STATUS_COLORS[factoryDetail.status] || '#e0f0ff',
-                                        background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: '4px',
-                                        border: `1px solid ${STATUS_COLORS[factoryDetail.status] || 'rgba(255,255,255,0.2)'}`,
-                                    }}>
-                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor', boxShadow: '0 0 5px currentColor' }}></span>
-                                        {factoryDetail.status}
-                                    </div>
-                                )}
-                            </div>
-                            <button
-                                onClick={handleCloseDetails}
-                                style={{
-                                    width: '32px', height: '32px', border: '1px solid rgba(255,255,255,0.35)',
-                                    background: 'rgba(255,255,255,0.08)', color: 'white', borderRadius: '8px',
-                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                }}
-                            >
-                                X
-                            </button>
-                        </div>
-
-                        {/* Content — 2x2: chap-tepa umumiy ma'lumot, o'ng-tepa 3D model, chap-past ProjectDashboard, o'ng-past kameralar */}
-                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '1px', background: 'rgba(0,245,255,0.15)', overflow: 'hidden', minHeight: 0 }}>
-                            {!factoryDetail ? (
-                                <div style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', background: '#020B18' }}>
-                                    Ma'lumot yuklanmoqda...
-                                </div>
-                            ) : (
-                                <>
-                                    {/* Chap-tepa: umumiy ma'lumot */}
-                                    <div style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: 0 }}>
-                                        {/* Joylashuv */}
-                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: 'var(--gc-title)', fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Joylashuv</div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Manzil:</span>
-                                                    <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.location || '-'}</span>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Viloyat:</span>
-                                                    <span style={{ fontWeight: '600' }}>{factoryDetail.region || '-'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Loyiha */}
-                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: GC.accent1, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Loyiha</div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Maqsad:</span>
-                                                    <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.projectGoal || '-'}</span>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Obyekt turi:</span>
-                                                    <span style={{ fontWeight: '600' }}>{factoryDetail.objectType || '-'}</span>
-                                                </div>
-                                                {typeof factoryDetail.work_persent === 'number' && (
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                            <span style={{ color: GC.slate }}>Bajarilish:</span>
-                                                            <span style={{ fontWeight: '600' }}>{factoryDetail.work_persent}%</span>
-                                                        </div>
-                                                        <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-                                                            <div style={{ width: `${factoryDetail.work_persent}%`, height: '100%', background: GC.accent1, boxShadow: `0 0 5px ${GC.accent1}` }}></div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Holat va muhimlik */}
-                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: GC.violet, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Holat</div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Holat:</span>
-                                                    <span style={{ fontWeight: '600', color: STATUS_COLORS[factoryDetail.status] || '#e0f0ff' }}>{factoryDetail.status || '-'}</span>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Muhimlik:</span>
-                                                    <span style={{ fontWeight: '600', color: IMPORTANCE_COLORS[factoryDetail.importance] || '#e0f0ff' }}>{factoryDetail.importance || '-'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Boshqaruv */}
-                                        <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                            <div style={{ marginBottom: '15px', color: GC.amber, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Boshqaruv</div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Korxona:</span>
-                                                    <span style={{ fontWeight: '600', textAlign: 'right' }}>{factoryDetail.enterprise_name || '-'}</span>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span style={{ color: GC.slate }}>Rahbar:</span>
-                                                    <span style={{ fontWeight: '600' }}>{factoryDetail.manager || '-'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Elementlar */}
-                                        {Array.isArray(factoryDetail.elements) && factoryDetail.elements.length > 0 && (
-                                            <div style={{ background: 'rgba(3, 13, 34, 0.7)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(0,245,255,0.1)' }}>
-                                                <div style={{ marginBottom: '15px', color: GC.slate, fontWeight: 'bold', fontSize: '14px', textTransform: 'uppercase' }}>Elementlar</div>
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                                    {factoryDetail.elements.map((el: string, i: number) => (
-                                                        <span key={i} style={{ fontSize: '12px', fontWeight: '600', color: 'var(--gc-title)', border: '1px solid rgba(0,245,255,0.3)', borderRadius: '4px', padding: '3px 10px' }}>{el}</span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* O'ng-tepa: 3D model */}
-                                    <div style={{ background: 'var(--gc-panel-bg)', overflow: 'hidden', position: 'relative', minHeight: 0 }}>
-                                        <div style={{ position: 'absolute', top: '10px', left: '12px', zIndex: 10, color: 'var(--gc-title)', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                            3D Model
-                                        </div>
-                                        <Canvas shadows camera={{ position: [0, 2, 5], fov: 40 }}>
-                                            <ambientLight intensity={0.8} />
-                                            <pointLight position={[10, 10, 10]} intensity={1.5} />
-                                            <Suspense fallback={<Html center><div style={{ color: 'var(--gc-title)', fontSize: '11px' }}>Model yuklanmoqda...</div></Html>}>
-                                                <FactoryViewer
-                                                    modelPath={randomFactoryModel}
-                                                    rotationSpeed={0.5}
-                                                    zoom={0.06}
-                                                />
-                                                <Environment preset="city" />
-                                                <ContactShadows position={[0, -1.5, 0]} opacity={0.6} scale={15} blur={3} />
-                                            </Suspense>
-                                            <OrbitControls enablePan={false} enableRotate={true} enableZoom={true} minDistance={2} maxDistance={25} />
-                                        </Canvas>
-                                    </div>
-
-                                    {/* Chap-past: ProjectDashboard (real API ma'lumotlari bilan) */}
-                                    <div style={{ background: '#0a1420', overflowY: 'auto', minHeight: 0 }}>
-                                        <ProjectDashboard factory={factoryDetail} />
-                                    </div>
-
-                                    {/* O'ng-past: Kameralar (4 ta, /factory/:id javobidagi "cameras" massividan) */}
-                                    <div style={{ background: '#020B18', overflow: 'hidden', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: 'repeat(2, 1fr)', gap: '2px', minHeight: 0 }}>
-                                        {Array.from({ length: 4 }).map((_, i) => {
-                                            const cam = Array.isArray(factoryDetail.cameras) ? factoryDetail.cameras[i] : undefined;
-                                            const streamUrl = buildCameraStreamUrl(cam);
-                                            return (
-                                                <div key={i} style={{ position: 'relative', background: '#0d0d0d', overflow: 'hidden' }}>
-                                                    {streamUrl ? (
-                                                        <WebRTCPlayer url={streamUrl} />
-                                                    ) : (
-                                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.35)', fontSize: '11px' }}>
-                                                            {cam ? 'Stream mavjud emas' : 'Kamera yo\'q'}
-                                                        </div>
-                                                    )}
-                                                    {cam && (
-                                                        <span style={{ position: 'absolute', top: '4px', left: '5px', background: 'rgba(0,0,0,0.7)', color: '#ccc', fontSize: '10px', padding: '2px 6px', borderRadius: '3px' }}>
-                                                            {cam.label || cam.name || cam.modelUz || cam.model || `Kamera ${i + 1}`}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-
-                        {/* Footer */}
-
-                    </div>
-                </div>
+            {/* Turi bo'yicha modal — factory / geology / invest uchunham to'liq ekran
+               "pasport" dashboard ko'rinishi, har birining o'z kartalari bilan. */}
+            {selectedObject?.type === 'factory' && (
+                <FactoryFullScreenModal object={selectedObject} onClose={handleCloseDetails} />
+            )}
+            {selectedObject?.type === 'geology' && (
+                <GeologyFullScreenModal object={selectedObject} onClose={handleCloseDetails} />
+            )}
+            {selectedObject?.type === 'invest' && (
+                <InvestFullScreenModal object={selectedObject} onClose={handleCloseDetails} />
             )}
         </div>
     );
