@@ -116,10 +116,15 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
             />
 
             {/* ── 3D scene ─────────────────────────────────────────────────── */}
+            {/* Embedded (a small dashboard tile, rendering alongside the map and
+               other widgets) caps the device-pixel-ratio at 1 instead of up to 2 —
+               on a HiDPI screen that's a 4x fragment-shader cost difference for a
+               tile a fraction of the screen, invisible at that size but very much
+               felt as extra jank competing with everything else on the page. */}
             <Canvas
                 className="fm-canvas"
                 shadows
-                dpr={[1, 2]}
+                dpr={embedded ? 1 : [1, 2]}
                 gl={{ antialias: true, powerPreference: "high-performance" }}
                 camera={{
                     position: CAMERA_INITIAL_POSITION,
@@ -138,6 +143,7 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
                         onToggleWarning={handleToggleWarning}
                         onExpandWarning={handleExpandWarning}
                         paused={selected?.type === "into"}
+                        lowQuality={embedded}
                     />
                 </Suspense>
             </Canvas>

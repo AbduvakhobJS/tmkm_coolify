@@ -47,6 +47,8 @@ interface FactorySceneProps {
     onExpandWarning: (marker: WarningMarker) => void;
     /** Suspends orbit + WASD navigation while a fullscreen modal (e.g. the pavilion walkthrough) sits on top. */
     paused?: boolean;
+    /** Embedded-tile mode: shrink shadow-map/contact-shadow resolution — imperceptible at tile size, real GPU savings. */
+    lowQuality?: boolean;
 }
 
 /**
@@ -63,11 +65,14 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
     onToggleWarning,
     onExpandWarning,
     paused,
+    lowQuality,
 }) => {
     const controlsRef = useRef<OrbitControlsImpl | null>(null);
     const modelRef = useRef<THREE.Group | null>(null);
-    // One-shot cinematic on mount: descend to walking height, tour the model, return to the overview.
-    const [introPlaying, setIntroPlaying] = useState(true);
+    // One-shot cinematic on mount: descend to walking height, tour the model, return
+    // to the overview. Skipped entirely in embedded (small dashboard tile) mode — a
+    // 10s flythrough isn't legible at tile size and just burns CPU/GPU in the background.
+    const [introPlaying, setIntroPlaying] = useState(!lowQuality);
 
     // Clicking an "into" marker first zooms/dips the camera in close to it;
     // the modal itself only opens once that flight lands (see MarkerFlyRig's onArrive below).
@@ -122,7 +127,7 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
                 intensity={2.4}
                 color="#fff3d6"
                 castShadow
-                shadow-mapSize={[2048, 2048]}
+                shadow-mapSize={lowQuality ? [1024, 1024] : [2048, 2048]}
                 shadow-camera-near={1}
                 shadow-camera-far={120}
                 shadow-camera-left={-40}
@@ -174,7 +179,7 @@ const FactoryScene: React.FC<FactorySceneProps> = ({
                 scale={70}
                 blur={2.6}
                 far={30}
-                resolution={512}
+                resolution={lowQuality ? 256 : 512}
                 color="#02060f"
             />
 

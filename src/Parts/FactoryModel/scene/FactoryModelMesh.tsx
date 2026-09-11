@@ -88,6 +88,69 @@ const buildNormalizedFactory = (scene: THREE.Object3D): NormalizedFactory => {
 };
 
 /**
+ * Daraxtlar.glb scatters ~900 tree nodes across only ~15 distinct
+ * geometry/material pairs (the same handful of tree meshes repeated
+ * hundreds of times) — but GLTFLoader gives every node its own THREE.Mesh,
+ * so that was ~900 separate draw calls + ~900 Object3D's for the CPU to
+ * walk every frame. Flattening each repeated geometry+material pair into a
+ * single THREE.InstancedMesh (one draw call per tree TYPE instead of per
+ * tree) keeps the exact same visuals while cutting that to ~15 draw calls.
+ */
+const treesCache = new WeakMap<THREE.Object3D, THREE.Group>();
+
+const buildInstancedTrees = (scene: THREE.Object3D): THREE.Group => {
+    const cached = treesCache.get(scene);
+    if (cached) return cached;
+
+    const source = scene.clone(true);
+    source.updateMatrixWorld(true);
+
+    const groups = new Map<
+        string,
+        { geometry: THREE.BufferGeometry; material: THREE.Material | THREE.Material[]; matrices: THREE.Matrix4[] }
+    >();
+
+    source.traverse((obj) => {
+        if (!(obj as THREE.Mesh).isMesh) return;
+        const mesh = obj as THREE.Mesh;
+        const matKey = Array.isArray(mesh.material)
+            ? mesh.material.map((m) => m.uuid).join(",")
+            : mesh.material.uuid;
+        const key = `${mesh.geometry.uuid}|${matKey}`;
+        if (!groups.has(key)) {
+            groups.set(key, { geometry: mesh.geometry, material: mesh.material, matrices: [] });
+        }
+        groups.get(key)!.matrices.push(mesh.matrixWorld.clone());
+    });
+
+    const root = new THREE.Group();
+    groups.forEach(({ geometry, material, matrices }) => {
+        (Array.isArray(material) ? material : [material]).forEach((mat) => {
+            if (mat && "envMapIntensity" in mat) (mat as THREE.MeshStandardMaterial).envMapIntensity = 1.1;
+        });
+
+        if (matrices.length === 1) {
+            // Not worth instancing a one-off — a plain mesh is cheaper/simpler.
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.applyMatrix4(matrices[0]);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            root.add(mesh);
+            return;
+        }
+        const instanced = new THREE.InstancedMesh(geometry, material, matrices.length);
+        matrices.forEach((matrix, i) => instanced.setMatrixAt(i, matrix));
+        instanced.instanceMatrix.needsUpdate = true;
+        instanced.castShadow = true;
+        instanced.receiveShadow = true;
+        root.add(instanced);
+    });
+
+    treesCache.set(scene, root);
+    return root;
+};
+
+/**
  * Loads factory_model.glb and Daraxtlar.glb (trees), then centres the
  * factory model on the origin and uniformly scales it so its largest
  * dimension equals {@link MODEL_TARGET_SIZE}. The trees model is rendered
@@ -100,14 +163,7 @@ const FactoryModelMesh: React.FC<FactoryModelMeshProps> = ({ onReady }) => {
     const { scene: treesScene } = useGLTF(TREES_MODEL_URL, DRACO_DECODER_PATH);
 
     const { model, scale, offset } = useMemo(() => buildNormalizedFactory(scene), [scene]);
-    const treesModel = useMemo(() => {
-        const cached = normalizedCache.get(treesScene);
-        if (cached) return cached.model;
-        const clone = treesScene.clone(true);
-        enableShadows(clone);
-        normalizedCache.set(treesScene, { model: clone, scale: 1, offset: new THREE.Vector3() });
-        return clone;
-    }, [treesScene]);
+    const treesModel = useMemo(() => buildInstancedTrees(treesScene), [treesScene]);
 
     return (
         <group
