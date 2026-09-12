@@ -93,9 +93,14 @@ const collectFurnaceNodes = (model: THREE.Object3D): FurnaceNodes => {
         if (cMatch) {
             const furnace = Number(cMatch[1]);
             // Clone the light's material once so each furnace's bulb can blink
-            // independently — in the GLB every asosiy_chiroq shares one material.
+            // independently — in the GLB every asosiy_chiroq shares one material
+            // (chiroqasosiy_M), which ships with no emissiveFactor at all (pure
+            // pbrMetallicRoughness baseColor). Toggling emissiveIntensity alone
+            // against a black emissive multiplies out to zero — always invisible
+            // — so the clone also needs an actual emissive colour to glow with.
             const sourceMat = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
             const material = (sourceMat?.clone() ?? new THREE.MeshStandardMaterial()) as THREE.MeshStandardMaterial;
+            material.emissive = new THREE.Color(0xff6a10);
             mesh.material = Array.isArray(mesh.material) ? mesh.material.map(() => material) : material;
             if (!chiroq.has(furnace)) chiroq.set(furnace, []);
             chiroq.get(furnace)!.push({ mesh, material });

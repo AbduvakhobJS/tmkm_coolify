@@ -332,7 +332,7 @@ const GRR: React.FC = () => {
             </div>
 
             {/* Asosiy 3 ustunli qism */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.6fr 1fr', gap: 8, minHeight: 380 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.6fr 1fr', gap: 8, minHeight: 280 }}>
 
                 {/* Portfel loyihalari */}
                 <SectionCard title="Loyihalar portfeli" icon={<IconFolder />} hint={`${projects.length} ta`}>
@@ -511,7 +511,7 @@ const GRR: React.FC = () => {
             </div>
 
             {/* Pastki grafiklar qatori */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, height: 450 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, height: 250 }}>
                 <SectionCard title="2026 yil ish hajmlari — reja va bajarilishi" icon={<IconLayers />} iconColor={GC.accent1}>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <Bar data={volumesData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 8.5 } } } }, scales: axis({ x: { ticks: { font: { size: 8.5 } } }, y: { beginAtZero: true } }) } as any} />
@@ -523,9 +523,9 @@ const GRR: React.FC = () => {
                     )}
                 </SectionCard>
 
-                <SectionCard title="Element guruhlari bo'yicha o'rtacha tarkib" icon={<IconGauge />} iconColor={GC.violet}>
-                    <EmptyNote text="Tarkib (greyd, %) manbada faqat 10/46 loyihada, erkin matn ichida — tuzilgan raqamli maydon sifatida yo'q, diagramma qurib bo'lmaydi." />
-                </SectionCard>
+                {/*<SectionCard title="Element guruhlari bo'yicha o'rtacha tarkib" icon={<IconGauge />} iconColor={GC.violet}>*/}
+                {/*    <EmptyNote text="Tarkib (greyd, %) manbada faqat 10/46 loyihada, erkin matn ichida — tuzilgan raqamli maydon sifatida yo'q, diagramma qurib bo'lmaydi." />*/}
+                {/*</SectionCard>*/}
 
                 <SectionCard title="2026 yil byudjeti — loyihalar kesimida, mln $" icon={<IconCoins />} iconColor={GC.cyan} hint={`${projectsWithBudget2026.length}/${summary.totalProjects} loyihada`}>
                     {projectsWithBudget2026.length ? (

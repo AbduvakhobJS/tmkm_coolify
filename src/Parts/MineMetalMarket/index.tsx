@@ -350,6 +350,64 @@ const ActiveUnitCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: strin
     );
 };
 
+/**
+ * Zavod darajasidagi "ota" kartochka — ostidagi sexlar guruhidan ajratish
+ * uchun kattaroq, gorizontal va aksent bilan ajralib turadi (bitta zavod
+ * bo'lsa ham qator to'liq cho'ziladi — bo'sh joy qolmaydi).
+ */
+const FactoryCard: React.FC<{ unit: ActiveUnit; accent: string; segKey: string }> = ({unit, accent, segKey}) => {
+    const hasStaff = unit.staff > 0;
+    return (
+        <div style={{
+            display: 'flex', alignItems: 'stretch', gap: cq(4, 1.1, 10), minWidth: 0,
+            background: `linear-gradient(120deg, ${accent}22, rgba(6,12,20,.6))`,
+            border: `1px solid ${accent}55`, borderLeft: `${cq(2, 0.6, 4)} solid ${accent}`,
+            borderRadius: cq(5, 1.4, 11), padding: cq(4, 1.1, 9),
+            boxShadow: `0 2px 10px ${accent}22`,
+        }}>
+            <img
+                src={UNIT_PHOTO[segKey] ?? UNIT_PHOTO.mine} alt=""
+                style={{
+                    width: cq(34, 9, 74), height: cq(34, 9, 74), objectFit: 'cover',
+                    borderRadius: cq(3, 0.9, 7), flexShrink: 0, display: 'block',
+                }}
+            />
+            <div style={{flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: cq(2.5, 0.7, 6)}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: cq(2, 0.6, 6), minWidth: 0}}>
+                    <span style={{
+                        background: `${accent}26`, color: accent, fontWeight: 800,
+                        fontSize: cq(4, 0.95, 8), padding: `${cq(0.8, 0.25, 2)} ${cq(2, 0.6, 6)}`,
+                        borderRadius: cq(2.5, 0.7, 5), flexShrink: 0, letterSpacing: 0.3,
+                    }}>ZAVOD</span>
+                    <span style={{
+                        color: GC.textPrimary, fontSize: cq(6.5, 1.7, 13.5), fontWeight: 700, minWidth: 0,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
+                    }} title={unit.name}>{unit.name}</span>
+                    <Delta v={unit.delta} size={cq(5.5, 1.4, 11)}/>
+                </div>
+                <div style={{display: 'flex', alignItems: 'center', gap: cq(4, 1.1, 10), minWidth: 0}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: cq(1.5, 0.45, 4.5), minWidth: 0}}>
+                        <span style={{color: accent, display: 'flex', flexShrink: 0}}><Icon name="chart" size={cq(7, 1.8, 14)}/></span>
+                        <span style={{minWidth: 0}}>
+                            <div style={{color: GC.textPrimary, fontSize: cq(6, 1.55, 12.5), fontWeight: 700, whiteSpace: 'nowrap'}}>{unit.output}</div>
+                            <div style={{color: GC.textDisabled, fontSize: cq(4.2, 1, 8.5)}}>{unit.outputLabel}</div>
+                        </span>
+                    </div>
+                    {hasStaff && (
+                        <div style={{display: 'flex', alignItems: 'center', gap: cq(1.5, 0.45, 4.5), minWidth: 0}}>
+                            <span style={{color: GC.accent2, display: 'flex', flexShrink: 0}}><Icon name="users" size={cq(7, 1.8, 14)}/></span>
+                            <span>
+                                <div style={{color: GC.textPrimary, fontSize: cq(6, 1.55, 12.5), fontWeight: 700}}>{fmtNum(unit.staff)}</div>
+                                <div style={{color: GC.textDisabled, fontSize: cq(4.2, 1, 8.5)}}>Xodimlar</div>
+                            </span>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 /** Qurilayotgan / loyiha bosqichidagi obyekt — ochroq fonli kartochka. */
 /** Investitsiya summasi — "41 mln $" / "54,6 mln $". Butun son bo'lsa kasr chiqmaydi. */
 const fmtUsd = (n: number | null | undefined): string => {
@@ -605,12 +663,29 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
             <BlockTitle text={seg.activeTitle} count={seg.active.length} accent={seg.accent}/>
 
             <div style={{
-                display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
+                display: 'grid',
+                gridTemplateColumns: seg.activeSecondary ? 'repeat(auto-fit, minmax(180px, 1fr))' : 'repeat(3, minmax(0, 1fr))',
+                gap: cq(3, 0.9, 9),
             }}>
                 {seg.active.map((u) => (
-                    <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
+                    seg.activeSecondary
+                        ? <FactoryCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
+                        : <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
                 ))}
             </div>
+
+            {!!seg.activeSecondary?.length && (
+                <>
+                    <BlockTitle text={seg.activeSecondaryTitle ?? ''} count={seg.activeSecondary.length} accent={seg.accent}/>
+                    <div style={{
+                        display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
+                    }}>
+                        {seg.activeSecondary.map((u) => (
+                            <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
+                        ))}
+                    </div>
+                </>
+            )}
 
             <BlockTitle text={seg.investTitle} count={seg.investProjects.length} accent={seg.accent}/>
             <div style={{
@@ -703,13 +778,30 @@ const SegmentModal: React.FC<{ seg: Segment; onClose: () => void }> = ({seg, onC
                 <BlockTitle text={seg.activeTitle} count={seg.active.length} accent={seg.accent}/>
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                    gridTemplateColumns: seg.activeSecondary ? 'repeat(auto-fit, minmax(220px, 1fr))' : 'repeat(auto-fit, minmax(160px, 1fr))',
                     gap: 10,
                     marginBottom: 6
                 }}>
-                    {seg.active.map((u) => <ActiveUnitCard key={u.name} unit={u} accent={seg.accent}
-                                                           segKey={seg.key}/>)}
+                    {seg.active.map((u) => (
+                        seg.activeSecondary
+                            ? <FactoryCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
+                            : <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
+                    ))}
                 </div>
+
+                {!!seg.activeSecondary?.length && (
+                    <>
+                        <BlockTitle text={seg.activeSecondaryTitle ?? ''} count={seg.activeSecondary.length} accent={seg.accent}/>
+                        <div style={{
+                            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10, marginBottom: 6,
+                        }}>
+                            {seg.activeSecondary.map((u) => (
+                                <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
+                            ))}
+                        </div>
+                    </>
+                )}
+
                 <BlockTitle text={seg.investTitle} count={seg.investProjects.length} accent={seg.accent}/>
                 <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10}}>
                     {seg.investProjects.length

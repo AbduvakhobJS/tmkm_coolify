@@ -58,6 +58,14 @@ export type Segment = {
     summary: { value: string; label: string }[];
     activeTitle: string;
     active: ActiveUnit[];
+    /**
+     * Ba'zi segmentlarda (masalan METAL) "faoliyatdagi obyektlar" ikki
+     * darajaga bo'linadi: zavod (`active`, ota) va uning sexlari (shu yerda,
+     * bola) — ikkisi alohida sarlavha va kartochka bilan ko'rsatiladi.
+     * Bo'lmasa (`undefined`) — `active` yagona guruh sifatida chiqadi.
+     */
+    activeSecondaryTitle?: string;
+    activeSecondary?: ActiveUnit[];
     investTitle: string;
     /** GET /invest-projects?type= dan — qurilayotgan/reja bosqichidagi investitsiya loyihalari. */
     investProjects: InvestProjectListItem[];

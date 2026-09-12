@@ -223,7 +223,13 @@ const ESG: React.FC = () => {
     const kpiColor: Record<string, string> = { esgRating: GC.accent1, irma: GC.accent2, hseIndex: GC.accent3, co2: GC.slate, water: GC.accent4, violations: C.down };
 
     return (
-        <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ background: C.bg,
+            // height: '100vh',
+            overflowY: 'auto',
+            padding: 14,
+            boxSizing: 'border-box',
+            fontFamily: '"Segoe UI", system-ui, sans-serif',
+            display: 'flex', flexDirection: 'column', gap: 10 }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

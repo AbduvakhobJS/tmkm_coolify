@@ -754,9 +754,6 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
             {/* Header */}
             <div style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(titleColor, 0.3)}`, background: `linear-gradient(90deg, ${alpha(titleColor, 0.25)}, #020B18)`, flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 9, background: alpha(titleColor, 0.18), border: `1px solid ${alpha(titleColor, 0.5)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: titleColor, flexShrink: 0 }}>
-                        <IconFactorySmall />
-                    </div>
                     <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#fff' }}>{object.name || detail.enterpriseName || 'Zavod'}</h2>
                     <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', padding: '3px 8px', borderRadius: '5px', whiteSpace: 'nowrap' }}>{projectCode}</span>
                     {statusLabel && <StatusPill color={GC.green} text={statusLabel} />}

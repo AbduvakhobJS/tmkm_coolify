@@ -475,7 +475,7 @@ const FinanceNew: React.FC = () => {
     return (
         <div style={{
             background: C.bg,
-            height: '100vh',
+            // height: '100vh',
             overflowY: 'auto',
             padding: 14,
             boxSizing: 'border-box',

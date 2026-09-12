@@ -43,6 +43,23 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
     const { time, date } = useClock();
     const { streams } = useCameraStreams();
     const [selected, setSelected] = useState<BuildingMarker | null>(null);
+    const rootRef = useRef<HTMLDivElement | null>(null);
+
+    // Orbit-dragging the 3D view routinely starts (or crosses) an HTML overlay
+    // label/panel sitting on top of the canvas, which the browser reads as a
+    // text-selection drag unless stopped. `user-select: none` in CSS also
+    // stops it, but in some browsers that same property quietly breaks the
+    // pointer-drag gesture OrbitControls relies on for orbiting — so instead
+    // this cancels only the browser's native "begin selecting text" event
+    // itself, right as it fires, which never touches pointer/mouse events at
+    // all and leaves orbit dragging (and everything else) completely alone.
+    useEffect(() => {
+        const el = rootRef.current;
+        if (!el) return;
+        const onSelectStart = (e: Event) => e.preventDefault();
+        el.addEventListener("selectstart", onSelectStart);
+        return () => el.removeEventListener("selectstart", onSelectStart);
+    }, []);
 
     // ── Video markers: per-id open state + the master "Camera" toggle ───────
     const [openVideos, setOpenVideos] = useState<Record<string, boolean>>({});
@@ -115,6 +132,7 @@ const FactoryModel: React.FC<FactoryModelProps> = ({ embedded = false }) => {
 
     return (
         <div
+            ref={rootRef}
             className={`fm-root${embedded ? " fm-root--embedded" : ""}${isFullscreen ? " fm-root--fullscreen" : ""}`}
         >
             {embedded && (

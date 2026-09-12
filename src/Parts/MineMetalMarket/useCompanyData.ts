@@ -149,7 +149,11 @@ export const useCompanyData = () => {
         /* 1 цех xodimlari — hujjatda mavjud yagona xodimlar raqami (no: 13). */
         const shopStaff = latestPair(kpiByNo.get(13)?.values).cur ?? 0;
 
-        const metalActive: ActiveUnit[] = [
+        /* Zavod (ota) — hozircha faqat Chirchiq zavodi bo'yicha yig'ma KPI bor
+           (production-report/dashboard). Sexlar shu zavod ICHIDAGI liniyalar
+           (production-report/chain, `c*` prefiksi) — shuning uchun alohida
+           guruh sifatida ko'rsatiladi. */
+        const metalPlants: ActiveUnit[] = [
             {
                 name: 'Chirchiq zavodi',
                 staff: 0,
@@ -157,6 +161,9 @@ export const useCompanyData = () => {
                 outputLabel: 'Tayyor mahsulot (oyiga)',
                 delta: pctDelta(plantCur, plantPrev),
             },
+        ];
+
+        const metalShops: ActiveUnit[] = [
             unitFromStep('c4-vypusk-wo3', '4-sex — WO₃', 'Chiqarish (oyiga)'),
             unitFromStep('c5-vypusk-tma', '5-sex — TMA (MoO₃)', 'Chiqarish (oyiga)'),
             unitFromStep('c1-moo3-vnutrennee', '1-sex — MoO₃', 'Chiqarish (oyiga)', Math.round(shopStaff)),
@@ -284,8 +291,10 @@ export const useCompanyData = () => {
                         label: 'Tayyor mahsulot (oyiga)',
                     },
                 ],
-                activeTitle: "FAOLIYATDA BO'LGAN ZAVOD VA SEXLAR",
-                active: metalActive,
+                activeTitle: "FAOLIYATDA BO'LGAN ZAVOD",
+                active: metalPlants,
+                activeSecondaryTitle: "FAOLIYATDA BO'LGAN SEXLAR",
+                activeSecondary: metalShops,
                 investTitle: "INVESTITSIYA LOYIHALARI",
                 investProjects: investMetall.data ?? [],
             },
