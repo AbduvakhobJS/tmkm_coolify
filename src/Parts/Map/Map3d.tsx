@@ -222,37 +222,23 @@ const MARKER_STYLES = `
         bottom: 25px;
         display: flex;
         flex-direction: column;
-        min-width: 180px;
-    }
-    .marker-title-tag {
-        color: white;
-        padding: 4px 12px;
-        font-size: 16px;
-        font-weight: bold;
+        min-width: 150px;
+        padding: 5px 12px 6px;
         border-radius: 4px 15px 4px 4px;
-        margin-bottom: 2px;
-        white-space: nowrap;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .marker-info-box {
-        background: rgba(10, 10, 10, 0.85);
         color: white;
-        padding: 6px 12px;
-        margin-left: 5%;
-        font-size: 13px;
-        border-radius: 4px;
-        border-left: 4px solid;
-        backdrop-filter: blur(4px);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.35);
     }
-    .marker-info-value {
-        color: ${GC.amber};
-        margin-left: 10px;
+    .marker-name {
+        font-size: 15px;
+        font-weight: bold;
+        line-height: 1.25;
+    }
+    .marker-address {
+        font-size: 11px;
+        font-weight: 500;
+        opacity: 0.85;
+        line-height: 1.25;
     }
     .mineral-popup .maplibregl-popup-content {
         background: rgba(2, 11, 24, 0.92);
@@ -399,10 +385,14 @@ const ElementChips: React.FC<{ elements?: string[] | null; accent: string }> = (
     );
 };
 
-const Card: React.FC<{ title: string; titleColor: string; borderColor: string; children: React.ReactNode }> = ({ title, titleColor, borderColor, children }) => (
-    <div style={{ background: GC.panelBg, padding: '14px', height: "100%",  borderRadius: '8px', border: `1px solid ${borderColor}` }}>
-        <div style={{ marginBottom: '10px', color: titleColor, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{children}</div>
+// `display:'flex', flexDirection:'column'` + ichki qatlamda `flex:1, minHeight:0` —
+// karta o'ziga berilgan butun balandlikni egallaydi VA shu balandlikni
+// ICHIDAGI kontentga (grafik/ro'yxat) ham uzatadi, shunda ular kartaning
+// tagigacha to'lib turadi (bo'sh joy qolmaydi).
+const Card: React.FC<{ title: string; titleColor: string; borderColor: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, titleColor, borderColor, children, style }) => (
+    <div style={{ background: GC.panelBg, padding: '14px', height: "100%", minHeight: 0, borderRadius: '8px', border: `1px solid ${borderColor}`, display: 'flex', flexDirection: 'column', ...style }}>
+        <div style={{ marginBottom: '10px', color: titleColor, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>{title}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minHeight: 0 }}>{children}</div>
     </div>
 );
 
@@ -1004,10 +994,13 @@ const pickField = (obj: any, keys: string[]): any => {
     return undefined;
 };
 
-const PassportRow: React.FC<{ label: string; value?: React.ReactNode }> = ({ label, value }) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <span style={{ color: GC.slate, fontSize: '14px', flexShrink: 0 }}>{label}</span>
-        <span style={{ color: '#e7f1ff', fontSize: '14px', fontWeight: 600, textAlign: 'right' }}>{value ?? '—'}</span>
+// `large` — matnni ~1.2x kattaroq (14px → 17px) chizadi, ustun soni kamroq
+// (masalan 3 emas 2) bo'lgan, shuning uchun har bir ustunga ko'proq bo'sh
+// joy tegadigan pasport joylashuvlari uchun.
+const PassportRow: React.FC<{ label: string; value?: React.ReactNode; large?: boolean }> = ({ label, value, large }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: large ? '7px 0' : '5px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <span style={{ color: GC.slate, fontSize: large ? '17px' : '14px', flexShrink: 0 }}>{label}</span>
+        <span style={{ color: '#e7f1ff', fontSize: large ? '17px' : '14px', fontWeight: 600, textAlign: 'right' }}>{value ?? '—'}</span>
     </div>
 );
 
@@ -1109,17 +1102,36 @@ const DEMO_ANALYSIS_RESULTS: { element: string; value: string; unit: string; nor
     { element: 'Pb', value: '0.03', unit: '%', norm: '< 0.1', trend: 'down' },
 ];
 
+/* ── "Geologik ma'lumotlar" kartasining 2-qatori — portfel darajasidagi GRR
+   (Geologiya-qidiruv ishlari boshqaruvi, src/Parts/GRR/GRR.tsx) dashboardida
+   kuzatiladigan ko'rsatkichlarning shu LOYIHA kesimidagi varianti: ish rejasi
+   bajarilishi, yillik hajmlar (reja/fakt) va yillik byudjet. Hali alohida
+   loyiha darajasida API maydoni yo'q — shuning uchun demo. ── */
+const DEMO_GRR_WORK_SEGMENTS = [
+    { label: 'Bajarildi', pct: 62, color: GC.accent1 },
+    { label: 'Qolgan', pct: 38, color: GC.slate },
+];
+const DEMO_GRR_VOLUME_LABELS = ["Burg'ilash, p.m", 'Namunalash, dona', 'Kanava, m³'];
+const DEMO_GRR_VOLUME_PLAN = [420, 180, 60];
+const DEMO_GRR_VOLUME_DONE = [260, 110, 35];
+const DEMO_GRR_BUDGET_2026 = 4.8; // mln $
+
 // `demo` — bu sub-panel hali haqiqiy API maydoniga ega bo'lmagan, faqat
 // joylashuvni ko'rsatish uchun namuna ma'lumot bilan chizilgan bo'lsa true.
 // Shunda ramka sariq bo'ladi va burchakda kichik "namuna" belgisi chiqadi —
 // foydalanuvchi qaysi widget hali demo ekanini bir qarashda ko'radi.
+// `height:'100%'` — ota qatorda aniq balandlik berilgan bo'lsa (masalan
+// `flex:1` bilan cho'zilgan grid qatori) SubPanel ham to'lig'icha shu
+// balandlikni egallaydi, shu bilan ichidagi `fill` rejimidagi grafik ham
+// dinamik ravishda cho'ziladi; balandlik berilmagan joyda (oddiy flex-wrap
+// qator) `100%` avvalgidek kontentga qarab (`auto`) hisoblanadi — buzilish yo'q.
 const SubPanel: React.FC<{ title: string; children: React.ReactNode; minWidth?: number; demo?: boolean }> = ({ title, children, minWidth = 170, demo }) => (
-    <div style={{ flex: `1 1 ${minWidth}px`, minWidth, background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: '8px', padding: '10px 12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '8px' }}>
+    <div style={{ flex: `1 1 ${minWidth}px`, minWidth, background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: '8px', padding: '10px 12px', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '8px', flexShrink: 0 }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#dfe9f5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
             {demo && <span style={{ fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>namuna</span>}
         </div>
-        {children}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>{children}</div>
     </div>
 );
 
@@ -1129,23 +1141,27 @@ const TrendArrow: React.FC<{ trend: 'up' | 'down' | 'flat' }> = ({ trend }) => {
     return <span style={{ color: GC.slate }}>—</span>;
 };
 
-const KpiTile: React.FC<{ label: string; value: string; unit?: string; delta?: string; demo?: boolean }> = ({ label, value, unit, delta, demo }) => {
+// `large` — kengroq to'rda (masalan 4 ustunli grid, flex-wrap emas) ko'proq
+// joy tegadigan holatlar uchun: padding/shrift kattaroq. Berilmasa avvalgi
+// kichik (108px asosli) o'lcham saqlanadi — boshqa modallardagi flex-wrap
+// KPI qatorlari buzilmaydi.
+const KpiTile: React.FC<{ label: string; value: string; unit?: string; delta?: string; demo?: boolean; large?: boolean }> = ({ label, value, unit, delta, demo, large }) => {
     const isDown = !!delta && delta.trim().startsWith('-');
     return (
-        <div style={{ background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: '8px', padding: '10px 12px', flex: '1 1 108px', minWidth: '108px' }}>
+        <div style={{ background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: large ? '10px' : '8px', padding: large ? '16px 18px' : '10px 12px', flex: `1 1 ${large ? 180 : 108}px`, minWidth: large ? '180px' : '108px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-                <div style={{ fontSize: '9.5px', color: GC.slate, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
-                {demo && <span style={{ fontSize: '7px', fontWeight: 700, color: GC.amber, flexShrink: 0 }}>namuna</span>}
+                <div style={{ fontSize: large ? '12px' : '9.5px', color: GC.slate, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+                {demo && <span style={{ fontSize: large ? '8px' : '7px', fontWeight: 700, color: GC.amber, flexShrink: 0 }}>namuna</span>}
             </div>
-            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff', marginTop: '4px' }}>
-                {value}{unit && <span style={{ fontSize: '10px', color: GC.slate, fontWeight: 500, marginLeft: '3px' }}>{unit}</span>}
+            <div style={{ fontSize: large ? '25px' : '17px', fontWeight: 700, color: '#fff', marginTop: large ? '7px' : '4px' }}>
+                {value}{unit && <span style={{ fontSize: large ? '13px' : '10px', color: GC.slate, fontWeight: 500, marginLeft: '3px' }}>{unit}</span>}
             </div>
             {delta && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: '4px', fontSize: '10px', color: isDown ? GC.red : GC.green, fontWeight: 700 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: large ? '7px' : '4px', fontSize: large ? '13px' : '10px', color: isDown ? GC.red : GC.green, fontWeight: 700 }}>
                     {isDown ? (
-                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 20L5 12h5V4h4v8h5l-7 8z" fill="currentColor" /></svg>
+                        <svg width={large ? 12 : 9} height={large ? 12 : 9} viewBox="0 0 24 24" fill="none"><path d="M12 20L5 12h5V4h4v8h5l-7 8z" fill="currentColor" /></svg>
                     ) : (
-                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 4l7 8h-5v8h-4v-8H5l7-8z" fill="currentColor" /></svg>
+                        <svg width={large ? 12 : 9} height={large ? 12 : 9} viewBox="0 0 24 24" fill="none"><path d="M12 4l7 8h-5v8h-4v-8H5l7-8z" fill="currentColor" /></svg>
                     )}
                     {delta}
                 </div>
@@ -1154,16 +1170,21 @@ const KpiTile: React.FC<{ label: string; value: string; unit?: string; delta?: s
     );
 };
 
-const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string }> = ({ data, labels, color }) => {
+// `fill` — true bo'lsa ustunlar qatori piksel emas, ota konteynerning butun
+// bo'sh balandligini egallaydi (`flex:1, minHeight:0` — `height:'100%'` emas,
+// chunki shu grafik ostida yana boshqa qator (masalan legenda) bo'lishi
+// mumkin va ular joy uchun "raqobatlashishi" kerak). Berilmasa avvalgidek
+// 64px'da qat'iy turadi (boshqa modallardagi joylashuvlar buzilmasin uchun).
+const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string; fill?: boolean }> = ({ data, labels, color, fill }) => {
     const max = Math.max(...data) * 1.15;
     return (
-        <div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '64px' }}>
+        <div style={fill ? { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 } : undefined}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', ...(fill ? { flex: 1, minHeight: 0 } : { height: '64px' }) }}>
                 {data.map((v, i) => (
                     <div key={i} title={`${labels[i]}: ${v}`} style={{ flex: 1, height: `${Math.max((v / max) * 100, 3)}%`, background: i === data.length - 1 ? color : alpha(color, 0.55), borderRadius: '2px 2px 0 0' }} />
                 ))}
             </div>
-            <div style={{ display: 'flex', gap: '3px', marginTop: '4px' }}>
+            <div style={{ display: 'flex', gap: '3px', marginTop: '4px', flexShrink: 0 }}>
                 {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
             </div>
         </div>
@@ -1172,12 +1193,12 @@ const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string }
 
 // Ikki seriyali (Reja/Fakt, Kirish/Chiqish kabi) ustunli grafik — har bir
 // nuqtada ikkita ustun yonma-yon, umumiy shkala bo'yicha (MiniBarChart'ning
-// ikki seriyali varianti).
-const DualBarChart: React.FC<{ seriesA: number[]; seriesB: number[]; labels: string[]; colorA: string; colorB: string; height?: number }> = ({ seriesA, seriesB, labels, colorA, colorB, height = 58 }) => {
+// ikki seriyali varianti). `fill` — MiniBarChart'dagi bilan bir xil ma'noda.
+const DualBarChart: React.FC<{ seriesA: number[]; seriesB: number[]; labels: string[]; colorA: string; colorB: string; height?: number; fill?: boolean }> = ({ seriesA, seriesB, labels, colorA, colorB, height = 58, fill }) => {
     const max = Math.max(...seriesA, ...seriesB) * 1.12;
     return (
-        <div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: `${height}px` }}>
+        <div style={fill ? { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 } : undefined}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', ...(fill ? { flex: 1, minHeight: 0 } : { height: `${height}px` }) }}>
                 {labels.map((l, i) => (
                     <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
                         <div title={`${l}: ${seriesA[i]}`} style={{ flex: 1, height: `${Math.max((seriesA[i] / max) * 100, 3)}%`, background: colorA, borderRadius: '2px 2px 0 0' }} />
@@ -1185,7 +1206,7 @@ const DualBarChart: React.FC<{ seriesA: number[]; seriesB: number[]; labels: str
                     </div>
                 ))}
             </div>
-            <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+            <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexShrink: 0 }}>
                 {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
             </div>
         </div>
@@ -1284,87 +1305,96 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                    <button onClick={onClose} style={closeBtnStyle}>✕</button>
                </div>
 
-               {/* Body — 1&3 chapda, 2 o'ngda-tepa, 4&5 o'ngda-pastda yonma-yon (dizayn maketiga mos) */}
+               {/* Body — 2x2 to'r, har bir katak modalning butun balandligiga
+                   mutanosib bo'linadi: 1. Pasport, 2. Asosiy ko'rsatkichlar,
+                   3. Geologik ma'lumotlar, 4. 3D + geologik model (bitta karta).
+                   Pastki qator (3 & 4) yuqoridagidan biroz balandroq — geologik
+                   ma'lumotlar/model kartalari ko'proq joy egallashi so'ralgan. */}
                <div style={{
                    flex: 1, overflow: 'auto', padding: '16px 24px', display: 'grid',
-                   gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto 1fr', gap: '16px', minHeight: 0,
+                   gridTemplateColumns: '1fr 1fr', gridTemplateRows: '0.85fr 1.15fr', gap: '16px', minHeight: 0,
                }}>
-                   {/* 1. Loyiha Pasporti */}
-                   <div style={{ gridColumn: '1', gridRow: '1' }}>
+                   {/* 1. Loyiha Pasporti — avvalgi 3 ustun o'rniga 2 ustun: har
+                       biriga ko'proq joy tegadi, shuning uchun matn ~1.2x
+                       kattaroq (`large`) chiziladi. */}
+                   <div style={{ gridColumn: '1', gridRow: '1', minHeight: 0 }}>
                        <Card title="1. Loyiha Pasporti" titleColor="#ffffff" borderColor={alpha(accent, 0.3)}>
-                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0 20px' }}>
+                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 24px' }}>
                                <div>
-                                   <PassportRow label="Obyekt nomi" value={object.name || detail.fullName} />
-                                   <PassportRow label="Loyiha kodi" value={projectCode} />
-                                   <PassportRow label="Joylashuvi" value={object.region} />
-                                   <PassportRow label="Ma'muriy hudud" value={detail.district} />
-                                   <PassportRow label="Loyiha turi" value={detail.category} />
-                                   <PassportRow label="Foydali qazilma" value={detail.mineral || detail.metals} />
-                                   <PassportRow label="Loyiha bosqichi" value={detail.groupName} />
-                                   <PassportRow label="Litsenziya raqami" value={pickField(detail, ['licenseNumber', 'license_no', 'licenseNo'])} />
-                                   <PassportRow label="Litsenziya muddati" value={pickField(detail, ['licenseValidity', 'licenseTerm'])} />
+                                   <PassportRow large label="Obyekt nomi" value={object.name || detail.fullName} />
+                                   <PassportRow large label="Loyiha kodi" value={projectCode} />
+                                   <PassportRow large label="Joylashuvi" value={object.region} />
+                                   <PassportRow large label="Ma'muriy hudud" value={detail.district} />
+                                   <PassportRow large label="Loyiha turi" value={detail.category} />
+                                   <PassportRow large label="Foydali qazilma" value={detail.mineral || detail.metals} />
+                                   <PassportRow large label="Loyiha bosqichi" value={detail.groupName} />
+                                   <PassportRow large label="Litsenziya raqami" value={pickField(detail, ['licenseNumber', 'license_no', 'licenseNo'])} />
+                                   <PassportRow large label="Litsenziya muddati" value={pickField(detail, ['licenseValidity', 'licenseTerm'])} />
+                                   <PassportRow large label="Yo'nalish" value={detail.direction} />
+                                   <PassportRow large label="Hamkor tashkilot" value={detail.partner} />
+                                   <PassportRow large label="Moliyalashtirish" value={detail.funding} />
+                                   <PassportRow large label="Umumiy qiymati" value={object.costMlnUsd != null ? `$${object.costMlnUsd} mln` : undefined} />
                                </div>
                                <div>
-                                   <PassportRow label="Yo'nalish" value={detail.direction} />
-                                   <PassportRow label="Hamkor tashkilot" value={detail.partner} />
-                                   <PassportRow label="Moliyalashtirish" value={detail.funding} />
-                                   <PassportRow label="Umumiy qiymati" value={object.costMlnUsd != null ? `$${object.costMlnUsd} mln` : undefined} />
-                                   <PassportRow label="Tugash yili" value={detail.endYear} />
-                                   <PassportRow label="Mas'ul rahbar" value={pickField(detail, ['manager', 'responsiblePerson'])} />
-                                   <PassportRow label="Jamoa soni" value={pickField(detail, ['teamSize', 'staffCount'])} />
-                                   <PassportRow label="So'nggi yangilanish" value={pickField(detail, ['updatedAt', 'lastUpdated'])} />
-                                   <PassportRow label="Holati" value={object.status} />
-                               </div>
-                               <div>
-
-
-                                   <PassportRow label="Mineral" value={detail.mineral} />
-                                   <PassportRow label="Metallar" value={detail.metals} />
-                                   <PassportRow label="Ruda zaxirasi" value={detail.oreReserve} />
-                                   <PassportRow label="Metall zaxirasi" value={detail.metalReserve} />
-                                   <PassportRow label="2026-yil rejasi" value={detail.plan2026} />
-                                   <PassportRow label="Bajarildi" value={detail.done2026} />
-                                   <PassportRow label="Natija" value={detail.result} />
+                                   <PassportRow large label="Tugash yili" value={detail.endYear} />
+                                   <PassportRow large label="Mas'ul rahbar" value={pickField(detail, ['manager', 'responsiblePerson'])} />
+                                   <PassportRow large label="Jamoa soni" value={pickField(detail, ['teamSize', 'staffCount'])} />
+                                   <PassportRow large label="So'nggi yangilanish" value={pickField(detail, ['updatedAt', 'lastUpdated'])} />
+                                   <PassportRow large label="Holati" value={object.status} />
+                                   <PassportRow large label="Mineral" value={detail.mineral} />
+                                   <PassportRow large label="Metallar" value={detail.metals} />
+                                   <PassportRow large label="Ruda zaxirasi" value={detail.oreReserve} />
+                                   <PassportRow large label="Metall zaxirasi" value={detail.metalReserve} />
+                                   <PassportRow large label="2026-yil rejasi" value={detail.plan2026} />
+                                   <PassportRow large label="Bajarildi" value={detail.done2026} />
+                                   <PassportRow large label="Natija" value={detail.result} />
                                    {/*<PassportRow label="Izoh" value={detail.note} /> */}
                                </div>
                            </div>
                        </Card>
                    </div>
 
-                   {/* 2. Asosiy ko'rsatkichlar */}
-                   <div style={{ gridColumn: '2', gridRow: '1' }}>
+                   {/* 2. Asosiy ko'rsatkichlar — 8 ta ko'rsatkich endi 4x2 to'r
+                       (avvalgi 1 qatorli flex-wrap emas), shu bilan har biri
+                       kengroq/kattaroq bo'ladi; pastdagi grafiklar qatori esa
+                       qolgan butun balandlikni egallaydi (`flex:1`). */}
+                   <div style={{ gridColumn: '2', gridRow: '1', minHeight: 0 }}>
                        <Card title="2. Asosiy ko'rsatkichlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                               {DEMO_KPI_TILES.map((t, i) => <KpiTile key={i} {...t} demo />)}
+                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', flexShrink: 0 }}>
+                               {DEMO_KPI_TILES.map((t, i) => <KpiTile key={i} {...t} demo large />)}
                            </div>
-                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                           <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'stretch', gap: '10px', flex: 1, minHeight: 0 }}>
                                <SubPanel title="Burg'ulash hajmi (ming metr)" minWidth={150} demo>
-                                   <MiniBarChart data={DEMO_DRILLING} labels={DEMO_MONTHS} color={GC.accent1} />
+                                   <MiniBarChart data={DEMO_DRILLING} labels={DEMO_MONTHS} color={GC.accent1} fill />
                                </SubPanel>
                                <SubPanel title="Geologik namunalar soni" minWidth={150} demo>
-                                   <MiniBarChart data={DEMO_SAMPLES} labels={DEMO_MONTHS} color={GC.accent2} />
+                                   <MiniBarChart data={DEMO_SAMPLES} labels={DEMO_MONTHS} color={GC.accent2} fill />
                                </SubPanel>
                                <SubPanel title="Resurslar toifasi (JORC)" minWidth={160} demo>
-                                   {DEMO_JORC.map((j, i) => <CategoryBarRow key={i} label={j.label} pct={j.pct} color={j.color} />)}
+                                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '4px', flex: 1 }}>
+                                       {DEMO_JORC.map((j, i) => <CategoryBarRow key={i} label={j.label} pct={j.pct} color={j.color} />)}
+                                   </div>
                                </SubPanel>
                                <SubPanel title="Loyiha bajarilish darajasi" minWidth={190} demo>
-                                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                       <DonutChart segments={DEMO_PROGRESS_SEGMENTS} centerValue={`${DEMO_PROGRESS_OVERALL}%`} size={92} />
+                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', flex: 1 }}>
+                                       <DonutChart segments={DEMO_PROGRESS_SEGMENTS} centerValue={`${DEMO_PROGRESS_OVERALL}%`} size={110} />
                                        <DonutLegend segments={DEMO_PROGRESS_SEGMENTS} />
                                    </div>
                                </SubPanel>
                            </div>
-                           {detailLoading && <div style={{ fontSize: 11, color: GC.slate, marginTop: 10 }}>To'liq ma'lumot yuklanmoqda...</div>}
+                           {detailLoading && <div style={{ fontSize: 11, color: GC.slate, marginTop: 10, flexShrink: 0 }}>To'liq ma'lumot yuklanmoqda...</div>}
                            {/*{detailIsError && <div style={{ fontSize: 11, color: GC.red, marginTop: 10 }}>To'liq pasport ma'lumoti olinmadi — mavjud qisqa ma'lumot ko'rsatilmoqda</div>}*/}
                        </Card>
                    </div>
 
-                   {/* 3. Geologik ma'lumotlar */}
-                   <div style={{ gridColumn: '1', gridRow: '2', minHeight: 0, overflow: 'auto' }}>
+                   {/* 3. Geologik ma'lumotlar — 2-qator qo'shildi: portfel darajasidagi
+                       GRR dashboardiga (ish rejasi/hajmlar/byudjet) mos, shu LOYIHA
+                       kesimidagi 3 ta karta. Ikkala qator ham teng balandlikda. */}
+                   <div style={{ gridColumn: '1', gridRow: '2', minHeight: 0 }}>
                        <Card title="3. Geologik ma'lumotlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+                           <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'stretch', gap: '10px', flex: 1, minHeight: 0 }}>
                                <SubPanel title="Foydali qazilma tarkibi (prognoz)" minWidth={200} demo>
-                                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flex: 1 }}>
                                        <DonutChart
                                            segments={DEMO_MINERAL_COMPOSITION}
                                            centerValue={detail.oreReserve ? String(detail.oreReserve).split(' ')[0] : (object.costMlnUsd != null ? String(object.costMlnUsd) : '520')}
@@ -1375,43 +1405,75 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                                    </div>
                                </SubPanel>
                                <SubPanel title="Geologik qatlamlar" minWidth={220} demo>
-                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, marginBottom: '4px' }}>
+                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, marginBottom: '4px', flexShrink: 0 }}>
                                        <span style={{ flex: '0 0 84px' }} />
                                        <span style={{ flex: 1 }}>Qalinlik (m)</span>
                                        <span style={{ width: '30px', textAlign: 'right' }}>Ulushi</span>
                                    </div>
-                                   {DEMO_GEOLOGIC_LAYERS.map((l, i) => (
-                                       <div key={i} style={{ marginBottom: '6px' }}>
-                                           <CategoryBarRow label={l.label} pct={l.pct} color={l.color} />
-                                           <div style={{ fontSize: '8.5px', color: GC.slate, marginLeft: '84px', marginTop: '-3px' }}>{l.range} m</div>
-                                       </div>
-                                   ))}
+                                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, gap: '4px' }}>
+                                       {DEMO_GEOLOGIC_LAYERS.map((l, i) => (
+                                           <div key={i}>
+                                               <CategoryBarRow label={l.label} pct={l.pct} color={l.color} />
+                                               <div style={{ fontSize: '8.5px', color: GC.slate, marginLeft: '84px', marginTop: '-3px' }}>{l.range} m</div>
+                                           </div>
+                                       ))}
+                                   </div>
                                </SubPanel>
                                <SubPanel title="So'nggi tahlil natijalari" minWidth={190} demo>
-                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px' }}>
+                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px', flexShrink: 0 }}>
                                        <span style={{ flex: 1 }}>Element</span>
                                        <span style={{ width: '52px', textAlign: 'right' }}>Qiymat</span>
                                        <span style={{ width: '52px', textAlign: 'right' }}>Me'yor</span>
                                        <span style={{ width: '16px' }} />
                                    </div>
-                                   {DEMO_ANALYSIS_RESULTS.map((r, i) => (
-                                       <div key={i} style={{ display: 'flex', fontSize: '10.5px', alignItems: 'center', padding: '2px 0' }}>
-                                           <span style={{ flex: 1, color: '#dfe9f5', fontWeight: 600 }}>{r.element}</span>
-                                           <span style={{ width: '52px', textAlign: 'right', color: '#fff' }}>{r.value}{r.unit}</span>
-                                           <span style={{ width: '52px', textAlign: 'right', color: GC.slate }}>{r.norm}</span>
-                                           <span style={{ width: '16px', textAlign: 'right' }}><TrendArrow trend={r.trend} /></span>
-                                       </div>
-                                   ))}
+                                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
+                                       {DEMO_ANALYSIS_RESULTS.map((r, i) => (
+                                           <div key={i} style={{ display: 'flex', fontSize: '10.5px', alignItems: 'center', padding: '2px 0' }}>
+                                               <span style={{ flex: 1, color: '#dfe9f5', fontWeight: 600 }}>{r.element}</span>
+                                               <span style={{ width: '52px', textAlign: 'right', color: '#fff' }}>{r.value}{r.unit}</span>
+                                               <span style={{ width: '52px', textAlign: 'right', color: GC.slate }}>{r.norm}</span>
+                                               <span style={{ width: '16px', textAlign: 'right' }}><TrendArrow trend={r.trend} /></span>
+                                           </div>
+                                       ))}
+                                   </div>
                                </SubPanel>
                            </div>
 
+                           <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'stretch', gap: '10px', flex: 1, minHeight: 0 }}>
+                               <SubPanel title="Ish rejasi bajarilishi (GRR)" minWidth={170} demo>
+                                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+                                       <DonutChart segments={DEMO_GRR_WORK_SEGMENTS} centerValue={`${DEMO_GRR_WORK_SEGMENTS[0].pct}%`} centerLabel="bajarildi" size={88} />
+                                       <DonutLegend segments={DEMO_GRR_WORK_SEGMENTS} />
+                                   </div>
+                               </SubPanel>
+                               <SubPanel title="2026 yil hajmlari — reja/bajarilish" minWidth={220} demo>
+                                   <DualBarChart seriesA={DEMO_GRR_VOLUME_PLAN} seriesB={DEMO_GRR_VOLUME_DONE} labels={DEMO_GRR_VOLUME_LABELS} colorA={GC.accent3} colorB={GC.accent1} fill />
+                                   <div style={{ display: 'flex', gap: '10px', marginTop: '6px', fontSize: '8.5px', flexShrink: 0 }}>
+                                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Reja</span>
+                                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Bajarildi</span>
+                                   </div>
+                               </SubPanel>
+                               <SubPanel title="2026 yil byudjeti" minWidth={150} demo>
+                                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: '4px' }}>
+                                       <div style={{ fontSize: '30px', fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+                                           {DEMO_GRR_BUDGET_2026}<span style={{ fontSize: '13px', color: GC.slate, fontWeight: 600, marginLeft: '4px' }}>mln $</span>
+                                       </div>
+                                       <div style={{ fontSize: '9.5px', color: GC.slate, textAlign: 'center' }}>Loyiha bo'yicha rejalashtirilgan</div>
+                                   </div>
+                               </SubPanel>
+                           </div>
                        </Card>
                    </div>
 
-                   {/* 4 & 5. 3D / Geologik model — rasm butun kartani qoplaydi */}
-                   <div style={{ gridColumn: '2', gridRow: '2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', minHeight: '120px' }}>
-                       <ImageFillCard title="4. Loyiha 3D modeli" accent={accent} src={`https://tmk.bgs.uz/upload/mnt/tmkupload/photoPath/${object.photoPath}-3d.jpg`} icon={<Icon3DCube />} />
-                       <ImageFillCard title="5. Geologik model" accent={GC.violet} src={`/imgs/geology/${object.id}-geo.jpg`} icon={<IconStrata />} />
+                   {/* 4. Loyiha 3D modeli va geologik model — bitta karta ichida
+                       ikkala rasm yonma-yon, karta butun katakni to'ldiradi. */}
+                   <div style={{ gridColumn: '2', gridRow: '2', minHeight: 0 }}>
+                       <Card title="4. Loyiha 3D modeli va geologik model" titleColor="#ffffff" borderColor={alpha(accent, 0.3)}>
+                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1, minHeight: 0 }}>
+                               <ImageFillCard title="3D model" accent={accent} src={`https://tmk.bgs.uz/upload/mnt/tmkupload/photoPath/${object.photoPath}-3d.jpg`} icon={<Icon3DCube />} />
+                               <ImageFillCard title="Geologik model" accent={GC.violet} src={`/imgs/geology/${object.id}-geo.jpg`} icon={<IconStrata />} />
+                           </div>
+                       </Card>
                    </div>
                </div>
            </div>
@@ -2035,18 +2097,12 @@ const Map3D = ({
 
         const name = obj.name || '';
         const regionLabel = obj.region || 'Hudud';
-        const statusLabel = obj.status || '';
 
         el.innerHTML = `
             <div class="marker-pin-wrapper" style="transform: scale(0.65); transform-origin: bottom left;">
-                    <div class="marker-content-box">
-                        <div class="marker-title-tag" style="background:${color};">
-                            ${formatMarkerText(name, 12)}
-                        </div>
-                        <div class="marker-info-box" style="border-left-color:${color};">
-                            <span>${formatMarkerText(regionLabel, 10)}</span>
-                            ${statusLabel ? `<span class="marker-info-value">${statusLabel}</span>` : ''}
-                        </div>
+                    <div class="marker-content-box" style="background:${color};">
+                        <span class="marker-name">${formatMarkerText(name, 14)}</span>
+                        <span class="marker-address">${formatMarkerText(regionLabel, 16)}</span>
                     </div>
                     <div class="marker-pin" style="border-color:${color};">
                         <div class="marker-icon-inner">${getMarkerTypeIcon(obj.type, color)}</div>
