@@ -18,9 +18,9 @@ import FactoryModel from "../FactoryModel/FactoryModel";
 // uchalasi ham ko'k oilasidan, bir-biridan farqlanishi uchun ochiq/to'q
 // darajasi boshqacha. `geology` — avvalgi marker rangi (GC.marker) saqlanadi.
 const SOURCE_COLORS: Record<string, string> = {
-    geology: GC.marker,
-    factory: '#5391ca',
-    invest: '#4C9EF8',
+    geology: '#07ae6e',
+    factory: '#0a779c',
+    invest: '#0e74e3',
 };
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -80,9 +80,15 @@ const formatMarkerText = (text = "", count: number) => {
 // Kartani yaqinlashtirsangiz masofa oshadi => ko'proq marker ochiladi,
 // uzoqlashtirsangiz => yaqinlari birlashib, bittasi qoladi. Cluster ikonkasi yo'q.
 // Qiymatlarni ko'paytirsangiz kamroq, kamaytirsangiz ko'proq marker ko'rinadi.
-// Fabrika/geologiya/investitsiya markerlari endi GL cluster qatlami orqali
-// chiziladi (declutter shart emas) — bu radius faqat mineral markerlar uchun qoladi.
+// Dumaloq klaster (son bilan aylana) ko'rinishidan butunlay voz kechilgan —
+// factory/geology/invest (jami ~50-60 ta obyekt) ham shu declutter
+// mexanizmidan foydalanadi (pastda).
 const MINERAL_CLUSTER_R = 12;   // mineral markeri kichik (14px shakl)
+const OBJECT_CLUSTER_R = 60;    // pin+teg dizayni kattaroq, ustma-ust tushmasligi uchun
+// Juda uzoq zoomda hammasi ustma-ust tushib butunlay yo'qolib qolmasligi
+// uchun kamida shuncha obyekt doim ko'rinib turadi (qolganlari radius
+// tekshiruvidan qat'i nazar, xaritaga bir tekis "diagonal" tarqatib qo'shiladi).
+const MIN_VISIBLE_OBJECTS = 5;
 
 
 /* ── Baza xarita uslubidagi YASHIL/TEAL qatlamlarni ko'kka o'tkazish ─────
@@ -1890,13 +1896,10 @@ const Map3D = ({
     const vehicleMarkersRef = useRef<Record<number, maplibregl.Marker>>({});
     const mineralMarkersRef = useRef<maplibregl.Marker[]>([]);
     const mineralPopupRef = useRef<maplibregl.Popup | null>(null);
-    // Klasterlanmagan (alohida ko'rinadigan) factory/geology/invest markerlari —
-    // asl pin+teg dizayni bilan HTML marker sifatida chiziladi (GL doira emas),
-    // faqat qaysi nuqtalar hozir klasterlanmagan ekanini GL manbasi hal qiladi.
+    // Factory/geology/invest markerlari — dumaloq klaster yo'q, barchasi doim
+    // asl pin+teg dizayni bilan HTML marker sifatida chiziladi; ustma-ust
+    // tushganda declutter (pastda) zoomga qarab faqat bittasini ko'rsatadi.
     const objectMarkersRef = useRef<Record<string, maplibregl.Marker>>({});
-    // Xarita GL cluster manbasidan bosilgan nuqtaning to'liq ma'lumotini topish uchun
-    // (faqat xaritaga tushgan — koordinatali — elementlar).
-    const objectsByIdRef = useRef<Record<string, MapItem>>({});
     // `links[]` orqali bog'langan elementlarni (koordinatasi bo'lmasa ham) topish uchun —
     // filtrdan qat'i nazar HAMMA item shu yerda.
     const allItemsByIdRef = useRef<Record<string, MapItem>>({});
@@ -1935,43 +1938,80 @@ const Map3D = ({
     // Markerlarni declutter qilish (bir freymda faqat bir marta ishlashi uchun rAF throttle)
     const declutterRafRef = useRef<number | null>(null);
 
-    // Ekran koordinatalari bo'yicha yaqin mineral markerlarni yashirib, faqat bittasini qoldiradi.
-    // Faqat visibility'ni almashtiradi — marker/data/dizaynga tegmaydi.
-    // Fabrika/geologiya/investitsiya markerlari endi GL cluster qatlami orqali chiziladi,
-    // shuning uchun bu yerga kirmaydi (o'z clustering'i bor).
+    // Ekran koordinatalari bo'yicha yaqin mineral/factory/geology/invest
+    // markerlarni yashirib, faqat bittasini qoldiradi. Faqat visibility'ni
+    // almashtiradi — marker/data/dizaynga tegmaydi. Dumaloq klaster (son bilan
+    // aylana) yo'q — jami obyektlar soni oz (50-60 ta) bo'lgani uchun barchasi
+    // shu declutter orqali, zoomga qarab boshqariladi. Obyektlar (factory/
+    // geology/invest) uchun MIN_VISIBLE_OBJECTS kafolatlanadi — juda uzoq
+    // zoomda ham xarita butunlay bo'shab qolmaydi.
     const declutterMarkers = useCallback(() => {
         const mapInstance = map.current;
         if (!mapInstance) return;
 
         type Item = { el: HTMLElement; lngLat: maplibregl.LngLat; r: number };
-        const items: Item[] = [];
-
-        mineralMarkersRef.current.forEach((m) => {
-            items.push({ el: m.getElement(), lngLat: m.getLngLat(), r: MINERAL_CLUSTER_R });
-        });
+        type Projected = { el: HTMLElement; x: number; y: number; r: number; visible: boolean };
 
         const shown: { x: number; y: number; r: number }[] = [];
 
-        for (const { el, lngLat, r } of items) {
-            const p = mapInstance.project(lngLat);
-            let collides = false;
-            for (let i = 0; i < shown.length; i++) {
-                const s = shown[i];
-                const dx = s.x - p.x;
-                const dy = s.y - p.y;
-                const minDist = s.r + r;
-                if (dx * dx + dy * dy < minDist * minDist) {
-                    collides = true;
-                    break;
+        // Berilgan ro'yxatni navbat bilan tekshiradi: `shown`dagi (avvalgi
+        // bosqichlardan qolgan) nuqtalar bilan to'qnashmasa ko'rinadi va
+        // o'zi ham `shown`ga qo'shiladi. Natija — har biri uchun proyeksiya
+        // (x, y) va ko'rinish holati (keyingi bosqich shundan foydalanadi).
+        const runPass = (list: Item[]): Projected[] =>
+            list.map(({ el, lngLat, r }) => {
+                const p = mapInstance.project(lngLat);
+                let collides = false;
+                for (let i = 0; i < shown.length; i++) {
+                    const s = shown[i];
+                    const dx = s.x - p.x;
+                    const dy = s.y - p.y;
+                    const minDist = s.r + r;
+                    if (dx * dx + dy * dy < minDist * minDist) { collides = true; break; }
                 }
-            }
-            if (collides) {
-                if (el.style.visibility !== 'hidden') el.style.visibility = 'hidden';
-            } else {
-                if (el.style.visibility === 'hidden') el.style.visibility = '';
-                shown.push({ x: p.x, y: p.y, r });
+                if (!collides) shown.push({ x: p.x, y: p.y, r });
+                return { el, x: p.x, y: p.y, r, visible: !collides };
+            });
+
+        const mineralItems: Item[] = mineralMarkersRef.current.map((m) => ({ el: m.getElement(), lngLat: m.getLngLat(), r: MINERAL_CLUSTER_R }));
+        runPass(mineralItems).forEach(({ el, visible }) => {
+            el.style.visibility = visible ? '' : 'hidden';
+        });
+
+        const objectItems: Item[] = Object.values(objectMarkersRef.current).map((m) => ({ el: m.getElement(), lngLat: m.getLngLat(), r: OBJECT_CLUSTER_R }));
+        const objectResults = runPass(objectItems);
+
+        // Uzoq zoomda hammasi bir-biriga ustma-ust tushib, radius tekshiruvi
+        // deyarli hammasini yashirib qo'yishi mumkin. Shuning oldini olish
+        // uchun ko'rinadiganlar soni MIN_VISIBLE_OBJECTS'dan kam bo'lsa,
+        // hali yashiringanlar orasidan — har safar ALLAQACHON tanlanganlardan
+        // ENG UZOQ turgani — birma-bir majburan ko'rsatiladi (farthest-point
+        // sampling). Natijada qolgan markerlar xarita bo'ylab bir tekis,
+        // "diagonal" tarqalib ko'rinadi, bir burchakka to'planib qolmaydi.
+        let visibleCount = objectResults.reduce((n, o) => n + (o.visible ? 1 : 0), 0);
+        if (visibleCount < MIN_VISIBLE_OBJECTS) {
+            const chosen = objectResults.filter((o) => o.visible).map((o) => ({ x: o.x, y: o.y }));
+            const remaining = objectResults.filter((o) => !o.visible);
+
+            while (visibleCount < MIN_VISIBLE_OBJECTS && remaining.length > 0) {
+                let bestIdx = 0;
+                let bestDist = -1;
+                remaining.forEach((cand, idx) => {
+                    const minDistToChosen = chosen.length === 0
+                        ? Infinity
+                        : Math.min(...chosen.map((c) => (c.x - cand.x) ** 2 + (c.y - cand.y) ** 2));
+                    if (minDistToChosen > bestDist) { bestDist = minDistToChosen; bestIdx = idx; }
+                });
+                const [picked] = remaining.splice(bestIdx, 1);
+                picked.visible = true;
+                chosen.push({ x: picked.x, y: picked.y });
+                visibleCount++;
             }
         }
+
+        objectResults.forEach(({ el, visible }) => {
+            el.style.visibility = visible ? '' : 'hidden';
+        });
     }, []);
 
     // Karta harakati/zoom paytida ko'p marta chaqirilmasligi uchun rAF bilan throttle
@@ -2024,28 +2064,22 @@ const Map3D = ({
         return el;
     }, []);
 
-    // GL cluster manbasi qaysi nuqtalarni "alohida" (klasterlanmagan) deb hisoblasa,
-    // aynan o'shalar uchun HTML pin marker yaratadi/yangilaydi; qolganlarini olib tashlaydi.
-    // Klaster (son bilan aylana) chizig'i alohida GL qatlamida ('map-clusters') qoladi.
-    const syncObjectMarkers = useCallback(() => {
+    // Dumaloq klaster (son bilan aylana) butunlay olib tashlangan: bor-yo'g'i
+    // 50-60 ta obyekt bor, shuning uchun GL cluster manbasi shart emas — barcha
+    // koordinatali factory/geology/invest obyektlari uchun to'g'ridan-to'g'ri
+    // HTML pin marker yaratiladi/yangilanadi. Ustma-ust tushganda kimni
+    // ko'rsatish/yashirish — zoomga qarab `declutterMarkers` hal qiladi:
+    // yaqinlashtirilsa ko'proq marker ochiladi, uzoqlashtirilsa yaqinlari
+    // birlashib bittasi qoladi (pastda).
+    const syncObjectMarkers = useCallback((items: MapItem[]) => {
         const mapInstance = map.current;
-        if (!mapInstance || !mapInstance.getSource('map-objects')) return;
-
-        let features: any[] = [];
-        try {
-            features = mapInstance.querySourceFeatures('map-objects', { filter: ['!', ['has', 'point_count']] });
-        } catch {
-            return; // manba/uslub hali to'liq tayyor bo'lmasligi mumkin
-        }
+        if (!mapInstance) return;
 
         const currentIds = new Set<string>();
-        features.forEach((f) => {
-            const id = f.properties?.id != null ? String(f.properties.id) : null;
-            if (!id || currentIds.has(id)) return;
+        items.forEach((obj) => {
+            if (typeof obj.lon !== 'number' || typeof obj.lat !== 'number') return;
+            const id = String(obj.id);
             currentIds.add(id);
-
-            const obj = objectsByIdRef.current[id];
-            if (!obj || typeof obj.lon !== 'number' || typeof obj.lat !== 'number') return;
 
             const existing = objectMarkersRef.current[id];
             if (existing) {
@@ -2065,7 +2099,9 @@ const Map3D = ({
                 delete objectMarkersRef.current[id];
             }
         });
-    }, [buildObjectMarkerEl]);
+
+        scheduleDeclutter();
+    }, [buildObjectMarkerEl, scheduleDeclutter]);
 
     useEffect(() => {
         if (!mapContainer.current) return;
@@ -2185,71 +2221,11 @@ const Map3D = ({
             }
 
             // 2. XARITA OBYEKTLARI (factory / geology / invest) —
-            // GL cluster manbasi: uzoqlashtirilganda soni bilan aylana (cluster), yaqinlashtirilganda
-            // alohida markerlar. Ma'lumot bo'sh boshlanadi, pastdagi [mappableItems, mapLoaded]
-            // effektida to'ldiriladi (bu yerda "mapObjectsData" hali kelmagan bo'lishi mumkin).
-            map.current.addSource('map-objects', {
-                type: 'geojson',
-                data: { type: 'FeatureCollection', features: [] },
-                cluster: true,
-                clusterMaxZoom: 14,
-                clusterRadius: 50,
-            });
-
-            map.current.addLayer({
-                id: 'map-clusters',
-                type: 'circle',
-                source: 'map-objects',
-                filter: ['has', 'point_count'],
-                paint: {
-                    'circle-color': GC.accent2,
-                    'circle-opacity': 0.88,
-                    'circle-stroke-width': 2,
-                    'circle-stroke-color': '#ffffff',
-                    'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
-                },
-            });
-
-            map.current.addLayer({
-                id: 'map-cluster-count',
-                type: 'symbol',
-                source: 'map-objects',
-                filter: ['has', 'point_count'],
-                layout: {
-                    'text-field': ['get', 'point_count_abbreviated'],
-                    'text-size': 12,
-                    'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                },
-                paint: { 'text-color': '#ffffff' },
-            });
-
-            // Alohida (klasterlanmagan) nuqtalar endi GL doira emas — asl pin+teg
-            // dizayni bilan HTML marker sifatida chiziladi (syncObjectMarkers).
-            // Klaster ustiga bosilsa — supercluster kengaytirish zoomigacha yaqinlashadi,
-            // shu joydagi alohida markerlar ochiladi.
-            map.current.on('click', 'map-clusters', (e) => {
-                const mapInstance = map.current;
-                if (!mapInstance) return;
-                const features = mapInstance.queryRenderedFeatures(e.point, { layers: ['map-clusters'] });
-                const clusterId = features[0]?.properties?.cluster_id;
-                if (clusterId == null) return;
-                const src = mapInstance.getSource('map-objects') as maplibregl.GeoJSONSource;
-                src.getClusterExpansionZoom(clusterId).then((zoom) => {
-                    mapInstance.easeTo({ center: (features[0].geometry as any).coordinates, zoom: zoom + 0.5 });
-                }).catch(() => { /* xarita allaqachon yopilgan bo'lishi mumkin */ });
-            });
-
-            map.current.on('mouseenter', 'map-clusters', () => { map.current!.getCanvas().style.cursor = 'pointer'; });
-            map.current.on('mouseleave', 'map-clusters', () => { map.current!.getCanvas().style.cursor = ''; });
-
-            // Klasterlash zoom/harakatda supercluster ichida qayta hisoblanadi —
-            // shuning uchun HTML pinlar shu hodisalarda qayta sinxronlanadi.
-            map.current.on('moveend', syncObjectMarkers);
-            map.current.on('zoomend', syncObjectMarkers);
-            map.current.on('sourcedata', (e) => {
-                if (e.sourceId === 'map-objects' && e.isSourceLoaded) syncObjectMarkers();
-            });
-
+            // Dumaloq klaster (son bilan aylana) yo'q. Jami obyektlar soni oz
+            // (~50-60 ta) bo'lgani uchun har biri to'g'ridan-to'g'ri HTML pin
+            // marker sifatida chiziladi (syncObjectMarkers, pastdagi
+            // [mappableItems, mapLoaded] effekti); ustma-ust tushganlar zoomga
+            // qarab declutter orqali boshqariladi.
             setMapLoaded(true);
 
             // 3. MINERAL MARKERLARINI QO'SHISH
@@ -2619,27 +2595,14 @@ const Map3D = ({
         updateVehicleMarkers();
     }, [visibleToifas]);
 
-    // /map/objects natijasi yoki toifa filtri o'zgarganda GL cluster manbasini yangilash.
-    // `mapLoaded` xarita 'load' hodisasidan keyin true bo'ladi — undan oldin manba mavjud emas.
+    // /map/objects natijasi yoki toifa filtri o'zgarganda HTML pin markerlarni
+    // yangilash. `mapLoaded` xarita 'load' hodisasidan keyin true bo'ladi.
+    // Dumaloq klaster yo'q — factory/geology/invest barchasi shu yerdan,
+    // to'g'ridan-to'g'ri syncObjectMarkers orqali chiziladi.
     useEffect(() => {
-        const mapInstance = map.current;
-        if (!mapInstance || !mapLoaded) return;
-        const source = mapInstance.getSource('map-objects') as maplibregl.GeoJSONSource | undefined;
-        if (!source) return;
-
-        const byId: Record<string, MapItem> = {};
-        const features = mappableItems.map((o) => {
-            byId[String(o.id)] = o;
-            return {
-                type: 'Feature' as const,
-                id: o.id,
-                geometry: { type: 'Point' as const, coordinates: [o.lon as number, o.lat as number] },
-                properties: { id: o.id, type: o.type, coordsSource: o.coordsSource },
-            };
-        });
-        objectsByIdRef.current = byId;
-        source.setData({ type: 'FeatureCollection', features } as any);
-    }, [mappableItems, mapLoaded]);
+        if (!mapLoaded) return;
+        syncObjectMarkers(mappableItems);
+    }, [mappableItems, mapLoaded, syncObjectMarkers]);
 
 
     return (

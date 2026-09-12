@@ -135,6 +135,10 @@ const LABELS: Record<string, string> = {
     otherReserves: 'Boshqa zaxiralar',
     currentRatio: 'Joriy likvidlik koeffitsienti',
     debtToEquity: 'Qarz / kapital koeffitsienti',
+    cfOperating: 'Operatsion faoliyatdan pul oqimi',
+    cfInvesting: 'Investitsion faoliyatdan pul oqimi',
+    cfFinancing: 'Moliyaviy faoliyatdan pul oqimi',
+    cashEquivalents: "Davr oxiridagi pul mablag'lari",
 };
 
 /* Oy nomlari kirillda keladi — sparkline yorlig'i uchun lotincha qisqartma. */
@@ -233,6 +237,15 @@ function buildView(data?: FinanceDashboardData) {
                 delta: deltaPp(marginSeries),
             },
             netCash: { series: series('netCash'), delta: deltaPct(series('netCash')) },
+        },
+        /* "Pul oqimi tarkibi" — `netCash` uch faoliyat bo'yicha yig'indisi
+           (hujjatning 3.1-bo'limidagi 29 ta kalitdan to'rttasi shu yerda
+           birinchi marta ishlatiladi: avval faqat `netCash` ko'rsatilar edi). */
+        cashFlow: {
+            cfOperating: { series: series('cfOperating'), delta: deltaPct(series('cfOperating')) },
+            cfInvesting: { series: series('cfInvesting'), delta: deltaPct(series('cfInvesting')) },
+            cfFinancing: { series: series('cfFinancing'), delta: deltaPct(series('cfFinancing')) },
+            cashEquivalents: { series: series('cashEquivalents'), delta: deltaPct(series('cashEquivalents')) },
         },
         /* "Moliyaviy holat" tarkib bloklari. */
         composition: [
@@ -385,7 +398,7 @@ const KpiTile: React.FC<{
     icon: React.ReactNode; color: string; trend?: number[] | null; labels: string[];
     fmtV?: (n: number) => string;
 }> = ({ label, value, unit, delta, deltaUnit = '%', icon, color, trend, labels, fmtV }) => (
-    <div style={{ minWidth: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+    <div style={{ minWidth: 0, minHeight: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 7 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
                 <NeonIcon color={color} size={24}>{icon}</NeonIcon>
@@ -462,6 +475,7 @@ const FinanceNew: React.FC = () => {
     const v = useMemo(() => buildView(data), [data]);
     let navigate = useNavigate();
     const { revenue, profit, margin, netCash } = v.vitals;
+    const { cfOperating, cfInvesting, cfFinancing, cashEquivalents } = v.cashFlow;
     const money = (s: number[] | null) => {
         const l = lastOf(s);
         return l === null ? '' : fmtNum(l);
@@ -475,7 +489,7 @@ const FinanceNew: React.FC = () => {
     return (
         <div style={{
             background: C.bg,
-            // height: '100vh',
+            height: '100%',
             overflowY: 'auto',
             padding: 14,
             boxSizing: 'border-box',
@@ -536,6 +550,28 @@ const FinanceNew: React.FC = () => {
                                icon={<IconScale />} color={GC.accent1} tag={r.tag} />
                 ))}
                 {Array.from({ length: emptyCells }, (_, i) => <EmptyTile key={`bo'sh-${i}`} />)}
+            </div>
+
+            {/* Pul oqimi tarkibi — hujjatning 29 ta barqaror kalitidan avval
+                ekranda ko'rsatilmagan to'rttasi ("cfOperating"/"cfInvesting"/
+                "cfFinancing"/"cashEquivalents"): yuqoridagi "Sof pul oqimi"
+                shu uchta faoliyat yig'indisi, "cashEquivalents" esa davr
+                oxiridagi qoldiq. Panelning qolgan bo'sh joyini to'ldirishi
+                uchun bu bo'lim (sarlavha + kartalar) flex:1 bilan pastgacha
+                cho'ziladi — kartalar konteynerning tagigacha yetadi. */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minHeight: 0 }}>
+                <SectionTitle title="Pul oqimi tarkibi" hint="pul oqimi hisoboti bo'yicha" />
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, flex: 1, minHeight: 0 }}>
+                    <KpiTile label={LABELS.cfOperating} value={money(cfOperating.series)} icon={<IconArrowUpDown />} color={TREND_COLOR}
+                             delta={cfOperating.delta} trend={cfOperating.series} labels={v.months} />
+                    <KpiTile label={LABELS.cfInvesting} value={money(cfInvesting.series)} icon={<IconArrowUpDown />} color={TREND_COLOR}
+                             delta={cfInvesting.delta} trend={cfInvesting.series} labels={v.months} />
+                    <KpiTile label={LABELS.cfFinancing} value={money(cfFinancing.series)} icon={<IconArrowUpDown />} color={TREND_COLOR}
+                             delta={cfFinancing.delta} trend={cfFinancing.series} labels={v.months} />
+                    <KpiTile label={LABELS.cashEquivalents} value={money(cashEquivalents.series)} icon={<IconWalletFilled />} color={TREND_COLOR}
+                             delta={cashEquivalents.delta} trend={cashEquivalents.series} labels={v.months} />
+                </div>
             </div>
         </div>
     );

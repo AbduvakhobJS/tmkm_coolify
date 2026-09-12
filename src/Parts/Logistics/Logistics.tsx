@@ -603,10 +603,9 @@ const MARKER_STYLES = `
     .marker-info-box {
         background: rgba(10, 10, 10, 0.85);
         color: white;
-        padding: 6px 12px;
-        margin-left: 5%;
+        padding: 6px;
+        // margin-left: 5%;
         font-size: 13px;
-        border-radius: 4px;
         border-left: 4px solid ${GC.magenta};
         backdrop-filter: blur(4px);
         display: flex;
@@ -616,7 +615,6 @@ const MARKER_STYLES = `
     }
     .marker-info-value {
         color: ${GC.amber};
-        margin-left: 10px;
     }
 
     /* Toifalar ranglari */
