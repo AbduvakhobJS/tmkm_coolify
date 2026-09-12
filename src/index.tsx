@@ -101,7 +101,7 @@ root.render(
           <Route path="/main/finance-new-main" element={<PrivateRoute><FinanceNewMain /></PrivateRoute>} />
           <Route path="/main/birja" element={<PrivateRoute><Birja /></PrivateRoute>} />
           <Route path="/main/investing" element={<PrivateRoute><NavbarOverlay><Investing /></NavbarOverlay></PrivateRoute>} />
-          <Route path="/main/single-treasury" element={<PrivateRoute><SingleTreasury /></PrivateRoute>} />
+          <Route path="/main/single-treasury" element={<PrivateRoute><NavbarOverlay><SingleTreasury /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/grr" element={<PrivateRoute><NavbarOverlay><Grr /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/grr-detail" element={<PrivateRoute><GrrDetail /></PrivateRoute>} />
           <Route path="/main/factory-model" element={<PrivateRoute><FactoryModel /></PrivateRoute>} />

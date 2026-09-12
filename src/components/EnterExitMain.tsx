@@ -87,18 +87,16 @@ async function fetchToday(token:string, status:'arrived'|'left'): Promise<TodayE
 ───────────────────────────────────────────────────────── */
 const T = {
     bg:     'var(--gc-panel-bg)',  // gc-panel-bg (faqat to'g'ridan-to'g'ri property)
-    // card:   'var(--gc-card-bg)',
-    card: 'linear-gradient(180deg, rgba(8, 38, 66, .78), rgba(3, 19, 35, .78))',
-    // gc-card-bg
-    border: 'rgba(255,255,255,0.09)',
+    card:   GC.cardBg,  // = MetalsDashboardMain (dashboardUI C.card) bilan bir xil
+    border: GC.border,
     cyan:   GC.cyan,  // = var(--gc-title) — template literal uchun hex kerak
     cyan2:  GC.cyan,
     green:  GC.green,
     red:    GC.red,  // = var(--gc-red) — template literal uchun hex kerak
     amber:  GC.amber,  blue:  GC.blue,
-    purple: GC.violet,  muted: '#6b7a99',
-    text:   'var(--gc-white)',
-    dim:    GC.slate,
+    purple: GC.violet,  muted: GC.textSecondary,
+    text:   GC.text,
+    dim:    GC.textSecondary,
     b0:     GC.slate,
 };
 
@@ -198,7 +196,7 @@ function CameraInfoCards() {
                         <div style={{fontSize:10,color:T.text,marginBottom:3,letterSpacing:0.2}}>{item.label}</div>
                         <div style={{display:'flex',alignItems:'center', justifyContent:'space-between'}}>
                             {'extra' in item && item.extra}
-                            <span style={{fontSize:16,fontWeight:700,color:'#fff',lineHeight:1}}>{item.value}</span>
+                            <span style={{fontSize:16,fontWeight:700,color:T.text,lineHeight:1}}>{item.value}</span>
                             <div style={{
                                 width:38, height:38, borderRadius:9, flexShrink:0,
                                 // background:`${item.color}18`,
@@ -241,7 +239,7 @@ function TopCard({label,count,change,icon,accent}:{
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
                 <span style={{fontSize:11,color:T.text,letterSpacing:0.2,lineHeight:1.3}}>{label}</span>
             </div>
-            <div style={{fontSize:24,fontWeight:700,color:'#fff',lineHeight:1.1, display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 5}}>
+            <div style={{fontSize:24,fontWeight:700,color:T.text,lineHeight:1.1, display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 5}}>
                 <Counter to={count}/>
                 <div style={{color:accent,opacity:0.7}}>{icon}</div>
 
@@ -398,7 +396,7 @@ export default function EnterExitMain() {
         datasets:[{
             data:[cards.arrived.count,cards.late.count,cards.not_arrived.count,cards.left.count,cards.not_found.count],
             backgroundColor:[`${GC.accent1}cc`,`${T.amber}cc`,`${GC.accent3}cc`,`${GC.accent4}cc`,`${T.red}cc`],
-            borderColor:'#0d1117', borderWidth:2,
+            borderColor:GC.bg700, borderWidth:2,
         }],
     };
 
@@ -445,6 +443,7 @@ export default function EnterExitMain() {
             color:T.text,
             fontSize:13,
             boxSizing:'border-box',
+            background: T.bg,
         }}>
             <style>{`
                 @keyframes alertPulse{0%,100%{box-shadow:0 0 8px ${T.red}22}50%{box-shadow:0 0 20px ${T.red}55}}
@@ -473,7 +472,7 @@ export default function EnterExitMain() {
                                 {/*        <circle cx="12" cy="16.5" r="1.5" fill={T.cyan}/>*/}
                                 {/*    </svg>*/}
                                 {/*</div>*/}
-                                <span style={{fontSize:11,fontWeight:700, letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
+                                <span style={{fontSize:14,fontWeight:700, letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
                             XAVFSIZLIK NAZORAT MARKAZI
                         </span>
                             </div>
@@ -544,7 +543,7 @@ export default function EnterExitMain() {
                                 <Panel style={{flex:1,minHeight:140,display:'flex',flexDirection:'column'}}>
                                     <PanelHead
                                         title="Kirish nuqtalari holati"
-                                        right={<span style={{fontSize:10,color:T.text}}>Jami: <span style={{color:'#fff',fontWeight:600}}><Counter to={data.total_users}/></span></span>}
+                                        right={<span style={{fontSize:10,color:T.text}}>Jami: <span style={{color:T.text,fontWeight:600}}><Counter to={data.total_users}/></span></span>}
                                     />
 
                                     {/* Body: chap — donut, o'ng — labellar */}
@@ -573,7 +572,7 @@ export default function EnterExitMain() {
                                                 textAlign:'center',pointerEvents:'none',
                                             }}>
                                                 <div style={{fontSize:8,color:GC.slate,letterSpacing:.5,marginBottom:2}}>JAMI</div>
-                                                <div style={{fontSize:16,fontWeight:700,color:'#ffffff',lineHeight:1}}>
+                                                <div style={{fontSize:16,fontWeight:700,color:T.text,lineHeight:1}}>
                                                     <Counter to={data.total_users}/>
                                                 </div>
                                             </div>
@@ -656,8 +655,8 @@ export default function EnterExitMain() {
                                                 callbacks:{label:(c:any)=>` Kirish: ${c.parsed.y} ta`},
                                             }},
                                         scales:{
-                                            x:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.text,font:{size:9,family:"'Exo 2',system-ui,sans-serif"}},border:{color:T.b0}},
-                                            y:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.text,font:{size:9,family:"'Exo 2',system-ui,sans-serif"},stepSize:1},border:{color:T.b0},min:0},
+                                            x:{grid:{color:GC.gridLine,lineWidth:.5},ticks:{color: T.dim,font:{size:9,family:"'Exo 2',system-ui,sans-serif"}},border:{color:T.b0}},
+                                            y:{grid:{color:GC.gridLine,lineWidth:.5},ticks:{color: T.dim,font:{size:9,family:"'Exo 2',system-ui,sans-serif"},stepSize:1},border:{color:T.b0},min:0},
                                         },
                                     } as any}/>
                                 </div>

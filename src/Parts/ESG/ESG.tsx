@@ -223,9 +223,10 @@ const ESG: React.FC = () => {
     const kpiColor: Record<string, string> = { esgRating: GC.accent1, irma: GC.accent2, hseIndex: GC.accent3, co2: GC.slate, water: GC.accent4, violations: C.down };
 
     return (
-        <div style={{ background: C.bg,
+        <div style={{ background: "#0B1118",
             // height: '100vh',
             overflowY: 'auto',
+            fontSize: 14,
             padding: 14,
             boxSizing: 'border-box',
             fontFamily: '"Segoe UI", system-ui, sans-serif',
@@ -237,19 +238,15 @@ const ESG: React.FC = () => {
                     {/*<NeonIcon color={GC.green} size={32}><IconLeaf /></NeonIcon>*/}
                     <div style={{ color: 'rgb(241, 242, 246)', fontSize: 17, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>ESG</div>
                 </div>
-                <button
-                    onClick={() => navigate('/main/esg-detail')}
-                    style={{
-                        display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                        background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 999,
-                        color: '#fff', fontSize: 11.5, fontWeight: 700, padding: '7px 14px',
-                        boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}
-                >
-                    Batafsil<IconArrowRight />
-                </button>
+          <div style={{
+                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
+                    padding: '4px 15px', color: C.text,
+                    fontSize: '9px', display: 'flex', gap: 6, whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                }}
+                     onClick={() => navigate("/main/esg-detail")}
+                >Batafsil
+                </div>
             </div>
 
             {/* KPI qatori */}

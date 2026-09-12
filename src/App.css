@@ -220,7 +220,7 @@ body {
 }
 .right-panel {
   /*border-left: 1px solid var(--border-glow);*/
-  background: var(--gc-panel-bg); /* global color: katta panel bg */
+  /*background: var(--gc-panel-bg); !* global color: katta panel bg *!*/
 }
 
 /* ── PANEL LABELS ── */
@@ -335,7 +335,10 @@ body {
 }
 
 /* ── CENTER PANEL ── */
-.center-panel { gap: 0.5rem; padding: 0.8rem 0.8rem; background: var(--gc-panel-bg); /* global color */ }
+.center-panel { gap: 0.5rem; padding: 0.8rem 0.8rem;
+  /*background: var(--gc-panel-bg); !* global color *! */
+}
+
 
 .pipeline-section {
   flex: 0 0 auto;
@@ -748,7 +751,7 @@ body {
 }
 
 .center-top-bottom .center-bottom-height{
-  height: 50vh;
+  height: 46.5vh;
 }
 
 /* ── TOP CENTER WRAPPER & TABS ── */
