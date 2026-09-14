@@ -44,6 +44,7 @@ import GrrDetail from "./Parts/GRR/GrrDetail";
 import ConstuctorPageFour from "./Parts/ConstuctorPage/ConstuctorPageFour";
 import FactoryModel from "./Parts/FactoryModel/FactoryModel";
 import FactoryModel2 from "./Parts/FactoryModel/FactoryModel2";
+import SxemaPage from "./Parts/Sxema/SxemaPage";
 import EnterExitMain from "./components/EnterExitMain";
 import FinanceNewMain from "./Parts/Finance/FinanceNewMain";
 import Birja from "./Parts/Finance/Birja";
@@ -106,6 +107,7 @@ root.render(
           <Route path="/main/grr-detail" element={<PrivateRoute><GrrDetail /></PrivateRoute>} />
           <Route path="/main/factory-model" element={<PrivateRoute><FactoryModel /></PrivateRoute>} />
           <Route path="/main/factory-model-2" element={<PrivateRoute><FactoryModel2 /></PrivateRoute>} />
+          <Route path="/main/sxema" element={<PrivateRoute><NavbarOverlay><SxemaPage /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/constructor" element={<PrivateRoute><ConstuctorPage /></PrivateRoute>} />
           <Route path="/main/constructor-four" element={<PrivateRoute><ConstuctorPageFour /></PrivateRoute>} />
           <Route path="/main/production" element={<PrivateRoute><NavbarOverlay><ProductionPage /></NavbarOverlay></PrivateRoute>} />

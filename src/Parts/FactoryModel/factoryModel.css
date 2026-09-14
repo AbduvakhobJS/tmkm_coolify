@@ -1138,9 +1138,10 @@
 }
 
 /* ─── Furnace instrument panels (live readout anchored above each furnace) ──
- * A 3h trend chart (one line per zone, ThingsBoard history) over a 5-column
- * stat strip — the shape mirrors what the zones actually are (5 parallel
- * temperature channels over time), and a zone's colour always matches its
+ * 5 self-contained zone cards in a row, each with its own trend chart
+ * (ThingsBoard history, that zone only) instead of one shared chart with 5
+ * overlapping lines — the shape mirrors what the zones actually are (5
+ * independent temperature channels), and a card's colour always matches its
  * shell segment's tint on the furnace itself (see FurnacePanels.tsx /
  * FurnaceVisuals.tsx). Always open, never intercepts pointer events. A
  * furnace ThingsBoard hasn't answered for yet shows hand-tuned placeholder
@@ -1159,10 +1160,10 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 18px;
-    width: 600px;
-    padding: 26px 30px 24px;
-    border-radius: 20px;
+    gap: 20px;
+    width: 1180px;
+    padding: 28px 32px 26px;
+    border-radius: 22px;
     background: linear-gradient(165deg, rgba(6, 15, 30, 0.94), rgba(3, 9, 20, 0.97));
     border: 1.5px solid rgba(var(--fm-cyan), 0.32);
     backdrop-filter: blur(6px);
@@ -1179,16 +1180,8 @@
     box-shadow: 0 0 22px rgba(229, 72, 77, 0.26);
 }
 
-.fm-furnace-panel__body--demo {
-    border-color: rgba(245, 197, 66, 0.5);
-    border-style: dashed;
-}
-
 .fm-furnace-panel--off .fm-furnace-panel__body {
     border-color: rgba(148, 163, 184, 0.25);
-}
-
-.fm-furnace-panel--off .fm-furnace-panel__body:not(.fm-furnace-panel__body--demo) {
     opacity: 0.78;
 }
 
@@ -1233,25 +1226,18 @@
     color: #8fb4c2;
 }
 
-.fm-furnace-panel__demo-badge {
+.fm-furnace-panel__scale-note {
     margin-left: auto;
     font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: #f5c542;
-    background: rgba(245, 197, 66, 0.14);
-    border: 1px solid rgba(245, 197, 66, 0.4);
-    border-radius: 7px;
-    padding: 3px 9px;
-    flex: none;
+    font-weight: 500;
+    color: #4c6579;
+    letter-spacing: 0.2px;
 }
 
 .fm-furnace-panel__range {
     display: flex;
     gap: 4px;
     flex: none;
-    margin-left: auto;
 }
 
 .fm-furnace-panel__range-btn {
@@ -1278,90 +1264,112 @@
     border-color: rgb(var(--fm-cyan));
 }
 
-.fm-furnace-panel__chart {
-    position: relative;
-    height: 150px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    overflow: hidden;
-}
-
-.fm-furnace-panel__chart svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-}
-
 .fm-furnace-panel__grid {
     stroke: rgba(255, 255, 255, 0.08);
     stroke-width: 1;
     stroke-dasharray: 3 5;
 }
 
-.fm-furnace-panel__chart-scale {
-    position: absolute;
-    top: 7px;
-    right: 10px;
-    bottom: 7px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    font-size: 13px;
-    color: #6f8ba0;
-    pointer-events: none;
-}
-
-.fm-furnace-panel__stats {
+.fm-furnace-panel__zones {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 16px;
 }
 
-.fm-furnace-panel__stat {
+.fm-furnace-panel__zone-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 12px 4px 10px;
-    border-radius: 11px;
+    gap: 10px;
+    padding: 16px 16px 14px;
+    border-radius: 16px;
     background: rgba(255, 255, 255, 0.035);
     border-top: 3px solid #3d5064;
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-.fm-furnace-panel__stat--yashil { border-top-color: #22c55e; }
-.fm-furnace-panel__stat--sariq { border-top-color: #f5c542; }
-.fm-furnace-panel__stat--qizil { border-top-color: #e5484d; }
-
-.fm-furnace-panel__stat-zone {
-    font-size: 13px;
-    color: #7fa2b8;
-    margin-bottom: 3px;
+.fm-furnace-panel__zone-card--yashil { border-top-color: #22c55e; }
+.fm-furnace-panel__zone-card--sariq { border-top-color: #f5c542; }
+.fm-furnace-panel__zone-card--qizil {
+    border-top-color: #e5484d;
+    background: rgba(229, 72, 77, 0.055);
 }
 
-.fm-furnace-panel__stat-value {
+.fm-furnace-panel__zone-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.fm-furnace-panel__zone-card-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #8fb4c2;
+}
+
+.fm-furnace-panel__zone-card-value {
     font-family: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
-    font-size: 27px;
+    font-size: 29px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     color: #eafaff;
-    line-height: 1.1;
+    line-height: 1;
 }
 
-.fm-furnace-panel__stat-sp {
+.fm-furnace-panel__zone-card-chart {
+    position: relative;
+    height: 108px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+
+.fm-furnace-panel__zone-card-chart svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.fm-furnace-panel__zone-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.fm-furnace-panel__zone-card-sp {
     font-size: 12.5px;
     color: #6f8ba0;
-    margin-top: 2px;
+}
+
+.fm-furnace-panel__zone-card-range-stats {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    font-size: 10.5px;
+    color: #5a7488;
+}
+
+.fm-furnace-panel__zone-card-range-stats b {
+    display: block;
+    font-family: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #b8cddc;
+    margin-bottom: 1px;
 }
 
 .fm-furnace-panel__stat-delta {
-    margin-top: 5px;
     font-family: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 999px;
+    flex: none;
 }
 
 .fm-furnace-panel__stat-delta--pos {

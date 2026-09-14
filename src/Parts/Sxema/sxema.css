@@ -1,0 +1,265 @@
+/* ============================================================================
+ * SxemaPage — jarayon sxemasi 3D ko'rinishi
+ * Palette FactoryModel bilan bir xil: qorong'i fon + sion rang (--sxm-cyan)
+ * ==========================================================================*/
+
+.sxm-root {
+    box-sizing: border-box;
+    --sxm-cyan: 14, 168, 199;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 0%, #0c1a33 0%, #050b1a 55%, #02060f 100%);
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    color: #e6f3f8;
+}
+
+.sxm-root *,
+.sxm-root *::before,
+.sxm-root *::after {
+    box-sizing: inherit;
+}
+
+/* ─── Embedded (card inside SexDetailModal) ─────────────────────────────── */
+
+.sxm-root--embedded {
+    border-radius: 10px;
+}
+
+/* Escapes above SexDetailModal's own z-index (900000001) so the toggle can
+   actually take over the whole screen from inside that modal. */
+.sxm-root--embedded.sxm-root--fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 900000010;
+    border-radius: 0;
+}
+
+.sxm-fullscreen-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    color: #cfe9f2;
+    background: rgba(3, 13, 34, 0.65);
+    border: 1px solid rgba(var(--sxm-cyan), 0.32);
+    border-radius: 8px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.sxm-fullscreen-toggle:hover {
+    background: rgba(var(--sxm-cyan), 0.2);
+    border-color: rgba(var(--sxm-cyan), 0.6);
+    color: #eafaff;
+}
+
+/* ─── Top bar ────────────────────────────────────────────────────────────── */
+
+.sxm-topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 22px;
+    background: linear-gradient(180deg, rgba(3, 13, 34, 0.85) 0%, rgba(3, 13, 34, 0) 100%);
+    pointer-events: none;
+}
+
+.sxm-topbar__title {
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: 0.3px;
+    color: rgb(var(--sxm-cyan));
+    text-shadow: 0 0 18px rgba(var(--sxm-cyan), 0.5);
+}
+
+.sxm-topbar__views {
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+.sxm-topbar__views button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: #cfe9f2;
+    background: rgba(3, 13, 34, 0.55);
+    border: 1px solid rgba(var(--sxm-cyan), 0.28);
+    border-radius: 9px;
+    padding: 7px 12px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.sxm-topbar__views button:hover {
+    background: rgba(var(--sxm-cyan), 0.16);
+    border-color: rgba(var(--sxm-cyan), 0.55);
+    color: #eafaff;
+}
+
+.sxm-topbar__views button.sxm-topbar__flow--on {
+    color: #04141a;
+    background: rgb(var(--sxm-cyan));
+    border-color: rgb(var(--sxm-cyan));
+}
+
+/* ─── Loading overlay ────────────────────────────────────────────────────── */
+
+.sxm-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: radial-gradient(120% 120% at 50% 40%, #0c1a33 0%, #050b1a 70%);
+    color: #cfe9f2;
+    pointer-events: none;
+}
+
+.sxm-loader__ring {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 3px solid rgba(var(--sxm-cyan), 0.18);
+    border-top-color: rgb(var(--sxm-cyan));
+    animation: sxm-spin 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes sxm-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(180deg); }
+}
+
+.sxm-loader__bar {
+    width: 220px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(var(--sxm-cyan), 0.15);
+    overflow: hidden;
+}
+
+.sxm-loader__bar-fill {
+    height: 100%;
+    background: rgb(var(--sxm-cyan));
+    box-shadow: 0 0 12px rgba(var(--sxm-cyan), 0.8);
+    transition: width 0.25s ease;
+}
+
+.sxm-loader__text {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #8fb8c8;
+}
+
+/* ─── Error ──────────────────────────────────────────────────────────────── */
+
+.sxm-error {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    color: #fca5a5;
+    background: radial-gradient(120% 120% at 50% 40%, #241014 0%, #050b1a 70%);
+}
+
+/* ─── Selection tooltip ──────────────────────────────────────────────────── */
+
+.sxm-tooltip {
+    position: absolute;
+    z-index: 30;
+    min-width: 200px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: linear-gradient(160deg, rgba(8, 24, 48, 0.94), rgba(3, 13, 34, 0.97));
+    border: 1px solid rgba(var(--sxm-cyan), 0.4);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 26px rgba(var(--sxm-cyan), 0.15);
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+}
+
+.sxm-tooltip__head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(var(--sxm-cyan), 0.18);
+}
+
+.sxm-tooltip__id {
+    font-size: 14px;
+    font-weight: 700;
+    color: #eafaff;
+    font-family: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+.sxm-tooltip__kind {
+    font-size: 11px;
+    color: #8fb4c2;
+}
+
+.sxm-tooltip__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    font-size: 12px;
+    color: #8fb4c2;
+    padding: 3px 0;
+}
+
+.sxm-tooltip__row b {
+    color: #eafaff;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.sxm-good { color: #4ade80 !important; }
+.sxm-muted { color: #94a3b8 !important; }
+
+/* ─── Hint ───────────────────────────────────────────────────────────────── */
+
+.sxm-hint {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    gap: 14px;
+    padding: 8px 16px;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    color: #8fb8c8;
+    background: rgba(3, 13, 34, 0.5);
+    border: 1px solid rgba(var(--sxm-cyan), 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}

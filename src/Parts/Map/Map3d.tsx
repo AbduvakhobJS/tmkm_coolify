@@ -11,6 +11,7 @@ import type { MapItem, MapLinkRef, MapFactoryDetail, MapGeologyDetail, MapInvest
 import { GC, alpha } from '../../theme/palette';
 import { DRACO_DECODER_PATH } from '../FactoryModel/constants';
 import FactoryModel from "../FactoryModel/FactoryModel";
+import SxemaPage from "../Sxema/SxemaPage";
 
 
 
@@ -647,7 +648,7 @@ const SexDetailModal: React.FC<{ sex: SexListItem; onClose: () => void }> = ({ s
                             <KpiTile label="Nosozliklar" value={faults.value} demo={faults.demo} />
                         </div>
                     </Card>
-                    <ImageFillCard title="Sex rasmi" accent={titleColor} src={`/imgs/factory/${sex.label.toLowerCase()}.jpg`} icon={<Icon3DCube />} />
+                    <SexSxemaCard title="Modeli" accent={titleColor} />
                     <div style={{ minHeight: 0 }}>
                         <SubPanel title="Kameralar" minWidth={260} demo>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
@@ -1043,6 +1044,15 @@ const ImageFillCard: React.FC<{ title: string; accent: string; src: string; icon
         </div>
     );
 };
+
+// "Sex rasmi" o'rniga 3D jarayon sxemasi (SxemaPage) — `embedded` rejimida
+// bu kartaga sig'adi, o'zining [ ] to'liq ekran tugmasi bilan.
+const SexSxemaCard: React.FC<{ title: string; accent: string }> = ({ title, accent }) => (
+    <div style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', border: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(145deg, ${alpha(accent, 0.12)}, #04101f)`, minHeight: '200px', height: '100%' }}>
+        <div style={{ position: 'absolute', top: 10, left: 12, zIndex: 2, fontSize: 11, fontWeight: 700, letterSpacing: 1, color: '#ffffff', textTransform: 'uppercase', textShadow: '0 1px 6px rgba(0,0,0,0.85)', pointerEvents: 'none' }}>{title}</div>
+        <SxemaPage embedded />
+    </div>
+);
 
 /* ── "2. Asosiy ko'rsatkichlar" va "3. Geologik ma'lumotlar" uchun demo
    (namuna) ko'rsatkichlar — bunday darajadagi tafsilot hozircha API'da yo'q,

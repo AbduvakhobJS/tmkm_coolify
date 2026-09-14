@@ -20,13 +20,6 @@ export interface FurnaceState {
     status: boolean;
     /** 5 shell segments per furnace, in `{n}t_qobiq1..5` order. */
     zones: FurnaceZoneState[];
-    /**
-     * "demo" until ThingsBoard has actually answered for THIS furnace at least
-     * once — every furnace starts here so the panel never renders empty, and
-     * flips to "live" per-furnace (not all at once) the moment real telemetry
-     * lands for it.
-     */
-    source: "demo" | "live";
 }
 
 export type HistoryRangeKey = "day" | "week" | "month";
@@ -94,61 +87,6 @@ const FURNACES: FurnaceConfig[] = [
     { index: 6, title: "Печь №46", deviceId: "3edf5230-9ba8-11f1-af0b-75f6e13813c9", statusKey: "status", zones: zoneConfig([900, 950, 1000, 1000, 980]) },
 ];
 
-/* ── Demo fallback ─────────────────────────────────────────────────────────
- * Shown immediately on mount (before ThingsBoard has answered) and for any
- * furnace it never answers for — so the panel is never a blank "—" wall.
- * Hand-tuned (not randomised) so the demo view itself demonstrates the full
- * range of states at a glance: furnace 5 stopped, the rest running with a
- * spread of on-setpoint / drifting / critical zones.
- * ---------------------------------------------------------------------------- */
-
-const seeded = (seed: number) => {
-    const x = Math.sin(seed * 999.77) * 43758.5453;
-    return x - Math.floor(x);
-};
-
-const buildDemoHistory = (base: number, seed: number, range: HistoryRangeConfig): FurnaceHistoryPoint[] => {
-    const now = Date.now();
-    const points: FurnaceHistoryPoint[] = [];
-    const n = range.points;
-    for (let i = 0; i < n; i++) {
-        const ts = now - (n - 1 - i) * (range.spanMs / (n - 1));
-        const drift = Math.sin(i / 2.3 + seed) * 9;
-        const noise = (seeded(seed + i * 7.13) - 0.5) * 14;
-        points.push({ ts, value: Math.round((base + drift + noise) * 10) / 10 });
-    }
-    return points;
-};
-
-// Per furnace (rows), per zone (columns) — offset from that zone's setpoint.
-const DEMO_DELTAS: number[][] = [
-    [4, -6, 12, -3, 8],
-    [-9, 22, -14, 5, 31],
-    [2, -3, 5, -35, 18],
-    [15, -22, 28, -19, 24],
-    [0, 0, 0, 0, 0],
-    [-5, 8, -11, 14, -2],
-];
-
-const buildDemoFurnaces = (): FurnaceState[] =>
-    FURNACES.map((f, fi) => {
-        const running = fi !== 4; // furnace 5 — stopped, so the "to'xtagan" look is always visible
-        return {
-            index: f.index,
-            title: f.title,
-            status: running,
-            source: "demo",
-            zones: f.zones.map((z, zi) => {
-                const value = Math.round((z.setpoint + DEMO_DELTAS[fi][zi]) * 10) / 10;
-                return {
-                    temp: running ? value : null,
-                    setpoint: z.setpoint,
-                    history: running ? buildDemoHistory(value, fi * 5 + zi + 1, HISTORY_RANGES[DEFAULT_HISTORY_RANGE]) : [],
-                };
-            }),
-        };
-    });
-
 const parseBool = (v: unknown): boolean => {
     if (typeof v === "boolean") return v;
     if (typeof v === "number") return v !== 0;
@@ -162,15 +100,27 @@ const parseBool = (v: unknown): boolean => {
 const allKeysFor = (f: FurnaceConfig) =>
     [f.statusKey, ...f.zones.map((z) => z.tempKey), ...f.zones.map((z) => z.spKey)].filter(Boolean);
 
+// Nothing known yet — every furnace renders as "To'xtagan" with "—" readouts
+// until ThingsBoard actually answers. No fabricated numbers: a furnace with
+// no data looks exactly like a furnace that is genuinely off.
+const initialFurnaces = (): FurnaceState[] =>
+    FURNACES.map((f) => ({
+        index: f.index,
+        title: f.title,
+        status: false,
+        zones: f.zones.map((z) => ({ temp: null, setpoint: z.setpoint, history: [] })),
+    }));
+
 /**
  * Mirrors index2.html's ThingsBoard polling for the pavilion walkthrough:
  * public login (tried against both known hosts), a REST "latest telemetry" +
  * "history" fetch per furnace, then a WS subscription for live updates.
- * Returns the 6 furnaces' current status, 5-zone temp/setpoint/history
+ * Returns the 6 furnaces' current status + 5-zone temp/setpoint/history
  * (whichever day/week/month window was last picked for that furnace — see
- * `setHistoryRange`), and (per furnace) whether that's real data yet or
- * still the demo fallback — drives the qobiq shell tint, the asosiy_chiroq
- * blink, and FurnacePanels.
+ * `setHistoryRange`) — drives the qobiq shell tint, the asosiy_chiroq blink,
+ * and FurnacePanels. Always real ThingsBoard data — a furnace ThingsBoard
+ * hasn't answered for (yet, or ever) simply shows as stopped/no-data, the
+ * same as a furnace that is genuinely switched off.
  *
  * Only runs while `enabled` (the pavilion modal is open) — no point polling
  * ThingsBoard while nobody can see the result.
@@ -178,7 +128,7 @@ const allKeysFor = (f: FurnaceConfig) =>
 export const useFurnaceTelemetry = (
     enabled: boolean
 ): { furnaces: FurnaceState[]; setHistoryRange: (furnaceIndex: number, range: HistoryRangeKey) => void } => {
-    const [furnaces, setFurnaces] = useState<FurnaceState[]>(buildDemoFurnaces);
+    const [furnaces, setFurnaces] = useState<FurnaceState[]>(initialFurnaces);
     const stateRef = useRef(furnaces);
     stateRef.current = furnaces;
 
@@ -204,7 +154,7 @@ export const useFurnaceTelemetry = (
                 prev.map((f) => {
                     const cfg = FURNACES.find((c) => c.index === f.index);
                     if (!cfg || cfg.deviceId !== deviceId) return f;
-                    return { ...f, ...patch, source: "live" };
+                    return { ...f, ...patch };
                 })
             );
         };
@@ -215,16 +165,11 @@ export const useFurnaceTelemetry = (
             const status = statusArr?.[0] ? parseBool(statusArr[0].value) : prev?.status ?? false;
             const zones = f.zones.map((z, i) => {
                 const prevZone = prev?.zones[i];
-                const liveZone = prev?.source === "live" ? prevZone : undefined;
                 const tArr = payload[z.tempKey];
                 const spArr = payload[z.spKey];
-                const temp = tArr?.[0] ? Number(tArr[0].value) : liveZone?.temp ?? null;
+                const temp = tArr?.[0] ? Number(tArr[0].value) : prevZone?.temp ?? null;
                 const spRaw = spArr?.[0] ? Number(spArr[0].value) : NaN;
-                const setpoint = Number.isFinite(spRaw) ? spRaw : liveZone?.setpoint ?? z.setpoint;
-                // History is a separate concern (populated by fetchHistoryRange) —
-                // always carried forward here regardless of the demo→live
-                // transition, so the chart never goes blank the moment a furnace
-                // starts answering and its status/temp is genuinely fresh.
+                const setpoint = Number.isFinite(spRaw) ? spRaw : prevZone?.setpoint ?? z.setpoint;
                 return { temp, setpoint, history: prevZone?.history ?? [] };
             });
             applyPatch(f.deviceId, { status, zones });
@@ -304,35 +249,18 @@ export const useFurnaceTelemetry = (
             return res.json();
         };
 
-        // Real furnace: re-fetch from ThingsBoard at the requested granularity.
-        // Demo furnace: regenerate the placeholder trend at that same span, so
-        // the day/week/month filter still does something visually even offline.
+        // Re-fetch that furnace's history from ThingsBoard at the requested
+        // granularity. If the request fails (host unreachable, furnace never
+        // answered), whatever history is already showing is simply left alone.
         rangeFetcherRef.current = (furnaceIndex, rangeKey) => {
             const f = FURNACES.find((c) => c.index === furnaceIndex);
-            if (!f) return;
+            if (!f || !jwt || !baseUrl) return;
             const range = HISTORY_RANGES[rangeKey];
-            const current = stateRef.current.find((s) => s.index === furnaceIndex);
-
-            if (current?.source === "live" && jwt && baseUrl) {
-                fetchHistory(f, range)
-                    .then((payload) => applyHistoryPayload(furnaceIndex, f.zones.map((z) => z.tempKey), payload))
-                    .catch(() => {
-                        // keep whatever history is already showing
-                    });
-                return;
-            }
-
-            const fi = FURNACES.findIndex((c) => c.index === furnaceIndex);
-            setFurnaces((prev) =>
-                prev.map((state) => {
-                    if (state.index !== furnaceIndex) return state;
-                    const zones = state.zones.map((zoneState, i) => ({
-                        ...zoneState,
-                        history: state.status ? buildDemoHistory(zoneState.temp ?? zoneState.setpoint, fi * 5 + i + 1, range) : [],
-                    }));
-                    return { ...state, zones };
-                })
-            );
+            fetchHistory(f, range)
+                .then((payload) => applyHistoryPayload(furnaceIndex, f.zones.map((z) => z.tempKey), payload))
+                .catch(() => {
+                    // keep whatever history is already showing
+                });
         };
 
         const refreshAll = async () => {
@@ -340,14 +268,14 @@ export const useFurnaceTelemetry = (
                 try {
                     applyLatestPayload(f, await fetchLatest(f));
                 } catch {
-                    // one furnace failing to answer shouldn't block the rest — it just stays "demo"
+                    // one furnace failing to answer shouldn't block the rest
                     continue;
                 }
                 try {
                     const payload = await fetchHistory(f, HISTORY_RANGES[DEFAULT_HISTORY_RANGE]);
                     applyHistoryPayload(f.index, f.zones.map((z) => z.tempKey), payload);
                 } catch {
-                    // current value without history is still useful — chart just stays on demo/empty
+                    // current value without history is still useful — chart just stays empty
                 }
             }
         };
@@ -393,10 +321,9 @@ export const useFurnaceTelemetry = (
                     const status = f.statusKey in flat ? parseBool(flat[f.statusKey]) : prev?.status ?? false;
                     const zones = f.zones.map((z, i) => {
                         const prevZone = prev?.zones[i];
-                        const liveZone = prev?.source === "live" ? prevZone : undefined;
-                        const temp = z.tempKey in flat ? Number(flat[z.tempKey]) : liveZone?.temp ?? null;
+                        const temp = z.tempKey in flat ? Number(flat[z.tempKey]) : prevZone?.temp ?? null;
                         const spRaw = z.spKey in flat ? Number(flat[z.spKey]) : NaN;
-                        const setpoint = Number.isFinite(spRaw) ? spRaw : liveZone?.setpoint ?? z.setpoint;
+                        const setpoint = Number.isFinite(spRaw) ? spRaw : prevZone?.setpoint ?? z.setpoint;
                         return { temp, setpoint, history: prevZone?.history ?? [] };
                     });
                     applyPatch(f.deviceId, { status, zones });
@@ -422,7 +349,7 @@ export const useFurnaceTelemetry = (
                 if (cancelled) return;
                 connectWs();
             } catch (e) {
-                console.warn("[useFurnaceTelemetry] ThingsBoard unreachable — furnaces stay in demo state", e);
+                console.warn("[useFurnaceTelemetry] ThingsBoard unreachable — furnaces stay in no-data state", e);
             }
         })();
 

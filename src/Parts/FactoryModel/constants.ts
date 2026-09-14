@@ -453,7 +453,7 @@ export const LEFT_WIDGETS: WidgetGroup[] = [
 export const PAVILION_TARGET_SIZE = 40;
 export const PAVILION_GROUND_RADIUS = 30;
 export const PAVILION_CAMERA_FOV = 50;
-export const PAVILION_CAMERA_INITIAL_POSITION: [number, number, number] = [0, 6, 22];
+export const PAVILION_CAMERA_INITIAL_POSITION: [number, number, number] = [8, 10, 36];
 
 export const RIGHT_WIDGETS: WidgetGroup[] = [
     {
