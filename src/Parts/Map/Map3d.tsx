@@ -357,8 +357,8 @@ const InfoRow: React.FC<{ label: string; value?: React.ReactNode; valueColor?: s
     if (value === undefined || value === null || value === '') return null;
     return (
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-            <span style={{ color: GC.slate, fontSize: '13px', flexShrink: 0 }}>{label}:</span>
-            <span style={{ fontWeight: 600, fontSize: '13px', textAlign: 'right', color: valueColor || '#e0f0ff' }}>{value}</span>
+            <span style={{ color: GC.slate, fontSize: '16px', flexShrink: 0 }}>{label}:</span>
+            <span style={{ fontWeight: 600, fontSize: '16px', textAlign: 'right', color: valueColor || '#e0f0ff' }}>{value}</span>
         </div>
     );
 };
@@ -369,8 +369,8 @@ const TextBlock: React.FC<{ label: string; value?: string | null }> = ({ label, 
     if (!value) return null;
     return (
         <div>
-            <div style={{ color: GC.slate, fontSize: '11px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
-            <div style={{ fontSize: '13px', color: '#e0f0ff', lineHeight: 1.5 }}>{value}</div>
+            <div style={{ color: GC.slate, fontSize: '13px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
+            <div style={{ fontSize: '16px', color: '#e0f0ff', lineHeight: 1.5 }}>{value}</div>
         </div>
     );
 };
@@ -380,7 +380,7 @@ const ElementChips: React.FC<{ elements?: string[] | null; accent: string }> = (
     return (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {elements.map((el, i) => (
-                <span key={i} style={{ fontSize: '12px', fontWeight: 600, color: accent, border: `1px solid ${accent}`, borderRadius: '4px', padding: '3px 10px' }}>{el}</span>
+                <span key={i} style={{ fontSize: '14px', fontWeight: 600, color: accent, border: `1px solid ${accent}`, borderRadius: '4px', padding: '3px 10px' }}>{el}</span>
             ))}
         </div>
     );
@@ -390,10 +390,13 @@ const ElementChips: React.FC<{ elements?: string[] | null; accent: string }> = (
 // karta o'ziga berilgan butun balandlikni egallaydi VA shu balandlikni
 // ICHIDAGI kontentga (grafik/ro'yxat) ham uzatadi, shunda ular kartaning
 // tagigacha to'lib turadi (bo'sh joy qolmaydi).
+// Sarlavha o'lchami `MetalsDashboardMain.tsx`dagi "large style" (`bigCardTitleStyle`)
+// bilan bir xil darajaga ko'tarilgan — bu modal fullscreen bo'lgani uchun
+// cqmin/containerType shart emas, fixed px yetarli.
 const Card: React.FC<{ title: string; titleColor: string; borderColor: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, titleColor, borderColor, children, style }) => (
-    <div style={{ background: GC.panelBg, padding: '14px', height: "100%", minHeight: 0, borderRadius: '8px', border: `1px solid ${borderColor}`, display: 'flex', flexDirection: 'column', ...style }}>
-        <div style={{ marginBottom: '10px', color: titleColor, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>{title}</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minHeight: 0 }}>{children}</div>
+    <div style={{ background: GC.panelBg, padding: '16px', height: "100%", minHeight: 0, borderRadius: '8px', border: `1px solid ${borderColor}`, display: 'flex', flexDirection: 'column', ...style }}>
+        <div style={{ marginBottom: '12px', color: titleColor, fontWeight: 700, fontSize: '19px', letterSpacing: '0.3px', flexShrink: 0 }}>{title}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1, minHeight: 0 }}>{children}</div>
     </div>
 );
 
@@ -411,7 +414,7 @@ const numOrText = (num: number | null | undefined, text: string | null | undefin
 // qilingan, ya'ni taxminiy joylashuv.
 const LinkedCoordsNotice: React.FC<{ linkedFrom?: string | null }> = ({ linkedFrom }) => (
     <div style={{
-        display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px',
+        display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px',
         color: GC.amber, background: alpha(GC.amber, 0.1), border: `1px solid ${alpha(GC.amber, 0.3)}`,
         borderRadius: '4px', padding: '5px 9px', marginTop: '6px',
     }}>
@@ -429,11 +432,11 @@ const LinkedItemsCard: React.FC<{ links?: MapLinkRef[]; accent: string }> = ({ l
         <Card title="Bog'langan loyihalar" titleColor={accent} borderColor={alpha(accent, 0.2)}>
             {links.map((l, i) => (
                 <div key={`${l.type}-${l.id}-${i}`} style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '12px', color: '#e0f0ff' }}>
+                    <span style={{ fontSize: '15px', color: '#e0f0ff' }}>
                         <span style={{ color: SOURCE_UI_ACCENT[l.type] || GC.slate, fontWeight: 700 }}>{LINK_TYPE_LABEL[l.type] || l.type}: </span>
                         {l.name || l.id}
                     </span>
-                    <span style={{ fontSize: '10px', color: l.confidence === 'exact' ? GC.accent1 : GC.slate, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    <span style={{ fontSize: '12px', color: l.confidence === 'exact' ? GC.accent1 : GC.slate, whiteSpace: 'nowrap', flexShrink: 0 }}>
                         {l.confidence === 'exact' ? 'aniq' : 'taxminiy'}
                     </span>
                 </div>
@@ -500,14 +503,19 @@ const DEMO_FACTORY_STAFF_STATS: { label: string; value: string; warn?: boolean }
     { label: 'Faol propusklar', value: '158' },
     { label: 'Xavfli zonadagi xodimlar', value: '4', warn: true },
     { label: 'Pudratchilar', value: '12' },
+    { label: "Kechikkan xodimlar", value: '7', warn: true },
+    { label: "Ta'til/kasallik varaqasida", value: '9' },
 ];
 
 const DEMO_FACTORY_STAFF_COMPOSITION = [
-    { label: 'Ishlab chiqarish', pct: 52, color: GC.accent1 },
-    { label: 'Texnik xizmat', pct: 18, color: GC.amber },
-    { label: "Ma'muriy", pct: 12, color: GC.violet },
+    { label: 'Ishlab chiqarish', pct: 34, color: GC.accent1 },
+    { label: 'Flotatsiya bo\'limi', pct: 12, color: GC.accent3 },
+    { label: 'Tegirmon bo\'limi', pct: 10, color: GC.magenta },
+    { label: 'Texnik xizmat', pct: 14, color: GC.amber },
+    { label: 'Energetika bo\'limi', pct: 6, color: GC.deep },
+    { label: "Ma'muriy", pct: 10, color: GC.violet },
     { label: 'Xavfsizlik', pct: 8, color: GC.red },
-    { label: 'Boshqa', pct: 10, color: GC.slate },
+    { label: 'Boshqa', pct: 6, color: GC.slate },
 ];
 
 const DEMO_FACTORY_ENTRY = [370, 380, 375, 390, 385, 392, 392];
@@ -519,13 +527,20 @@ const DEMO_FACTORY_SKUD_EVENTS = [
     { time: '14:12', staff: 'A. Qudratov', event: 'Kirish (QR)' },
     { time: '14:05', staff: 'N. Saidova', event: 'Kirish (RFID)' },
     { time: '13:57', staff: 'D. Xolikov', event: 'Chiqish (RFID)' },
+    { time: '13:41', staff: 'O. Ergasheva', event: 'Kirish (RFID)' },
+    { time: '11:10', staff: 'O. Ismoilova', event: 'Kirish (RFID)' },
+    { time: '15:10', staff: 'D. Xoliqov', event: 'Kirish (RFID)' },
 ];
 
 const DEMO_FACTORY_AI_EVENTS: { time: string; text: string; status: string; level: keyof typeof AI_LEVEL_COLOR }[] = [
     { time: '14:20', text: 'PPE qoidasi buzilishi', status: "Ko'rib chiqilmoqda", level: 'warn' },
     { time: '13:48', text: 'Ruxsatsiz zona kirish', status: 'Aniqlangan', level: 'warn' },
     { time: '12:16', text: "Texnika to'xtashi", status: 'Bartaraf etildi', level: 'ok' },
+    { time: '11:34', text: 'Xavfsizlik kaskasisiz shaxs', status: "Ko'rib chiqilmoqda", level: 'warn' },
+    { time: '10:58', text: 'Yuk ko\'tarish zonasi nazorati', status: 'Normal', level: 'ok' },
     { time: '10:52', text: 'Tutun aniqlangan', status: "Yolg'on signal", level: 'muted' },
+    { time: '10:15', text: "Konveyer atrofida begona shaxs", status: 'Aniqlangan', level: 'warn' },
+    { time: '09:40', text: "Yong'in eshigi to'sib qo'yilgan", status: 'Bartaraf etildi', level: 'ok' },
 ];
 
 const SEX_STATUS_META: Record<'active' | 'maintenance' | 'idle', { label: string; color: string }> = {
@@ -675,35 +690,55 @@ const SexDetailModal: React.FC<{ sex: SexListItem; onClose: () => void }> = ({ s
 const SexCard: React.FC<{ sex: SexListItem; accent: string; onClick: () => void }> = ({ sex, accent, onClick }) => {
     const meta = SEX_STATUS_META[sex.status];
     const [hover, setHover] = React.useState(false);
+    // Sexlar ro'yxati endi bitta qatorda, kartalar butun karta balandligini
+    // egallaydi (stretch) — shu bo'sh balandlikni to'ldirish uchun samaradorlik
+    // va bugungi hajm qatorlari qo'shildi (SexDetailModal bilan bir xil
+    // maydon nomlaridan, real bo'lmasa demo qiymat bilan).
+    const efficiency = pickField(sex.raw, ['efficiency', 'productivity']) ?? (88 + (sex.utilization % 9));
+    const outputVolume = pickField(sex.raw, ['outputVolume', 'productionVolume', 'volume']) ?? (180 + sex.staff * 6);
     return (
         <button
             onClick={onClick}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
             style={{
-                textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '9px',
-                padding: '11px 12px', borderRadius: '8px', cursor: 'pointer', font: 'inherit',
+                textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '12px',
+                height: '100%', padding: '16px 18px', borderRadius: '12px', cursor: 'pointer', font: 'inherit',
                 background: GC.cardBg,
                 border: `1px solid ${hover ? accent : GC.border}`,
                 transform: hover ? 'translateY(-2px)' : 'none',
                 transition: 'background 0.15s ease, border-color 0.15s ease, transform 0.15s ease',
             }}
         >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
-                <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sex.label}</span>
-                <StatusDot color={meta.color} />
-            </div>
-            <span style={{ fontSize: '9.5px', color: meta.color, fontWeight: 600 }}>{meta.label}</span>
             <div>
-                <div style={{ height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                    <div style={{ width: `${sex.utilization}%`, height: '100%', background: accent, borderRadius: '2px' }} />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                    <span style={{ fontSize: '18px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sex.label}</span>
+                    <StatusDot color={meta.color} />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '9px', color: GC.slate }}>
+                <span style={{ fontSize: '12px', color: meta.color, fontWeight: 600, background: alpha(meta.color, 0.12), border: `1px solid ${alpha(meta.color, 0.35)}`, borderRadius: '6px', padding: '2px 8px', display: 'inline-block', marginTop: '6px' }}>{meta.label}</span>
+            </div>
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px', color: GC.slate }}>
                     <span>Yuklama</span>
                     <span style={{ color: '#dfe9f5', fontWeight: 700 }}>{sex.utilization}%</span>
                 </div>
+                <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                    <div style={{ width: `${sex.utilization}%`, height: '100%', background: accent, borderRadius: '3px' }} />
+                </div>
             </div>
-            <span style={{ fontSize: '9.5px', color: GC.slate }}>{sex.staff} xodim smenada</span>
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px', color: GC.slate }}>
+                    <span>Samaradorlik</span>
+                    <span style={{ color: '#dfe9f5', fontWeight: 700 }}>{efficiency}%</span>
+                </div>
+                <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                    <div style={{ width: `${efficiency}%`, height: '100%', background: GC.accent3, borderRadius: '3px' }} />
+                </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: GC.slate, paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <span>{sex.staff} xodim smenada</span>
+                <span style={{ color: '#dfe9f5', fontWeight: 700 }}>{outputVolume} t/kun</span>
+            </div>
         </button>
     );
 };
@@ -722,15 +757,24 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
     // `/factory/:id` javobida sexlar ro'yxati topilsa — haqiqiy ma'lumot;
     // topilmasa (maydon hali API'da yo'q) — DEMO_SEX_LIST bilan "namuna" ko'rsatiladi.
     const realSexList = readFactorySexList(detail);
-    const sexList = realSexList ?? DEMO_SEX_LIST;
-    const sexListIsDemo = realSexList === null;
+    // Sexlar bitta qatorda ko'rsatiladi, shu sabab soni CHEKLANGAN: juda ko'p
+    // bo'lsa kartochkalar o'qib bo'lmas darajada siqilib, qatordan toshib
+    // ketardi. Kam bo'lsa — namuna sexlar bilan to'ldiriladi, ko'p bo'lsa —
+    // birinchi SEX_CARDS tasi ko'rsatiladi.
+    const SEX_CARDS = 5;
+    const sexList = (!realSexList
+        ? DEMO_SEX_LIST
+        : realSexList.length >= SEX_CARDS
+            ? realSexList
+            : [...realSexList, ...DEMO_SEX_LIST.filter((d) => !realSexList.some((r) => r.label === d.label)).slice(0, SEX_CARDS - realSexList.length).map((d) => ({ ...d, id: `demo-${d.id}` }))]
+    ).slice(0, SEX_CARDS);
+    const sexListIsDemo = !realSexList || sexList.length > realSexList.length;
 
     const projectCode = pickField(detail, ['projectCode', 'code']) || `OPR-${detail.factoryId ?? object.id}`;
     const statusLabel = object.status ? (FACTORY_STATUS_LABEL[object.status] || object.status) : null;
     const isImportant = detail.importance === 'HIGH' || !!detail.importanceRaw;
     const lastUpdatedText = React.useMemo(() => new Date().toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }), []);
     const workPercentValue = detail.workPercent != null ? detail.workPercent : 94.8;
-    const workPercentIsDemo = detail.workPercent == null;
 
     return (
         <div style={{
@@ -739,7 +783,7 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
             borderTop: `1px solid ${alpha(titleColor, 0.4)}`,
         }}>
             {/* Breadcrumb */}
-            <div style={{ padding: '7px 24px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'rgba(255,255,255,0.45)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ padding: '8px 24px', display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px', color: 'rgba(255,255,255,0.45)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <IconHomeSmall />
                 <span>TMK</span>
                 <span>›</span>
@@ -749,10 +793,10 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
             </div>
 
             {/* Header */}
-            <div style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(titleColor, 0.3)}`, background: `linear-gradient(90deg, ${alpha(titleColor, 0.25)}, #020B18)`, flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#fff' }}>{object.name || detail.enterpriseName || 'Zavod'}</h2>
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', padding: '3px 8px', borderRadius: '5px', whiteSpace: 'nowrap' }}>{projectCode}</span>
+            <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(titleColor, 0.3)}`, background: `linear-gradient(90deg, ${alpha(titleColor, 0.25)}, #020B18)`, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>{object.name || detail.enterpriseName || 'Zavod'}</h2>
+                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: '5px', whiteSpace: 'nowrap' }}>{projectCode}</span>
                     {statusLabel && <StatusPill color={GC.green} text={statusLabel} />}
                     <StatusPill color={GC.accent1} text="Onlayn monitoring" />
                     {isImportant && <StatusPill color={GC.amber} text="Muhim obyekt" />}
@@ -762,212 +806,317 @@ const FactoryFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
             </div>
             {/* Holat lentasi — bosh sahifaning "hero" o'qish nuqtasi: zavod
                 shu daqiqada qanday ishlayotgani bitta qarashda ko'rinadi. */}
-            <div style={{ padding: '10px 24px', display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '26px', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
                     <StatusDot color={statusLabel ? GC.green : GC.slate} />
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#dfe9f5' }}>{statusLabel || "Holati noma'lum"}</span>
+                    <span style={{ fontSize: '15px', fontWeight: 600, color: '#dfe9f5' }}>{statusLabel || "Holati noma'lum"}</span>
                 </div>
-                <span style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.08)' }} />
+                <span style={{ width: '1px', height: '34px', background: 'rgba(255,255,255,0.08)' }} />
                 <div>
-                    <div style={{ fontSize: '10px', color: GC.slate }}>Bugungi konsentrat</div>
-                    <div style={{ fontSize: '26px', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>
-                        286<span style={{ fontSize: '12px', fontWeight: 600, color: GC.slate, marginLeft: '4px' }}>t</span>
-                        <span style={{ fontSize: '7px', fontWeight: 700, color: GC.amber, marginLeft: '6px', verticalAlign: 'top' }}>namuna</span>
+                    <div style={{ fontSize: '13px', color: GC.slate }}>Bugungi konsentrat</div>
+                    <div style={{ fontSize: '32px', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>
+                        286<span style={{ fontSize: '15px', fontWeight: 600, color: GC.slate, marginLeft: '5px' }}>t</span>
                     </div>
                 </div>
-                <span style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.08)' }} />
+                <span style={{ width: '1px', height: '34px', background: 'rgba(255,255,255,0.08)' }} />
                 <div>
-                    <div style={{ fontSize: '10px', color: GC.slate }}>Reja bajarilishi</div>
-                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#fff' }}>
+                    <div style={{ fontSize: '13px', color: GC.slate }}>Reja bajarilishi</div>
+                    <div style={{ fontSize: '22px', fontWeight: 700, color: '#fff' }}>
                         {workPercentValue}%
-                        {workPercentIsDemo && <span style={{ fontSize: '7px', fontWeight: 700, color: GC.amber, marginLeft: '5px' }}>namuna</span>}
                     </div>
                 </div>
-                <span style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.08)' }} />
+                <span style={{ width: '1px', height: '34px', background: 'rgba(255,255,255,0.08)' }} />
                 <div>
-                    <div style={{ fontSize: '10px', color: GC.slate }}>Ochiq nosozliklar</div>
-                    <div style={{ fontSize: '18px', fontWeight: 700, color: GC.amber }}>3<span style={{ fontSize: '7px', fontWeight: 700, marginLeft: '5px' }}>namuna</span></div>
+                    <div style={{ fontSize: '13px', color: GC.slate }}>Ochiq nosozliklar</div>
+                    <div style={{ fontSize: '22px', fontWeight: 700, color: GC.amber }}>3</div>
                 </div>
-                <span style={{ marginLeft: 'auto', fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>Oxirgi yangilanish: {lastUpdatedText}</span>
+                <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>Oxirgi yangilanish: {lastUpdatedText}</span>
             </div>
 
-            {/* Body */}
-            <div style={{ flex: 1, overflow: 'auto', padding: '12px 24px 20px', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: 0 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.25fr', gridTemplateRows: 'auto auto', gap: '14px' }}>
+            {/* Body — ikkita MUSTAQIL ustun (flex-row, gridColumn/gridRow EMAS):
+                chap ustun (pasport → 3D model → sexlar ro'yxati) va o'ng ustun
+                (ishlab chiqarish → video/xodimlar/SKUD) endi bir-birining
+                balandligiga qarab CHEKLANMAYDI — har biri o'z mazmuniga qarab
+                modalning tagigacha mustaqil cho'ziladi. */}
+            <div style={{ flex: 1, overflow: 'hidden', padding: '12px 24px 20px', display: 'flex', gap: '14px', minHeight: 0 }}>
+                {/* CHAP USTUN */}
+                <div style={{ flex: '0 0 38%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '14px', minHeight: 0, overflowY: 'auto' }}>
                     {/* Obyekt pasporti */}
-                    <div style={{ gridColumn: '1', gridRow: '1' }}>
+                    <div style={{ flexShrink: 0 }}>
                         <Card title="Obyekt pasporti" titleColor="#ffffff" borderColor={alpha(titleColor, 0.3)}>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
                                 <div>
-                                    <PassportRow label="Obyekt nomi" value={object.name} />
-                                    <PassportRow label="Obyekt turi" value={detail.objectType} />
-                                    <PassportRow label="Joylashuv" value={object.region} />
-                                    <PassportRow label="Ishga tushirilgan yil" value={pickField(detail, ['startYear', 'launchYear']) || '2021'} />
-                                    <PassportRow label="Loyiha quvvati" value={pickField(detail, ['capacity']) || '1,6 mln t/yil ruda'} />
-                                    <PassportRow label="Joriy yuklama" value={pickField(detail, ['currentLoad']) || '92%'} />
-                                    <PassportRow label="Asosiy mahsulot" value={pickField(detail, ['mainProduct']) || (object.elements?.length ? object.elements.join(', ') : 'Volfram kontsentrati')} />
-                                    <PassportRow label="Qo'shimcha mahsulot" value={pickField(detail, ['byProduct']) || 'Molibden aralash mahsuloti'} />
-                                    <PassportRow label="Boshqaruvchi bo'linma" value={detail.enterpriseName || 'Boyitish direksiyasi'} />
-                                    <PassportRow label="Smena rejimi" value={pickField(detail, ['shiftMode']) || '3 smena, 24/7'} />
+                                    <PassportRow large label="Obyekt nomi" value={object.name} />
+                                    <PassportRow large label="Obyekt turi" value={detail.objectType} />
+                                    <PassportRow large label="Joylashuv" value={object.region} />
+                                    <PassportRow large label="Ishga tushirilgan yil" value={pickField(detail, ['startYear', 'launchYear']) || '2021'} />
+                                    <PassportRow large label="Loyiha quvvati" value={pickField(detail, ['capacity']) || '1,6 mln t/yil ruda'} />
+                                    <PassportRow large label="Joriy yuklama" value={pickField(detail, ['currentLoad']) || '92%'} />
+                                    <PassportRow large label="Asosiy mahsulot" value={pickField(detail, ['mainProduct']) || (object.elements?.length ? object.elements.join(', ') : 'Volfram kontsentrati')} />
+                                    <PassportRow large label="Qo'shimcha mahsulot" value={pickField(detail, ['byProduct']) || 'Molibden aralash mahsuloti'} />
+                                    <PassportRow large label="Boshqaruvchi bo'linma" value={detail.enterpriseName || 'Boyitish direksiyasi'} />
+                                    <PassportRow large label="Smena rejimi" value={pickField(detail, ['shiftMode']) || '3 smena, 24/7'} />
                                 </div>
                                 <div>
-                                    <PassportRow label="Jami xodimlar" value={pickField(detail, ['totalStaff']) || '428'} />
-                                    <PassportRow label="Hozir smenada" value={pickField(detail, ['onShiftStaff']) || '146'} />
-                                    <PassportRow label="Asosiy uskunalar" value={pickField(detail, ['equipment']) || 'maydalagichlar, tegirmonlar, flotatsiya bloklari, nasoslar, filtrlash uskunalari'} />
-                                    <PassportRow label="Elektr talabi" value={pickField(detail, ['powerDemand']) || '18,4 MW'} />
-                                    <PassportRow label="Suv talabi" value={pickField(detail, ['waterDemand']) || '520 m³/soat'} />
-                                    <PassportRow label="Ombor zaxirasi" value={pickField(detail, ['stockDays']) || '18 kun'} />
-                                    <PassportRow label="Xavf toifasi" value={pickField(detail, ['hazardClass']) || "O'rta"} />
-                                    <PassportRow label="Aloqa holati" value="Barqaror" />
-                                    <PassportRow label="Obyekt rahbari" value={pickField(detail, ['manager']) || 'B. Raximov'} />
+                                    <PassportRow large label="Jami xodimlar" value={pickField(detail, ['totalStaff']) || '428'} />
+                                    <PassportRow large label="Hozir smenada" value={pickField(detail, ['onShiftStaff']) || '146'} />
+                                    <PassportRow large label="Asosiy uskunalar" value={pickField(detail, ['equipment']) || 'maydalagichlar, tegirmonlar, flotatsiya bloklari, nasoslar, filtrlash uskunalari'} />
+                                    <PassportRow large label="Elektr talabi" value={pickField(detail, ['powerDemand']) || '18,4 MW'} />
+                                    <PassportRow large label="Suv talabi" value={pickField(detail, ['waterDemand']) || '520 m³/soat'} />
+                                    <PassportRow large label="Ombor zaxirasi" value={pickField(detail, ['stockDays']) || '18 kun'} />
+                                    <PassportRow large label="Xavf toifasi" value={pickField(detail, ['hazardClass']) || "O'rta"} />
+                                    <PassportRow large label="Aloqa holati" value="Barqaror" />
+                                    <PassportRow large label="Obyekt rahbari" value={pickField(detail, ['manager']) || 'B. Raximov'} />
                                 </div>
                             </div>
-                        </Card>
-                    </div>
-
-                    {/* Ishlab chiqarish va sarf-xarajatlar holati */}
-                    <div style={{ gridColumn: '2', gridRow: '1' }}>
-                        <Card title="Ishlab chiqarish va sarf-xarajatlar holati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                                {DEMO_FACTORY_KPI.map((t, i) => <KpiTile key={i} {...t} demo />)}
-                                <KpiTile label="Reja bajarilishi" value={detail.workPercent != null ? String(detail.workPercent) : '94.8'} unit="%" delta="+2.2%" demo={detail.workPercent == null} />
-                                <KpiTile label="Ochiq nosozliklar" value="3" demo />
-                            </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                <SubPanel title="Oylar kesimida ishlab chiqarish dinamikasi" minWidth={170} demo>
-                                    <DualBarChart seriesA={DEMO_ORE_MONTHLY} seriesB={DEMO_CONC_MONTHLY} labels={DEMO_MONTHS} colorA={GC.accent1} colorB={GC.green} height={58} />
-                                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Ruda</span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.green} />Konsentrat</span>
-                                    </div>
-                                </SubPanel>
-                                <SubPanel title="So'nggi 7 kunlik ishlab chiqarish" minWidth={170} demo>
-                                    <DualBarChart seriesA={DEMO_WEEK_ORE} seriesB={DEMO_WEEK_CONC} labels={DEMO_WEEK_DAYS} colorA={GC.accent1} colorB={GC.green} height={58} />
-                                </SubPanel>
-                                <SubPanel title="Xarajatlar tarkibi (OPEX)" minWidth={170} demo>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <DonutChart segments={DEMO_OPEX_BREAKDOWN} centerValue="$124" centerLabel="ming/kun" size={88} />
-                                        <DonutLegend segments={DEMO_OPEX_BREAKDOWN} />
-                                    </div>
-                                </SubPanel>
-                                <SubPanel title="Reja va fakt (uchastkalar kesimida)" minWidth={210} demo>
-                                    <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px' }}>
-                                        <span style={{ flex: 1 }}>Uchastka</span>
-                                        <span style={{ width: '40px', textAlign: 'right' }}>Reja</span>
-                                        <span style={{ width: '40px', textAlign: 'right' }}>Fakt</span>
-                                        <span style={{ width: '34px', textAlign: 'right' }}>%</span>
-                                    </div>
-                                    {DEMO_SECTION_PLAN_FACT.map((s, i) => (
-                                        <div key={i} style={{ display: 'flex', fontSize: '10px', alignItems: 'center', padding: '2px 0' }}>
-                                            <span style={{ flex: 1, color: '#dfe9f5' }}>{s.name}</span>
-                                            <span style={{ width: '40px', textAlign: 'right', color: GC.slate }}>{s.plan}</span>
-                                            <span style={{ width: '40px', textAlign: 'right', color: '#fff' }}>{s.fact}</span>
-                                            <span style={{ width: '34px', textAlign: 'right', color: s.pct >= 94 ? GC.green : GC.amber, fontWeight: 700 }}>{s.pct}%</span>
-                                        </div>
-                                    ))}
-                                </SubPanel>
-                            </div>
-                            {detailLoading && <div style={{ fontSize: 11, color: GC.slate, marginTop: 10 }}>To'liq ma'lumot yuklanmoqda...</div>}
                         </Card>
                     </div>
 
                     {/* Obyekt 3D modeli */}
-                    <div style={{ gridColumn: '1', gridRow: '2', display: 'flex', alignItems: 'flex-start', minWidth: 0 }}>
+                    <div style={{ flexShrink: 0, display: 'flex', minWidth: 0 }}>
                         {/*<ImageFillCard title="Obyekt 3D modeli" accent={GC.amber} src={`/imgs/factory/${object.id}.jpg`} icon={<Icon3DCube />} />*/}
                         <FactoryModel embedded />
                     </div>
 
-                    {/* Video, xodimlar va SKUD */}
-                    <div style={{ gridColumn: '2', gridRow: '2', minHeight: 0 }}>
-                        <Card title="Video, xodimlar va SKUD" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
-                                <SubPanel title="Onlayn kameralar" minWidth={230} demo>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                                        {DEMO_FACTORY_CAMERAS.map((c, i) => (
-                                            <div key={i} style={{ position: 'relative', height: '58px', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
-                                                    <IconCamSmall />
-                                                </div>
-                                                <span style={{ position: 'absolute', top: 3, left: 4, fontSize: '7px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </SubPanel>
-                                <SubPanel title="Asosiy ko'rsatkichlar" minWidth={160} demo>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                        {DEMO_FACTORY_STAFF_STATS.map((s, i) => (
-                                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                                                <span style={{ color: GC.slate }}>{s.label}</span>
-                                                <span style={{ color: s.warn ? GC.red : '#fff', fontWeight: 700 }}>{s.value}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </SubPanel>
-                            </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
-                                <SubPanel title="Xodimlar tarkibi (bo'limlar kesimida)" minWidth={180} demo>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <DonutChart segments={DEMO_FACTORY_STAFF_COMPOSITION} centerValue={String(pickField(detail, ['totalStaff']) || '428')} centerLabel="jami" size={82} />
-                                        <DonutLegend segments={DEMO_FACTORY_STAFF_COMPOSITION} />
-                                    </div>
-                                </SubPanel>
-                                <SubPanel title="Kirish/chiqish dinamikasi (so'nggi 7 kun)" minWidth={180} demo>
-                                    <DualBarChart seriesA={DEMO_FACTORY_ENTRY} seriesB={DEMO_FACTORY_EXIT} labels={DEMO_WEEK_DAYS} colorA={GC.accent1} colorB={GC.accent3} height={50} />
-                                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Kirish</span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Chiqish</span>
-                                    </div>
-                                </SubPanel>
-                                <div style={{ flex: '1 1 150px', minWidth: '150px', position: 'relative', borderRadius: '8px', overflow: 'hidden', border: `1px solid ${alpha(GC.red, 0.35)}`, background: '#04101f', minHeight: '110px' }}>
-                                    <div style={{ position: 'absolute', top: 6, left: 8, zIndex: 2, fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase' }}>namuna</div>
-                                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: alpha(GC.red, 0.5) }}>
-                                        <IconPersonSmall />
-                                    </div>
-                                    <span style={{ position: 'absolute', top: 6, right: 6, fontSize: '9px', fontWeight: 700, color: '#fff', background: GC.red, borderRadius: '4px', padding: '2px 6px' }}>AI</span>
-                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(2,11,24,0.85)', padding: '5px 8px' }}>
-                                        <div style={{ fontSize: '9px', fontWeight: 700, color: '#fff' }}>PPE qoidasi buzilishi</div>
-                                        <div style={{ fontSize: '8px', color: GC.slate }}>Flotatsiya sexi</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                <SubPanel title="So'nggi SKUD hodisalari" minWidth={220} demo>
-                                    {DEMO_FACTORY_SKUD_EVENTS.map((e, i) => (
-                                        <div key={i} style={{ display: 'flex', fontSize: '9.5px', padding: '3px 0', borderBottom: i < DEMO_FACTORY_SKUD_EVENTS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', gap: '6px' }}>
-                                            <span style={{ color: GC.slate, width: '32px', flexShrink: 0 }}>{e.time}</span>
-                                            <span style={{ flex: 1, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.staff}</span>
-                                            <span style={{ color: e.event.startsWith('Kirish') ? GC.green : GC.amber, fontWeight: 600, flexShrink: 0 }}>{e.event}</span>
-                                        </div>
-                                    ))}
-                                </SubPanel>
-                                <SubPanel title="AI video hodisalari" minWidth={200} demo>
-                                    {DEMO_FACTORY_AI_EVENTS.map((e, i) => (
-                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9.5px', padding: '3px 0' }}>
-                                            <StatusDot color={AI_LEVEL_COLOR[e.level]} />
-                                            <span style={{ color: GC.slate, width: '30px', flexShrink: 0 }}>{e.time}</span>
-                                            <span style={{ color: '#dfe9f5', flex: 1 }}>{e.text}</span>
-                                            <span style={{ color: GC.slate, fontSize: '8.5px', flexShrink: 0 }}>{e.status}</span>
-                                        </div>
-                                    ))}
-                                </SubPanel>
+                    {/* Sexlar ro'yxati — 3D model tagida, chap ustunning qolgan
+                        bo'sh joyini to'ldiradi (flex:1). */}
+                    <div style={{ flex: 1, minHeight: 0 }}>
+                        <Card title="Sexlar ro'yxati" titleColor="#ffffff" borderColor={alpha(sexListIsDemo ? GC.amber : titleColor, 0.4)}>
+                            {/* Nechta sex bo'lsa ham — bitta qatorda, proporsional
+                                (teng) kenglikda, kartaning butun balandligini
+                                egallab to'ladi (2-qatorga o'tmaydi). */}
+                            <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: `repeat(${sexList.length}, minmax(0, 1fr))`, gap: '12px' }}>
+                                {sexList.map((s) => (
+                                    <SexCard key={s.id} sex={s} accent={titleColor} onClick={() => setSelectedSex(s)} />
+                                ))}
                             </div>
                         </Card>
                     </div>
                 </div>
 
-                {/* Sexlar ro'yxati */}
-                <Card title="Sexlar ro'yxati" titleColor="#ffffff" borderColor={alpha(sexListIsDemo ? GC.amber : titleColor, 0.4)}>
-                    {sexListIsDemo && (
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-6px' }}>
-                            <span style={{ fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase', letterSpacing: '0.5px' }}>namuna</span>
-                        </div>
-                    )}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(152px, 1fr))', gap: '10px' }}>
-                        {sexList.map((s) => (
-                            <SexCard key={s.id} sex={s} accent={titleColor} onClick={() => setSelectedSex(s)} />
-                        ))}
+                {/* O'NG USTUN */}
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '14px', minHeight: 0 }}>
+                    {/* Ishlab chiqarish va sarf-xarajatlar holati */}
+                    <div style={{ flex: 1, minHeight: 0 }}>
+                        <Card title="Ishlab chiqarish va sarf-xarajatlar holati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', flexShrink: 0 }}>
+                                {DEMO_FACTORY_KPI.map((t, i) => <KpiTile key={i} {...t} demo />)}
+                                <KpiTile label="Reja bajarilishi" value={detail.workPercent != null ? String(detail.workPercent) : '94.8'} unit="%" delta="+2.2%" demo={detail.workPercent == null} />
+                                <KpiTile label="Ochiq nosozliklar" value="3" demo />
+                            </div>
+                            {/* Chart kartochkalari — 2 qator (2x2 to'r), kartaning
+                                qolgan bo'sh joyini to'liq egallaydi. */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: '1fr 1fr', gap: '12px', flex: 1, minHeight: 0 }}>
+                                <SubPanel title="Oylar kesimida ishlab chiqarish dinamikasi" demo>
+                                    <DualBarChart seriesA={DEMO_ORE_MONTHLY} seriesB={DEMO_CONC_MONTHLY} labels={DEMO_MONTHS} colorA={GC.accent1} colorB={GC.green} height={58} fill />
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '11px', flexShrink: 0 }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Ruda</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.green} />Konsentrat</span>
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="So'nggi 7 kunlik ishlab chiqarish" demo>
+                                    <DualBarChart seriesA={DEMO_WEEK_ORE} seriesB={DEMO_WEEK_CONC} labels={DEMO_WEEK_DAYS} colorA={GC.accent1} colorB={GC.green} height={58} fill />
+                                </SubPanel>
+                                <SubPanel title="Xarajatlar tarkibi (OPEX)" demo>
+                                    {/* Bitta OPEX ma'lumoti endi 3 xil ko'rinishda: 1) tepada katta
+                                        umumiy raqam (kunlik/oylik), 2) donut + bar-legend, 3) pastda
+                                        to'liq kenglikdagi bitta stacked-bar — shu bilan karta tepadan
+                                        pastgacha to'ladi, bo'sh joy qolmaydi. */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, justifyContent: 'space-between' }}>
+                                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexShrink: 0 }}>
+                                            <div>
+                                                <div style={{ fontSize: '28px', fontWeight: 800, color: '#fff', lineHeight: 1.1 }}>$124<span style={{ fontSize: '13px', fontWeight: 500, color: GC.slate, marginLeft: '5px' }}>ming/kun</span></div>
+                                                <div style={{ fontSize: '12px', color: GC.green, fontWeight: 600, marginTop: '3px' }}>▼ 4.1% o'tgan oyga nisbatan</div>
+                                            </div>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <div style={{ fontSize: '11px', color: GC.slate }}>Oylik jami</div>
+                                                <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>$3,72 mln</div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flex: 1, minHeight: 0, overflow: 'hidden', margin: '8px 0' }}>
+                                            <div style={{ flexShrink: 0 }}><DonutChart segments={DEMO_OPEX_BREAKDOWN} centerValue="$124" centerLabel="ming/kun" size={104} /></div>
+                                            <DonutLegendBars segments={DEMO_OPEX_BREAKDOWN} />
+                                        </div>
+                                        <div style={{ flexShrink: 0 }}>
+                                            <div style={{ fontSize: '11px', color: GC.slate, marginBottom: '5px' }}>Umumiy taqsimot</div>
+                                            <div style={{ display: 'flex', height: '14px', borderRadius: '8px', overflow: 'hidden' }}>
+                                                {DEMO_OPEX_BREAKDOWN.map((s, i) => (
+                                                    <div key={i} title={`${s.label} — ${s.pct}%`} style={{ width: `${s.pct}%`, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        {s.pct >= 12 && <span style={{ fontSize: '10px', fontWeight: 700, color: '#04101f' }}>{s.pct}%</span>}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="Reja va fakt (uchastkalar kesimida)" demo>
+                                    {/* Endi jadval emas — har bir uchastka o'z kartochkasida: sarlavha,
+                                        katta % qiymat va progress-bar, 2 ustunli to'rga joylashib
+                                        kartaning butun maydonini to'ldiradi. */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridAutoRows: 'min-content', gap: '8px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                                        {DEMO_SECTION_PLAN_FACT.map((s, i) => {
+                                            const color = s.pct >= 94 ? GC.green : GC.amber;
+                                            return (
+                                                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '5px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '9px 11px', justifyContent: 'center' }}>
+                                                    <span style={{ fontSize: '11px', color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
+                                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                                                        <span style={{ fontSize: '20px', fontWeight: 700, color }}>{s.pct}%</span>
+                                                        <span style={{ fontSize: '11px', color: GC.slate }}>{s.fact} / {s.plan} t</span>
+                                                    </div>
+                                                    <div style={{ height: '7px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                                        <div style={{ width: `${s.pct}%`, height: '100%', borderRadius: '4px', background: color }} />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                        {(() => {
+                                            const totalPlan = DEMO_SECTION_PLAN_FACT.reduce((sum, s) => sum + s.plan, 0);
+                                            const totalFact = DEMO_SECTION_PLAN_FACT.reduce((sum, s) => sum + s.fact, 0);
+                                            const totalPct = Math.round((totalFact / totalPlan) * 100);
+                                            const color = totalPct >= 94 ? GC.green : GC.amber;
+                                            return (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', background: alpha(titleColor, 0.06), border: `1px solid ${alpha(titleColor, 0.3)}`, borderRadius: '8px', padding: '9px 11px', justifyContent: 'center' }}>
+                                                    <span style={{ fontSize: '11px', color: GC.slate }}>Umumiy (zavod bo'yicha)</span>
+                                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                                                        <span style={{ fontSize: '20px', fontWeight: 700, color }}>{totalPct}%</span>
+                                                        <span style={{ fontSize: '11px', color: GC.slate }}>{totalFact} / {totalPlan} t</span>
+                                                    </div>
+                                                    <div style={{ height: '7px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                                        <div style={{ width: `${totalPct}%`, height: '100%', borderRadius: '4px', background: color }} />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                </SubPanel>
+                            </div>
+                            {detailLoading && <div style={{ fontSize: 14, color: GC.slate, marginTop: 10, flexShrink: 0 }}>To'liq ma'lumot yuklanmoqda...</div>}
+                        </Card>
                     </div>
-                </Card>
+
+                    {/* Video, xodimlar va SKUD — endi "Obyekt 3D modeli" balandligiga
+                        emas, o'ng ustunning qolgan bo'sh joyiga (flex:1) moslanadi,
+                        shu sabab kartalari 3 qatorli to'r bilan to'liq to'ladi. */}
+                    <div style={{ flex: 1, minHeight: 0 }}>
+                        <Card title="Video, xodimlar va SKUD" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
+                                <SubPanel title="Onlayn kameralar" demo>
+                                    {/* `minmax(0, 1fr)` qatori ham kerak: aks holda
+                                        kataklar kontent bo'yicha o'lchanib, panelni
+                                        balandlikda toshirib yuborardi. */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gridTemplateRows: 'minmax(0, 1fr)', gap: '8px', flex: 1, minHeight: 0 }}>
+                                        {DEMO_FACTORY_CAMERAS.map((c, i) => (
+                                            <div key={i} style={{ position: 'relative', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
+                                                    <IconCamSmall />
+                                                </div>
+                                                <span style={{ position: 'absolute', top: 4, left: 5, fontSize: '11px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="Asosiy ko'rsatkichlar" demo>
+                                    {/* Ixcham bir qatorli plitkalar (label chapda, qiymat
+                                        o'ngda): 8 tasi ham panel balandligiga scroll'siz
+                                        sig'adi — ustma-ust joylashuvda sig'masdi. */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '6px 10px', flex: 1, minHeight: 0, alignContent: 'space-evenly' }}>
+                                        {DEMO_FACTORY_STAFF_STATS.slice(0, 8).map((s, i) => (
+                                            <div key={i} style={{ minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${s.warn ? alpha(GC.red, 0.35) : 'rgba(255,255,255,0.06)'}`, borderRadius: '7px', padding: '6px 10px' }}>
+                                                <span style={{ minWidth: 0, fontSize: '12px', color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
+                                                <span style={{ fontSize: '16px', fontWeight: 700, color: s.warn ? GC.red : '#fff', flexShrink: 0 }}>{s.value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </SubPanel>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', flex: 1, minHeight: 0 }}>
+                                <SubPanel title="Xodimlar tarkibi (bo'limlar kesimida)" demo>
+                                    {/* Donut chapda (kattalashtirilgan), 8 ta bo'lim 2 ustunli
+                                        legend-bar to'rida o'ngda, pastda esa OPEX kartasidagi kabi
+                                        to'liq kenglikdagi "Umumiy taqsimot" stacked-bar — bir xil
+                                        ma'lumot (bo'limlar ulushi) 3 xil ko'rinishda. */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, justifyContent: 'space-between' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                                            <div style={{ flexShrink: 0 }}><DonutChart segments={DEMO_FACTORY_STAFF_COMPOSITION} centerValue={String(pickField(detail, ['totalStaff']) || '428')} centerLabel="jami" size={132} /></div>
+                                            <DonutLegendBars segments={DEMO_FACTORY_STAFF_COMPOSITION} columns={2} />
+                                        </div>
+                                        <div style={{ flexShrink: 0, marginTop: '10px' }}>
+                                            <div style={{ fontSize: '11px', color: GC.slate, marginBottom: '5px' }}>Umumiy taqsimot</div>
+                                            <div style={{ display: 'flex', height: '16px', borderRadius: '8px', overflow: 'hidden' }}>
+                                                {DEMO_FACTORY_STAFF_COMPOSITION.map((s, i) => (
+                                                    <div key={i} title={`${s.label} — ${s.pct}%`} style={{ width: `${s.pct}%`, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        {s.pct >= 12 && <span style={{ fontSize: '10px', fontWeight: 700, color: '#04101f' }}>{s.pct}%</span>}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="Kirish/chiqish dinamikasi (so'nggi 7 kun)" demo>
+                                    <DualBarChart seriesA={DEMO_FACTORY_ENTRY} seriesB={DEMO_FACTORY_EXIT} labels={DEMO_WEEK_DAYS} colorA={GC.accent1} colorB={GC.accent3} height={50} fill />
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '11px', flexShrink: 0 }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Kirish</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Chiqish</span>
+                                    </div>
+                                </SubPanel>
+                                <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: `1px solid ${alpha(GC.red, 0.35)}`, background: '#04101f', minHeight: '110px' }}>
+                                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: alpha(GC.red, 0.5) }}>
+                                        <IconPersonSmall />
+                                    </div>
+                                    <span style={{ position: 'absolute', top: 8, right: 8, fontSize: '12px', fontWeight: 700, color: '#fff', background: GC.red, borderRadius: '4px', padding: '3px 7px' }}>AI</span>
+                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(2,11,24,0.85)', padding: '7px 10px' }}>
+                                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>PPE qoidasi buzilishi</div>
+                                        <div style={{ fontSize: '12px', color: GC.slate }}>Flotatsiya sexi</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', flex: 1, minHeight: 0 }}>
+                                <SubPanel title="So'nggi SKUD hodisalari" demo>
+                                    {/* 2 ustun × 3 qator = 6 ta hodisa: kartaning
+                                        balandligiga scroll'siz sig'adigan son. */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridAutoFlow: 'column', gridTemplateRows: 'repeat(3, min-content)', gap: '6px 10px', flex: 1, minHeight: 0, alignContent: 'space-evenly' }}>
+                                        {DEMO_FACTORY_SKUD_EVENTS.slice(0, 6).map((e, i) => {
+                                            const isEntry = e.event.startsWith('Kirish');
+                                            const color = isEntry ? GC.green : GC.amber;
+                                            const initials = e.staff.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
+                                            return (
+                                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', padding: '6px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)' }}>
+                                                    <span style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700, color, background: alpha(color, 0.16), border: `1px solid ${alpha(color, 0.4)}` }}>{initials}</span>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div style={{ color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12px' }}>{e.staff}</div>
+                                                        <div style={{ color: GC.slate, fontSize: '11px' }}>{e.time}</div>
+                                                    </div>
+                                                    <span style={{ color, fontWeight: 700, fontSize: '11px', flexShrink: 0, background: alpha(color, 0.12), border: `1px solid ${alpha(color, 0.35)}`, borderRadius: '6px', padding: '3px 7px' }}>{e.event}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </SubPanel>
+                                <SubPanel title="AI video hodisalari" demo>
+                                    {/* 8 ta hodisa 2 ustunda (4+4 qator) — status badge endi
+                                        matn tagida emas, matnning o'ng tomonida (to'g'risida). */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridAutoFlow: 'column', gridTemplateRows: 'repeat(3, min-content)', gap: '8px', flex: 1, minHeight: 0, alignContent: 'space-evenly' }}>
+                                        {DEMO_FACTORY_AI_EVENTS.slice(0, 6).map((e, i) => {
+                                            const color = AI_LEVEL_COLOR[e.level];
+                                            return (
+                                                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${alpha(color, 0.25)}` }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <StatusDot color={color} />
+                                                        <span style={{ color: GC.slate, fontSize: '11px' }}>{e.time}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                                        <span style={{ color: '#dfe9f5', fontSize: '12px', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>{e.text}</span>
+                                                        <span style={{ flexShrink: 0, color, fontWeight: 600, fontSize: '11px', background: alpha(color, 0.12), border: `1px solid ${alpha(color, 0.35)}`, borderRadius: '6px', padding: '2px 7px' }}>{e.status}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </SubPanel>
+                            </div>
+                        </Card>
+                    </div>
+                </div>
             </div>
 
             {selectedSex && (
@@ -998,17 +1147,42 @@ const pickField = (obj: any, keys: string[]): any => {
 // `large` — matnni ~1.2x kattaroq (14px → 17px) chizadi, ustun soni kamroq
 // (masalan 3 emas 2) bo'lgan, shuning uchun har bir ustunga ko'proq bo'sh
 // joy tegadigan pasport joylashuvlari uchun.
-const PassportRow: React.FC<{ label: string; value?: React.ReactNode; large?: boolean }> = ({ label, value, large }) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: large ? '7px 0' : '5px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <span style={{ color: GC.slate, fontSize: large ? '17px' : '14px', flexShrink: 0 }}>{label}</span>
-        <span style={{ color: '#e7f1ff', fontSize: large ? '17px' : '14px', fontWeight: 600, textAlign: 'right' }}>{value ?? '—'}</span>
+/* `xl` — pasport kartasi o'z katagining butun balandligini egallaganda
+   ishlatiladi: qatorlar teng taqsimlanadi (`space-between` ota elementda) va
+   shrift kattaroq bo'lib, pastda bo'sh joy qolmaydi. */
+const PassportRow: React.FC<{ label: string; value?: React.ReactNode; large?: boolean; xl?: boolean }> = ({ label, value, large, xl }) => {
+    const fontSize = xl ? '22px' : large ? '20px' : '17px';
+    return (
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: xl ? '7px 0' : large ? '8px 0' : '6px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <span style={{ color: GC.slate, fontSize, flexShrink: 0 }}>{label}</span>
+            <span style={{ color: '#e7f1ff', fontSize, fontWeight: 600, textAlign: 'right' }}>{value ?? '—'}</span>
+        </div>
+    );
+};
+
+/* Donut/grafik ostidagi 4 ta ixcham ko'rsatkich qatori — panelning pastki
+   bo'sh joyini to'ldiradi va o'sha mavzuga oid qo'shimcha raqamlarni beradi. */
+const MiniTileRow: React.FC<{ tiles: { label: string; value: string; unit?: string; color?: string }[]; columns?: number }> = ({ tiles, columns = 2 }) => (
+    /* `minmax(0, 1fr)` SHART: oddiy `1fr` ning yashirin `auto` minimumi tufayli
+       uzun matnli plitkalar ustunni kengaytirib, qatordan toshib ketardi.
+       2 ustun (2×2) — bu panellar tor (~310px), 4 ta plitka bitta qatorda
+       sig'masdi. */
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: '8px', flexShrink: 0, marginTop: '10px' }}>
+        {tiles.map((t, i) => (
+            <div key={i} style={{ minWidth: 0, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 9px' }}>
+                <div style={{ fontSize: '11px', color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.label}</div>
+                <div style={{ fontSize: '19px', fontWeight: 700, color: t.color ?? '#fff', marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {t.value}{t.unit && <span style={{ fontSize: '11px', color: GC.slate, fontWeight: 500, marginLeft: '3px' }}>{t.unit}</span>}
+                </div>
+            </div>
+        ))}
     </div>
 );
 
 const StatTile: React.FC<{ label: string; value: React.ReactNode; accent: string }> = ({ label, value, accent }) => (
     <div style={{ background: 'rgba(3,13,34,0.7)', border: `1px solid ${alpha(accent, 0.25)}`, borderRadius: '8px', padding: '10px 14px', minWidth: '120px', flex: '1 1 120px' }}>
-        <div style={{ fontSize: '10px', color: GC.slate, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
-        <div style={{ fontSize: '18px', fontWeight: 700, color: accent, marginTop: '4px' }}>{value}</div>
+        <div style={{ fontSize: '13px', color: GC.slate, letterSpacing: '0.3px' }}>{label}</div>
+        <div style={{ fontSize: '22px', fontWeight: 700, color: accent, marginTop: '4px' }}>{value}</div>
     </div>
 );
 
@@ -1032,13 +1206,13 @@ const ImageFillCard: React.FC<{ title: string; accent: string; src: string; icon
     const [errored, setErrored] = React.useState(false);
     return (
         <div style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', border: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(145deg, ${alpha(accent, 0.12)}, #04101f)`, minHeight: '200px', height: '100%' }}>
-            <div style={{ position: 'absolute', top: 10, left: 12, zIndex: 2, fontSize: 11, fontWeight: 700, letterSpacing: 1, color: '#ffffff', textTransform: 'uppercase', textShadow: '0 1px 6px rgba(0,0,0,0.85)' }}>{title}</div>
+            <div style={{ position: 'absolute', top: 10, left: 12, zIndex: 2, fontSize: 14, fontWeight: 700, letterSpacing: 0.5, color: '#ffffff', textShadow: '0 1px 6px rgba(0,0,0,0.85)' }}>{title}</div>
             {!errored ? (
                 <img src={src} alt={title} onError={() => setErrored(true)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', color: alpha(accent, 0.7) }}>
                     {icon}
-                    <span style={{ fontSize: '11px', color: GC.slate }}>Rasm hali yuklanmagan</span>
+                    <span style={{ fontSize: '14px', color: GC.slate }}>Rasm hali yuklanmagan</span>
                 </div>
             )}
         </div>
@@ -1049,7 +1223,7 @@ const ImageFillCard: React.FC<{ title: string; accent: string; src: string; icon
 // bu kartaga sig'adi, o'zining [ ] to'liq ekran tugmasi bilan.
 const SexSxemaCard: React.FC<{ title: string; accent: string }> = ({ title, accent }) => (
     <div style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', border: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(145deg, ${alpha(accent, 0.12)}, #04101f)`, minHeight: '200px', height: '100%' }}>
-        <div style={{ position: 'absolute', top: 10, left: 12, zIndex: 2, fontSize: 11, fontWeight: 700, letterSpacing: 1, color: '#ffffff', textTransform: 'uppercase', textShadow: '0 1px 6px rgba(0,0,0,0.85)', pointerEvents: 'none' }}>{title}</div>
+        <div style={{ position: 'absolute', top: 10, left: 12, zIndex: 2, fontSize: 14, fontWeight: 700, letterSpacing: 0.5, color: '#ffffff', textShadow: '0 1px 6px rgba(0,0,0,0.85)', pointerEvents: 'none' }}>{title}</div>
         <SxemaPage embedded />
     </div>
 );
@@ -1096,20 +1270,56 @@ const DEMO_MINERAL_COMPOSITION = [
 ];
 
 const DEMO_GEOLOGIC_LAYERS = [
-    { label: 'Qoplama qatlam', range: '5 – 50', pct: 12, color: GC.accent2 },
-    { label: 'Oksidlanish zonasi', range: '50 – 200', pct: 18, color: GC.amber },
-    { label: 'Sulfid zonasi', range: '200 – 600', pct: 35, color: GC.violet },
-    { label: 'Ruda zonasi', range: '600 – 1000', pct: 25, color: GC.red },
-    { label: 'Meta-sedimentlar', range: '1000 – 1200', pct: 10, color: GC.slate },
+    { label: 'Qoplama qatlam', range: '5 – 50', pct: 9, color: GC.accent2 },
+    { label: 'Oksidlanish zonasi', range: '50 – 200', pct: 14, color: GC.amber },
+    { label: 'Ikkilamchi boyish', range: '200 – 320', pct: 9, color: GC.accent3 },
+    { label: 'Sulfid zonasi', range: '320 – 600', pct: 24, color: GC.violet },
+    { label: 'Ruda zonasi', range: '600 – 1000', pct: 21, color: GC.red },
+    { label: 'Skarn zonasi', range: '1000 – 1120', pct: 8, color: GC.magenta },
+    { label: 'Tomirli zona', range: '1120 – 1160', pct: 7, color: GC.accent1 },
+    { label: 'Meta-sedimentlar', range: '1160 – 1200', pct: 8, color: GC.slate },
 ];
 
-const DEMO_ANALYSIS_RESULTS: { element: string; value: string; unit: string; norm: string; trend: 'up' | 'down' | 'flat' }[] = [
-    { element: 'Cu', value: '0.38', unit: '%', norm: '≥ 0.3', trend: 'up' },
-    { element: 'Mo', value: '0.015', unit: '%', norm: '≥ 0.010', trend: 'up' },
-    { element: 'Au', value: '0.28', unit: 'g/t', norm: '≥ 0.1', trend: 'up' },
-    { element: 'Ag', value: '1.2', unit: 'g/t', norm: '≥ 1.0', trend: 'down' },
-    { element: 'Zn', value: '0.05', unit: '%', norm: '< 0.2', trend: 'flat' },
-    { element: 'Pb', value: '0.03', unit: '%', norm: '< 0.1', trend: 'down' },
+/* GRR paneli — bosqichlar kesimidagi bajarilish (donut yonidagi legenda
+   atigi 2 ta segment bo'lgani uchun panelda katta bo'sh joy qolardi). */
+const DEMO_GRR_STAGE_PROGRESS = [
+    { label: "Burg'ilash", pct: 62, color: GC.accent1 },
+    { label: 'Namunalash', pct: 61, color: GC.accent2 },
+    { label: 'Kanava ishlari', pct: 58, color: GC.amber },
+    { label: 'Laboratoriya tahlili', pct: 71, color: GC.green },
+    { label: 'Hisobot tayyorlash', pct: 45, color: GC.accent3 },
+];
+
+/* Qatlamlar paneli ostidagi jamlanma — panel bo'sh qolmasligi uchun. */
+const DEMO_LAYER_TILES: { label: string; value: string; unit?: string; color?: string }[] = [
+    { label: 'Umumiy quvvat', value: '1 195', unit: 'm' },
+    { label: 'Rudali qalinlik', value: '342', unit: 'm', color: GC.accent1 },
+    { label: 'Qoplama (vskrisha)', value: '1,8', unit: 'm³/t' },
+    { label: 'Kesmalar soni', value: '24', unit: 'ta' },
+];
+
+/* `ratio` — me'yorga nisbatan bajarilish (%): "≥" me'yorlarda qiymat/me'yor,
+   "<" (chegara) me'yorlarda esa chegaradan qancha past ekani. `delta` —
+   oldingi tahlilga nisbatan o'zgarish. Kartochkada bar va o'zgarish qatori
+   shulardan chiziladi (aks holda kartochkada bo'sh joy qolardi). */
+const DEMO_ANALYSIS_RESULTS: { element: string; name: string; value: string; unit: string; norm: string; trend: 'up' | 'down' | 'flat'; ratio: number; delta: string; limit?: boolean }[] = [
+    { element: 'Cu', name: 'Mis', value: '0.38', unit: '%', norm: '≥ 0.3', trend: 'up', ratio: 127, delta: '+0.04' },
+    { element: 'Mo', name: 'Molibden', value: '0.015', unit: '%', norm: '≥ 0.010', trend: 'up', ratio: 150, delta: '+0.002' },
+    { element: 'Au', name: 'Oltin', value: '0.28', unit: 'g/t', norm: '≥ 0.1', trend: 'up', ratio: 280, delta: '+0.03' },
+    { element: 'Ag', name: 'Kumush', value: '1.2', unit: 'g/t', norm: '≥ 1.0', trend: 'down', ratio: 120, delta: '−0.1' },
+    { element: 'W', name: 'Volfram', value: '0.21', unit: '%', norm: '≥ 0.15', trend: 'up', ratio: 140, delta: '+0.02' },
+    { element: 'Sn', name: 'Qalay', value: '0.09', unit: '%', norm: '≥ 0.05', trend: 'flat', ratio: 180, delta: '0.00' },
+    { element: 'Zn', name: 'Rux', value: '0.05', unit: '%', norm: '< 0.2', trend: 'flat', ratio: 25, delta: '0.00', limit: true },
+    { element: 'Pb', name: "Qo'rg'oshin", value: '0.03', unit: '%', norm: '< 0.1', trend: 'down', ratio: 30, delta: '−0.01', limit: true },
+    { element: 'As', name: 'Margimush', value: '0.011', unit: '%', norm: '< 0.05', trend: 'down', ratio: 22, delta: '−0.003', limit: true },
+];
+
+/* Tahlil natijalari panelining tepasidagi jamlanma. */
+const DEMO_ANALYSIS_TILES: { label: string; value: string; unit?: string; color?: string }[] = [
+    { label: 'Namunalar', value: '1 260', unit: 'ta' },
+    { label: 'Tahlil qilingan', value: '892', unit: 'ta', color: GC.accent1 },
+    { label: "Me'yordan yuqori", value: '6', unit: 'ta', color: GC.green },
+    { label: 'Laboratoriya', value: 'IGiG', color: GC.accent3 },
 ];
 
 /* ── "Geologik ma'lumotlar" kartasining 2-qatori — portfel darajasidagi GRR
@@ -1126,6 +1336,50 @@ const DEMO_GRR_VOLUME_PLAN = [420, 180, 60];
 const DEMO_GRR_VOLUME_DONE = [260, 110, 35];
 const DEMO_GRR_BUDGET_2026 = 4.8; // mln $
 
+/* Donut kartalari tagidagi 4 ta mini-kartochka — donut yonidagi bo'sh joyni
+   to'ldirish va o'sha mavzuga oid qo'shimcha raqamlarni ko'rsatish uchun. */
+const DEMO_MINERAL_TILES: { label: string; value: string; unit?: string; color?: string }[] = [
+    { label: 'Ruda zaxirasi', value: '2,5', unit: 'mln t' },
+    { label: "O'rtacha greyd", value: '0,38', unit: '% Cu' },
+    { label: 'Qazib olish koef.', value: '0,92', color: GC.green },
+    { label: 'Konsentrat chiqishi', value: '86,4', unit: '%', color: GC.accent1 },
+];
+
+const DEMO_GRR_WORK_TILES: { label: string; value: string; unit?: string; color?: string }[] = [
+    { label: 'Rejadagi bandlar', value: '147', unit: 'ta' },
+    { label: 'Bajarilgan', value: '91', unit: 'ta', color: GC.green },
+    { label: '2026 byudjeti', value: String(DEMO_GRR_BUDGET_2026).replace('.', ','), unit: 'mln $' },
+    { label: "O'zlashtirilgan", value: '2,98', unit: 'mln $', color: GC.accent1 },
+];
+
+/* Sun'iy intellekt prognozlari — model bashoratlari va ularning ishonch
+   darajasi (manbada bunday modul yo'q, namuna). */
+const DEMO_AI_FORECASTS: { text: string; detail: string; confidence: number; color: string }[] = [
+    { text: 'Zaxira 2,5 → 3,1 mln t gacha oshishi', detail: 'Chuqur gorizontlar bo\'yicha', confidence: 78, color: GC.green },
+    { text: "Burg'ilash rejasi 4-chorakda bajariladi", detail: '1 000 p.m dan 1 060 p.m', confidence: 64, color: GC.accent1 },
+    { text: 'Cu greydi 0,38% atrofida barqaror', detail: "So'nggi 12 namuna trendi", confidence: 85, color: GC.green },
+    { text: 'Kanava ishlarida kechikish xavfi', detail: 'Mavsumiy omil (qish davri)', confidence: 41, color: GC.amber },
+    { text: 'Litsenziya muddati 2027-yilda tugaydi', detail: "Uzaytirish hujjatlari kerak", confidence: 92, color: GC.red },
+];
+
+/* "4. Loyiha 3D modeli va geologik model" kartasi uchun — rasm yuklanmagan
+   holatda ham karta bo'sh qolmasligi uchun model pasporti ko'rsatkichlari. */
+const DEMO_MODEL_SPECS: { label: string; value: string }[] = [
+    { label: 'Model turi', value: 'Blok-karkas (3D)' },
+    { label: 'Modellashtirilgan chuqurlik', value: '1 200 m' },
+    { label: 'Bloklar soni', value: '184 tys.' },
+    { label: 'Blok o\'lchami', value: '10×10×5 m' },
+    { label: 'Burg\'i quduqlari', value: '126 ta' },
+    { label: 'Oxirgi yangilanish', value: '12.02.2026' },
+];
+
+const DEMO_MODEL_HORIZONS: { label: string; depth: string; pct: number; color: string }[] = [
+    { label: 'Gorizont +320 m', depth: '0 – 200 m', pct: 100, color: GC.accent2 },
+    { label: 'Gorizont +180 m', depth: '200 – 500 m', pct: 78, color: GC.accent1 },
+    { label: 'Gorizont −40 m', depth: '500 – 850 m', pct: 45, color: GC.amber },
+    { label: 'Gorizont −260 m', depth: '850 – 1200 m', pct: 18, color: GC.slate },
+];
+
 // `demo` — bu sub-panel hali haqiqiy API maydoniga ega bo'lmagan, faqat
 // joylashuvni ko'rsatish uchun namuna ma'lumot bilan chizilgan bo'lsa true.
 // Shunda ramka sariq bo'ladi va burchakda kichik "namuna" belgisi chiqadi —
@@ -1136,10 +1390,9 @@ const DEMO_GRR_BUDGET_2026 = 4.8; // mln $
 // dinamik ravishda cho'ziladi; balandlik berilmagan joyda (oddiy flex-wrap
 // qator) `100%` avvalgidek kontentga qarab (`auto`) hisoblanadi — buzilish yo'q.
 const SubPanel: React.FC<{ title: string; children: React.ReactNode; minWidth?: number; demo?: boolean }> = ({ title, children, minWidth = 170, demo }) => (
-    <div style={{ flex: `1 1 ${minWidth}px`, minWidth, background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: '8px', padding: '10px 12px', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '8px', flexShrink: 0 }}>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: '#dfe9f5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</div>
-            {demo && <span style={{ fontSize: '8px', fontWeight: 700, color: GC.amber, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>namuna</span>}
+    <div style={{ flex: `1 1 ${minWidth}px`, minWidth, background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: '8px', padding: '12px 14px', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '10px', flexShrink: 0 }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#dfe9f5', letterSpacing: '0.3px' }}>{title}</div>
         </div>
         <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>{children}</div>
     </div>
@@ -1155,23 +1408,26 @@ const TrendArrow: React.FC<{ trend: 'up' | 'down' | 'flat' }> = ({ trend }) => {
 // joy tegadigan holatlar uchun: padding/shrift kattaroq. Berilmasa avvalgi
 // kichik (108px asosli) o'lcham saqlanadi — boshqa modallardagi flex-wrap
 // KPI qatorlari buzilmaydi.
+// Ikkala variant ham (`large` va oddiy) MetalsDashboardMain'ning "large style"
+// darajasiga ko'tarilgan — "kichik" endi haqiqatda kichik emas, faqat
+// `large`ga nisbatan bir oz ixchamroq (KPI qatorida ko'proq plitka sig'ishi
+// uchun min-width kichikroq qoladi).
 const KpiTile: React.FC<{ label: string; value: string; unit?: string; delta?: string; demo?: boolean; large?: boolean }> = ({ label, value, unit, delta, demo, large }) => {
     const isDown = !!delta && delta.trim().startsWith('-');
     return (
-        <div style={{ background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: large ? '10px' : '8px', padding: large ? '16px 18px' : '10px 12px', flex: `1 1 ${large ? 180 : 108}px`, minWidth: large ? '180px' : '108px' }}>
+        <div style={{ background: GC.cardBg, border: `1px solid ${demo ? alpha(GC.amber, 0.45) : GC.border}`, borderRadius: large ? '12px' : '10px', padding: large ? '18px 20px' : '13px 15px', flex: `1 1 ${large ? 200 : 140}px`, minWidth: large ? '200px' : '140px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-                <div style={{ fontSize: large ? '12px' : '9.5px', color: GC.slate, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
-                {demo && <span style={{ fontSize: large ? '8px' : '7px', fontWeight: 700, color: GC.amber, flexShrink: 0 }}>namuna</span>}
+                <div style={{ fontSize: large ? '15px' : '13px', color: GC.slate, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
             </div>
-            <div style={{ fontSize: large ? '25px' : '17px', fontWeight: 700, color: '#fff', marginTop: large ? '7px' : '4px' }}>
-                {value}{unit && <span style={{ fontSize: large ? '13px' : '10px', color: GC.slate, fontWeight: 500, marginLeft: '3px' }}>{unit}</span>}
+            <div style={{ fontSize: large ? '30px' : '22px', fontWeight: 700, color: '#fff', marginTop: large ? '8px' : '5px' }}>
+                {value}{unit && <span style={{ fontSize: large ? '15px' : '12px', color: GC.slate, fontWeight: 500, marginLeft: '4px' }}>{unit}</span>}
             </div>
             {delta && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: large ? '7px' : '4px', fontSize: large ? '13px' : '10px', color: isDown ? GC.red : GC.green, fontWeight: 700 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginTop: large ? '8px' : '5px', fontSize: large ? '15px' : '12px', color: isDown ? GC.red : GC.green, fontWeight: 700 }}>
                     {isDown ? (
-                        <svg width={large ? 12 : 9} height={large ? 12 : 9} viewBox="0 0 24 24" fill="none"><path d="M12 20L5 12h5V4h4v8h5l-7 8z" fill="currentColor" /></svg>
+                        <svg width={large ? 14 : 11} height={large ? 14 : 11} viewBox="0 0 24 24" fill="none"><path d="M12 20L5 12h5V4h4v8h5l-7 8z" fill="currentColor" /></svg>
                     ) : (
-                        <svg width={large ? 12 : 9} height={large ? 12 : 9} viewBox="0 0 24 24" fill="none"><path d="M12 4l7 8h-5v8h-4v-8H5l7-8z" fill="currentColor" /></svg>
+                        <svg width={large ? 14 : 11} height={large ? 14 : 11} viewBox="0 0 24 24" fill="none"><path d="M12 4l7 8h-5v8h-4v-8H5l7-8z" fill="currentColor" /></svg>
                     )}
                     {delta}
                 </div>
@@ -1195,7 +1451,7 @@ const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string; 
                 ))}
             </div>
             <div style={{ display: 'flex', gap: '3px', marginTop: '4px', flexShrink: 0 }}>
-                {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
+                {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '9px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
             </div>
         </div>
     );
@@ -1217,22 +1473,25 @@ const DualBarChart: React.FC<{ seriesA: number[]; seriesB: number[]; labels: str
                 ))}
             </div>
             <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexShrink: 0 }}>
-                {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
+                {labels.map((l, i) => (<div key={i} style={{ flex: 1, fontSize: '9px', color: GC.slate, textAlign: 'center' }}>{l}</div>))}
             </div>
         </div>
     );
 };
 
 const CategoryBarRow: React.FC<{ label: string; pct: number; color: string }> = ({ label, pct, color }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '10px', marginBottom: '6px' }}>
-        <span style={{ width: '76px', color: '#dfe9f5', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
-        <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-            <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '3px' }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', marginBottom: '8px' }}>
+        <span style={{ width: '92px', color: '#dfe9f5', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+        <div style={{ flex: 1, height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '4px' }} />
         </div>
-        <span style={{ width: '30px', textAlign: 'right', color: '#fff', fontWeight: 700, flexShrink: 0 }}>{pct}%</span>
+        <span style={{ width: '40px', textAlign: 'right', color: '#fff', fontWeight: 700, flexShrink: 0 }}>{pct}%</span>
     </div>
 );
 
+// Markaziy matn nisbati (size'ga nisbatan %) MetalsDashboardMain'dagi
+// `bigCenterText` bilan bir xil "o'qish uzoqdan ham bilinsin" tamoyiliga
+// moslab kattalashtirilgan (0.17→0.20, 0.09→0.115).
 const DonutChart: React.FC<{ segments: { label: string; pct: number; color: string }[]; centerValue: string; centerLabel?: string; size?: number }> = ({ segments, centerValue, centerLabel, size = 104 }) => {
     const r = size / 2 - 12;
     const c = size / 2;
@@ -1250,19 +1509,45 @@ const DonutChart: React.FC<{ segments: { label: string; pct: number; color: stri
                         transform={`rotate(-90 ${c} ${c})`} />
                 );
             })}
-            <text x={c} y={c - 1} textAnchor="middle" fontSize={size * 0.17} fontWeight={700} fill="#fff">{centerValue}</text>
-            {centerLabel && <text x={c} y={c + 15} textAnchor="middle" fontSize={size * 0.09} fill={GC.slate}>{centerLabel}</text>}
+            <text x={c} y={c - 1} textAnchor="middle" fontSize={size * 0.2} fontWeight={700} fill="#fff">{centerValue}</text>
+            {centerLabel && <text x={c} y={c + 17} textAnchor="middle" fontSize={size * 0.115} fill={GC.slate}>{centerLabel}</text>}
         </svg>
     );
 };
 
 const DonutLegend: React.FC<{ segments: { label: string; pct: number; color: string }[] }> = ({ segments }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {segments.map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9.5px' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: s.color, flexShrink: 0 }} />
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: s.color, flexShrink: 0 }} />
                 <span style={{ color: '#dfe9f5', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
                 <span style={{ color: '#fff', fontWeight: 700 }}>{s.pct}%</span>
+            </div>
+        ))}
+    </div>
+);
+
+// Donutning yonidagi legendani "bo'sh joy qolmasin" tamoyiliga ko'ra to'ldirib
+// turadigan variant — har bir segment endi shunchaki matn emas, balki o'zining
+// nisbatiga mos to'ldirilgan mini progress-bar bilan chiziladi, shu bilan bir
+// xil ma'lumot (segment ulushi) donutda ham, barda ham — ikki xil ko'rinishda
+// aks etadi va legend qolgan kenglikni to'liq egallaydi.
+const DonutLegendBars: React.FC<{ segments: { label: string; pct: number; color: string }[]; columns?: number }> = ({ segments, columns = 1 }) => (
+    <div style={columns > 1
+        ? { display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: '6px 16px', flex: 1, minWidth: 0, alignContent: 'center' }
+        : { display: 'flex', flexDirection: 'column', gap: '7px', flex: 1, minWidth: 0, minHeight: 0, justifyContent: 'space-evenly', overflow: 'hidden' }}>
+        {segments.map((s, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', fontSize: '13px' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '7px', color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: s.color, flexShrink: 0 }} />
+                        {s.label}
+                    </span>
+                    <span style={{ color: '#fff', fontWeight: 700, flexShrink: 0 }}>{s.pct}%</span>
+                </div>
+                <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                    <div style={{ width: `${s.pct}%`, height: '100%', background: s.color, borderRadius: '3px' }} />
+                </div>
             </div>
         ))}
     </div>
@@ -1287,26 +1572,29 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
             background: '#020B18', display: 'flex', flexDirection: 'column', color: '#e0f0ff', overflow: 'hidden',
             borderTop: `1px solid ${alpha(accent, 0.4)}`,
         }}>
-            {/* Header */}
-           <div>
-               <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(90deg, ${alpha(accent, 0.28)}, #020B18)`, flexWrap: 'wrap' }}>
+            {/* Header + Body. Bu o'ram ilgari stilsiz `<div>` edi — oddiy blok
+               bo'lgani uchun ichidagi `flex:1` li tana modal balandligini
+               MEROS QILMAS edi: kartalar kontent bo'yicha yig'ilib, modalning
+               pastida katta qora bo'shliq qolardi. */}
+           <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+               <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(90deg, ${alpha(accent, 0.28)}, #020B18)`, flexWrap: 'wrap', flexShrink: 0 }}>
                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
 
                        <img src="/icons/grricon.png" style={{width: 40, height: 40}} alt="."/>
 
                        <div>
-                           <h2 style={{ margin: 0, fontSize: '19px', fontWeight: 700, color: '#fff' }}>{object.name || detail.fullName || 'Geologiya loyihasi'}</h2>
-                           <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>#{projectCode}{object.region ? ` · ${object.region}` : ''}</div>
+                           <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>{object.name || detail.fullName || 'Geologiya loyihasi'}</h2>
+                           <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>#{projectCode}{object.region ? ` · ${object.region}` : ''}</div>
                        </div>
                        {object.status && (
-                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: alpha(GC.green, 0.15), border: `1px solid ${alpha(GC.green, 0.4)}`, color: GC.green, whiteSpace: 'nowrap' }}>
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
+                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, padding: '5px 11px', borderRadius: '6px', background: alpha(GC.green, 0.15), border: `1px solid ${alpha(GC.green, 0.4)}`, color: GC.green, whiteSpace: 'nowrap' }}>
+                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'currentColor' }} />
                                {object.status}
                         </span>
                        )}
                        {pickField(detail, ['importance', 'priority', 'significance']) && (
-                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: alpha(GC.amber, 0.15), border: `1px solid ${alpha(GC.amber, 0.4)}`, color: GC.amber, whiteSpace: 'nowrap' }}>
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
+                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, padding: '5px 11px', borderRadius: '6px', background: alpha(GC.amber, 0.15), border: `1px solid ${alpha(GC.amber, 0.4)}`, color: GC.amber, whiteSpace: 'nowrap' }}>
+                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'currentColor' }} />
                                {pickField(detail, ['importance', 'priority', 'significance'])}
                         </span>
                        )}
@@ -1320,44 +1608,51 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                    3. Geologik ma'lumotlar, 4. 3D + geologik model (bitta karta).
                    Pastki qator (3 & 4) yuqoridagidan biroz balandroq — geologik
                    ma'lumotlar/model kartalari ko'proq joy egallashi so'ralgan. */}
+               {/* `minmax(0, ...)` — oddiy `fr` ning yashirin `auto` minimumi uzun
+                   pasport kartasi tufayli 1-qatorni cho'zib yuborar, pastki qatorga
+                   juda oz joy qolardi. */}
                <div style={{
                    flex: 1, overflow: 'auto', padding: '16px 24px', display: 'grid',
-                   gridTemplateColumns: '1fr 1fr', gridTemplateRows: '0.85fr 1.15fr', gap: '16px', minHeight: 0,
+                   gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gridTemplateRows: 'minmax(0, 0.85fr) minmax(0, 1.15fr)', gap: '16px', minHeight: 0,
                }}>
                    {/* 1. Loyiha Pasporti — avvalgi 3 ustun o'rniga 2 ustun: har
                        biriga ko'proq joy tegadi, shuning uchun matn ~1.2x
                        kattaroq (`large`) chiziladi. */}
                    <div style={{ gridColumn: '1', gridRow: '1', minHeight: 0 }}>
                        <Card title="1. Loyiha Pasporti" titleColor="#ffffff" borderColor={alpha(accent, 0.3)}>
-                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 24px' }}>
-                               <div>
-                                   <PassportRow large label="Obyekt nomi" value={object.name || detail.fullName} />
-                                   <PassportRow large label="Loyiha kodi" value={projectCode} />
-                                   <PassportRow large label="Joylashuvi" value={object.region} />
-                                   <PassportRow large label="Ma'muriy hudud" value={detail.district} />
-                                   <PassportRow large label="Loyiha turi" value={detail.category} />
-                                   <PassportRow large label="Foydali qazilma" value={detail.mineral || detail.metals} />
-                                   <PassportRow large label="Loyiha bosqichi" value={detail.groupName} />
-                                   <PassportRow large label="Litsenziya raqami" value={pickField(detail, ['licenseNumber', 'license_no', 'licenseNo'])} />
-                                   <PassportRow large label="Litsenziya muddati" value={pickField(detail, ['licenseValidity', 'licenseTerm'])} />
-                                   <PassportRow large label="Yo'nalish" value={detail.direction} />
-                                   <PassportRow large label="Hamkor tashkilot" value={detail.partner} />
-                                   <PassportRow large label="Moliyalashtirish" value={detail.funding} />
-                                   <PassportRow large label="Umumiy qiymati" value={object.costMlnUsd != null ? `$${object.costMlnUsd} mln` : undefined} />
+                           {/* Ustunlar `space-between` bilan cho'ziladi va qatorlar
+                               `xl` shriftda — shu bilan karta balandligi qancha
+                               bo'lsa, matn shuncha to'ldirib turadi (pastda bo'sh
+                               joy qolmaydi). */}
+                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 24px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                                   <PassportRow xl label="Obyekt nomi" value={object.name || detail.fullName} />
+                                   <PassportRow xl label="Loyiha kodi" value={projectCode} />
+                                   <PassportRow xl label="Joylashuvi" value={object.region} />
+                                   <PassportRow xl label="Ma'muriy hudud" value={detail.district} />
+                                   <PassportRow xl label="Loyiha turi" value={detail.category} />
+                                   <PassportRow xl label="Foydali qazilma" value={detail.mineral || detail.metals} />
+                                   <PassportRow xl label="Loyiha bosqichi" value={detail.groupName} />
+                                   <PassportRow xl label="Litsenziya raqami" value={pickField(detail, ['licenseNumber', 'license_no', 'licenseNo'])} />
+                                   <PassportRow xl label="Litsenziya muddati" value={pickField(detail, ['licenseValidity', 'licenseTerm'])} />
+                                   <PassportRow xl label="Yo'nalish" value={detail.direction} />
+                                   <PassportRow xl label="Hamkor tashkilot" value={detail.partner} />
+                                   <PassportRow xl label="Moliyalashtirish" value={detail.funding} />
+                                   <PassportRow xl label="Umumiy qiymati" value={object.costMlnUsd != null ? `$${object.costMlnUsd} mln` : undefined} />
                                </div>
-                               <div>
-                                   <PassportRow large label="Tugash yili" value={detail.endYear} />
-                                   <PassportRow large label="Mas'ul rahbar" value={pickField(detail, ['manager', 'responsiblePerson'])} />
-                                   <PassportRow large label="Jamoa soni" value={pickField(detail, ['teamSize', 'staffCount'])} />
-                                   <PassportRow large label="So'nggi yangilanish" value={pickField(detail, ['updatedAt', 'lastUpdated'])} />
-                                   <PassportRow large label="Holati" value={object.status} />
-                                   <PassportRow large label="Mineral" value={detail.mineral} />
-                                   <PassportRow large label="Metallar" value={detail.metals} />
-                                   <PassportRow large label="Ruda zaxirasi" value={detail.oreReserve} />
-                                   <PassportRow large label="Metall zaxirasi" value={detail.metalReserve} />
-                                   <PassportRow large label="2026-yil rejasi" value={detail.plan2026} />
-                                   <PassportRow large label="Bajarildi" value={detail.done2026} />
-                                   <PassportRow large label="Natija" value={detail.result} />
+                               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                                   <PassportRow xl label="Tugash yili" value={detail.endYear} />
+                                   <PassportRow xl label="Mas'ul rahbar" value={pickField(detail, ['manager', 'responsiblePerson'])} />
+                                   <PassportRow xl label="Jamoa soni" value={pickField(detail, ['teamSize', 'staffCount'])} />
+                                   <PassportRow xl label="So'nggi yangilanish" value={pickField(detail, ['updatedAt', 'lastUpdated'])} />
+                                   <PassportRow xl label="Holati" value={object.status} />
+                                   <PassportRow xl label="Mineral" value={detail.mineral} />
+                                   <PassportRow xl label="Metallar" value={detail.metals} />
+                                   <PassportRow xl label="Ruda zaxirasi" value={detail.oreReserve} />
+                                   <PassportRow xl label="Metall zaxirasi" value={detail.metalReserve} />
+                                   <PassportRow xl label="2026-yil rejasi" value={detail.plan2026} />
+                                   <PassportRow xl label="Bajarildi" value={detail.done2026} />
+                                   <PassportRow xl label="Natija" value={detail.result} />
                                    {/*<PassportRow label="Izoh" value={detail.note} /> */}
                                </div>
                            </div>
@@ -1373,27 +1668,32 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', flexShrink: 0 }}>
                                {DEMO_KPI_TILES.map((t, i) => <KpiTile key={i} {...t} demo large />)}
                            </div>
-                           <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'stretch', gap: '10px', flex: 1, minHeight: 0 }}>
-                               <SubPanel title="Burg'ulash hajmi (ming metr)" minWidth={150} demo>
+                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: '1fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
+                               <SubPanel title="Burg'ulash hajmi (ming metr)" demo>
                                    <MiniBarChart data={DEMO_DRILLING} labels={DEMO_MONTHS} color={GC.accent1} fill />
                                </SubPanel>
-                               <SubPanel title="Geologik namunalar soni" minWidth={150} demo>
+                               <SubPanel title="Geologik namunalar soni" demo>
                                    <MiniBarChart data={DEMO_SAMPLES} labels={DEMO_MONTHS} color={GC.accent2} fill />
                                </SubPanel>
-                               <SubPanel title="Resurslar toifasi (JORC)" minWidth={160} demo>
-                                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '4px', flex: 1 }}>
+                               <SubPanel title="Resurslar toifasi (JORC)" demo>
+                                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                                        {DEMO_JORC.map((j, i) => <CategoryBarRow key={i} label={j.label} pct={j.pct} color={j.color} />)}
                                    </div>
                                </SubPanel>
-                               <SubPanel title="Loyiha bajarilish darajasi" minWidth={190} demo>
-                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', flex: 1 }}>
-                                       <DonutChart segments={DEMO_PROGRESS_SEGMENTS} centerValue={`${DEMO_PROGRESS_OVERALL}%`} size={110} />
-                                       <DonutLegend segments={DEMO_PROGRESS_SEGMENTS} />
+                               <SubPanel title="Loyiha bajarilish darajasi" demo>
+                                   {/* DEMO_PROGRESS_SEGMENTS — 4 ta bosqichning MUSTAQIL (bir-biriga
+                                       qo'shilmaydigan) bajarilish foizi, shu sabab donut halqasiga
+                                       ulush sifatida emas, faqat bar-legendga beriladi; donut esa
+                                       umumiy (DEMO_PROGRESS_OVERALL) ko'rsatkichni alohida uzuk
+                                       sifatida ko'rsatadi. */}
+                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                                       <div style={{ flexShrink: 0 }}><DonutChart segments={[{ label: 'Bajarildi', pct: DEMO_PROGRESS_OVERALL, color: GC.accent1 }, { label: 'Qolgan', pct: 100 - DEMO_PROGRESS_OVERALL, color: 'rgba(255,255,255,0.08)' }]} centerValue={`${DEMO_PROGRESS_OVERALL}%`} centerLabel="umumiy" size={124} /></div>
+                                       <DonutLegendBars segments={DEMO_PROGRESS_SEGMENTS} />
                                    </div>
                                </SubPanel>
                            </div>
-                           {detailLoading && <div style={{ fontSize: 11, color: GC.slate, marginTop: 10, flexShrink: 0 }}>To'liq ma'lumot yuklanmoqda...</div>}
-                           {/*{detailIsError && <div style={{ fontSize: 11, color: GC.red, marginTop: 10 }}>To'liq pasport ma'lumoti olinmadi — mavjud qisqa ma'lumot ko'rsatilmoqda</div>}*/}
+                           {detailLoading && <div style={{ fontSize: 14, color: GC.slate, marginTop: 10, flexShrink: 0 }}>To'liq ma'lumot yuklanmoqda...</div>}
+                           {/*{detailIsError && <div style={{ fontSize: 14, color: GC.red, marginTop: 10 }}>To'liq pasport ma'lumoti olinmadi — mavjud qisqa ma'lumot ko'rsatilmoqda</div>}*/}
                        </Card>
                    </div>
 
@@ -1402,73 +1702,186 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                        kesimidagi 3 ta karta. Ikkala qator ham teng balandlikda. */}
                    <div style={{ gridColumn: '1', gridRow: '2', minHeight: 0 }}>
                        <Card title="3. Geologik ma'lumotlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                           <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'stretch', gap: '10px', flex: 1, minHeight: 0 }}>
-                               <SubPanel title="Foydali qazilma tarkibi (prognoz)" minWidth={200} demo>
-                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', flex: 1 }}>
-                                       <DonutChart
-                                           segments={DEMO_MINERAL_COMPOSITION}
-                                           centerValue={detail.oreReserve ? String(detail.oreReserve).split(' ')[0] : (object.costMlnUsd != null ? String(object.costMlnUsd) : '520')}
-                                           centerLabel={detail.oreReserve ? undefined : 'mln t'}
-                                           size={160}
-                                       />
-                                       <DonutLegend segments={DEMO_MINERAL_COMPOSITION} />
+                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', flex: 1, minHeight: 0 }}>
+                               <SubPanel title="Foydali qazilma tarkibi (prognoz)" demo>
+                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '18px', flexShrink: 0 }}>
+                                       <div style={{ flexShrink: 0 }}>
+                                           <DonutChart
+                                               segments={DEMO_MINERAL_COMPOSITION}
+                                               centerValue={detail.oreReserve ? String(detail.oreReserve).split(' ')[0] : (object.costMlnUsd != null ? String(object.costMlnUsd) : '520')}
+                                               centerLabel={detail.oreReserve ? undefined : 'mln t'}
+                                               size={150}
+                                           />
+                                       </div>
+                                       <DonutLegendBars segments={DEMO_MINERAL_COMPOSITION} />
                                    </div>
+                                   {/* Donut bilan pastki plitkalar orasida katta bo'sh
+                                       tasma qolardi — o'rtasi metall bo'yicha zaxira
+                                       taqsimoti bilan to'ldirildi. */}
+                                   <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', gap: '5px', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+                                       <div style={{ fontSize: '11px', color: GC.slate, flexShrink: 0 }}>Metall bo'yicha zaxira (mln t)</div>
+                                       {DEMO_MINERAL_COMPOSITION.map((m, i) => {
+                                           const tons = (2.5 * m.pct / 100).toFixed(2).replace('.', ',');
+                                           return (
+                                               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px' }}>
+                                                   <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: m.color, flexShrink: 0 }} />
+                                                   <span style={{ flex: 1, minWidth: 0, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
+                                                   <span style={{ color: '#fff', fontWeight: 700, flexShrink: 0 }}>{tons}</span>
+                                                   <span style={{ color: GC.slate, flexShrink: 0, fontSize: '11px' }}>mln t</span>
+                                               </div>
+                                           );
+                                       })}
+                                       <div style={{ display: 'flex', height: '14px', borderRadius: '7px', overflow: 'hidden', flexShrink: 0, marginTop: '2px' }}>
+                                           {DEMO_MINERAL_COMPOSITION.map((m, i) => (
+                                               <div key={i} title={`${m.label} — ${m.pct}%`} style={{ width: `${m.pct}%`, background: m.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                   {m.pct >= 12 && <span style={{ fontSize: '9px', fontWeight: 700, color: '#04101f' }}>{m.pct}%</span>}
+                                               </div>
+                                           ))}
+                                       </div>
+                                   </div>
+                                   <MiniTileRow tiles={DEMO_MINERAL_TILES} />
                                </SubPanel>
-                               <SubPanel title="Geologik qatlamlar" minWidth={220} demo>
-                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, marginBottom: '4px', flexShrink: 0 }}>
-                                       <span style={{ flex: '0 0 84px' }} />
-                                       <span style={{ flex: 1 }}>Qalinlik (m)</span>
-                                       <span style={{ width: '30px', textAlign: 'right' }}>Ulushi</span>
-                                   </div>
-                                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, gap: '4px' }}>
+                               <SubPanel title="Geologik qatlamlar" demo>
+                                   {/* Ro'yxat emas — har bir qatlam o'z kartochkasida:
+                                       nomi, chuqurlik oralig'i, ulushi va bar. */}
+                                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                                        {DEMO_GEOLOGIC_LAYERS.map((l, i) => (
-                                           <div key={i}>
-                                               <CategoryBarRow label={l.label} pct={l.pct} color={l.color} />
-                                               <div style={{ fontSize: '8.5px', color: GC.slate, marginLeft: '84px', marginTop: '-3px' }}>{l.range} m</div>
+                                           <div key={i} style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '5px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${alpha(l.color, 0.3)}`, borderRadius: '8px', padding: '8px 10px' }}>
+                                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                                                   <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: l.color, flexShrink: 0 }} />
+                                                   <span style={{ fontSize: '12.5px', color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.label}</span>
+                                               </div>
+                                               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '6px' }}>
+                                                   <span style={{ fontSize: '18px', fontWeight: 700, color: '#fff' }}>{l.pct}%</span>
+                                                   <span style={{ fontSize: '11px', color: GC.slate }}>{l.range} m</span>
+                                               </div>
+                                               <div style={{ height: '5px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                                   <div style={{ width: `${l.pct}%`, height: '100%', borderRadius: '3px', background: l.color }} />
+                                               </div>
                                            </div>
                                        ))}
                                    </div>
+                                   <MiniTileRow tiles={DEMO_LAYER_TILES} />
                                </SubPanel>
-                               <SubPanel title="So'nggi tahlil natijalari" minWidth={190} demo>
-                                   <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px', flexShrink: 0 }}>
-                                       <span style={{ flex: 1 }}>Element</span>
-                                       <span style={{ width: '52px', textAlign: 'right' }}>Qiymat</span>
-                                       <span style={{ width: '52px', textAlign: 'right' }}>Me'yor</span>
-                                       <span style={{ width: '16px' }} />
+                               <SubPanel title="So'nggi tahlil natijalari" demo>
+                                   {/* Jadval emas — har bir element o'z kartochkasida:
+                                       belgisi, qiymati, me'yori va trend strelkasi. */}
+                                   {/* 2×2 = 4 ta element: kartochkalar ham keng (matn
+                                       kesilmaydi), ham panel balandligiga scroll'siz
+                                       sig'adi. 3 ustun/6 ta variantida ikkalasi ham
+                                       buzilardi. */}
+                                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridTemplateRows: 'repeat(2, minmax(0, 1fr))', gap: '8px', flex: 1, minHeight: 0 }}>
+                                       {DEMO_ANALYSIS_RESULTS.slice(0, 4).map((r, i) => {
+                                           /* `limit` me'yorlarda (masalan "< 0.2") past qiymat yaxshi,
+                                              qolganlarida me'yordan yuqorisi yaxshi. */
+                                           const good = r.limit ? r.ratio < 100 : r.ratio >= 100;
+                                           const color = good ? GC.green : GC.amber;
+                                           return (
+                                               <div key={i} style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '5px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${alpha(color, 0.3)}`, borderRadius: '8px', padding: '9px 10px' }}>
+                                                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                                                       <span style={{ display: 'flex', alignItems: 'baseline', gap: '5px', minWidth: 0 }}>
+                                                           <span style={{ fontSize: '15px', fontWeight: 700, color: '#dfe9f5' }}>{r.element}</span>
+                                                           <span style={{ fontSize: '11px', color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
+                                                       </span>
+                                                       <TrendArrow trend={r.trend} />
+                                                   </div>
+                                                   <div style={{ fontSize: '21px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                       {r.value}<span style={{ fontSize: '11px', color: GC.slate, fontWeight: 500, marginLeft: '2px' }}>{r.unit}</span>
+                                                   </div>
+                                                   <div>
+                                                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', fontSize: '11px', marginBottom: '3px' }}>
+                                                           <span style={{ minWidth: 0, color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>me'yor {r.norm}</span>
+                                                           <span style={{ color, fontWeight: 700, flexShrink: 0 }}>{r.ratio}%</span>
+                                                       </div>
+                                                       <div style={{ height: '5px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                                           <div style={{ width: `${Math.min(r.ratio, 100)}%`, height: '100%', borderRadius: '3px', background: color }} />
+                                                       </div>
+                                                   </div>
+                                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', fontSize: '11px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '5px' }}>
+                                                       <span style={{ minWidth: 0, color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>o'zgarish</span>
+                                                       <span style={{ color: r.delta.startsWith('+') ? GC.green : r.delta.startsWith('−') ? GC.amber : GC.slate, fontWeight: 700, flexShrink: 0 }}>{r.delta}</span>
+                                                   </div>
+                                               </div>
+                                           );
+                                       })}
                                    </div>
-                                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
-                                       {DEMO_ANALYSIS_RESULTS.map((r, i) => (
-                                           <div key={i} style={{ display: 'flex', fontSize: '10.5px', alignItems: 'center', padding: '2px 0' }}>
-                                               <span style={{ flex: 1, color: '#dfe9f5', fontWeight: 600 }}>{r.element}</span>
-                                               <span style={{ width: '52px', textAlign: 'right', color: '#fff' }}>{r.value}{r.unit}</span>
-                                               <span style={{ width: '52px', textAlign: 'right', color: GC.slate }}>{r.norm}</span>
-                                               <span style={{ width: '16px', textAlign: 'right' }}><TrendArrow trend={r.trend} /></span>
-                                           </div>
-                                       ))}
-                                   </div>
+                                   <MiniTileRow tiles={DEMO_ANALYSIS_TILES} />
                                </SubPanel>
                            </div>
 
-                           <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'stretch', gap: '10px', flex: 1, minHeight: 0 }}>
-                               <SubPanel title="Ish rejasi bajarilishi (GRR)" minWidth={170} demo>
-                                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-                                       <DonutChart segments={DEMO_GRR_WORK_SEGMENTS} centerValue={`${DEMO_GRR_WORK_SEGMENTS[0].pct}%`} centerLabel="bajarildi" size={88} />
-                                       <DonutLegend segments={DEMO_GRR_WORK_SEGMENTS} />
+                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', flex: 1, minHeight: 0 }}>
+                               <SubPanel title="Ish rejasi bajarilishi (GRR)" demo>
+                                   <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexShrink: 0 }}>
+                                       <div style={{ flexShrink: 0 }}><DonutChart segments={DEMO_GRR_WORK_SEGMENTS} centerValue={`${DEMO_GRR_WORK_SEGMENTS[0].pct}%`} centerLabel="bajarildi" size={150} /></div>
+                                       <DonutLegendBars segments={DEMO_GRR_WORK_SEGMENTS} />
                                    </div>
+                                   {/* Legendada atigi 2 ta segment bor edi — panelning
+                                       o'rtasi bosqichlar kesimidagi bajarilish bilan
+                                       to'ldirildi. */}
+                                   <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', gap: '5px', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+                                       <div style={{ fontSize: '11px', color: GC.slate, flexShrink: 0 }}>Bosqichlar kesimida</div>
+                                       {DEMO_GRR_STAGE_PROGRESS.slice(0, 4).map((s, i) => (
+                                           <div key={i}>
+                                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', fontSize: '12.5px', marginBottom: '3px' }}>
+                                                   <span style={{ color: '#dfe9f5', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
+                                                   <span style={{ color: '#fff', fontWeight: 700, flexShrink: 0 }}>{s.pct}%</span>
+                                               </div>
+                                               <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                                   <div style={{ width: `${s.pct}%`, height: '100%', borderRadius: '3px', background: s.color }} />
+                                               </div>
+                                           </div>
+                                       ))}
+                                   </div>
+                                   <MiniTileRow tiles={DEMO_GRR_WORK_TILES} />
                                </SubPanel>
-                               <SubPanel title="2026 yil hajmlari — reja/bajarilish" minWidth={220} demo>
+                               <SubPanel title="2026 yil hajmlari — reja/bajarilish" demo>
                                    <DualBarChart seriesA={DEMO_GRR_VOLUME_PLAN} seriesB={DEMO_GRR_VOLUME_DONE} labels={DEMO_GRR_VOLUME_LABELS} colorA={GC.accent3} colorB={GC.accent1} fill />
-                                   <div style={{ display: 'flex', gap: '10px', marginTop: '6px', fontSize: '8.5px', flexShrink: 0 }}>
-                                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Reja</span>
-                                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Bajarildi</span>
+                                   <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '12px', flexShrink: 0 }}>
+                                       <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Reja</span>
+                                       <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Bajarildi</span>
+                                   </div>
+                                   {/* Har bir ish turi bo'yicha bajarilish foizi — grafik
+                                       ostidagi bo'sh joyni to'ldiradi. */}
+                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', flexShrink: 0, marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                                       {DEMO_GRR_VOLUME_LABELS.map((lbl, i) => {
+                                           const pct = Math.round((DEMO_GRR_VOLUME_DONE[i] / DEMO_GRR_VOLUME_PLAN[i]) * 100);
+                                           const color = pct >= 60 ? GC.green : pct >= 50 ? GC.accent1 : GC.amber;
+                                           return (
+                                               <div key={i}>
+                                                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', fontSize: '12px', marginBottom: '3px' }}>
+                                                       <span style={{ color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lbl}</span>
+                                                       <span style={{ color: GC.slate, flexShrink: 0 }}>{DEMO_GRR_VOLUME_DONE[i]} / {DEMO_GRR_VOLUME_PLAN[i]}</span>
+                                                       <span style={{ color, fontWeight: 700, flexShrink: 0, width: '38px', textAlign: 'right' }}>{pct}%</span>
+                                                   </div>
+                                                   <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                                       <div style={{ width: `${pct}%`, height: '100%', borderRadius: '3px', background: color }} />
+                                                   </div>
+                                               </div>
+                                           );
+                                       })}
                                    </div>
                                </SubPanel>
-                               <SubPanel title="2026 yil byudjeti" minWidth={150} demo>
-                                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, gap: '4px' }}>
-                                       <div style={{ fontSize: '30px', fontWeight: 800, color: '#fff', lineHeight: 1 }}>
-                                           {DEMO_GRR_BUDGET_2026}<span style={{ fontSize: '13px', color: GC.slate, fontWeight: 600, marginLeft: '4px' }}>mln $</span>
-                                       </div>
-                                       <div style={{ fontSize: '9.5px', color: GC.slate, textAlign: 'center' }}>Loyiha bo'yicha rejalashtirilgan</div>
+                               {/* Avval bu yerda "2026 yil byudjeti" bo'lib, atigi bitta
+                                   raqam ko'rsatardi (byudjet raqamlari endi GRR donuti
+                                   ostidagi plitkalarga ko'chdi). O'rniga to'laqonli
+                                   "Sun'iy intellekt prognozlari" paneli. */}
+                               <SubPanel title="Sun'iy intellekt prognozlari" demo>
+                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '9px', flex: 1, minHeight: 0, justifyContent: 'space-evenly', overflowY: 'auto' }}>
+                                       {DEMO_AI_FORECASTS.map((f, i) => (
+                                           <div key={i}>
+                                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+                                                   <span style={{ display: 'flex', alignItems: 'center', gap: '7px', minWidth: 0 }}>
+                                                       <StatusDot color={f.color} />
+                                                       <span style={{ fontSize: '13px', color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.text}</span>
+                                                   </span>
+                                                   <span style={{ fontSize: '13px', fontWeight: 700, color: f.color, flexShrink: 0 }}>{f.confidence}%</span>
+                                               </div>
+                                               <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: '3px' }}>
+                                                   <div style={{ width: `${f.confidence}%`, height: '100%', borderRadius: '3px', background: f.color }} />
+                                               </div>
+                                               <div style={{ fontSize: '11px', color: GC.slate, marginLeft: '17px' }}>{f.detail}</div>
+                                           </div>
+                                       ))}
                                    </div>
                                </SubPanel>
                            </div>
@@ -1479,9 +1892,40 @@ const GeologyFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }>
                        ikkala rasm yonma-yon, karta butun katakni to'ldiradi. */}
                    <div style={{ gridColumn: '2', gridRow: '2', minHeight: 0 }}>
                        <Card title="4. Loyiha 3D modeli va geologik model" titleColor="#ffffff" borderColor={alpha(accent, 0.3)}>
+                           {/* Rasmlar yuklanmagan holatda karta ikkita bo'sh quti
+                               bo'lib qolmasligi uchun pastida model pasporti va
+                               gorizontlar bo'yicha qamrov qo'shildi. */}
                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1, minHeight: 0 }}>
                                <ImageFillCard title="3D model" accent={accent} src={`https://tmk.bgs.uz/upload/mnt/tmkupload/photoPath/${object.photoPath}-3d.jpg`} icon={<Icon3DCube />} />
                                <ImageFillCard title="Geologik model" accent={GC.violet} src={`/imgs/geology/${object.id}-geo.jpg`} icon={<IconStrata />} />
+                           </div>
+                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flexShrink: 0 }}>
+                               <SubPanel title="Model pasporti" demo>
+                                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px 12px', flex: 1, alignContent: 'space-evenly' }}>
+                                       {DEMO_MODEL_SPECS.map((s, i) => (
+                                           <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', fontSize: '13px' }}>
+                                               <span style={{ color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
+                                               <span style={{ color: '#fff', fontWeight: 700, flexShrink: 0 }}>{s.value}</span>
+                                           </div>
+                                       ))}
+                                   </div>
+                               </SubPanel>
+                               <SubPanel title="Gorizontlar bo'yicha qamrov" demo>
+                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, justifyContent: 'space-evenly' }}>
+                                       {DEMO_MODEL_HORIZONS.map((h, i) => (
+                                           <div key={i}>
+                                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', fontSize: '13px', marginBottom: '4px' }}>
+                                                   <span style={{ color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h.label}</span>
+                                                   <span style={{ color: GC.slate, flexShrink: 0 }}>{h.depth}</span>
+                                                   <span style={{ color: '#fff', fontWeight: 700, flexShrink: 0, width: '38px', textAlign: 'right' }}>{h.pct}%</span>
+                                               </div>
+                                               <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                                   <div style={{ width: `${h.pct}%`, height: '100%', borderRadius: '3px', background: h.color }} />
+                                               </div>
+                                           </div>
+                                       ))}
+                                   </div>
+                               </SubPanel>
                            </div>
                        </Card>
                    </div>
@@ -1511,6 +1955,33 @@ const DEMO_INVEST_WORK_PACKAGES = [
 
 const DEMO_CAPEX_MONTHLY = [12, 18, 22, 20, 28, 32, 35, 38, 42, 45, 40, 44];
 
+/* "2. Moliyaviy o'zlashtirish va qurilish holati" kartasiga qo'shilgan
+   ikkita yangi panel uchun — moliyalashtirish manbalari va qurilish
+   bosqichlari jadvali. */
+const DEMO_FUNDING_SOURCES = [
+    { label: "O'z mablag'lari", pct: 38, color: GC.accent1 },
+    { label: "O'zTTJ mablag'lari", pct: 27, color: GC.accent3 },
+    { label: 'Bank krediti', pct: 21, color: GC.amber },
+    { label: 'Xorijiy investitsiya', pct: 14, color: GC.violet },
+];
+
+const DEMO_INVEST_MILESTONES: { label: string; date: string; status: 'done' | 'active' | 'plan' | 'late' }[] = [
+    { label: 'TIA va loyiha hujjatlari', date: 'IV.2025', status: 'done' },
+    { label: 'Yer ajratish va ruxsatnomalar', date: 'I.2026', status: 'done' },
+    { label: 'Nol bosqich (yer ishlari)', date: 'II.2026', status: 'active' },
+    { label: 'Asosiy korpus qurilishi', date: 'IV.2026', status: 'active' },
+    { label: 'Uskunalar yetkazib berish', date: 'I.2027', status: 'late' },
+    { label: 'Montaj va ishga tushirish', date: 'III.2027', status: 'plan' },
+    { label: 'Sinov ishlab chiqarish', date: 'IV.2027', status: 'plan' },
+];
+
+const MILESTONE_META: Record<string, { label: string; color: string }> = {
+    done: { label: 'Bajarildi', color: GC.green },
+    active: { label: 'Jarayonda', color: GC.accent1 },
+    late: { label: 'Kechikmoqda', color: GC.amber },
+    plan: { label: 'Rejada', color: GC.slate },
+};
+
 const DEMO_CONTRACT_PACKAGES = [
     { no: 1, name: 'Yer ishlari', fact: 48, status: 'ok' },
     { no: 2, name: 'Asosiy bino (beton)', fact: 82, status: 'warn' },
@@ -1519,24 +1990,6 @@ const DEMO_CONTRACT_PACKAGES = [
     { no: 5, name: 'Elektr va AVT', fact: 25, status: 'warn' },
     { no: 6, name: 'Infratuzilma', fact: 32, status: 'ok' },
     { no: 7, name: 'Boshqa xarajatlar', fact: 27, status: 'ok' },
-];
-
-const DEMO_SITE_PINS = [
-    { label: "Maydalash bo'limi", color: GC.accent1, x: 26, y: 28 },
-    { label: 'Flotatsiya sexi', color: GC.amber, x: 58, y: 20 },
-    { label: 'Bosh korpus', color: GC.accent1, x: 42, y: 46 },
-    { label: 'Reagent ombori', color: GC.green, x: 18, y: 54 },
-    { label: 'Qurilish lageri', color: GC.slate, x: 16, y: 78 },
-    { label: "Ma'muriy bino", color: GC.accent1, x: 38, y: 82 },
-    { label: "Temir yo'l tarmog'i", color: GC.slate, x: 66, y: 72 },
-    { label: 'Podstansiya', color: GC.accent1, x: 72, y: 44 },
-];
-
-const DEMO_SITE_LEGEND = [
-    { label: 'Asosiy binolar', color: GC.accent1 },
-    { label: 'Yordamchi inshootlar', color: GC.green },
-    { label: 'Qurilish jarayoni', color: GC.amber },
-    { label: 'Rejalashtirilgan', color: GC.slate },
 ];
 
 const DEMO_CAMERAS = [
@@ -1554,13 +2007,19 @@ const DEMO_STAFF_STATS: { label: string; value: string; warn?: boolean }[] = [
     { label: 'Faol propusklar', value: '318 ta' },
     { label: 'Xavfli zonadagi xodimlar', value: '2 kishi', warn: true },
     { label: 'Texnika kirishlari', value: '56 ta' },
+    { label: 'Kechikkan xodimlar', value: '9 kishi', warn: true },
+    { label: 'Smenada ITR', value: '41 kishi' },
+    { label: 'Yo\'l-yo\'riq olganlar', value: '126 kishi' },
 ];
 
 const DEMO_STAFF_COMPOSITION = [
-    { label: 'Enter Engineering', pct: 45, color: GC.accent1 },
-    { label: 'Chinese MCC', pct: 25, color: GC.red },
-    { label: "O'zbektroy", pct: 14, color: GC.amber },
+    { label: 'Enter Engineering', pct: 28, color: GC.accent1 },
+    { label: 'Chinese MCC', pct: 18, color: GC.red },
+    { label: "O'zbektroy", pct: 12, color: GC.amber },
     { label: 'TMK (nazorat)', pct: 9, color: GC.green },
+    { label: 'UzGasTrade montaj', pct: 11, color: GC.accent3 },
+    { label: 'Elektromontaj SU-7', pct: 8, color: GC.violet },
+    { label: 'Temiryo\'lqurilish', pct: 7, color: GC.magenta },
     { label: 'Boshqalar', pct: 7, color: GC.slate },
 ];
 
@@ -1574,6 +2033,9 @@ const DEMO_SKUD_EVENTS = [
     { time: '13:18', staff: 'B. Toshov', event: 'Kirish' },
     { time: '12:15', staff: 'D. Chen', event: 'Kirish' },
     { time: '12:04', staff: 'M. Qodirov', event: 'Chiqish' },
+    { time: '11:47', staff: 'N. Yusupova', event: 'Kirish' },
+    { time: '11:20', staff: 'R. Ismoilov', event: 'Chiqish' },
+    { time: '10:52', staff: 'J. Wang', event: 'Kirish' },
 ];
 
 const AI_LEVEL_COLOR: Record<string, string> = { danger: GC.red, warn: GC.amber, muted: GC.slate, ok: GC.green };
@@ -1583,6 +2045,9 @@ const DEMO_AI_EVENTS: { time: string; text: string; level: keyof typeof AI_LEVEL
     { time: '12:40', text: 'Ruxsatsiz zonaga kirish', level: 'warn' },
     { time: '11:22', text: 'Tutun aniqlandi (soxta signal)', level: 'muted' },
     { time: '09:15', text: 'Xavfsizlik himoyasi mavjud', level: 'ok' },
+    { time: '08:54', text: 'Kran ish zonasi nazorati', level: 'ok' },
+    { time: '08:30', text: 'Kaskasiz ishchi aniqlandi', level: 'danger' },
+    { time: '07:58', text: 'Yong\'in chiqish yo\'li band', level: 'warn' },
 ];
 
 // Haqiqiy QR generatori ulanmagan — faqat vizual "QR kodga o'xshash" namuna (5x5).
@@ -1595,17 +2060,17 @@ const QR_DEMO_PATTERN = [
 ];
 
 const actionBtnStyle: React.CSSProperties = {
-    fontSize: '11px', fontWeight: 600, padding: '7px 12px', borderRadius: '6px',
+    fontSize: '13px', fontWeight: 600, padding: '8px 14px', borderRadius: '6px',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
     color: '#dfe9f5', cursor: 'default', display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
 };
 
 const StatusDot: React.FC<{ color: string }> = ({ color }) => (
-    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
+    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
 );
 
 const StatusPill: React.FC<{ color: string; text: string }> = ({ color, text }) => (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: alpha(color, 0.15), border: `1px solid ${alpha(color, 0.4)}`, color, whiteSpace: 'nowrap' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, padding: '5px 11px', borderRadius: '6px', background: alpha(color, 0.15), border: `1px solid ${alpha(color, 0.4)}`, color, whiteSpace: 'nowrap' }}>
         <StatusDot color="currentColor" />
         {text}
     </span>
@@ -1619,18 +2084,6 @@ const IconDiamond = () => (
 );
 const IconHomeSmall = () => (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-9z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>
-);
-const IconLayersSmall = () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 5-9 5-9-5 9-5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M3 13l9 5 9-5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
-);
-const IconExpandSmall = () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-);
-const IconPinSmall = () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /><circle cx="12" cy="10" r="2.3" stroke="currentColor" strokeWidth="1.6" /></svg>
-);
-const IconRulerSmall = () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="8" width="19" height="8" rx="1.5" transform="rotate(-8 12 12)" stroke="currentColor" strokeWidth="1.4" /></svg>
 );
 const IconCamSmall = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2.5" y="6" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M16.5 10.5l5-3v9l-5-3" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
@@ -1691,7 +2144,7 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
             borderTop: `1px solid ${alpha(accent, 0.4)}`,
         }}>
             {/* Breadcrumb */}
-            <div style={{ padding: '7px 24px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'rgba(255,255,255,0.45)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ padding: '8px 24px', display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px', color: 'rgba(255,255,255,0.45)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <IconHomeSmall />
                 <span>TMK</span>
                 <span>›</span>
@@ -1701,61 +2154,65 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
             </div>
 
             {/* Header */}
-            <div style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(90deg, ${alpha(accent, 0.25)}, #020B18)`, flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 9, background: alpha(accent, 0.18), border: `1px solid ${alpha(accent, 0.5)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: accent, flexShrink: 0 }}>
+            <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', borderBottom: `1px solid ${alpha(accent, 0.3)}`, background: `linear-gradient(90deg, ${alpha(accent, 0.25)}, #020B18)`, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 9, background: alpha(accent, 0.18), border: `1px solid ${alpha(accent, 0.5)}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: accent, flexShrink: 0 }}>
                         <IconDiamond />
                     </div>
-                    <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#fff' }}>{object.name || 'Investitsiya loyihasi'}</h2>
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', padding: '3px 8px', borderRadius: '5px', whiteSpace: 'nowrap' }}>{projectCode}</span>
+                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#fff' }}>{object.name || 'Investitsiya loyihasi'}</h2>
+                    <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', padding: '4px 10px', borderRadius: '5px', whiteSpace: 'nowrap' }}>{projectCode}</span>
                     {object.status && <StatusPill color={GC.green} text={object.status} />}
                     {detail.priority != null && <StatusPill color={GC.amber} text="Ustuvor investitsiya" />}
                     {progressPct != null && <StatusPill color={GC.accent1} text={`Bajarilish: ${progressPct}%`} />}
                     {object.coordsSource === 'linked' && <LinkedCoordsNotice linkedFrom={object.linkedFrom} />}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '9px', flexWrap: 'wrap' }}>
                     <button style={actionBtnStyle}>🛡 Ma'lumot</button>
                     <button style={actionBtnStyle}>📄 Hisobot</button>
                     <button style={actionBtnStyle}>🧊 3D ko'rish ▾</button>
                     <button onClick={onClose} style={closeBtnStyle}>✕</button>
                 </div>
             </div>
-            <div style={{ padding: '4px 24px 0', textAlign: 'right', fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>
+            <div style={{ padding: '5px 24px 0', textAlign: 'right', fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
                 Oxirgi yangilanish: {lastUpdatedText}
             </div>
 
-            {/* Body — 2x2 karta */}
+            {/* Body — 2x2 karta. `minmax(0, 1fr)` SHART: oddiy `1fr` ning yashirin
+                `auto` minimumi bor, ya'ni uzun "Loyiha Pasporti" kartasi 1-qatorni
+                cho'zib yuborib, 2-qatorga (3D model / qurilish kartalari) juda oz
+                joy qoldirardi — pastda kartalar siqilib, ichidagi `flex:1` bloklar
+                nolga tushardi. */}
             <div style={{
                 flex: 1, overflow: 'auto', padding: '12px 24px', display: 'grid',
-                gridTemplateColumns: '1fr 1fr', gridTemplateRows: 'auto 1fr', gap: '14px', minHeight: 0,
+                gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '14px', minHeight: 0,
             }}>
                 {/* 1. Loyiha Pasporti */}
                 <div style={{ gridColumn: '1', gridRow: '1' }}>
                     <Card title="1. Loyiha Pasporti" titleColor="#ffffff" borderColor={alpha(accent, 0.3)}>
-                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                             <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
                                 <div>
-                                    <PassportRow label="Loyiha nomi" value={object.name} />
-                                    <PassportRow label="Loyiha kodi" value={projectCode} />
-                                    <PassportRow label="Joylashuv" value={object.region} />
-                                    <PassportRow label="Obyekt turi" value={detail.objectKind} />
-                                    <PassportRow label="Buyurtmachi" value={pickField(detail, ['customer', 'buyurtmachi']) || detail.enterprise} />
-                                    <PassportRow label="Bosh pudratchi" value={pickField(detail, ['contractor', 'mainContractor'])} />
-                                    <PassportRow label="Loyiha quvvati" value={detail.capacity} />
-                                    <PassportRow label="Ishga tushgach xodimlar" value={detail.jobs} />
-                                    <PassportRow label="Asosiy risklar" value={detail.risks} />
-                                    <PassportRow label="Ruxsatnomalar holati" value={detail.docState} />
+                                    <PassportRow large label="Loyiha nomi" value={object.name} />
+                                    <PassportRow large label="Loyiha kodi" value={projectCode} />
+                                    <PassportRow large label="Joylashuv" value={object.region} />
+                                    <PassportRow large label="Obyekt turi" value={detail.objectKind} />
+                                    <PassportRow large label="Buyurtmachi" value={pickField(detail, ['customer', 'buyurtmachi']) || detail.enterprise} />
+                                    <PassportRow large label="Bosh pudratchi" value={pickField(detail, ['contractor', 'mainContractor'])} />
+                                    <PassportRow large label="Loyiha quvvati" value={detail.capacity} />
+                                    <PassportRow large label="Ishga tushgach xodimlar" value={detail.jobs} />
+                                    <PassportRow large label="Asosiy risklar" value={detail.risks} />
+                                    <PassportRow large label="Ruxsatnomalar holati" value={detail.docState} />
                                 </div>
                                 <div>
-                                    <PassportRow label="Amaldagi bosqich" value={detail.fsState || object.status} />
-                                    <PassportRow label="Yer maydoni" value={detail.areaHa != null ? `${detail.areaHa} ga` : undefined} />
-                                    <PassportRow label="Maqsadli mahsulot" value={detail.product} />
-                                    <PassportRow label="Umumiy qiymati" value={object.costMlnUsd != null ? `${object.costMlnUsd} mln $` : undefined} />
-                                    <PassportRow label="Moliyalashtirish manbai" value={detail.funding} />
-                                    <PassportRow label="Qurilish boshlangan sana" value={detail.buildStartText || detail.startDateText} />
-                                    <PassportRow label="Reja yakuni" value={detail.commissioningText || detail.endDateText} />
-                                    <PassportRow label="Viloyat kesimi" value={object.regionGroup} />
-                                    <PassportRow label="Maqsad" value={detail.goal} />
+                                    <PassportRow large label="Amaldagi bosqich" value={detail.fsState || object.status} />
+                                    <PassportRow large label="Yer maydoni" value={detail.areaHa != null ? `${detail.areaHa} ga` : undefined} />
+                                    <PassportRow large label="Maqsadli mahsulot" value={detail.product} />
+                                    <PassportRow large label="Umumiy qiymati" value={object.costMlnUsd != null ? `${object.costMlnUsd} mln $` : undefined} />
+                                    <PassportRow large label="Moliyalashtirish manbai" value={detail.funding} />
+                                    <PassportRow large label="Qurilish boshlangan sana" value={detail.buildStartText || detail.startDateText} />
+                                    <PassportRow large label="Reja yakuni" value={detail.commissioningText || detail.endDateText} />
+                                    <PassportRow large label="Viloyat kesimi" value={object.regionGroup} />
+                                    <PassportRow large label="Maqsad" value={detail.goal} />
                                 </div>
                             </div>
                             {/*<PassportPhotoQR src={`/imgs/invest/${object.id}.jpg`} accent={accent} caption="Loyiha pasporti QR-kod" />*/}
@@ -1769,46 +2226,123 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                 {/* 2. Moliyaviy o'zlashtirish va qurilish holati */}
                 <div style={{ gridColumn: '2', gridRow: '1' }}>
                     <Card title="2. Moliyaviy o'zlashtirish va qurilish holati" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                            <KpiTile label="Umumiy budjet" value={object.costMlnUsd != null ? String(object.costMlnUsd) : '—'} unit="mln $" />
-                            <KpiTile label="O'zlashtirilgan" value={detail.disbursedMlnUsd != null ? String(detail.disbursedMlnUsd) : '—'} unit="mln $" />
-                            <KpiTile label="Qolgan" value={remainingMlnUsd != null ? String(remainingMlnUsd) : '—'} unit="mln $" />
-                            <KpiTile label="Qurilish bajarilishi" value={progressPct != null ? String(progressPct) : '—'} unit="%" />
-                            <KpiTile label="SMR" value="38" unit="%" demo />
-                            <KpiTile label="Uskunalar yetkazilishi" value="56" unit="%" demo />
-                            <KpiTile label="Montaj" value="28" unit="%" demo />
-                            <KpiTile label="Tayyorgarlik" value="12" unit="%" demo />
-                            <KpiTile label="Pudratchilar soni" value={object.links?.length ? String(object.links.length) : '7'} demo={!object.links?.length} />
-                            <KpiTile label="Ochiq masalalar" value="5" demo />
+                        {/* KPI plitkalari — flex-wrap emas, aniq 4 ustunli to'r:
+                            10 ta plitka roppa-rosa 3 qatorga joylashadi va
+                            `large` bilan shrift kattaroq chiziladi. */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '12px', flexShrink: 0 }}>
+                            <KpiTile large label="Umumiy budjet" value={object.costMlnUsd != null ? String(object.costMlnUsd) : '—'} unit="mln $" />
+                            <KpiTile large label="O'zlashtirilgan" value={detail.disbursedMlnUsd != null ? String(detail.disbursedMlnUsd) : '—'} unit="mln $" />
+                            <KpiTile large label="Qolgan" value={remainingMlnUsd != null ? String(remainingMlnUsd) : '—'} unit="mln $" />
+                            <KpiTile large label="Qurilish bajarilishi" value={progressPct != null ? String(progressPct) : '—'} unit="%" />
+                            <KpiTile large label="SMR" value="38" unit="%" demo />
+                            <KpiTile large label="Uskunalar yetkazilishi" value="56" unit="%" demo />
+                            <KpiTile large label="Montaj" value="28" unit="%" demo />
+                            <KpiTile large label="Tayyorgarlik" value="12" unit="%" demo />
+                            <KpiTile large label="Pudratchilar soni" value={object.links?.length ? String(object.links.length) : '7'} demo={!object.links?.length} />
+                            <KpiTile large label="Ochiq masalalar" value="5" demo />
                         </div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                            <SubPanel title="CAPEX va o'zlashtirish dinamikasi (mln $)" minWidth={160} demo>
-                                <MiniBarChart data={DEMO_CAPEX_MONTHLY} labels={DEMO_MONTHS} color={accent} />
+                        {/* 6 ta panel — 3 ustun × 2 qator (avval 4 ta edi:
+                            moliyalashtirish manbalari va qurilish bosqichlari
+                            jadvali qo'shildi). */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gridTemplateRows: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', flex: 1, minHeight: 0 }}>
+                            <SubPanel title="CAPEX va o'zlashtirish dinamikasi (mln $)" demo>
+                                <MiniBarChart data={DEMO_CAPEX_MONTHLY} labels={DEMO_MONTHS} color={accent} fill />
                             </SubPanel>
-                            <SubPanel title="Ish paketlari bo'yicha bajarilish" minWidth={175} demo>
-                                {DEMO_INVEST_WORK_PACKAGES.map((w, i) => <CategoryBarRow key={i} label={w.label} pct={w.pct} color={w.color} />)}
-                            </SubPanel>
-                            <SubPanel title="Budjet o'zlashtirish" minWidth={170} demo={budgetPctReal == null}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <DonutChart segments={budgetSegments} centerValue={`${budgetPct}%`} size={88} />
-                                    <DonutLegend segments={budgetSegments} />
+                            <SubPanel title="Ish paketlari bo'yicha bajarilish" demo>
+                                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+                                    {DEMO_INVEST_WORK_PACKAGES.slice(0, 6).map((w, i) => <CategoryBarRow key={i} label={w.label} pct={w.pct} color={w.color} />)}
                                 </div>
                             </SubPanel>
-                            <SubPanel title="Shartnoma paketlari" minWidth={210} demo>
-                                <div style={{ display: 'flex', fontSize: '9px', color: GC.slate, fontWeight: 700, marginBottom: '4px' }}>
-                                    <span style={{ width: '14px' }}>#</span>
-                                    <span style={{ flex: 1 }}>Paket</span>
-                                    <span style={{ width: '42px', textAlign: 'right' }}>Fakt</span>
-                                    <span style={{ width: '14px' }} />
-                                </div>
-                                {DEMO_CONTRACT_PACKAGES.map((p) => (
-                                    <div key={p.no} style={{ display: 'flex', fontSize: '10px', alignItems: 'center', padding: '2px 0' }}>
-                                        <span style={{ width: '14px', color: GC.slate }}>{p.no}</span>
-                                        <span style={{ flex: 1, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                                        <span style={{ width: '42px', textAlign: 'right', color: '#fff' }}>{p.fact}</span>
-                                        <span style={{ width: '14px', textAlign: 'right' }}><StatusDot color={p.status === 'ok' ? GC.green : GC.amber} /></span>
+                            <SubPanel title="Budjet o'zlashtirish" demo={budgetPctReal == null}>
+                                {/* Kichkina aylana o'rniga: katta donut + bar-legend, pastda
+                                    esa aniq summalar (o'zlashtirilgan / qolgan / umumiy). */}
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                                        <div style={{ flexShrink: 0 }}><DonutChart segments={budgetSegments} centerValue={`${budgetPct}%`} centerLabel="o'zlashtirildi" size={112} /></div>
+                                        <DonutLegendBars segments={budgetSegments} />
                                     </div>
-                                ))}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexShrink: 0, marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                                        <div>
+                                            <div style={{ fontSize: '13px', color: GC.slate }}>O'zlashtirilgan</div>
+                                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>{detail.disbursedMlnUsd != null ? detail.disbursedMlnUsd : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
+                                        </div>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ fontSize: '13px', color: GC.slate }}>Qolgan</div>
+                                            <div style={{ fontSize: '17px', fontWeight: 700, color: GC.amber }}>{remainingMlnUsd != null ? remainingMlnUsd : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ fontSize: '13px', color: GC.slate }}>Umumiy budjet</div>
+                                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>{object.costMlnUsd != null ? object.costMlnUsd : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </SubPanel>
+                            <SubPanel title="Shartnoma paketlari" demo>
+                                {/* Ro'yxat yonida jamlanma ko'rsatkichlar — bo'sh joy
+                                    qolmasligi uchun (paketlar soni, o'rtacha bajarilish,
+                                    kechikayotganlar) va har bir qatorda progress-bar. */}
+                                <div style={{ display: 'flex', gap: '12px', flex: 1, minHeight: 0 }}>
+                                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0, overflowY: 'auto' }}>
+                                        {DEMO_CONTRACT_PACKAGES.slice(0, 5).map((p) => (
+                                            <div key={p.no} style={{ display: 'flex', fontSize: '15px', alignItems: 'center', gap: '8px', padding: '3px 0' }}>
+                                                <span style={{ width: '14px', color: GC.slate, flexShrink: 0 }}>{p.no}</span>
+                                                <span style={{ width: '74px', flexShrink: 0, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                                                <div style={{ flex: 1, height: '7px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden', minWidth: '30px' }}>
+                                                    <div style={{ width: `${p.fact}%`, height: '100%', borderRadius: '4px', background: p.status === 'ok' ? GC.green : GC.amber }} />
+                                                </div>
+                                                <span style={{ width: '38px', textAlign: 'right', color: '#fff', fontWeight: 700, flexShrink: 0 }}>{p.fact}%</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{ flexShrink: 0, width: '104px', display: 'flex', flexDirection: 'column', gap: '7px', justifyContent: 'center', borderLeft: '1px solid rgba(255,255,255,0.07)', paddingLeft: '10px' }}>
+                                        {(() => {
+                                            const avg = Math.round(DEMO_CONTRACT_PACKAGES.reduce((s, p) => s + p.fact, 0) / DEMO_CONTRACT_PACKAGES.length);
+                                            const late = DEMO_CONTRACT_PACKAGES.filter((p) => p.status !== 'ok').length;
+                                            const tiles = [
+                                                { label: 'Paketlar', value: String(DEMO_CONTRACT_PACKAGES.length), color: '#fff' },
+                                                { label: "O'rtacha", value: `${avg}%`, color: avg >= 50 ? GC.green : GC.amber },
+                                                { label: 'Kechikkan', value: String(late), color: late > 0 ? GC.amber : GC.green },
+                                            ];
+                                            return tiles.map((t, i) => (
+                                                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '6px 9px' }}>
+                                                    <div style={{ fontSize: '13px', color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.label}</div>
+                                                    <div style={{ fontSize: '19px', fontWeight: 700, color: t.color }}>{t.value}</div>
+                                                </div>
+                                            ));
+                                        })()}
+                                    </div>
+                                </div>
+                            </SubPanel>
+                            <SubPanel title="Moliyalashtirish manbalari" demo>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                                    <div style={{ flexShrink: 0 }}><DonutChart segments={DEMO_FUNDING_SOURCES} centerValue={object.costMlnUsd != null ? String(object.costMlnUsd) : '—'} centerLabel="mln $" size={112} /></div>
+                                    <DonutLegendBars segments={DEMO_FUNDING_SOURCES} />
+                                </div>
+                                <div style={{ flexShrink: 0, marginTop: '8px' }}>
+                                    <div style={{ fontSize: '13px', color: GC.slate, marginBottom: '5px' }}>Umumiy taqsimot</div>
+                                    <div style={{ display: 'flex', height: '14px', borderRadius: '8px', overflow: 'hidden' }}>
+                                        {DEMO_FUNDING_SOURCES.map((s, i) => (
+                                            <div key={i} title={`${s.label} — ${s.pct}%`} style={{ width: `${s.pct}%`, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {s.pct >= 12 && <span style={{ fontSize: '12px', fontWeight: 700, color: '#04101f' }}>{s.pct}%</span>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </SubPanel>
+                            <SubPanel title="Qurilish bosqichlari — jadval" demo>
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, justifyContent: 'space-evenly', overflowY: 'auto' }}>
+                                    {DEMO_INVEST_MILESTONES.slice(0, 5).map((m, i) => {
+                                        const meta = MILESTONE_META[m.status];
+                                        return (
+                                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '9px', fontSize: '15px', padding: '4px 0' }}>
+                                                <StatusDot color={meta.color} />
+                                                <span style={{ flex: 1, minWidth: 0, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
+                                                <span style={{ color: GC.slate, flexShrink: 0, fontSize: '14px' }}>{m.date}</span>
+                                                <span style={{ flexShrink: 0, fontSize: '13px', fontWeight: 600, color: meta.color, background: alpha(meta.color, 0.12), border: `1px solid ${alpha(meta.color, 0.35)}`, borderRadius: '6px', padding: '2px 7px' }}>{meta.label}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </SubPanel>
                         </div>
                     </Card>
@@ -1817,29 +2351,13 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                 {/* 3. Loyiha 3D modeli */}
                 <div style={{ gridColumn: '1', gridRow: '2', minHeight: 0 }}>
                     <Card title="3. Loyiha 3D modeli" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                        <div style={{ position: 'relative', minHeight: '220px', height: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: `linear-gradient(145deg, ${alpha(accent, 0.1)}, #04101f)` }}>
-                            <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 3, background: 'rgba(2,11,24,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px 8px' }}>
-                                <div style={{ fontSize: '8.5px', fontWeight: 700, color: '#dfe9f5', marginBottom: '4px' }}>Obyektlar</div>
-                                {DEMO_SITE_LEGEND.map((l, i) => (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '8px', color: '#c7d2dd', marginBottom: '2px' }}>
-                                        <StatusDot color={l.color} />{l.label}
-                                    </div>
-                                ))}
-                            </div>
-                            <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 3, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                {[IconHomeSmall, IconLayersSmall, IconExpandSmall, IconPinSmall, IconRulerSmall].map((Ic, i) => (
-                                    <div key={i} style={{ width: '22px', height: '22px', borderRadius: '5px', background: 'rgba(2,11,24,0.8)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c7d2dd' }}>
-                                        <Ic />
-                                    </div>
-                                ))}
-                            </div>
-                            {DEMO_SITE_PINS.map((p, i) => (
-                                <div key={i} style={{ position: 'absolute', left: `${p.x}%`, top: `${p.y}%`, zIndex: 2, display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(2,11,24,0.82)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', padding: '2px 7px 2px 5px', fontSize: '8px', color: '#e7f1ff', whiteSpace: 'nowrap' }}>
-                                    <StatusDot color={p.color} />{p.label}
-                                </div>
-                            ))}
-                            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: alpha(accent, 0.3), pointerEvents: 'none' }}>
-                                <Icon3DCube />
+                        {/* Bu loyiha uchun 3D model hali yuklanmagan — soxta maket
+                            o'rniga ochiq-oydin "mavjud emas" holati ko'rsatiladi. */}
+                        <div style={{ flex: 1, minHeight: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.14)', background: `linear-gradient(145deg, ${alpha(accent, 0.07)}, #04101f)`, color: alpha(accent, 0.45) }}>
+                            <Icon3DCube />
+                            <div style={{ fontSize: '20px', fontWeight: 700, color: 'rgba(255,255,255,0.75)' }}>3D model mavjud emas</div>
+                            <div style={{ fontSize: '14px', color: GC.slate, textAlign: 'center', maxWidth: '360px' }}>
+                                Ushbu loyiha uchun 3D model hali tizimga yuklanmagan.
                             </div>
                         </div>
                     </Card>
@@ -1848,79 +2366,114 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                 {/* 4. Qurilish jarayoni, video va xodimlar */}
                 <div style={{ gridColumn: '2', gridRow: '2', minHeight: 0, overflow: 'auto' }}>
                     <Card title="4. Qurilish jarayoni, video va xodimlar" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                        <div style={{ marginBottom: '12px' }}>
-                            <SubPanel title="Onlayn kameralar (4/12)" minWidth={300} demo>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                        {/* Uch qator ham `flex:1` — kartaning butun balandligi
+                            teng taqsimlanadi, pastda bo'sh joy qolmaydi. */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
+                            <SubPanel title="Onlayn kameralar (4/12)" demo>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', flex: 1, minHeight: 0 }}>
                                     {DEMO_CAMERAS.map((c, i) => (
-                                        <div key={i} style={{ position: 'relative', height: '62px', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                        <div key={i} style={{ position: 'relative', borderRadius: '6px', overflow: 'hidden', background: '#0d0d0d', border: '1px solid rgba(255,255,255,0.08)' }}>
                                             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}>
                                                 <IconCamSmall />
                                             </div>
-                                            <span style={{ position: 'absolute', top: 3, left: 4, fontSize: '7.5px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
-                                            <span style={{ position: 'absolute', bottom: 3, right: 4, fontSize: '7px', fontWeight: 700, color: GC.red, display: 'flex', alignItems: 'center', gap: '3px' }}><StatusDot color={GC.red} />LIVE</span>
+                                            <span style={{ position: 'absolute', top: 4, left: 5, fontSize: '13px', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>{c.code}</span>
+                                            <span style={{ position: 'absolute', bottom: 4, right: 5, fontSize: '13px', fontWeight: 700, color: GC.red, display: 'flex', alignItems: 'center', gap: '3px' }}><StatusDot color={GC.red} />LIVE</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </SubPanel>
+                            <SubPanel title="Asosiy ko'rsatkichlar" demo>
+                                {/* 10 ta ko'rsatkich — 2 ustunli ixcham qatorlar (label chapda,
+                                    qiymat o'ngda): hammasi bir ko'rishda sig'adi, scroll shart emas. */}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '6px 10px', flex: 1, minHeight: 0, alignContent: 'space-evenly', overflowY: 'auto' }}>
+                                    {DEMO_STAFF_STATS.slice(0, 8).map((s, i) => (
+                                        <div key={i} style={{ minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${s.warn ? alpha(GC.red, 0.35) : 'rgba(255,255,255,0.06)'}`, borderRadius: '7px', padding: '6px 10px' }}>
+                                            <span style={{ minWidth: 0, fontSize: '14px', color: GC.slate, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</span>
+                                            <span style={{ fontSize: '15px', fontWeight: 700, color: s.warn ? GC.red : '#fff', flexShrink: 0 }}>{s.value}</span>
                                         </div>
                                     ))}
                                 </div>
                             </SubPanel>
                         </div>
 
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
-                            <SubPanel title="Asosiy ko'rsatkichlar" minWidth={170} demo>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                    {DEMO_STAFF_STATS.map((s, i) => (
-                                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                                            <span style={{ color: GC.slate }}>{s.label}</span>
-                                            <span style={{ color: s.warn ? GC.red : '#fff', fontWeight: 700 }}>{s.value}</span>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
+                            <SubPanel title="Xodimlar tarkibi (pudratchilar bo'yicha)" demo>
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+                                        <div style={{ flexShrink: 0 }}><DonutChart segments={DEMO_STAFF_COMPOSITION} centerValue={String(detail.jobs ?? 318)} centerLabel="jami" size={124} /></div>
+                                        <DonutLegendBars segments={DEMO_STAFF_COMPOSITION} columns={2} />
+                                    </div>
+                                    <div style={{ flexShrink: 0, marginTop: '10px' }}>
+                                        <div style={{ fontSize: '13px', color: GC.slate, marginBottom: '5px' }}>Umumiy taqsimot</div>
+                                        <div style={{ display: 'flex', height: '16px', borderRadius: '8px', overflow: 'hidden' }}>
+                                            {DEMO_STAFF_COMPOSITION.map((s, i) => (
+                                                <div key={i} title={`${s.label} — ${s.pct}%`} style={{ width: `${s.pct}%`, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    {s.pct >= 12 && <span style={{ fontSize: '12px', fontWeight: 700, color: '#04101f' }}>{s.pct}%</span>}
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
                             </SubPanel>
-                            <SubPanel title="Xodimlar tarkibi (pudratchilar bo'yicha)" minWidth={190} demo>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <DonutChart segments={DEMO_STAFF_COMPOSITION} centerValue={String(detail.jobs ?? 318)} centerLabel="jami" size={86} />
-                                    <DonutLegend segments={DEMO_STAFF_COMPOSITION} />
+                            <SubPanel title="Kirish-chiqish dinamikasi (so'nggi 7 kun)" demo>
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', flex: 1, minHeight: 0 }}>
+                                        {DEMO_ENTRY_EXIT_DAYS.map((d, i) => {
+                                            const max = Math.max(...DEMO_ENTRY, ...DEMO_EXIT) * 1.1;
+                                            return (
+                                                <div key={i} style={{ flex: 1, display: 'flex', gap: '3px', alignItems: 'flex-end', height: '100%' }}>
+                                                    <div style={{ flex: 1, height: `${(DEMO_ENTRY[i] / max) * 100}%`, background: GC.accent1, borderRadius: '3px 3px 0 0' }} />
+                                                    <div style={{ flex: 1, height: `${(DEMO_EXIT[i] / max) * 100}%`, background: GC.accent3, borderRadius: '3px 3px 0 0' }} />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '6px', marginTop: '5px', flexShrink: 0 }}>
+                                        {DEMO_ENTRY_EXIT_DAYS.map((d, i) => <div key={i} style={{ flex: 1, fontSize: '13px', color: GC.slate, textAlign: 'center' }}>{d}</div>)}
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '14px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Kirish <span style={{ color: '#fff', fontWeight: 700 }}>{DEMO_ENTRY[DEMO_ENTRY.length - 1]}</span></span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '14px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Chiqish <span style={{ color: '#fff', fontWeight: 700 }}>{DEMO_EXIT[DEMO_EXIT.length - 1]}</span></span>
+                                        <span style={{ fontSize: '14px', color: GC.slate }}>Hozir maydonda <span style={{ color: '#fff', fontWeight: 700 }}>{DEMO_ENTRY[DEMO_ENTRY.length - 1] - DEMO_EXIT[DEMO_EXIT.length - 1]}</span></span>
+                                    </div>
                                 </div>
                             </SubPanel>
-                            <SubPanel title="Kirish-chiqish dinamikasi (so'nggi 7 kun)" minWidth={190} demo>
-                                <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '52px' }}>
-                                    {DEMO_ENTRY_EXIT_DAYS.map((d, i) => {
-                                        const max = Math.max(...DEMO_ENTRY, ...DEMO_EXIT) * 1.1;
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', flex: 1, minHeight: 0 }}>
+                            <SubPanel title="So'nggi SKUD hodisalari" demo>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridAutoFlow: 'column', gridTemplateRows: 'repeat(3, min-content)', gap: '6px 10px', flex: 1, minHeight: 0, alignContent: 'space-evenly' }}>
+                                    {DEMO_SKUD_EVENTS.slice(0, 6).map((e, i) => {
+                                        const color = e.event === 'Kirish' ? GC.green : GC.amber;
+                                        const initials = e.staff.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
                                         return (
-                                            <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end', height: '100%' }}>
-                                                <div style={{ flex: 1, height: `${(DEMO_ENTRY[i] / max) * 100}%`, background: GC.accent1, borderRadius: '2px 2px 0 0' }} />
-                                                <div style={{ flex: 1, height: `${(DEMO_EXIT[i] / max) * 100}%`, background: GC.accent3, borderRadius: '2px 2px 0 0' }} />
+                                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', padding: '6px 8px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)' }}>
+                                                <span style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color, background: alpha(color, 0.16), border: `1px solid ${alpha(color, 0.4)}` }}>{initials}</span>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '14px' }}>{e.staff}</div>
+                                                    <div style={{ color: GC.slate, fontSize: '13px' }}>{e.time}</div>
+                                                </div>
+                                                <span style={{ color, fontWeight: 700, fontSize: '13px', flexShrink: 0, background: alpha(color, 0.12), border: `1px solid ${alpha(color, 0.35)}`, borderRadius: '6px', padding: '3px 7px' }}>{e.event}</span>
                                             </div>
                                         );
                                     })}
                                 </div>
-                                <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                                    {DEMO_ENTRY_EXIT_DAYS.map((d, i) => <div key={i} style={{ flex: 1, fontSize: '7px', color: GC.slate, textAlign: 'center' }}>{d}</div>)}
-                                </div>
-                                <div style={{ display: 'flex', gap: '10px', marginTop: '4px', fontSize: '8.5px' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent1} />Kirish</span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#dfe9f5' }}><StatusDot color={GC.accent3} />Chiqish</span>
-                                </div>
                             </SubPanel>
-                        </div>
-
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                            <SubPanel title="So'nggi SKUD hodisalari" minWidth={210} demo>
-                                {DEMO_SKUD_EVENTS.map((e, i) => (
-                                    <div key={i} style={{ display: 'flex', fontSize: '9.5px', padding: '3px 0', borderBottom: i < DEMO_SKUD_EVENTS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', gap: '6px' }}>
-                                        <span style={{ color: GC.slate, width: '34px', flexShrink: 0 }}>{e.time}</span>
-                                        <span style={{ flex: 1, color: '#dfe9f5' }}>{e.staff}</span>
-                                        <span style={{ color: e.event === 'Kirish' ? GC.green : GC.amber, fontWeight: 600 }}>{e.event}</span>
-                                    </div>
-                                ))}
-                            </SubPanel>
-                            <SubPanel title="AI video hodisalari" minWidth={190} demo>
-                                {DEMO_AI_EVENTS.map((e, i) => (
-                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9.5px', padding: '3px 0' }}>
-                                        <StatusDot color={AI_LEVEL_COLOR[e.level]} />
-                                        <span style={{ color: GC.slate, width: '32px', flexShrink: 0 }}>{e.time}</span>
-                                        <span style={{ color: '#dfe9f5', flex: 1 }}>{e.text}</span>
-                                    </div>
-                                ))}
+                            <SubPanel title="AI video hodisalari" demo>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridAutoFlow: 'column', gridTemplateRows: 'repeat(3, min-content)', gap: '8px', flex: 1, minHeight: 0, alignContent: 'space-evenly' }}>
+                                    {DEMO_AI_EVENTS.slice(0, 6).map((e, i) => {
+                                        const color = AI_LEVEL_COLOR[e.level];
+                                        return (
+                                            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '15px', padding: '8px 10px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${alpha(color, 0.25)}` }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <StatusDot color={color} />
+                                                    <span style={{ color: GC.slate, fontSize: '13px' }}>{e.time}</span>
+                                                </div>
+                                                <span style={{ color: '#dfe9f5', fontSize: '14px', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.text}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </SubPanel>
                         </div>
                     </Card>
@@ -1928,7 +2481,7 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
             </div>
 
             {/* Footer */}
-            <div style={{ padding: '8px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '10px', color: 'rgba(255,255,255,0.45)' }}>
+            <div style={{ padding: '8px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '15px', color: 'rgba(255,255,255,0.45)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                     <span>Ma'lumot manbalari:</span>
                     {['TMK GIS', 'ERP', 'SCADA', 'SKUD', 'Kameralar', 'Qurilish PMO'].map((s, i) => (

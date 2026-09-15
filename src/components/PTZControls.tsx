@@ -173,9 +173,16 @@ export default function PTZControls({ camera, onSendCommand }: PTZControlsProps)
         onSendCommand?.(body);
 
         try {
+            /* tmk.bgs.uz/api/* boshqa hamma joyda `tmk-token-bgs` bilan
+               autentifikatsiya qilinadi — Authorization header bo'lmasa
+               server 401 qaytaradi. */
+            const token = localStorage.getItem('tmk-token-bgs');
             const res = await fetch(PTZ_API, {
                 method:  "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}` } : {}),
+                },
                 body:    JSON.stringify(body),
             });
 

@@ -3,23 +3,25 @@ import { ResourceCardsGrid } from './ResourceDashboard';
 import ResourceDashboardPart2 from "./ResourceDashboardPart2";
 import MetalsDashboard from "./MetalsDashboard";
 import MetalsDashboardMain from "./MetalsDashboardMain";
+import ExportProduct from "../Parts/ExportProduct";
+import Resoursec from "./Resoursec";
 
 const LeftPanel: React.FC = () => {
   return (
-      <div className="left-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '10px' }}>
+      <div className="left-panel" style={{ display: 'grid', gridTemplateRows: '1fr 1fr 1fr', height: '100%', gap: '10px' }}>
         {/*<ResourceCardsGrid />*/}
+          <div style={{ height: '100%', minHeight: 0, overflow: 'auto' ,  border: '1px solid rgba(14,168,199,0.2)',  borderRadius: '12px'}}>
           <MetalsDashboardMain />
-
-
-          <div className="view-model-right-model" style={{ height: '100%' }}>
-          <div className="view-model" style={{ width: '100%', height: '100%', background: 'var(--gc-panel-bg)',
-              borderRadius: '12px', overflow: 'hidden', position: 'relative',
-              // border: '1px solid rgba(14,168,199,0.2)'
-          }}
-          >
-            <ResourceDashboardPart2 />
           </div>
-        </div>
+
+          <div style={{ height: '100%', minHeight: 0, overflow: 'auto' ,  border: '1px solid rgba(14,168,199,0.2)',  borderRadius: '12px'}}>
+          <ExportProduct />
+          </div>
+
+          <div style={{ height: '100%', minHeight: 0, overflow: 'auto' ,  border: '1px solid rgba(14,168,199,0.2)',  borderRadius: '12px'}}>
+          <Resoursec />
+          {/*<ResourceDashboardPart2 />*/}
+          </div>
       </div>
   );
 };

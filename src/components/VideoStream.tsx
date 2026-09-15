@@ -69,11 +69,20 @@ const defaultCells: StreamCell[] = [
 
 // ─── API fetch hook ───────────────────────────────────────────────────────────
 
+/** tmk.bgs.uz/api/* boshqa hamma joyda `tmk-token-bgs` bilan autentifikatsiya
+ *  qilinadi (services/production.ts va h.k.) — bu chaqiruv esa header'siz
+ *  yuborilar edi, shuning uchun 401 qaytarardi. */
+const authHeaders = (): HeadersInit | undefined => {
+    const token = localStorage.getItem('tmk-token-bgs');
+    if (!token) return undefined;
+    return { Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}` };
+};
+
 function useCameras(): StreamCell[] {
     const [cells, setCells] = useState<StreamCell[]>(defaultCells);
 
     useEffect(() => {
-        fetch(`${API_BASE}/cameras?lang=uz`)
+        fetch(`${API_BASE}/cameras?lang=uz`, { headers: authHeaders() })
             .then(r => r.json())
             .then((data: { factories: { cameras: any[] }[] }) => {
                 // Barcha kameralarni yig'amiz

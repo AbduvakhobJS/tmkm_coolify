@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import { C, chartBase, noLegend, axis, centerText, fmt } from '../../components/dashboardUI';
+import { C, chartBase, noLegend, fmt } from '../../components/dashboardUI';
+import { bigHeaderTitle, bigHeaderPill, bigCenterText, bigCardTitleStyle } from '../../components/dashboardUILarge';
 import { GC } from '../../theme/palette';
 import { useGeologyDashboard } from '../../hooks/geology';
 import type { GeologyProject } from '../../services/geology';
@@ -136,16 +137,20 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 };
 
 /* ── Bo'lim kartochkasi (umumiy dizayn tizimidagi konvensiya) ── */
+/* Fikslangan px o'lchamlar ataylab: `SectionCard` grid katakchasi sifatida ham
+   (aniq balandlik bilan), oddiy flex-qator ichida ham (avtomatik balandlik
+   bilan) ishlatiladi — `container-type: size` shu ikkinchi holatda avtomatik
+   balandlikni 0 ga qisqartirib qo'yardi (ESG'dagi xatoning aynan o'zi). */
+/* Sarlavha `BigCard` (MetalsDashboardMain) bilan bir xil — icon yo'q,
+   `bigCardTitleStyle` orqali font/rang/o'lcham yagona manbadan olinadi. */
 const SectionCard: React.FC<{
-    title: string; icon?: React.ReactNode; iconColor?: string; hint?: string;
+    title: string; hint?: string;
     children: React.ReactNode; style?: React.CSSProperties; bodyStyle?: React.CSSProperties;
-}> = ({ title, icon, iconColor = GC.cyan, hint, children, style, bodyStyle }) => (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, ...style }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexShrink: 0 }}>
-            <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
-                {icon && <NeonIcon color={iconColor} size={22}>{icon}</NeonIcon>}{title}
-            </div>
-            {hint && <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
+}> = ({ title, hint, children, style, bodyStyle }) => (
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '12px 14px', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, ...style }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 9, flexShrink: 0 }}>
+            <div style={{ ...bigCardTitleStyle, textTransform: 'none' }}>{title}</div>
+            {hint && <div style={{ color: C.sub, fontSize: 11.5, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>{hint}</div>}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, flex: 1, ...bodyStyle }}>
             {children}
@@ -175,10 +180,10 @@ const formatAsOf = (iso: string): string => {
 /* Bo'sh/mavjud bo'lmagan ma'lumot uchun umumiy holat ko'rsatkichi (kartani
    butunlay yashirmasdan, nega bo'sh ekanini tushuntiradi). */
 const EmptyNote: React.FC<{ text: string }> = ({ text }) => (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, textAlign: 'center', padding: '0 12px' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 7, textAlign: 'center', padding: '0 12px' }}>
         <span style={{ color: C.sub, opacity: 0.6 }}><IconWarning /></span>
-        <div style={{ color: C.sub, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase' }}>Ma'lumot yo'q</div>
-        <div style={{ color: C.sub, fontSize: 9.5, lineHeight: 1.45, opacity: 0.85 }}>{text}</div>
+        <div style={{ color: C.sub, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase' }}>Ma'lumot yo'q</div>
+        <div style={{ color: C.sub, fontSize: 11.5, lineHeight: 1.45, opacity: 0.85 }}>{text}</div>
     </div>
 );
 
@@ -234,7 +239,7 @@ const GRR: React.FC = () => {
 
     if (isLoading || !view) {
         return (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.sub, fontSize: 13, fontFamily: '"Segoe UI", system-ui, sans-serif' }}>
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.sub, fontSize: 15, fontFamily: '"Segoe UI", system-ui, sans-serif' }}>
                 {isError ? "Geologiya loyihalari ma'lumotini yuklab bo'lmadi" : 'Geologiya loyihalari yuklanmoqda…'}
             </div>
         );
@@ -294,38 +299,28 @@ const GRR: React.FC = () => {
             overflowY: 'auto', padding: "0 14px", boxSizing: 'border-box',
             fontFamily: '"Segoe UI", system-ui, sans-serif',
             display: 'flex',
-            flexDirection: 'column', gap: 10 }}>
+            flexDirection: 'column', gap: 10,
+            containerType: 'size', containerName: 'dash-root' }}>
 
             {/* Sarlavha */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div>
-                        <div style={{ color: 'rgb(241, 242, 246)', fontSize: 14, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Geologiya-qidiruv ishlari boshqaruvi</div>
-                    </div>
-                </div>
-                {/*<span style={{ color: C.sub, fontSize: 11 }}>{formatAsOf(meta.asOf)} holatiga</span>*/}
-                <div style={{
-                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                    padding: '4px 15px', color: C.text,
-                    fontSize: '9px', display: 'flex', gap: 6, whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                }}
-                     onClick={() => navigate("/main/iframe/geology")}
-                >Batafsil
+                <div style={bigHeaderTitle}>Geologiya-qidiruv ishlari boshqaruvi</div>
+                <div style={{ ...bigHeaderPill, display: 'flex', gap: 6, cursor: 'pointer' }} onClick={() => navigate("/main/iframe/geology")}>
+                    Batafsil
                 </div>
             </div>
 
             {/* KPI qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 8, flexShrink: 0 }}>
                 {kpis.map((k) => (
-                    <div key={k.label} style={{ minWidth: 0, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 11px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div key={k.label} style={{ minWidth: 0, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '11px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                            <NeonIcon color={k.color} size={26}>{ICON_MAP[k.icon]}</NeonIcon>
-                            <span style={{ color: C.sub, fontSize: 8.7, fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase', lineHeight: 1.25 }}>{k.label}</span>
+                            <NeonIcon color={k.color} size={28}>{ICON_MAP[k.icon]}</NeonIcon>
+                            <span style={{ color: C.sub, fontSize: 10.5, fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase', lineHeight: 1.25 }}>{k.label}</span>
                         </div>
                         <div>
-                            <div style={{ color: k.muted ? C.sub : C.text, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{k.value}</div>
-                            <div style={{ color: C.sub, fontSize: 10, marginTop: 3 }}>{k.unit}</div>
+                            <div style={{ color: k.muted ? C.sub : C.text, fontSize: 22, fontWeight: 700, lineHeight: 1 }}>{k.value}</div>
+                            <div style={{ color: C.sub, fontSize: 11.5, marginTop: 4 }}>{k.unit}</div>
                         </div>
                     </div>
                 ))}
@@ -335,12 +330,12 @@ const GRR: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2.6fr 1fr', gap: 8, minHeight: 280 }}>
 
                 {/* Portfel loyihalari */}
-                <SectionCard title="Loyihalar portfeli" icon={<IconFolder />} hint={`${projects.length} ta`}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, paddingBottom: 6, borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+                <SectionCard title="Loyihalar portfeli" hint={`${projects.length} ta`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: C.sub, fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.3, paddingBottom: 7, borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
                         <span>Loyiha</span>
                         <span>Ish rejasi bajarilishi</span>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 9, overflowY: 'auto', flex: 1, paddingTop: 8, minHeight: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', flex: 1, paddingTop: 9, minHeight: 0 }}>
                         {projects.map((p) => {
                             const readiness = workReadiness(p);
                             return (
@@ -348,20 +343,20 @@ const GRR: React.FC = () => {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
                                         <div style={{ minWidth: 0 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                <span style={{ color: C.sub, fontSize: 10.5, flexShrink: 0 }}>#{p.projectNo}</span>
-                                                <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.shortName}</span>
+                                                <span style={{ color: C.sub, fontSize: 12, flexShrink: 0 }}>#{p.projectNo}</span>
+                                                <span style={{ color: C.text, fontSize: 14.5, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.shortName}</span>
                                             </div>
-                                            <div style={{ color: GC.cyan, fontSize: 10.5, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            <div style={{ color: GC.cyan, fontSize: 12, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                 {p.direction}{p.region ? ` · ${p.region}` : ''}{p.endYear ? ` · ${p.endYear}` : ''}
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                                             {readiness !== null
-                                                ? <span style={{ color: C.text, fontSize: 11.5, fontWeight: 700 }}>{readiness}%</span>
-                                                : <span style={{ color: C.sub, fontSize: 9.5 }}>reja yo'q</span>}
+                                                ? <span style={{ color: C.text, fontSize: 13.5, fontWeight: 700 }}>{readiness}%</span>
+                                                : <span style={{ color: C.sub, fontSize: 11 }}>reja yo'q</span>}
                                         </div>
                                     </div>
-                                    <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 5 }}>
+                                    <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', marginTop: 6 }}>
                                         <div style={{ width: `${readiness ?? 0}%`, height: '100%', background: readiness !== null ? readinessColor(readiness) : 'transparent', borderRadius: 3 }} />
                                     </div>
                                 </div>
@@ -371,21 +366,21 @@ const GRR: React.FC = () => {
                 </SectionCard>
 
                 {/* 3D geologik model — manbada bunday ma'lumot yo'q, rasm o'zgarishsiz qoladi */}
-                <SectionCard title="3D geologik model" icon={<IconCube />} bodyStyle={{ gap: 8 }}>
+                <SectionCard title="3D geologik model" bodyStyle={{ gap: 8 }}>
                     <div style={{ position: 'relative', flex: 1, minHeight: 0, borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.border}` }}>
                         <img src="/imgs/r6.jpg" alt="3D geologik model" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'saturate(1.05) brightness(0.85)' }} />
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,15,29,0.15) 0%, rgba(10,15,29,0.05) 45%, rgba(10,15,29,0.75) 100%)' }} />
 
                         {/* Zonalar mineralizatsiyasi legendasi */}
                         <div style={{
-                            position: 'absolute', top: 10, right: 10, width: 178,
+                            position: 'absolute', top: 10, right: 10, width: 200,
                             background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)',
-                            border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px',
+                            border: `1px solid ${C.border}`, borderRadius: 8, padding: '9px 11px',
                         }}>
-                            <div style={{ color: GC.cyan, fontSize: 9, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', borderBottom: `1px solid ${C.border}`, paddingBottom: 5, marginBottom: 6 }}>
+                            <div style={{ color: GC.cyan, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', borderBottom: `1px solid ${C.border}`, paddingBottom: 6, marginBottom: 7 }}>
                                 Mineralizatsiya zonalari
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                                 {[
                                     { label: 'Cu-Sb-W-Bi-Co-Zn-Pb', color: '#1D4ED8' },
                                     { label: 'Li (litiyli)', color: '#3B82F6' },
@@ -398,31 +393,31 @@ const GRR: React.FC = () => {
                                     { label: 'Istiqbolli tuzilmalar', color: '#e2e8f0' },
                                 ].map((m) => (
                                     <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        <span style={{ width: 7, height: 7, borderRadius: 2, background: m.color, flexShrink: 0, boxShadow: `0 0 4px ${m.color}` }} />
-                                        <span style={{ color: C.text, fontSize: 9, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.label}</span>
+                                        <span style={{ width: 8, height: 8, borderRadius: 2, background: m.color, flexShrink: 0, boxShadow: `0 0 4px ${m.color}` }} />
+                                        <span style={{ color: C.text, fontSize: 10.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.label}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/* Hudud yorlig'i */}
-                        <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '5px 10px' }}>
+                        <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 11px' }}>
                             <span style={{ color: GC.cyan }}><IconMapPin /></span>
-                            <span style={{ color: C.text, fontSize: 10.5, fontWeight: 600 }}>Minerallar hududi</span>
+                            <span style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>Minerallar hududi</span>
                         </div>
 
                         {/* Pastki dekorativ asboblar paneli */}
-                        <div style={{ position: 'absolute', left: 10, right: 10, bottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 10px' }}>
+                        <div style={{ position: 'absolute', left: 10, right: 10, bottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, background: 'rgba(10,15,29,0.78)', backdropFilter: 'blur(6px)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 11px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: C.sub }}>
                                 <IconCube /><IconLayers /><IconGrid /><IconExpand /><IconRotate />
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 9.5 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 11 }}>
                                 Kesimlar:
                                 {['X', 'Y', 'Z'].map((ax) => (
-                                    <span key={ax} style={{ width: 18, height: 18, borderRadius: 4, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.text, fontSize: 9.5, fontWeight: 700 }}>{ax}</span>
+                                    <span key={ax} style={{ width: 20, height: 20, borderRadius: 4, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.text, fontSize: 11, fontWeight: 700 }}>{ax}</span>
                                 ))}
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 9.5 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.sub, fontSize: 11 }}>
                                 Shaffoflik:
                                 <div style={{ width: 70, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', position: 'relative' }}>
                                     <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '60%', borderRadius: 2, background: GC.cyan }} />
@@ -434,21 +429,21 @@ const GRR: React.FC = () => {
                 </SectionCard>
 
                 {/* Loyihalar bo'yicha xulosa */}
-                <SectionCard title="Loyihalar bo'yicha xulosa" icon={<IconBars />} bodyStyle={{ overflowY: 'auto' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, flexShrink: 0, marginBottom: 10 }}>
+                <SectionCard title="Loyihalar bo'yicha xulosa" bodyStyle={{ overflowY: 'auto' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 7, flexShrink: 0, marginBottom: 11 }}>
                         {[
                             { label: 'Jami loyihalar', value: summary.totalProjects },
                             ...summary.byGroup.map((g) => ({ label: g.key, value: g.count })),
                             { label: 'Ish rejasi bajarildi', value: `${doneWorks}/${totalWorks}` },
                         ].map((s) => (
-                            <div key={s.label} style={{ textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 4px' }}>
-                                <div style={{ color: C.text, fontSize: 16, fontWeight: 700 }}>{s.value}</div>
-                                <div style={{ color: C.sub, fontSize: 8, marginTop: 2, lineHeight: 1.2 }}>{s.label}</div>
+                            <div key={s.label} style={{ textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 4px' }}>
+                                <div style={{ color: C.text, fontSize: 19, fontWeight: 700 }}>{s.value}</div>
+                                <div style={{ color: C.sub, fontSize: 10, marginTop: 3, lineHeight: 1.2 }}>{s.label}</div>
                             </div>
                         ))}
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7, fontSize: 11.5, marginBottom: 10 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13.5, marginBottom: 11 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: C.sub }}>Portfel byudjeti:</span>
                             <span style={{ color: C.text, fontWeight: 700 }}>{fmt(summary.cost.totalMlnUsd, 2)} mln $</span>
@@ -471,40 +466,40 @@ const GRR: React.FC = () => {
                         </div>
                     </div>
 
-                    <div style={{ color: GC.cyan, fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 8 }}>
+                    <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 9 }}>
                         Portfelning o'rtacha vaznli tarkibi
                     </div>
-                    <div style={{ color: C.sub, fontSize: 10, lineHeight: 1.45, marginBottom: 12 }}>
+                    <div style={{ color: C.sub, fontSize: 11.5, lineHeight: 1.45, marginBottom: 13 }}>
                         Ma'lumot yo'q — element tarkibi (greyd, %) faqat 10/{summary.totalProjects} loyihada, u ham erkin matn ichida (masalan «Vanadiy 81,5 ming t, tarkibi 0,89%») — tuzilgan raqamli maydon sifatida mavjud emas.
                     </div>
 
-                    <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                        <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 4px' }}>
-                            <div style={{ color: C.sub, fontSize: 9 }}>Loyihalar bahosi (NPV10%, mln dollar)</div>
-                            <div style={{ color: C.sub, fontSize: 15, fontWeight: 700, marginTop: 3 }}>Ma'lumot yo'q</div>
+                    <div style={{ display: 'flex', gap: 9, marginBottom: 13 }}>
+                        <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '9px 4px' }}>
+                            <div style={{ color: C.sub, fontSize: 10.5 }}>Loyihalar bahosi (NPV10%, mln dollar)</div>
+                            <div style={{ color: C.sub, fontSize: 17, fontWeight: 700, marginTop: 4 }}>Ma'lumot yo'q</div>
                         </div>
-                        <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 4px' }}>
-                            <div style={{ color: C.sub, fontSize: 9 }}>Portfel IRR</div>
-                            <div style={{ color: C.sub, fontSize: 15, fontWeight: 700, marginTop: 3 }}>Ma'lumot yo'q</div>
+                        <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '9px 4px' }}>
+                            <div style={{ color: C.sub, fontSize: 10.5 }}>Portfel IRR</div>
+                            <div style={{ color: C.sub, fontSize: 17, fontWeight: 700, marginTop: 4 }}>Ma'lumot yo'q</div>
                         </div>
                     </div>
 
-                    <div style={{ color: GC.cyan, fontSize: 9.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 }}>
+                    <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 7 }}>
                         Loyiha guruhlari
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 84, height: 84, flexShrink: 0 }}>
-                            <Doughnut data={stagesDonut} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[centerText(`${summary.totalProjects}`, 'loyiha')]} />
-                        </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minHeight: 0 }}>
+                        <div style={{ flex: '0 0 42%', display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0 }}>
                             {summary.byGroup.map((g, i) => (
-                                <div key={g.key} style={{ display: 'flex', alignItems: 'center', fontSize: 10.5 }}>
-                                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: [GC.accent1, GC.accent3, GC.accent4][i % 3], marginRight: 5, flexShrink: 0 }} />
+                                <div key={g.key} style={{ display: 'flex', alignItems: 'center', fontSize: 13 }}>
+                                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: [GC.accent1, GC.accent3, GC.accent4][i % 3], marginRight: 6, flexShrink: 0 }} />
                                     <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{g.key}</span>
-                                    <span style={{ color: C.text, fontWeight: 600 }}>{g.count}</span>
+                                    <span style={{ color: C.text, fontWeight: 700 }}>{g.count}</span>
                                     <span style={{ color: C.sub, marginLeft: 4 }}>({fmt((g.count / summary.totalProjects) * 100, 0)}%)</span>
                                 </div>
                             ))}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0, minHeight: 100, position: 'relative' }}>
+                            <Doughnut data={stagesDonut} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[bigCenterText(`${summary.totalProjects}`, 'loyiha')]} />
                         </div>
                     </div>
                 </SectionCard>
@@ -512,12 +507,19 @@ const GRR: React.FC = () => {
 
             {/* Pastki grafiklar qatori */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, height: 250 }}>
-                <SectionCard title="2026 yil ish hajmlari — reja va bajarilishi" icon={<IconLayers />} iconColor={GC.accent1}>
+                <SectionCard title="2026 yil ish hajmlari — reja va bajarilishi">
                     <div style={{ flex: 1, minHeight: 0 }}>
-                        <Bar data={volumesData} options={{ ...chartBase, plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 8.5 } } } }, scales: axis({ x: { ticks: { font: { size: 8.5 } } }, y: { beginAtZero: true } }) } as any} />
+                        <Bar data={volumesData} options={{
+                            ...chartBase,
+                            plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 8, boxHeight: 8, usePointStyle: true, font: { size: 10.5 } } } },
+                            scales: {
+                                x: { grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 10.5 } } },
+                                y: { beginAtZero: true, grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 10.5 } } },
+                            },
+                        } as any} />
                     </div>
                     {summary.volumes2026.trenchDoneReported === 0 && (
-                        <div style={{ color: C.sub, fontSize: 8.5, marginTop: 6, lineHeight: 1.35, flexShrink: 0 }}>
+                        <div style={{ color: C.sub, fontSize: 10.5, marginTop: 7, lineHeight: 1.35, flexShrink: 0 }}>
                             * Kanava bo'yicha bajarilgan hajm birorta loyihada hisobot qilinmagan (hisobot yo'q, 0 bajarilgan emas).
                         </div>
                     )}
@@ -527,12 +529,12 @@ const GRR: React.FC = () => {
                 {/*    <EmptyNote text="Tarkib (greyd, %) manbada faqat 10/46 loyihada, erkin matn ichida — tuzilgan raqamli maydon sifatida yo'q, diagramma qurib bo'lmaydi." />*/}
                 {/*</SectionCard>*/}
 
-                <SectionCard title="2026 yil byudjeti — loyihalar kesimida, mln $" icon={<IconCoins />} iconColor={GC.cyan} hint={`${projectsWithBudget2026.length}/${summary.totalProjects} loyihada`}>
+                <SectionCard title="2026 yil byudjeti — loyihalar kesimida, mln $" hint={`${projectsWithBudget2026.length}/${summary.totalProjects} loyihada`}>
                     {projectsWithBudget2026.length ? (
                         <div style={{ flex: 1, minHeight: 0 }}>
                             <Bar data={budget2026Data} options={{
                                 ...chartBase, indexAxis: 'y' as const, ...noLegend,
-                                scales: { x: { grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 9 } } }, y: { grid: { display: false }, ticks: { color: C.sub, font: { size: 8.5 } } } },
+                                scales: { x: { grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 10.5 } } }, y: { grid: { display: false }, ticks: { color: C.sub, font: { size: 10 } } } },
                             } as any} />
                         </div>
                     ) : (
@@ -540,35 +542,35 @@ const GRR: React.FC = () => {
                     )}
                 </SectionCard>
 
-                <SectionCard title="Metallar bo'yicha taqsimot" icon={<IconPie />} iconColor={GC.amber} hint="loyiha soni">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7, flex: 1, overflowY: 'auto', minHeight: 0 }}>
+                <SectionCard title="Metallar bo'yicha taqsimot" hint="loyiha soni">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, overflowY: 'auto', minHeight: 0 }}>
                         {metalsDistribution.map((m, i) => (
                             <div key={m.label}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 3 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                                     <span style={{ color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
                                     <span style={{ color: C.sub, flexShrink: 0, marginLeft: 6 }}>{m.count} loyiha</span>
                                 </div>
-                                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+                                <div style={{ width: '100%', height: 7, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
                                     <div style={{ width: `${(m.count / maxMetal) * 100}%`, height: '100%', background: [GC.accent1, GC.accent2, GC.accent3, GC.accent4, GC.accent5][i % 5], borderRadius: 3 }} />
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div style={{ color: C.sub, fontSize: 8.5, marginTop: 8, lineHeight: 1.35, flexShrink: 0 }}>
+                    <div style={{ color: C.sub, fontSize: 10.5, marginTop: 9, lineHeight: 1.35, flexShrink: 0 }}>
                         Bitta loyihada bir nechta metall bo'lishi mumkin — shuning uchun ulush emas, loyiha soni ko'rsatilgan.
                     </div>
                 </SectionCard>
             </div>
 
             {/* Asosiy xulosalar */}
-            <SectionCard title="" style={{ padding: '12px 14px', flexShrink: 0 }} bodyStyle={{ flexDirection: 'row', gap: 0 }}>
+            <SectionCard title="" style={{ padding: '13px 15px', flexShrink: 0 }} bodyStyle={{ flexDirection: 'row', gap: 0 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, width: '100%' }}>
                     {findings.map((f) => (
                         <div key={f.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, minWidth: 0 }}>
-                            <NeonIcon color={f.color} size={30}>{ICON_MAP[f.icon]}</NeonIcon>
+                            <NeonIcon color={f.color} size={32}>{ICON_MAP[f.icon]}</NeonIcon>
                             <div style={{ minWidth: 0 }}>
-                                <div style={{ color: C.text, fontSize: 11.5, fontWeight: 700 }}>{f.title}</div>
-                                <div style={{ color: C.sub, fontSize: 10.5, marginTop: 3, lineHeight: 1.4 }}>{f.text}</div>
+                                <div style={{ color: C.text, fontSize: 13.5, fontWeight: 700 }}>{f.title}</div>
+                                <div style={{ color: C.sub, fontSize: 12.5, marginTop: 4, lineHeight: 1.4 }}>{f.text}</div>
                             </div>
                         </div>
                     ))}

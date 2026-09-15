@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
+import { Line } from 'react-chartjs-2';
 import { C } from '../../components/dashboardUI';
-import { GC } from '../../theme/palette';
+import { bigHeaderTitle, bigHeaderPill } from '../../components/dashboardUILarge';
+import { GC, ACCENT_SERIES } from '../../theme/palette';
 import { useFinanceDashboard } from '../../hooks/finance';
 import type { FinanceDashboardData, FinanceRow } from '../../services/finance';
 import {useNavigate} from "react-router-dom";
@@ -303,10 +305,10 @@ const smoothPath = (pts: [number, number][]): string => {
 /* ── Bo'lim sarlavhasi ── */
 const SectionTitle: React.FC<{ title: string; hint?: string }> = ({ title, hint }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 9, margin: '4px 0 2px' }}>
-        <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
+        <span style={{ color: C.text, fontSize: 'clamp(13px, 2.6cqmin, 17px)', fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase' }}>
             {title}
         </span>
-        {hint && <span style={{ marginLeft: 'auto', color: C.sub, fontSize: 10.5 }}>{hint}</span>}
+        {hint && <span style={{ marginLeft: 'auto', color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)' }}>{hint}</span>}
     </div>
 );
 
@@ -398,61 +400,119 @@ const KpiTile: React.FC<{
     icon: React.ReactNode; color: string; trend?: number[] | null; labels: string[];
     fmtV?: (n: number) => string;
 }> = ({ label, value, unit, delta, deltaUnit = '%', icon, color, trend, labels, fmtV }) => (
-    <div style={{ minWidth: 0, minHeight: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 7 }}>
+    <div style={{ minWidth: 0, minHeight: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: 'clamp(10px, 1.8cqmin, 15px) clamp(12px, 2.2cqmin, 18px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-                <NeonIcon color={color} size={24}>{icon}</NeonIcon>
-                <span style={{ color: C.sub, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                <NeonIcon color={color} size={28}>{icon}</NeonIcon>
+                <span style={{ color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
             </div>
             {delta !== undefined && delta !== null && (
-                <div style={{ color: deltaColor(delta), fontSize: 10.5, fontWeight: 700, flexShrink: 0, background: `${deltaColor(delta)}1a`, borderRadius: 6, padding: '2px 6px' }}>
+                <div style={{ color: deltaColor(delta), fontSize: 'clamp(11px, 2cqmin, 14px)', fontWeight: 700, flexShrink: 0, background: `${deltaColor(delta)}1a`, borderRadius: 6, padding: '2px 7px' }}>
                     {deltaArrow(delta)} {fmtNum(Math.abs(delta), 1)}{deltaUnit}
                 </div>
             )}
         </div>
-        <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {value}{unit && <span style={{ color: C.sub, fontSize: 10, fontWeight: 400, marginLeft: 3 }}>{unit}</span>}
+        <div style={{ color: C.text, fontSize: 'clamp(20px, 4cqmin, 28px)', fontWeight: 700, lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {value}{unit && <span style={{ color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)', fontWeight: 400, marginLeft: 3 }}>{unit}</span>}
         </div>
         {trend && trend.length > 1 && <AreaTrend data={trend} color={color} labels={labels} fmtV={fmtV} />}
     </div>
 );
 
-/* ── Nisbat kartasi ── */
-const RatioTile: React.FC<{ label: string; value: string; delta?: number | null; icon: React.ReactNode; color: string; tag?: string }> = ({ label, value, delta, icon, color, tag }) => (
-    <div style={{ minWidth: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+/* ── Nisbat qatori — ikkita koeffitsientni bitta kartaga sig'dirish uchun ── */
+const RatioRow: React.FC<{ label: string; value: string; delta?: number | null; tag?: string }> = ({ label, value, delta, tag }) => (
+    <div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 4 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-                <NeonIcon color={color} size={24}>{icon}</NeonIcon>
-                <span style={{ color: C.sub, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
+                <NeonIcon color={GC.accent1} size={22}><IconScale /></NeonIcon>
+                <span style={{ color: C.sub, fontSize: 'clamp(10px, 1.8cqmin, 12.5px)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
             </div>
             {delta !== undefined && delta !== null && (
-                <div style={{ color: deltaColor(delta), fontSize: 10.5, fontWeight: 700, flexShrink: 0, background: `${deltaColor(delta)}1a`, borderRadius: 6, padding: '2px 6px' }}>
+                <div style={{ color: deltaColor(delta), fontSize: 'clamp(9.5px, 1.7cqmin, 12px)', fontWeight: 700, flexShrink: 0, background: `${deltaColor(delta)}1a`, borderRadius: 6, padding: '1px 6px' }}>
                     {deltaArrow(delta)} {fmtNum(Math.abs(delta), 2)}
                 </div>
             )}
         </div>
-        <span style={{ color: C.text, fontSize: 18, fontWeight: 700 }}>{value}</span>
-        {tag && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: C.sub, background: C.cardAlt, padding: '3px 9px', borderRadius: 6, alignSelf: 'flex-start' }}>✓ {tag}</span>}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ color: C.text, fontSize: 'clamp(16px, 3cqmin, 20px)', fontWeight: 700 }}>{value}</span>
+            {tag && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 'clamp(9.5px, 1.7cqmin, 11.5px)', fontWeight: 600, color: C.sub, background: C.cardAlt, padding: '2px 8px', borderRadius: 6 }}>✓ {tag}</span>}
+        </div>
     </div>
 );
 
+/** Ikkala koeffitsient ("Joriy likvidlik" va "Qarz/kapital") bitta kartada,
+ *  ajratuvchi chiziq bilan — alohida 2 ta kartochka o'rniga. */
+const RatioPairTile: React.FC<{ items: { label: string; value: string; delta: number | null; tag: string }[] }> = ({ items }) => (
+    <div style={{ minWidth: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: 'clamp(10px, 1.8cqmin, 15px) clamp(12px, 2.2cqmin, 18px)', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
+        {items.map((it, i) => (
+            <React.Fragment key={it.label}>
+                {i > 0 && <div style={{ height: 1, background: C.border, flexShrink: 0 }} />}
+                <RatioRow label={it.label} value={it.value} delta={it.delta} tag={it.tag} />
+            </React.Fragment>
+        ))}
+    </div>
+);
+
+/** "Pul oqimi tarkibi"dagi 4 ta alohida sparkline o'rniga — bitta ko'p-seriyali
+ *  chiziqli grafik (4 faoliyat/qoldiq bitta chartda, rangi bo'yicha ajratiladi). */
+const CashFlowChartTile: React.FC<{
+    months: string[];
+    items: { shortLabel: string; series: number[] | null }[];
+}> = ({ months, items }) => {
+    const hasAny = items.some((it) => it.series && it.series.length > 1);
+    const data = {
+        labels: months,
+        datasets: items.map((it, i) => ({
+            label: it.shortLabel,
+            data: it.series ?? [],
+            borderColor: ACCENT_SERIES[i % ACCENT_SERIES.length],
+            backgroundColor: ACCENT_SERIES[i % ACCENT_SERIES.length],
+            borderWidth: 2, tension: 0.4, pointRadius: 1.5,
+            pointBackgroundColor: ACCENT_SERIES[i % ACCENT_SERIES.length],
+            spanGaps: false,
+        })),
+    };
+    return (
+        <div style={{ minWidth: 0, minHeight: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: 'clamp(10px, 1.8cqmin, 15px) clamp(12px, 2.2cqmin, 18px)', display: 'flex', flexDirection: 'column', gap: 7 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flexShrink: 0 }}>
+                <NeonIcon size={28}><IconArrowUpDown /></NeonIcon>
+                <span style={{ color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2 }}>Pul oqimi</span>
+            </div>
+            {!hasAny ? <div style={{ flex: 1, minHeight: 90 }} /> : (
+                <div style={{ flex: 1, minHeight: 90 }}>
+                    <Line data={data} options={{
+                        responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+                        plugins: {
+                            legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 9.5 } } },
+                        },
+                        scales: {
+                            x: { display: false },
+                            y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: C.sub, font: { size: 9.5 } } },
+                        },
+                    } as any} />
+                </div>
+            )}
+        </div>
+    );
+};
+
 /* ── Tarkib kartasi (stacked-bar + izohlar) ── */
 const CompositionTile: React.FC<{ item: CompositionItem }> = ({ item }) => (
-    <div style={{ minWidth: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-            <NeonIcon size={24}><IconLayers /></NeonIcon>
-            <span style={{ color: C.sub, fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+    <div style={{ minWidth: 0, background: `${C.card}`, border: `1px solid ${C.border}`, borderRadius: 13, padding: 'clamp(10px, 1.8cqmin, 15px) clamp(12px, 2.2cqmin, 18px)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+            <NeonIcon size={28}><IconLayers /></NeonIcon>
+            <span style={{ color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
         </div>
-        <div style={{ color: C.text, fontSize: 15.5, fontWeight: 700 }}>{item.value}</div>
-        <div style={{ display: 'flex', height: 10, borderRadius: 4, overflow: 'hidden', background: C.cardAlt }}>
+        <div style={{ color: C.text, fontSize: 'clamp(16px, 3.2cqmin, 21px)', fontWeight: 700 }}>{item.value}</div>
+        <div style={{ display: 'flex', height: 11, borderRadius: 4, overflow: 'hidden', background: C.cardAlt }}>
             {item.segs.filter((s) => s.pct > 0).map((s) => (
                 <div key={s.label} style={{ width: `${s.pct}%`, background: s.color }} />
             ))}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {item.segs.map((s) => (
-                <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 8.5 }}>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
+                <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'clamp(10px, 1.9cqmin, 13px)' }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
                     <span style={{ color: C.sub, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{s.label}</span>
                     <span style={{ color: C.text, fontWeight: 600, flexShrink: 0 }}>{s.pct}%</span>
                 </div>
@@ -481,9 +541,17 @@ const FinanceNew: React.FC = () => {
         return l === null ? '' : fmtNum(l);
     };
 
-    /* Tarkib bloklari + koeffitsientlar — jami 8 ta katak. Ma'lumot yetmasa
-       o'rni bo'sh kartochka bilan to'ldiriladi (setka buzilmasin). */
-    const gridCells = v.composition.length + v.ratios.length;
+    /* Tarkib bloklari + koeffitsientlar (ikkalasi BITTA kartada) + pul oqimi
+       grafigi (BITTA ko'p-seriyali chart, 4 ta alohida sparkline o'rniga) —
+       jami 8 ta katak. Ma'lumot yetmasa o'rni bo'sh kartochka bilan
+       to'ldiriladi (setka buzilmasin). */
+    const cashFlowItems = [
+        { shortLabel: 'Operatsion', series: cfOperating.series },
+        { shortLabel: 'Investitsion', series: cfInvesting.series },
+        { shortLabel: 'Moliyaviy', series: cfFinancing.series },
+        { shortLabel: 'Qoldiq', series: cashEquivalents.series },
+    ];
+    const gridCells = v.composition.length + (v.ratios.length > 0 ? 1 : 0) + 1;
     const emptyCells = Math.max(0, 8 - gridCells);
 
     return (
@@ -491,38 +559,26 @@ const FinanceNew: React.FC = () => {
             background: C.bg,
             height: '100%',
             overflowY: 'auto',
-            padding: 14,
+            padding: 'clamp(10px, 2cqmin, 16px)',
             boxSizing: 'border-box',
             fontFamily: '"Segoe UI", system-ui, sans-serif',
             display: 'flex', flexDirection: 'column', gap: 10,
+            containerType: 'size', containerName: 'dash-root',
         }}>
             {/* Sarlavha. Hujjatning 4-bo'limi: manbada yil yo'q, shuning uchun
                 bu yerda ham yil ko'rsatilmaydi — faqat oylar oralig'i. */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ width: "100%" }}>
-                    <div style={{ color: C.text, fontSize: 'clamp(14px, 3.4cqmin, 14px)', fontWeight: 700, width: "100%", letterSpacing: 0.4, textTransform: 'uppercase' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', width: "100%", alignItems: 'center', flexShrink: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                <div>
-                                    <div style={{ color: 'rgb(241, 242, 246)', fontSize: 14, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>   Moliyaviy vaziyat markazi</div>
-                                </div>
-                            </div>
-
-                            <div style={{
-                                background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                                padding: '4px 10px', color: C.text,
-                                fontSize: '9px', display: 'flex', gap: 6, whiteSpace: 'nowrap',
-                                cursor: 'pointer',
-                            }}
-                                 onClick={() => navigate("/main/iframe/fin")}
-                            >Batafsil
-                            </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: "100%", alignItems: 'center', flexShrink: 0 }}>
+                        <div style={bigHeaderTitle}>Moliyaviy vaziyat markazi</div>
+                        <div style={{ ...bigHeaderPill, display: 'flex', gap: 6, cursor: 'pointer' }} onClick={() => navigate("/main/iframe/fin")}>
+                            Batafsil
                         </div>
                     </div>
-                    <div style={{ color: C.sub, fontSize: 12, marginTop: 2 }}>
-                        {v.months.length > 0 ? `${v.months[0]} – ${v.months[v.months.length - 1]}` : ''}
-                        {v.months.length > 0 && ' · '}ming so'm
-                    </div>
+                    {/*<div style={{ color: C.sub, fontSize: 'clamp(11px, 2.2cqmin, 15px)', marginTop: 3 }}>*/}
+                    {/*    {v.months.length > 0 ? `${v.months[0]} – ${v.months[v.months.length - 1]}` : ''}*/}
+                    {/*    {v.months.length > 0 && ' · 'ming so'm*/}
+                    {/*</div>*/}
                 </div>
             </div>
 
@@ -540,38 +596,17 @@ const FinanceNew: React.FC = () => {
                          delta={netCash.delta} trend={netCash.series} labels={v.months} />
             </div>
 
-            {/* Moliyaviy holat */}
-            <SectionTitle title="Moliyaviy holat" hint="tarkib · ulush bo'yicha" />
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
-                {v.composition.map((item) => <CompositionTile key={item.label} item={item} />)}
-                {v.ratios.map((r) => (
-                    <RatioTile key={r.label} label={r.label} value={r.value} delta={r.delta}
-                               icon={<IconScale />} color={GC.accent1} tag={r.tag} />
-                ))}
-                {Array.from({ length: emptyCells }, (_, i) => <EmptyTile key={`bo'sh-${i}`} />)}
-            </div>
-
-            {/* Pul oqimi tarkibi — hujjatning 29 ta barqaror kalitidan avval
-                ekranda ko'rsatilmagan to'rttasi ("cfOperating"/"cfInvesting"/
-                "cfFinancing"/"cashEquivalents"): yuqoridagi "Sof pul oqimi"
-                shu uchta faoliyat yig'indisi, "cashEquivalents" esa davr
-                oxiridagi qoldiq. Panelning qolgan bo'sh joyini to'ldirishi
-                uchun bu bo'lim (sarlavha + kartalar) flex:1 bilan pastgacha
+            {/* Moliyaviy holat — tarkib bloklari + (bitta kartadagi) koeffitsientlar
+                + pul oqimi grafigi. Panelning qolgan bo'sh joyini to'ldirishi
+                uchun setka flex:1 va gridAutoRows:'1fr' bilan pastgacha
                 cho'ziladi — kartalar konteynerning tagigacha yetadi. */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minHeight: 0 }}>
-                <SectionTitle title="Pul oqimi tarkibi" hint="pul oqimi hisoboti bo'yicha" />
+            {/*<SectionTitle title="Moliyaviy holat" hint="tarkib · ulush · pul oqimi bo'yicha" />*/}
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, flex: 1, minHeight: 0 }}>
-                    <KpiTile label={LABELS.cfOperating} value={money(cfOperating.series)} icon={<IconArrowUpDown />} color={TREND_COLOR}
-                             delta={cfOperating.delta} trend={cfOperating.series} labels={v.months} />
-                    <KpiTile label={LABELS.cfInvesting} value={money(cfInvesting.series)} icon={<IconArrowUpDown />} color={TREND_COLOR}
-                             delta={cfInvesting.delta} trend={cfInvesting.series} labels={v.months} />
-                    <KpiTile label={LABELS.cfFinancing} value={money(cfFinancing.series)} icon={<IconArrowUpDown />} color={TREND_COLOR}
-                             delta={cfFinancing.delta} trend={cfFinancing.series} labels={v.months} />
-                    <KpiTile label={LABELS.cashEquivalents} value={money(cashEquivalents.series)} icon={<IconWalletFilled />} color={TREND_COLOR}
-                             delta={cashEquivalents.delta} trend={cashEquivalents.series} labels={v.months} />
-                </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gridAutoRows: '1fr', gap: 8, flex: 1, minHeight: 0 }}>
+                {v.composition.map((item) => <CompositionTile key={item.label} item={item} />)}
+                {v.ratios.length > 0 && <RatioPairTile items={v.ratios} />}
+                <CashFlowChartTile months={v.months} items={cashFlowItems} />
+                {Array.from({ length: emptyCells }, (_, i) => <EmptyTile key={`bo'sh-${i}`} />)}
             </div>
         </div>
     );

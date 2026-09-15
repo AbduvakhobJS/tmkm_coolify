@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
+import { C, fmt, chartBase, noLegend } from './dashboardUI';
 import {
-    C, fmt, chartBase, noLegend, axis,
-    barLabel, centerText,
-    Card, KpiCard, DashRoot,
-} from './dashboardUI';
+    BigCard, BigKpiCard, BigDashRoot, axisLarge, legendLarge, bigBarLabel,
+    bigCenterText, bigDonutBoxStyle, BigLabelRow, BigLabelStack, bigHeaderTitle, bigHeaderPill,
+} from './dashboardUILarge';
 import { useProductionDashboard } from '../hooks/production';
 import type { DashboardData, DashboardMetal } from '../services/production';
 import { GC, ACCENT_SERIES } from '../theme/palette';
@@ -164,44 +164,19 @@ type Props = {
     plant?: string;
 };
 
-const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string; link: string }> = ({ title, subtitle, dateRange, link }) => {
+const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string; link: string }> = ({ title, link }) => {
     const navigate = useNavigate();
     return (
         <div style={{
-            display: 'flex', justifyContent: 'space-between',marginBottom: 10, alignItems: 'flex-start',
+            display: 'flex', justifyContent: 'space-between', marginBottom: 'clamp(5px, 1.4cqmin, 12px)', alignItems: 'flex-start',
            flexShrink: 0, flexWrap: 'wrap', gap: 'clamp(4px, 1cqmin, 8px)',
         }}>
             <div style={{ minWidth: 0 }}>
-                <div style={{
-                    color: C.text,textTransform: "uppercase", fontSize: 'clamp(14px, 3.4cqmin, 24px)', fontWeight: 700,
-                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                }}>{title}</div>
-                {/*<div style={{*/}
-                {/*    color: C.sub, fontSize: 'clamp(9px, 2cqmin, 14px)', marginTop: 2,*/}
-                {/*    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',*/}
-                {/*}}>{subtitle}</div>*/}
+                <div style={bigHeaderTitle}>{title}</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 1.1cqmin, 8px)', flexShrink: 0 }}>
-                {/*<div style={{*/}
-                {/*    display: 'flex', alignItems: 'center', gap: 'clamp(3px, 1.1cqmin, 8px)',*/}
-                {/*    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',*/}
-                {/*    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 1.8cqmin, 13px)',*/}
-                {/*    color: C.text, fontSize: 'clamp(9px, 1.8cqmin, 13px)', whiteSpace: 'nowrap',*/}
-                {/*}}>*/}
-                {/*    {dateRange}*/}
-                {/*</div>*/}
-                {/*<div style={{*/}
-                {/*    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',*/}
-                {/*    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(5px, 1.5cqmin, 11px)', color: C.sub,*/}
-                {/*}}>⛃</div>*/}
-                <div style={{
-                    background: C.card, border: `1px solid ${C.border}`, borderRadius: 'clamp(4px, 1.1cqmin, 8px)',
-                    padding: 'clamp(4px, 1.2cqmin, 9px) clamp(6px, 2.1cqmin, 15px)', color: C.text,
-                    fontSize: 'clamp(9px, 1.8cqmin, 13px)', display: 'flex', gap: 6, whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                }}
-                     onClick={() => navigate(link)}
-                >Batafsil
+                <div style={{ ...bigHeaderPill, display: 'flex', gap: 6, cursor: 'pointer' }} onClick={() => navigate(link)}>
+                    Batafsil
                 </div>
             </div>
         </div>
@@ -211,9 +186,15 @@ const DashHeader: React.FC<{ title: string; subtitle: string; dateRange: string;
 
 const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
 
+    /* Standart oraliq — YIL BOSHIDAN emas, so'nggi 7 OY (joriy oy + oldingi 6
+       oy). Yil boshidan (1-yanvar) olinsa, yil oxiriga borgan sari oylar soni
+       o'sib boradi va column chartlardagi qiymat labellari (bigBarLabel)
+       torayib bir-birining ustiga chiqib ketardi — aylanma 7 oylik oyna bu
+       muammoni doimiy hal qiladi, faqat "hozir shunday" emas. */
     const range = useMemo(() => {
         const now = new Date();
-        return { from: from ?? `${now.getFullYear()}-01-01`, to: to ?? isoDay(now) };
+        const start = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+        return { from: from ?? isoDay(start), to: to ?? isoDay(now) };
     }, [from, to]);
 
     /* `unit`/`excludeDobycha` standart qiymatlarida qoldiriladi (hujjat, 2.1):
@@ -268,7 +249,7 @@ const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
     };
 
     return (
-        <DashRoot>
+        <BigDashRoot>
             <DashHeader
                 title="Texnologik metallar ishlab chiqarish"
                 subtitle="Ko'rsatkichlar dashboardi"
@@ -276,137 +257,131 @@ const MetalsDashboardMain: React.FC<Props> = ({ from, to, plant }) => {
                 link="/main/iframe/prod"
             />
 
-            <div style={{ display: 'flex', gap: 10, marginBottom: 8, flexShrink: 0 }}>
-                <KpiCard
+            <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexShrink: 0 }}>
+                <BigKpiCard
                     title="Umumiy hajmi"
                     value={hasMetals ? `${fmt(v.total)} t` : ''}
                     /* `totalDelta` — oldingi davrga nisbatan o'zgarish. Hujjatda
                        aytilganidek, strelka ishoradan hosil qilinadi (Delta). */
                     delta={v.totalDelta}
-                    compare="Avvalgi davr bilan solishtirganda"
-                    icon={''} iconColor={GC.accent1} badge={''}
+                    iconColor={GC.accent1}
                 />
                 {metalSlots.map((m, i) => (
-                    <KpiCard
+                    <BigKpiCard
                         key={m?.name ?? `bo'sh-${i}`}
                         title={m?.name ?? ''}
                         value={m ? `${fmt(m.value)} t` : ''}
                         delta={m?.delta ?? null}
-                        compare="Avvalgi davr bilan solishtirganda"
-                        icon={''} iconColor={m?.color ?? GC.accent1} badge={''}
+                        iconColor={m?.color ?? GC.accent1}
                     />
                 ))}
             </div>
 
             <div style={{
                 flex: 1, minHeight: 0, display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: '1fr 1fr', gap: 8,
+                gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: '1fr 1fr', gap: 10,
             }}>
-                <Card title="Metallar bo'yicha ishlab chiqarish, tonna">
+                <BigCard title="Metallar bo'yicha ishlab chiqarish, tonna">
                     {!hasMetals ? <EmptyBody /> : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minHeight: 0 }}>
-                            <div style={{ width: 138, height: 138, flexShrink: 0 }}>
+                        <div style={{ display: 'flex', flex: 1, minHeight: 0, gap: 10 }}>
+                            {/* `alignItems` ataylab qo'yilmagan (stretch — standart): "center"
+                                bo'lganda bu ro'yxat qatorning haqiqiy balandligiga cheklanmay,
+                                o'z tarkibiga qarab cho'zilib ketardi va `overflowY:'auto'`
+                                hech qachon ishga tushmasdi — sig'maganida scroll bo'lmasdi. */}
+                            <div style={{ flex: '0 0 36%', minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
+                                {v.metals.map((m) => (
+                                    <BigLabelStack key={m.name} label={m.name} color={m.color} value={`${fmt(m.value)} т`} sub={`${fmt(m.pct)}%`} />
+                                ))}
+                            </div>
+                            <div style={bigDonutBoxStyle}>
                                 <Doughnut
                                     data={donutData}
-                                    options={{ ...chartBase, cutout: '65%', ...noLegend } as any}
-                                    plugins={[centerText(`${fmt(v.total)}`, 'Jami, t')]}
+                                    options={{ ...chartBase, cutout: '62%', ...noLegend } as any}
+                                    plugins={[bigCenterText(`${fmt(v.total)}`, 'Jami, t')]}
                                 />
-                            </div>
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0, overflowY: 'auto' }}>
-                                {v.metals.map((m) => (
-                                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', fontSize: 11.5 }}>
-                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, marginRight: 5, flexShrink: 0 }} />
-                                        <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</span>
-                                        <span style={{ color: C.text, fontWeight: 600 }}>{fmt(m.value)}</span>
-                                        <span style={{ color: C.sub, marginLeft: 4 }}>{fmt(m.pct)}%</span>
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     )}
-                </Card>
+                </BigCard>
 
-                <Card title="Ishlab chiqarish dinamikasi, tonna">
+                <BigCard title="Ishlab chiqarish dinamikasi, tonna">
                     {v.dynMetals.length === 0 ? <EmptyBody /> : (
                         <div style={{ flex: 1, minHeight: 0 }}>
                             <Line
                                 data={lineData}
                                 options={{
                                     ...chartBase,
-                                    plugins: { legend: { display: true, position: 'top', labels: { color: C.sub, boxWidth: 7, boxHeight: 7, usePointStyle: true, font: { size: 10 } } } },
-                                    scales: axis({ y: { beginAtZero: true } }),
+                                    plugins: legendLarge('top'),
+                                    scales: axisLarge({ y: { beginAtZero: true } }),
                                 } as any}
                             />
                         </div>
                     )}
-                </Card>
+                </BigCard>
 
-                <Card title="Zavodlar bo'yicha ishlab chiqarish, tonna">
+                <BigCard title="Zavodlar bo'yicha ishlab chiqarish, tonna">
                     {v.plants.length === 0 ? <EmptyBody /> : (
                         <div style={{ flex: 1, minHeight: 0 }}>
                             <Bar
                                 data={factoryData}
                                 options={{
-                                    ...chartBase, indexAxis: 'y',
-                                    plugins: { legend: { display: false } },
-                                    scales: {
-                                        x: { beginAtZero: true, grid: { color: C.grid }, ticks: { color: C.sub, font: { size: 10 } } },
-                                        y: { grid: { display: false }, ticks: { color: C.sub, font: { size: 10 } } },
-                                    },
+                                    ...chartBase, indexAxis: 'y', ...noLegend,
+                                    scales: axisLarge({ x: { beginAtZero: true }, y: { grid: { display: false } } }),
                                 } as any}
                             />
                         </div>
                     )}
-                </Card>
+                </BigCard>
 
-                <Card title="Oylar bo'yicha ishlab chiqarish, tonna">
+                <BigCard title="Oylar bo'yicha ishlab chiqarish, tonna">
                     {!v.monthly || !hasMonths ? <EmptyBody /> : (
                         <div style={{ flex: 1, minHeight: 0 }}>
                             <Bar
                                 data={monthlyBar}
-                                options={{ ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any}
-                                plugins={[barLabel(1)]}
+                                /* Bu karta juda past (3x2 setkaning bir katagi) — tick
+                                   shrifti shared `axisLarge`dan kichikroq qilib
+                                   qo'yiladi, aks holda oy nomlari ustun/qiymat
+                                   yorlig'i bilan qoplanib ketardi. */
+                                options={{ ...chartBase, ...noLegend, scales: axisLarge({ x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } }) } as any}
+                                plugins={[bigBarLabel(1)]}
                             />
                         </div>
                     )}
-                </Card>
+                </BigCard>
 
-                <Card title="Ishlab chiqarish tuzilmasi, %">
+                <BigCard title="Ishlab chiqarish tuzilmasi, %">
                     {!hasMetals ? <EmptyBody /> : (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minHeight: 0 }}>
-                            <div style={{ width: 138, height: 138, flexShrink: 0 }}>
-                                <Doughnut
-                                    data={donutData}
-                                    options={{ ...chartBase, cutout: '65%', ...noLegend } as any}
-                                    plugins={[centerText(`${fmt(v.total)}`, 'Jami, t')]}
-                                />
-                            </div>
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0, overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', flex: 1, minHeight: 0, gap: 12 }}>
+                            <div style={{ flex: '0 0 40%', minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', gap: 9, overflowY: 'auto' }}>
                                 {v.metals.map((m) => (
-                                    <div key={m.name} style={{ display: 'flex', alignItems: 'center', fontSize: 12 }}>
-                                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, marginRight: 6, flexShrink: 0 }} />
-                                        <span style={{ color: C.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</span>
-                                        <span style={{ color: C.text, fontWeight: 600 }}>{fmt(m.pct)}%</span>
-                                    </div>
+                                    <BigLabelRow key={m.name} label={m.name} color={m.color} value={`${fmt(m.pct)}%`} />
                                 ))}
                             </div>
+                            <div style={bigDonutBoxStyle}>
+                                <Doughnut
+                                    data={donutData}
+                                    options={{ ...chartBase, cutout: '62%', ...noLegend } as any}
+                                    plugins={[bigCenterText(`${fmt(v.total)}`, 'Jami, t')]}
+                                />
+                            </div>
+                            
                         </div>
                     )}
-                </Card>
+                </BigCard>
 
-                <Card title="O'rtacha kunlik ishlab chiqarish, tonna">
+                <BigCard title="O'rtacha kunlik ishlab chiqarish, tonna">
                     {!v.avgDaily || !hasMonths ? <EmptyBody /> : (
                         <div style={{ flex: 1, minHeight: 0 }}>
                             <Bar
                                 data={avgBar}
-                                options={{ ...chartBase, ...noLegend, scales: axis({ y: { beginAtZero: true } }) } as any}
-                                plugins={[barLabel(1)]}
+                                options={{ ...chartBase, ...noLegend, scales: axisLarge({ x: { ticks: { font: { size: 10 } } }, y: { beginAtZero: true } }) } as any}
+                                plugins={[bigBarLabel(1)]}
                             />
                         </div>
                     )}
-                </Card>
+                </BigCard>
             </div>
-        </DashRoot>
+        </BigDashRoot>
     );
 };
 
