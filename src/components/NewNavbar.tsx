@@ -25,16 +25,16 @@ interface NavItem {
 }
 const leftItems: NavItem[] = [
     { id: 'main', icon: TbHome, label: ['BOSH SAHIFA'], url: "/main/full" },
-    { id: 'production', icon: TbBuildingFactory2, label: ['MOLIYA'], url: "/main/finance-new" },
+    { id: 'production', icon: TbBuildingFactory2, label: ['MOLIYA'], url: "/main/finance-new-main" },
     { id: 'finance', icon: TbChartBar, label: ['INVESTITSIYALAR'], url: "/main/investing" },
     { id: 'transport', icon: TbTruck, label: ['TRANSPORT'], url: "/main/logistics" },
     { id: 'rasxod', icon: TbSitemap, label: ['XARAJAT'], url: "/main/single-treasury" },
 ];
 
 const rightItems: NavItem[] = [
-    { id: 'ecology', icon: TbLeaf, label: ['EKOLOGIYA'], url: "/main/esg" },
+    { id: 'ecology', icon: TbLeaf, label: ['EKOLOGIYA'], url: "/main/esg-detail" },
     { id: 'safety', icon: TbShieldCheck, label: ['MEHNAT', 'XAVFSIZLIGI'], url: "/main/hse-big" },
-    { id: 'marketing', icon: TbSpeakerphone, label: ['MARKETING'], url: "/main/marketing" },
+    { id: 'marketing', icon: TbSpeakerphone, label: ['MARKETING'], url: "/main/marketing-detail" },
     { id: 'video', icon: TbCamera, label: ['VIDEOANALITIKA'], url: "/main/7" },
     { id: 'geology', icon: TbMountain, label: ['GEOLOGIYA', 'VA QIDIRUV'], url: "/main/grr" },
 ];

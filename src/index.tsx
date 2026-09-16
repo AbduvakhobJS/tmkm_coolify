@@ -89,14 +89,14 @@ root.render(
           <Route path="/main/hse-big" element={<PrivateRoute><NavbarOverlay><HseSlaBig /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/hse" element={<PrivateRoute><HseSla /></PrivateRoute>} />
           <Route path="/main/marketing" element={<PrivateRoute><NavbarOverlay><Marketing /></NavbarOverlay></PrivateRoute>} />
-          <Route path="/main/marketing-detail" element={<PrivateRoute><MarketingDetail /></PrivateRoute>} />
+          <Route path="/main/marketing-detail" element={<PrivateRoute><NavbarOverlay><MarketingDetail /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/hr-bi-detail" element={<PrivateRoute><HrAnalitikaDetail /></PrivateRoute>} />
           <Route path="/main/hr-bi-main" element={<PrivateRoute><HrAnalitika /></PrivateRoute>} />
           <Route path="/main/new-hr-detail" element={<PrivateRoute><NewHrDetail /></PrivateRoute>} />
           <Route path="/main/contact-hub-detail" element={<PrivateRoute><ContactHubDetail /></PrivateRoute>} />
           <Route path="/main/contact-hub" element={<PrivateRoute><ContactHub /></PrivateRoute>} />
           <Route path="/main/esg" element={<PrivateRoute><NavbarOverlay><Esg /></NavbarOverlay></PrivateRoute>} />
-          <Route path="/main/esg-detail" element={<PrivateRoute><EsgDetail /></PrivateRoute>} />
+          <Route path="/main/esg-detail" element={<PrivateRoute><NavbarOverlay><EsgDetail /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/finance" element={<PrivateRoute><Finance /></PrivateRoute>} />
           <Route path="/main/finance-new" element={<PrivateRoute><NavbarOverlay><FinanceNew /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/finance-new-main" element={<PrivateRoute><FinanceNewMain /></PrivateRoute>} />

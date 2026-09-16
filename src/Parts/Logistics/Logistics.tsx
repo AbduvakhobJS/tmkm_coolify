@@ -9,6 +9,7 @@ import { loadUzbekistanBorder, uzbekistanBorder } from '../../components/uzbekis
 import ProjectDashboard from '../../components/ProjectDashboard';
 import WebRTCPlayer from '../../components/WebRTCPlayer';
 import {useGetTypeObjectAll, useGetFactoryMarkers, useGetFactoryDetail} from "../../hooks/map";
+import { LogisticsLeftPanel, LogisticsRightPanel } from "./LogisticsWidgets";
 import { GC } from '../../theme/palette';
 import { DRACO_DECODER_PATH } from '../FactoryModel/constants';
 
@@ -1465,10 +1466,17 @@ const Logistics = () => {
 
 
     return (
+        /* Xarita endi butun ekranni emas, o'rtani egallaydi — chap va o'ng
+           tomonda logistika widgetlari (yuk aylanmasi, transport turlari,
+           marshrutlar, omborlar, yetkazib berish, AI prognozlari) turadi,
+           shu bilan ekranda bo'sh joy qolmaydi. */
         <div style={{
-            width: '100%', height: '100%', position: 'relative',
+            width: '100%', height: '100%', display: 'flex',
             background: '#020B18', borderRadius: '12px', overflow: 'hidden',
         }}>
+            <LogisticsLeftPanel objectCount={Array.isArray(markersData) ? markersData.length : undefined} />
+
+            <div style={{ flex: 1, minWidth: 0, position: 'relative', overflow: 'hidden' }}>
             <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
 
             {/* Minerals Legend Panel */}
@@ -1675,6 +1683,9 @@ const Logistics = () => {
                     )}
                 </div>
             </div>
+            </div>
+
+            <LogisticsRightPanel />
 
             {/* Vehicle Detail Modal */}
             {selectedVehicle && (
