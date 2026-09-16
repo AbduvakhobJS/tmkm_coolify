@@ -1,5 +1,5 @@
 import {useQuery} from "@tanstack/react-query";
-import {getTypeObject, getFactoryMarkers, getFactoryDetail, getMapObjects, getGeologyProjectDetail, getInvestProjectDetail, getInvestProjectsList, InvestProjectType, FactoryMarkerParams} from "../services/map";
+import {getTypeObject, getFactoryMarkers, getFactoryDetail, getMapObjects, getGeologyProjectDetail, getInvestProjectDetail, getInvestProjectsList, getAllInvestProjects, InvestProjectType, FactoryMarkerParams} from "../services/map";
 
 export const useGetTypeObjectAll = () => {
     return useQuery({
@@ -90,5 +90,16 @@ export const useGetInvestProjectsList = (type: InvestProjectType, lang: string =
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         refetchOnMount: false,
+    });
+}
+
+// Reestrdagi BARCHA investitsiya loyihalari (GET /invest-projects, filtrsiz).
+export const useGetAllInvestProjects = (lang: string = "uz") => {
+    return useQuery({
+        queryKey: ["invest-projects-all", lang],
+        queryFn: () => getAllInvestProjects(lang),
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
     });
 }

@@ -152,6 +152,7 @@ const TmkBadge: React.FC = () => {
     const [src, setSrc] = useState<string>(ASSETS.logo);
     return (
         <div style={{
+            position: 'relative', zIndex: 1,
             width: cq(46, 12.5, 112), height: cq(46, 12.5, 112), borderRadius: '50%', flexShrink: 0,
             background: 'radial-gradient(circle at 50% 40%, #ffffff 0%, #e8f4fb 62%, #cfe6f5 100%)',
             border: `${cq(1.5, 0.4, 3)} solid ${GC.accent2}`,
@@ -179,6 +180,36 @@ const TmkBadge: React.FC = () => {
  */
 const NODE_X = [26.67, 50, 73.33];
 
+/** Oraliq (KPI qatori ↔ o'rta tasma ↔ kartochkalar). */
+const GAP = cq(3, 0.9, 10);
+/** Gorizontal shina tasma tepasidan shuncha pastda. */
+const BUS_TOP = cq(4, 1.2, 12);
+/** MINE / METAL / MARKET doirasi diametri. */
+const CIRCLE = cq(52, 14, 220);
+/** Doiralar tasmaning pastki chetidan shuncha yuqorida turadi (4096×2160 da ≈180px — markazi tasmaning o'rtasiga yaqin). */
+const CIRCLE_LIFT = cq(0, 8.7, 180);
+
+/**
+ * Pastdagi kartochkalar va o'rta tasma nisbati. Oldin tasma faqat chiziq +
+ * doiralar balandligida (178px) edi, kartochkalar esa qolgan hamma joyni
+ * (1709px @ 4096×2160) egallardi. Kartochkalar 25% pasaytirildi (≈1282px),
+ * bo'shagan joy tasmaga berildi va ATAYLAB bo'sh qoldirilgan — fon panoramasi
+ * ko'rinib turadi, doiralar esa tasmaning pastki chetiga tushgan.
+ * 605 : 1282 ≈ 0.472 : 1.
+ *
+ * Kichik konteynerda (`TopCenter` katakchasi) tasma avvalgidek faqat chiziq
+ * va doiralar balandligida, kartochkalardagi qo'shimcha ko'rsatkichlar esa
+ * yashiriladi — u yerda ularga joy yo'q.
+ */
+const LAYOUT_CSS = `
+.mmm-band { flex: 0.472 1 0; }
+.mmm-cards { flex: 1 1 0; }
+@container (max-width: 1600px) {
+    .mmm-band { flex: 0 0 auto; }
+    .mmm-extra { display: none !important; }
+}
+`;
+
 /**
  * TMK belgisidan uchta doiraga tarqaladigan ulanish chiziqlari.
  *
@@ -195,8 +226,8 @@ const NODE_X = [26.67, 50, 73.33];
  * hosil qilmaydi.
  */
 const Connectors: React.FC = () => {
-    /* Gorizontal shina shu balandlikda turadi; ostidagi qism — tik tushish. */
-    const BUS_TOP = cq(4, 1.2, 12);
+    /* Gorizontal shina `BUS_TOP` da; oyoqlar doiralarning TEPASIGACHA tushadi
+       (doiralar tasmaning pastki chetida turadi). */
     const RADIUS = cq(7, 2.2, 20);
     const LINE = 2;
 
@@ -212,7 +243,17 @@ const Connectors: React.FC = () => {
     );
 
     return (
-        <div aria-hidden style={{ position: 'relative', height: cq(14, 4.2, 46), flexShrink: 0 }}>
+        <div aria-hidden style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: `calc(${CIRCLE} + ${CIRCLE_LIFT})`, pointerEvents: 'none' }}>
+            {/* TMK belgisidan shinaga tushadigan tik chiziq — "TMK dan uch
+                yo'nalish" shu nuqtadan tarqaladi. KPI qatori va oraliq ustidan
+                yuqoriga cho'ziladi; belgi (z-index: 1) uning boshini yopib turadi. */}
+            <div style={{
+                position: 'absolute', left: `${NODE_X[1]}%`,
+                top: `calc(-1 * (${GAP} + ${cq(23, 6.25, 56)} + ${cq(12, 3, 30)}))`, height: `calc(${GAP} + ${cq(23, 6.25, 56)} + ${cq(12, 3, 30)} + ${BUS_TOP})`,
+                borderLeft: `${LINE}px solid ${GC.accent2}`,
+                filter: `drop-shadow(0 0 ${cq(3, 0.9, 7)} ${GC.accent2}cc)`,
+            }}/>
+
             {/* Chap yelka: gorizontal shina + yumaloq burchak + MINE ga tik tushish */}
             <div style={{
                 position: 'absolute', top: BUS_TOP, bottom: 0,
@@ -249,6 +290,210 @@ const Connectors: React.FC = () => {
     );
 };
 
+/* ══════════════ 2b) BOSQICH KARTOCHKALARIDAGI QO'SHIMCHA KO'RSATKICHLAR ══════════════
+   API'da yo'q ko'rsatkichlar (zaxiralar, quvvat, sifat, eksport, narxlar
+   va h.k.) — namuna ma'lumot, shu sabab SARIQ ramka. Har bir bosqich
+   kartochkasida haqiqiy bloklardan (obyektlar, sexlar, investitsiya
+   loyihalari) KEYIN turadi va qolgan bo'sh joyni to'liq egallaydi. */
+
+type InfoRow = { label: string; value: string; pct?: number; color?: string };
+type Info = { title: string; value: string; sub: string; rows: InfoRow[] };
+
+const SEGMENT_INFO: Record<string, Info[]> = {
+    mine: [
+        {
+            title: 'Geologik zaxiralar', value: '142,6 ming t', sub: 'WO₃ hisobida, tasdiqlangan',
+            rows: [
+                { label: 'Ingichka', value: '58%', pct: 58 },
+                { label: "Qo'ytosh", value: '24%', pct: 24 },
+                { label: 'Sarikoʻl', value: '18%', pct: 18 },
+            ],
+        },
+        {
+            title: 'Qazib olish rejasi', value: '94,2%', sub: '2026-yil, 8 oy bajarilishi',
+            rows: [
+                { label: 'Ruda qazib olish', value: '96%', pct: 96 },
+                { label: 'Otval qayta ishlash', value: '91%', pct: 91 },
+                { label: 'Gravikonsentrat', value: '95%', pct: 95 },
+            ],
+        },
+        {
+            title: 'Ruda sifati', value: '0,42% WO₃', sub: "o'rtacha metall miqdori",
+            rows: [
+                { label: 'Ingichka', value: '0,48%', pct: 80 },
+                { label: 'Otvallar', value: '0,21%', pct: 35, color: GC.amber },
+                { label: 'Ajratib olish darajasi', value: '72%', pct: 72 },
+            ],
+        },
+        {
+            title: 'Kon texnikasi tayyorligi', value: '87%', sub: '64 ta birlikdan 56 tasi ishda',
+            rows: [
+                { label: 'Ekskavatorlar', value: '9 / 10', pct: 90 },
+                { label: 'Samosvallar', value: '31 / 36', pct: 86 },
+                { label: "Burg'ulash qurilmalari", value: '16 / 18', pct: 89 },
+            ],
+        },
+        {
+            title: 'Kon xavfsizligi', value: '312 kun', sub: 'jarohatsiz ishlangan kunlar',
+            rows: [
+                { label: 'Xavfli vaziyatlar', value: '14', color: GC.amber },
+                { label: "O'tkazilgan tekshiruvlar", value: '48', color: GC.success },
+                { label: 'Bartaraf etilgan kamchiliklar', value: '93%', pct: 93 },
+            ],
+        },
+        {
+            title: 'Ekologik monitoring', value: "Me'yorda", sub: '6 ta nazorat nuqtasi',
+            rows: [
+                { label: 'Chang (PM10)', value: "61% me'yordan", pct: 61 },
+                { label: 'Suv sifati', value: "48% me'yordan", pct: 48 },
+                { label: 'Rekultivatsiya', value: '34 ga', pct: 57 },
+            ],
+        },
+    ],
+    metal: [
+        {
+            title: 'Quvvatdan foydalanish', value: '81,4%', sub: 'Chirchiq zavodi',
+            rows: [
+                { label: '4-sex — WO₃', value: '88%', pct: 88 },
+                { label: '5-sex — TMA', value: '79%', pct: 79 },
+                { label: '3-sex — qattiq qotishma', value: '74%', pct: 74 },
+            ],
+        },
+        {
+            title: 'Mahsulot sifati', value: '98,7%', sub: '1-nav mahsulot ulushi',
+            rows: [
+                { label: 'WO₃', value: '99,1%', pct: 99.1 },
+                { label: 'Ammoniy paravolframati', value: '98,6%', pct: 98.6 },
+                { label: 'MoO₃', value: '97,9%', pct: 97.9 },
+            ],
+        },
+        {
+            title: 'Xomashyo yetkazib berish', value: '1 845 t', sub: 'konsentrat, joriy oy',
+            rows: [
+                { label: 'Ingichka → 4-sex', value: '62%', pct: 62 },
+                { label: 'Navoiy → 5-sex', value: '27%', pct: 27 },
+                { label: 'Import', value: '11%', pct: 11 },
+            ],
+        },
+        {
+            title: 'Xomashyo zaxirasi', value: '38 kun', sub: "ishlab chiqarishni ta'minlash",
+            rows: [
+                { label: 'W-konsentrat', value: '42 kun', pct: 70 },
+                { label: 'Mo-konsentrat', value: '31 kun', pct: 52, color: GC.amber },
+                { label: 'Reagentlar', value: '55 kun', pct: 92 },
+            ],
+        },
+        {
+            title: 'Energiya sarfi', value: '4 820 kVt·soat/t', sub: 'mahsulot birligiga',
+            rows: [
+                { label: 'Elektr energiya', value: '71%', pct: 71 },
+                { label: 'Tabiiy gaz', value: '22%', pct: 22 },
+                { label: 'Bug\' va issiqlik', value: '7%', pct: 7 },
+            ],
+        },
+        {
+            title: 'Uskunalar samaradorligi', value: '76% OEE', sub: 'umumiy uskuna samaradorligi',
+            rows: [
+                { label: 'Tayyorlik', value: '91%', pct: 91 },
+                { label: 'Unumdorlik', value: '87%', pct: 87 },
+                { label: 'Sifat', value: '96%', pct: 96 },
+            ],
+        },
+    ],
+    market: [
+        {
+            title: 'Eksport ulushi', value: '64%', sub: 'realizatsiya hajmida',
+            rows: [
+                { label: 'Xitoy', value: '31%', pct: 31 },
+                { label: 'Yevropa', value: '18%', pct: 18 },
+                { label: 'Janubiy Koreya', value: '9%', pct: 9 },
+                { label: 'Ichki bozor', value: '36%', pct: 36, color: GC.slate },
+            ],
+        },
+        {
+            title: 'Jahon narxlari', value: '612 $/mtu', sub: "APT, oylik o'zgarish ▲ 4,8%",
+            rows: [
+                { label: 'APT', value: '612 $/mtu ▲', color: GC.success },
+                { label: 'Ferromolibden', value: '48,2 $/kg ▲', color: GC.success },
+                { label: 'Volfram konsentrati', value: '455 $/mtu ▼', color: GC.danger },
+            ],
+        },
+        {
+            title: 'Shartnomalar portfeli', value: '186,4 mln $', sub: "2026-yil uchun imzolangan",
+            rows: [
+                { label: 'Uzoq muddatli', value: '68%', pct: 68 },
+                { label: 'Spot savdo', value: '21%', pct: 21 },
+                { label: 'Birja orqali', value: '11%', pct: 11 },
+            ],
+        },
+        {
+            title: 'Yetkazib berish intizomi', value: '93,5%', sub: "o'z vaqtida va to'liq (OTIF)",
+            rows: [
+                { label: "Temir yo'l", value: '95%', pct: 95 },
+                { label: 'Avtotransport', value: '92%', pct: 92 },
+                { label: 'Multimodal', value: '88%', pct: 88, color: GC.amber },
+            ],
+        },
+        {
+            title: 'Debitorlik qarzi', value: '24,7 mln $', sub: "o'rtacha undirish — 38 kun",
+            rows: [
+                { label: '30 kungacha', value: '71%', pct: 71 },
+                { label: '30–60 kun', value: '22%', pct: 22, color: GC.amber },
+                { label: '60 kundan ortiq', value: '7%', pct: 7, color: GC.danger },
+            ],
+        },
+        {
+            title: 'Asosiy xaridorlar', value: '42 ta', sub: 'faol mijozlar, 9 mamlakat',
+            rows: [
+                { label: 'TOP-5 xaridor ulushi', value: '54%', pct: 54 },
+                { label: 'Takroriy buyurtmalar', value: '81%', pct: 81 },
+                { label: 'Yangi mijozlar', value: '6 ta', color: GC.success },
+            ],
+        },
+    ],
+};
+
+const InfoCard: React.FC<{ info: Info; accent: string }> = ({info, accent}) => (
+    <div style={{
+        minWidth: 0, minHeight: 0, overflow: 'hidden',
+        display: 'flex', flexDirection: 'column', gap: cq(3, 0.8, 12),
+        background: 'linear-gradient(160deg, rgba(13, 24, 38, .9), rgba(7, 14, 23, .86))',
+        border: `1px solid ${GC.amber}73`,
+        borderRadius: cq(6, 1.8, 16), padding: `${cq(5, 1.4, 20)} ${cq(6, 1.6, 22)}`,
+        backdropFilter: 'blur(5px)', boxShadow: '0 2px 14px rgba(0,0,0,.35)',
+    }}>
+        <div style={{display: 'flex', alignItems: 'center', gap: cq(3, 0.7, 10), minWidth: 0}}>
+            <span style={{width: cq(4, 0.9, 12), height: cq(4, 0.9, 12), borderRadius: '50%', background: accent, boxShadow: `0 0 8px ${accent}`, flexShrink: 0}}/>
+            <span style={{
+                color: GC.textSecondary, fontSize: cq(6, 1.4, 22), fontWeight: 600,
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>{info.title}</span>
+        </div>
+        <div>
+            <div style={{color: GC.textPrimary, fontSize: cq(11, 2.6, 44), fontWeight: 700, lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{info.value}</div>
+            <div style={{color: GC.textDisabled, fontSize: cq(5, 1.1, 17), marginTop: cq(1, 0.3, 4), whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{info.sub}</div>
+        </div>
+        <div style={{flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', gap: cq(2, 0.5, 8)}}>
+            {info.rows.map((r) => {
+                const color = r.color ?? accent;
+                return (
+                    <div key={r.label} style={{minWidth: 0}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: cq(5.5, 1.2, 19), marginBottom: cq(1, 0.3, 6)}}>
+                            <span style={{color: GC.textSecondary, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{r.label}</span>
+                            <span style={{color: r.pct === undefined ? color : GC.textPrimary, fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap'}}>{r.value}</span>
+                        </div>
+                        {r.pct !== undefined && (
+                            <div style={{height: cq(2, 0.4, 9), borderRadius: 6, background: 'rgba(255,255,255,.08)', overflow: 'hidden'}}>
+                                <div style={{width: `${Math.min(100, r.pct)}%`, height: '100%', borderRadius: 6, background: `linear-gradient(90deg, ${color}88, ${color})`}}/>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    </div>
+);
+
 /** MINE / METAL / MARKET doirasi. */
 const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({seg, onClick}) => (
     <button
@@ -256,11 +501,11 @@ const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({seg, onCl
         title={`${seg.title} — batafsil`}
         style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            width: cq(52, 14, 132), height: cq(52, 14, 132), borderRadius: '50%',
+            width: CIRCLE, height: CIRCLE, borderRadius: '50%',
             cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit', padding: 0,
             background: `radial-gradient(circle at 50% 34%, ${seg.accent}45, rgba(7,13,21,.94) 72%)`,
-            border: `${cq(1.5, 0.4, 3)} solid ${seg.accent}`,
-            boxShadow: `0 0 ${cq(5, 1.5, 18)} ${seg.accent}55`,
+            border: `${cq(1.5, 0.4, 4)} solid ${seg.accent}`,
+            boxShadow: `0 0 ${cq(5, 1.5, 30)} ${seg.accent}66`,
             color: GC.textPrimary,
         }}
     >
@@ -271,9 +516,9 @@ const SegmentNode: React.FC<{ seg: Segment; onClick: () => void }> = ({seg, onCl
         {/*</span>*/}
 
         <span
-            style={{fontSize: cq(8, 2.2, 18), fontWeight: 800, letterSpacing: 0.5, lineHeight: 1.15}}>{seg.code}</span>
+            style={{fontSize: cq(8, 2.2, 34), fontWeight: 800, letterSpacing: 0.5, lineHeight: 1.15}}>{seg.code}</span>
         <span style={{
-            color: GC.textSecondary, fontSize: cq(4.5, 1.1, 10), textAlign: 'center',
+            color: GC.textSecondary, fontSize: cq(4.5, 1.1, 17), textAlign: 'center',
             lineHeight: 1.2, padding: `0 ${cq(3, 1, 10)}`,
         }}>{seg.nodeCaption}</span>
     </button>
@@ -658,12 +903,13 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
             </div>
         </header>
 
-        {/* ── Tarkib (joy yetmasa aylantiriladi) ── */}
-        <div style={{flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden'}}>
+        {/* ── Tarkib: haqiqiy bloklar o'z balandligida, qo'shimcha ko'rsatkichlar
+               qolgan joyni egallaydi (joy yetmasa aylantiriladi) ── */}
+        <div style={{flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column'}}>
             <BlockTitle text={seg.activeTitle} count={seg.active.length} accent={seg.accent}/>
 
             <div style={{
-                display: 'grid',
+                display: 'grid', flexShrink: 0,
                 gridTemplateColumns: seg.activeSecondary ? 'repeat(auto-fit, minmax(180px, 1fr))' : 'repeat(3, minmax(0, 1fr))',
                 gap: cq(3, 0.9, 9),
             }}>
@@ -678,7 +924,7 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
                 <>
                     <BlockTitle text={seg.activeSecondaryTitle ?? ''} count={seg.activeSecondary.length} accent={seg.accent}/>
                     <div style={{
-                        display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
+                        display: 'grid', flexShrink: 0, gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
                     }}>
                         {seg.activeSecondary.map((u) => (
                             <ActiveUnitCard key={u.name} unit={u} accent={seg.accent} segKey={seg.key}/>
@@ -689,11 +935,22 @@ const SegmentCard: React.FC<{ seg: Segment; onOpen: () => void }> = ({seg, onOpe
 
             <BlockTitle text={seg.investTitle} count={seg.investProjects.length} accent={seg.accent}/>
             <div style={{
-                display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
+                display: 'grid', flexShrink: 0, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: cq(3, 0.9, 9),
             }}>
                 {seg.investProjects.length
                     ? seg.investProjects.map((p) => <InvestProjectCard key={p.id} p={p} accent={seg.accent}/>)
                     : <InvestEmpty/>}
+            </div>
+
+            {/* Qo'shimcha ko'rsatkichlar — 3 × 2, qolgan balandlikni to'liq egallaydi */}
+            <div className="mmm-extra" style={{flex: 1, minHeight: cq(160, 40, 560), display: 'flex', flexDirection: 'column'}}>
+                <BlockTitle text="QO'SHIMCHA KO'RSATKICHLAR" count={(SEGMENT_INFO[seg.key] ?? []).length} accent={seg.accent}/>
+                <div style={{
+                    flex: 1, minHeight: 0, display: 'grid', gap: cq(3, 0.9, 9),
+                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
+                }}>
+                    {(SEGMENT_INFO[seg.key] ?? []).map((info) => <InfoCard key={info.title} info={info} accent={seg.accent}/>)}
+                </div>
             </div>
         </div>
 
@@ -830,7 +1087,7 @@ const MineMetalMarket: React.FC<Props> = () => {
     return (
         <div style={{
             width: '100%', height: '100%', minHeight: 0, boxSizing: 'border-box',
-            display: 'flex', flexDirection: 'column', gap: cq(3, 0.9, 10),
+            display: 'flex', flexDirection: 'column', gap: GAP,
             padding: cq(5, 1.5, 16),
             overflow: 'hidden',
             fontFamily: '"Segoe UI", system-ui, sans-serif',
@@ -854,37 +1111,36 @@ const MineMetalMarket: React.FC<Props> = () => {
             /* `padding` qisqartmasidan KEYIN turishi shart, aks holda bekor bo'ladi. */
             // ...(topInset ? { paddingTop: `calc(${cq(5, 1.5, 16)} + ${topInset}px)` } : null),
         }}>
+            <style>{LAYOUT_CSS}</style>
+
             {/* ── 1) KPI qatori + markazda TMK ── */}
-            <div style={{display: 'flex', alignItems: 'center', gap: cq(3, 0.9, 10), flexShrink: 0}}>
+            <div style={{display: 'flex', alignItems: 'center', gap: GAP, flexShrink: 0}}>
                 {topKpis.left.map((k) => <KpiCard key={k.label} kpi={k}/>)}
                 <TmkBadge/>
                 {topKpis.right.map((k) => <KpiCard key={k.label} kpi={k}/>)}
             </div>
 
-            {/* ── 2) Ulanish chiziqlari va uchta doira ── */}
-            <div style={{flexShrink: 0}}>
+            {/* ── 2) O'rta tasma: ulanish chiziqlari, pastki chetida uchta doira,
+                   bo'sh joylarda info kartochkalar ── */}
+            <div className="mmm-band" style={{
+                position: 'relative', minHeight: `calc(${cq(14, 4.2, 46)} + ${CIRCLE} + ${CIRCLE_LIFT})`,
+            }}>
                 <Connectors/>
-                {/* Doiralar setka bilan emas, `NODE_X` foizlari bo'yicha aniq
-                    joylashtiriladi — shunda ular ulanish chiziqlarining
-                    uchlariga tik tushadi. */}
-                <div style={{
-                    position: 'relative', height: cq(52, 14, 132),
-                    marginTop: `-${cq(2, 0.6, 6)}`,
-                }}>
-                    {segments.map((s, i) => (
-                        <div key={s.key} style={{
-                            position: 'absolute', top: 0,
-                            left: `${NODE_X[i]}%`, transform: 'translateX(-50%)',
-                        }}>
-                            <SegmentNode seg={s} onClick={() => setOpenSeg(s)}/>
-                        </div>
-                    ))}
-                </div>
+                {/* Doiralar `NODE_X` foizlari bo'yicha aniq joylashtiriladi —
+                    shunda ular ulanish chiziqlarining uchlariga tik tushadi. */}
+                {segments.map((s, i) => (
+                    <div key={s.key} style={{
+                        position: 'absolute', bottom: CIRCLE_LIFT,
+                        left: `${NODE_X[i]}%`, transform: 'translateX(-50%)',
+                    }}>
+                        <SegmentNode seg={s} onClick={() => setOpenSeg(s)}/>
+                    </div>
+                ))}
             </div>
 
-            {/* ── 3) Uchta bosqich kartochkasi ── */}
-            <div style={{
-                flex: 1, minHeight: 0,
+            {/* ── 3) Uchta bosqich kartochkasi (25% pastroq) ── */}
+            <div className="mmm-cards" style={{
+                minHeight: 0,
                 display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: cq(4, 1.1, 12),
             }}>
                 {segments.map((s) => (

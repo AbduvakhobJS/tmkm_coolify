@@ -1,323 +1,357 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Doughnut } from 'react-chartjs-2';
-import { C, chartBase, noLegend, centerText, Badge } from '../../components/dashboardUI';
-import { GC } from '../../theme/palette';
+import React from 'react';
+import { Line, Bar } from 'react-chartjs-2';
+import { chartBase, noLegend, DashHeader } from '../../components/dashboardUI';
+import {
+    BigCard, BigKpiCard, BigDashRoot, legendLarge, bigBarLabel,
+    BigChartBox, BigDonutBody, BigForecastList, bigScales, bigDemoCardStyle,
+    BigProgressList, BigStatGrid, BigRowList, BigGauge, BigFunnel,
+    type BigForecast,
+} from '../../components/dashboardUILarge';
+import { GC, alpha } from '../../theme/palette';
 
-/* ── Mock ma'lumotlar (Маркетинг / Бренд / PR / Инвесторы — to'liq ko'rinish) ── */
+/* ══════════════════════════════════════════════════════════════════════════
+   MARKETING, BREND, PR VA INVESTORLAR — TO'LIQ EKRAN (36 ta karta)
 
-const KPI_ITEMS = [
-    { label: 'Индекс репутации бренда', value: '78.4', sub: '▲ 5.2', symbol: '⭐', color: GC.cyan },
-    { label: 'Тональность публикаций', value: '68%', sub: 'позитив', symbol: '💬', color: GC.green },
-    { label: 'Медиаохват', value: '256M', sub: '▲ 6.3%', symbol: '📡', color: GC.blue },
-    { label: 'Доверие инвесторов', value: '82.1', sub: '▲ 6.3%', symbol: '🤝', color: GC.violet },
-    { label: 'Посещаемость сайта', value: '128K', sub: '▲ 12.4%', symbol: '🌐', color: GC.cyan },
-    { label: 'Активные партнёрства', value: '31', sub: '▲ 6', symbol: '🔗', color: GC.amber },
-    { label: 'Мероприятия / форумы', value: '18', sub: '▲ 4', symbol: '📅', color: GC.magenta },
-    { label: 'Статус системы', value: 'OK', sub: 'в норме', symbol: '✔', color: GC.green },
+   Uslub FinanceNewMain / SingleTreasury bilan bir xil: `BigDashRoot` +
+   `DashHeader` + 10 ta `BigKpiCard` + 7 ustun × 4 qatorli `BigCard` to'ri.
+
+   MA'LUMOT: marketing bo'yicha API yo'q — barcha kartalar namuna
+   ma'lumotdan quriladi va SARIQ ramka bilan belgilanadi.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const MONTHS = ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn'];
+const ORANGE = '#f97316';
+
+const AI_FORECASTS: BigForecast[] = [
+    { text: 'TIIF 2026 dan keyin eslatmalar 35% ga oshadi', detail: 'O\'tgan forumlar tajribasi asosida', confidence: 79, color: GC.accent1 },
+    { text: 'Investorlar ishonchi indeksi 85 ga yetadi', detail: '3 ta yangi anglashuv memorandumi kutilmoqda', confidence: 71, color: GC.green },
+    { text: 'Salbiy tonallik ulushi 7% dan pastga tushadi', detail: 'Ekologik hisobot e\'lon qilinishi hisobiga', confidence: 64, color: GC.violet },
+    { text: 'Sayt trafigi iyulda 150 mingdan oshadi', detail: '"Investorlar" bo\'limiga qiziqish o\'smoqda', confidence: 68, color: GC.accent2 },
+    { text: 'Soxta xabar tarqalish xavfi — o\'rtacha', detail: 'Narxlar mavzusida 2 ta shubhali manba', confidence: 57, color: GC.amber },
 ];
 
-const REPUTATION = [
-    { label: 'Индекс бренда', value: '78.4', delta: '▲ 5.2', symbol: '⭐' },
-    { label: 'Share of voice', value: '12.6%', delta: '▲ 2.1 п.п.', symbol: '💬' },
-    { label: 'Упоминания в мире', value: '18.7K', delta: '▲ 8.1%', symbol: '🌐' },
-];
+const lineDs = (label: string, data: number[], color: string, fill = false) => ({
+    label, data, borderColor: color, backgroundColor: alpha(color, 0.18),
+    borderWidth: 2, tension: 0.35, pointRadius: 0, fill,
+});
+const barDs = (label: string, data: number[], color: string | string[], extra: object = {}) => ({
+    label, data, backgroundColor: color, borderRadius: 4, barPercentage: 0.78, ...extra,
+});
 
-const MEDIA_CHANNELS = [
-    { label: 'Онлайн СМИ', value: 42, color: GC.blue },
-    { label: 'Социальные сети', value: 31, color: GC.cyan },
-    { label: 'ТВ и радио', value: 18, color: GC.violet },
-    { label: 'Печатные издания', value: 9, color: GC.amber },
-];
-
-const FUNNEL = [
-    { label: 'Лиды инвесторов', value: 156, width: 100 },
-    { label: 'Due diligence', value: 78, width: 78 },
-    { label: 'NDA signed', value: 42, width: 56 },
-    { label: 'MOU', value: 24, width: 40 },
-    { label: 'Инвестпроекты', value: 9, width: 26 },
-];
-
-const EVENTS = [
-    { name: 'TIIF 2026', date: '15–17 июн 2026' },
-    { name: 'PDAC 2026', date: '1–4 мар 2026' },
-    { name: 'Mining World Asia', date: '9–11 сен 2026' },
-];
-
-const CRISIS = [
-    { label: 'Мониторинг 24/7', value: 'активно', color: C.up },
-    { label: 'Репутационные события', value: '3', color: C.text },
-    { label: 'Медиа-инциденты', value: '2', color: C.text },
-    { label: 'Fake News', value: '1 под контролем', color: C.text },
-];
-const CRISIS_TOTAL = 18;
-
-const DIGITAL_STATS = [
-    { label: 'Посетители', value: '128K' },
-    { label: 'Страны', value: '86' },
-    { label: 'Page views', value: '312K' },
-    { label: 'Bounce rate', value: '32%' },
-];
-const COUNTRIES = [
-    { label: 'Узбекистан', value: '28%' },
-    { label: 'Казахстан', value: '14%' },
-    { label: 'США', value: '11%' },
-    { label: 'Германия', value: '7%' },
-];
-const PAGES = [
-    { label: '/investors', value: '18.7K' },
-    { label: '/projects', value: '15.2K' },
-    { label: '/sustainability', value: '12.9K' },
-    { label: '/media', value: '10.1K' },
-];
-
-const AI_INSIGHTS = [
-    { label: 'AI sentiment', value: 'Позитивный', color: C.up },
-    { label: 'Investor sentiment', value: 'Позитивный', color: C.up },
-    { label: 'ESG perception', value: 'Позитивный', color: C.up },
-    { label: 'Market trend', value: 'Растущий', color: GC.cyan },
-    { label: 'Репутационный риск', value: 'Низкий', color: C.up },
-];
-
-const SUMMARY = [
-    { label: 'Репутационный индекс', value: '78.4', symbol: '🏅' },
-    { label: 'Глобальные упоминания', value: '18.7K', symbol: '🌐' },
-    { label: 'Лиды инвесторов', value: '156', symbol: '👥' },
-    { label: 'ESG Score', value: 'A−', symbol: '🌱' },
-    { label: 'Трафик сайта', value: '128K', symbol: '📈' },
-    { label: 'Партнёрства', value: '31', symbol: '🔗' },
-    { label: 'Среднее время ответа', value: '18 мин', symbol: '⏱' },
-    { label: 'Brand equity', value: '84/100', symbol: '💎' },
-    { label: 'Кампания', value: 'OK', symbol: '🚩' },
-];
-
-/* ── Yordamchi komponentlar (HSE komponentlari bilan bir xil uslub) ── */
-
-const SectionCard: React.FC<{ title: string; icon?: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ title, icon, children, style }) => (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', minWidth: 0, ...style }}>
-        <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-            {icon && <span>{icon}</span>}{title}
-        </div>
-        {children}
-    </div>
+const Card: React.FC<{ title: string; style?: React.CSSProperties; children: React.ReactNode }> = ({ title, style, children }) => (
+    <BigCard title={title} style={{ ...bigDemoCardStyle, ...style }}>{children}</BigCard>
 );
 
-const MiniBar: React.FC<{ label: string; value: number; max: number; color: string }> = ({ label, value, max, color }) => {
-    const [w, setW] = useState(0);
-    useEffect(() => {
-        const t = setTimeout(() => setW(max ? (value / max) * 100 : 0), 60);
-        return () => clearTimeout(t);
-    }, [value, max]);
-    return (
-        <div style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
-                <span style={{ color: C.sub, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: 6 }}>{label}</span>
-                <span style={{ color: C.text, fontWeight: 700, flexShrink: 0 }}>{value}%</span>
-            </div>
-            <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${w}%`, background: color, borderRadius: 3, transition: 'width 0.6s ease' }} />
-            </div>
+const MarketingDetail: React.FC = () => (
+    <BigDashRoot>
+        <DashHeader
+            title="Marketing, brend, PR va investorlar"
+            subtitle="Reputatsiya, investorlar bilan aloqa, raqamli brend va inqiroz kommunikatsiyalari"
+            dateRange="2026-yil, 1-yanvar — 30-iyun"
+        />
+
+        {/* ── KPI qatori: 10 ta karta ── */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexShrink: 0 }}>
+            <BigKpiCard title="Brend reputatsiya indeksi" value="78,4" delta={5.2} iconColor={GC.accent1} />
+            <BigKpiCard title="Ijobiy tonallik" value="68%" delta={4.1} iconColor={GC.green} />
+            <BigKpiCard title="Media qamrovi" value="256 mln" delta={6.3} iconColor={GC.accent2} />
+            <BigKpiCard title="Investorlar ishonchi" value="82,1" delta={6.3} iconColor={GC.violet} />
+            <BigKpiCard title="Sayt tashriflari" value="128 ming" delta={12.4} iconColor={GC.accent3} />
+            <BigKpiCard title="Faol hamkorliklar" value="31" delta={24} iconColor={GC.amber} />
+            <BigKpiCard title="Tadbirlar va forumlar" value="18" delta={28.6} iconColor={GC.magenta} />
+            <BigKpiCard title="Ovoz ulushi" value="12,6%" delta={2.1} iconColor={GC.accent1} />
+            <BigKpiCard title="Dunyo bo'ylab eslatmalar" value="18,7 ming" delta={8.1} iconColor={GC.accent2} />
+            <BigKpiCard title="Brend qiymati" value="84/100" delta={3.7} iconColor={GC.green} />
         </div>
-    );
-};
 
-const MarketingDetail: React.FC = () => {
-    const navigate = useNavigate();
-    const [now, setNow] = useState(() => new Date());
+        <div style={{
+            flex: 1, minHeight: 0, display: 'grid',
+            gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+            gridTemplateRows: 'repeat(4, minmax(0, 1fr))', gap: 10,
+        }}>
+            {/* ═══ 1-qator: reputatsiya va media ═══ */}
+            <Card title="Eslatmalar va tonallik — oylar bo'yicha, ming" style={{ gridColumn: 'span 2' }}>
+                <BigChartBox>
+                    <Bar data={{
+                        labels: MONTHS,
+                        datasets: [
+                            barDs('Ijobiy', [1.62, 1.84, 1.96, 2.18, 2.31, 2.62], GC.green),
+                            barDs('Neytral', [0.62, 0.66, 0.71, 0.74, 0.8, 0.86], GC.slate),
+                            barDs('Salbiy', [0.24, 0.22, 0.21, 0.2, 0.19, 0.18], GC.red),
+                        ],
+                    }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales({ stacked: true, decimals: 1 }) } as any} />
+                </BigChartBox>
+            </Card>
 
-    useEffect(() => {
-        const t = setInterval(() => setNow(new Date()), 1000);
-        return () => clearInterval(t);
-    }, []);
+            <Card title="Tonallik taqsimoti">
+                <BigDonutBody
+                    parts={[
+                        { label: 'Ijobiy', value: 68, color: GC.green },
+                        { label: 'Neytral', value: 24, color: GC.slate },
+                        { label: 'Salbiy', value: 8, color: GC.red },
+                    ]}
+                    center="18,7" centerSub="ming eslatma" formatValue={false}
+                />
+            </Card>
 
-    const crisisDonut = {
-        labels: ['Активные'],
-        datasets: [{ data: [CRISIS_TOTAL, 100 - CRISIS_TOTAL], backgroundColor: [C.up, 'rgba(255,255,255,0.06)'], borderColor: C.card, borderWidth: 2 }],
-    };
-    const donutOptions = { ...chartBase, cutout: '70%', ...noLegend } as any;
+            <Card title="Media kanallar ulushi">
+                <BigDonutBody
+                    parts={[
+                        { label: 'Onlayn OAV', value: 42, color: GC.accent1 },
+                        { label: 'Ijtimoiy tarmoqlar', value: 31, color: GC.accent2 },
+                        { label: 'TV va radio', value: 18, color: GC.violet },
+                        { label: 'Bosma nashrlar', value: 9, color: GC.amber },
+                    ]}
+                    center="256" centerSub="mln qamrov" formatValue={false}
+                />
+            </Card>
 
-    return (
-        <div style={{ background: C.bg, height: '100vh', overflowY: 'auto', padding: 14, boxSizing: 'border-box', fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <Card title="Reputatsiya indeksi va soha o'rtachasi">
+                <BigChartBox>
+                    <Line data={{
+                        labels: MONTHS,
+                        datasets: [
+                            lineDs("O'zTMK", [72.1, 73.4, 74.8, 75.9, 77.2, 78.4], GC.accent1, true),
+                            lineDs("Soha o'rtachasi", [70.2, 70.5, 70.9, 71.2, 71.4, 71.8], GC.slate),
+                        ],
+                    }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales({ beginAtZero: false }) } as any} />
+                </BigChartBox>
+            </Card>
 
-            {/* Sarlavha */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Badge symbol="📊" color={GC.blue} />
-                    <div>
-                        <div style={{ color: GC.cyan, fontSize: 19, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>Маркетинг / Бренд / PR / Инвесторы</div>
-                        <div style={{ color: C.sub, fontSize: 12, marginTop: 2, maxWidth: 620 }}>
-                            Сводный экран репутации, инвесторов, цифрового бренда и кризисных коммуникаций
-                        </div>
-                    </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ color: C.sub, fontSize: 11 }}>{now.toLocaleDateString('ru-RU')}, {now.toLocaleTimeString('ru-RU')}</span>
-                    <span style={{ color: C.up, background: `${C.up}18`, border: `1px solid ${C.up}44`, borderRadius: 999, padding: '3px 11px', fontSize: 11, fontWeight: 700 }}>Общий статус: на правильном пути</span>
-                    <button
-                        onClick={() => navigate('/main/marketing')}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                            background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, border: 'none', borderRadius: 8,
-                            color: '#fff', fontSize: 12, fontWeight: 700, padding: '8px 14px',
-                            boxShadow: '0 6px 16px rgba(14,168,199,0.3)', transition: 'transform 0.15s ease',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.transform = 'none')}
-                    >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        Назад
-                    </button>
-                </div>
-            </div>
+            <Card title="Ovoz ulushi — sohada, %">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: ["O'zTMK", 'Raqobatchi A', 'Raqobatchi B', 'Raqobatchi C', 'Boshqalar'],
+                        datasets: [barDs('Ulush', [12.6, 21.3, 18.4, 9.7, 38], [GC.accent1, GC.slate, GC.slate, GC.slate, alpha(GC.slate, 0.6)])],
+                    }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true }) } as any} />
+                </BigChartBox>
+            </Card>
 
-            {/* KPI qatori */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 8 }}>
-                {KPI_ITEMS.map((k) => (
-                    <div key={k.label} style={{ minWidth: 0, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <div style={{ color: C.sub, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.label}</div>
-                        <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1 }}>{k.value}</div>
-                        <div style={{ color: k.symbol === '✔' ? C.up : C.sub, fontSize: 10.5 }}>{k.sub}</div>
-                    </div>
-                ))}
-            </div>
+            <Card title="Brend salomatligi">
+                <BigProgressList items={[
+                    { label: 'Taniqlilik', value: 74, display: '74%', color: GC.accent1, target: 80 },
+                    { label: 'Ishonch', value: 81, display: '81%', color: GC.green, target: 80 },
+                    { label: 'Tavsiya etish (NPS)', value: 62, display: '62', color: GC.violet, target: 70 },
+                    { label: "Afzal ko'rish", value: 58, display: '58%', color: GC.amber, target: 65 },
+                    { label: 'Ish beruvchi brendi', value: 77, display: '77%', color: GC.accent2, target: 75 },
+                ]} />
+            </Card>
 
-            {/* 1-qator: reputatsiya / media kanallar / investorlar */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, alignItems: 'stretch' }}>
+            {/* ═══ 2-qator: investorlar va raqamli brend ═══ */}
+            <Card title="Investorlar voronkasi">
+                <BigFunnel steps={[
+                    { label: 'Investor lidlari', value: 156, color: GC.accent2 },
+                    { label: 'Chuqur tekshiruv', value: 78, color: GC.accent1 },
+                    { label: 'Maxfiylik kelishuvi', value: 42, color: GC.violet },
+                    { label: 'Memorandum', value: 24, color: GC.amber },
+                    { label: 'Investloyihalar', value: 9, color: GC.green },
+                ]} />
+            </Card>
 
-                <SectionCard title="Центр контроля репутации" style={{ height: 260 }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {REPUTATION.map((r) => (
-                            <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 10px' }}>
-                                <Badge symbol={r.symbol} color={GC.cyan} />
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3 }}>{r.label}</div>
-                                    <div style={{ color: C.text, fontSize: 17, fontWeight: 700 }}>{r.value}</div>
-                                </div>
-                                <div style={{ color: C.up, fontSize: 10.5, fontWeight: 600, flexShrink: 0 }}>{r.delta}</div>
-                            </div>
-                        ))}
-                    </div>
-                </SectionCard>
+            <Card title="Investorlar — mamlakatlar bo'yicha">
+                <BigDonutBody
+                    parts={[
+                        { label: 'Xitoy', value: 38, color: GC.red },
+                        { label: 'BAA', value: 27, color: GC.amber },
+                        { label: 'Germaniya', value: 21, color: GC.accent1 },
+                        { label: 'Koreya', value: 18, color: GC.violet },
+                        { label: 'Turkiya', value: 15, color: GC.accent2 },
+                        { label: 'Boshqalar', value: 37, color: GC.slate },
+                    ]}
+                    center="156" centerSub="lid" formatValue={false}
+                />
+            </Card>
 
-                <SectionCard title="Медиапокрытие по каналам" icon="📡" style={{ height: 260 }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, justifyContent: 'center' }}>
-                        {MEDIA_CHANNELS.map((m) => (
-                            <MiniBar key={m.label} label={m.label} value={m.value} max={100} color={m.color} />
-                        ))}
-                    </div>
-                    <div style={{ color: C.sub, fontSize: 10.5, textAlign: 'center', marginTop: 8 }}>Доля упоминаний по типу канала за период</div>
-                </SectionCard>
+            <Card title="Investorlar kayfiyati">
+                <BigGauge
+                    value={82.1} display="82,1" caption="ishonch indeksi" color={GC.violet}
+                    rows={[
+                        { label: 'Ijobiy', value: '71%', color: GC.green },
+                        { label: 'Neytral', value: '23%' },
+                        { label: 'Salbiy', value: '6%', color: GC.red },
+                    ]}
+                />
+            </Card>
 
-                <SectionCard title="Центр коммуникации с инвесторами" style={{ height: 260 }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, marginBottom: 8 }}>
-                        {FUNNEL.map((f) => (
-                            <div key={f.label} style={{ width: `${f.width}%`, height: 14, borderRadius: 3, background: `linear-gradient(90deg, #1e4d7b, ${GC.cyan})` }} />
-                        ))}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto', flex: 1 }}>
-                        {FUNNEL.map((f) => (
-                            <div key={f.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                                <span style={{ color: C.sub }}>{f.label}</span>
-                                <span style={{ color: C.text, fontWeight: 700 }}>{f.value}</span>
-                            </div>
-                        ))}
-                        <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 4, paddingTop: 4, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            {EVENTS.map((e) => (
-                                <div key={e.name} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5 }}>
-                                    <span style={{ color: C.text }}>{e.name}</span>
-                                    <span style={{ color: C.sub }}>{e.date}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </SectionCard>
-            </div>
+            <Card title="Sayt trafigi, ming" style={{ gridColumn: 'span 2' }}>
+                <BigChartBox>
+                    <Line data={{
+                        labels: MONTHS,
+                        datasets: [
+                            lineDs('Tashriflar', [84, 92, 101, 108, 117, 128], GC.accent1, true),
+                            lineDs("Sahifa ko'rishlar", [214, 231, 252, 270, 291, 312], GC.accent2),
+                            lineDs('Yangi foydalanuvchilar', [51, 56, 60, 66, 71, 78], GC.green),
+                        ],
+                    }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales() } as any} />
+                </BigChartBox>
+            </Card>
 
-            {/* 2-qator: kризis / raqamli brend / AI */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, alignItems: 'stretch' }}>
+            <Card title="Trafik manbalari">
+                <BigDonutBody
+                    parts={[
+                        { label: 'Qidiruv tizimlari', value: 41, color: GC.accent1 },
+                        { label: "To'g'ridan-to'g'ri", value: 24, color: GC.green },
+                        { label: 'Ijtimoiy tarmoqlar', value: 19, color: GC.accent2 },
+                        { label: 'Havolalar', value: 10, color: GC.violet },
+                        { label: 'Reklama', value: 6, color: GC.amber },
+                    ]}
+                    center="128" centerSub="ming" formatValue={false}
+                />
+            </Card>
 
-                <SectionCard title="Кризисные коммуникации" style={{ height: 236 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
-                        <div style={{ width: 84, height: 84, flexShrink: 0 }}>
-                            <Doughnut data={crisisDonut} options={donutOptions} plugins={[centerText(String(CRISIS_TOTAL), '')]} />
-                        </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
-                            {CRISIS.map((c) => (
-                                <div key={c.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                                    <span style={{ color: C.sub, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: 6 }}>{c.label}</span>
-                                    <span style={{ color: c.color, fontWeight: 700, flexShrink: 0 }}>{c.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div style={{ marginTop: 8 }}>
-                        <div style={{ color: C.sub, fontSize: 9.5, textTransform: 'uppercase', letterSpacing: 0.3, marginBottom: 4 }}>Шкала риска</div>
-                        <div style={{ height: 6, borderRadius: 3, background: `linear-gradient(90deg, ${GC.green}, ${GC.amber}, ${GC.amber}, ${GC.red})` }} />
-                    </div>
-                </SectionCard>
+            <Card title="Tashriflar — mamlakatlar, %">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: ["O'zbekiston", "Qozog'iston", 'AQSh', 'Rossiya', 'Germaniya', 'Xitoy'],
+                        datasets: [barDs('Ulush', [28, 14, 11, 9, 7, 6], GC.accent2)],
+                    }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true }) } as any} />
+                </BigChartBox>
+            </Card>
 
-                <SectionCard title="Цифровой бренд и аналитика" style={{ height: 236 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 8 }}>
-                        {DIGITAL_STATS.map((d) => (
-                            <div key={d.label} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '6px 8px', minWidth: 0 }}>
-                                <div style={{ color: C.text, fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.value}</div>
-                                <div style={{ color: C.sub, fontSize: 9, textTransform: 'uppercase' }}>{d.label}</div>
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, flex: 1, minHeight: 0 }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
-                            {COUNTRIES.map((c) => (
-                                <div key={c.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                                    <span style={{ color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.label}</span>
-                                    <span style={{ color: C.sub, flexShrink: 0 }}>{c.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 }}>
-                            {PAGES.map((p) => (
-                                <div key={p.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                                    <span style={{ color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.label}</span>
-                                    <span style={{ color: C.sub, flexShrink: 0 }}>{p.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </SectionCard>
+            {/* ═══ 3-qator: ijtimoiy tarmoqlar, kontent, byudjet ═══ */}
+            <Card title="Obunachilar, ming">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: ['Telegram', 'Instagram', 'Facebook', 'LinkedIn', 'YouTube', 'X'],
+                        datasets: [barDs('Obunachilar', [86, 64, 41, 23, 18, 9], [GC.accent2, GC.magenta, GC.accent1, GC.accent3, GC.red, GC.slate])],
+                    }} options={{ ...chartBase, ...noLegend, scales: bigScales() } as any} plugins={[bigBarLabel(0)]} />
+                </BigChartBox>
+            </Card>
 
-                <SectionCard title="AI Marketing Intelligence" style={{ height: 236 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
-                        <div style={{ width: 64, height: 64, flexShrink: 0, borderRadius: '50%', background: `linear-gradient(135deg, #1e4d7b, ${GC.cyan})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 18, boxShadow: '0 8px 20px rgba(14,168,199,0.35)' }}>
-                            AI
-                        </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0 }}>
-                            {AI_INSIGHTS.map((a) => (
-                                <div key={a.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                                    <span style={{ color: C.sub, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: 6 }}>{a.label}</span>
-                                    <span style={{ color: a.color, fontWeight: 700, flexShrink: 0 }}>{a.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </SectionCard>
-            </div>
+            <Card title="Jalb qilish darajasi, %">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: ['Instagram', 'Telegram', 'LinkedIn', 'YouTube', 'Facebook', 'X'],
+                        datasets: [barDs('Jalb qilish', [5.8, 4.9, 3.6, 3.1, 2.2, 1.4], GC.violet)],
+                    }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true }) } as any} />
+                </BigChartBox>
+            </Card>
 
-            {/* Yakuniy ko'rsatkichlar */}
-            <SectionCard title="Сводные показатели">
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: 8 }}>
-                    {SUMMARY.map((s) => (
-                        <div key={s.label} style={{ background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 10px', minWidth: 0 }}>
-                            <div style={{ fontSize: 12 }}>{s.symbol}</div>
-                            <div style={{ color: C.text, fontSize: 14, fontWeight: 700, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.value}</div>
-                            <div style={{ color: C.sub, fontSize: 9, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label}</div>
-                        </div>
-                    ))}
-                </div>
-            </SectionCard>
+            <Card title="Eng ko'p ko'rilgan bo'limlar, ming">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: ['Investorlar', 'Loyihalar', 'Barqaror rivojlanish', 'Media markaz', 'Karyera', 'Aloqa'],
+                        datasets: [barDs("Ko'rishlar", [18.7, 15.2, 12.9, 10.1, 8.4, 5.2], GC.accent1)],
+                    }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true }) } as any} />
+                </BigChartBox>
+            </Card>
+
+            <Card title="Kontent turlari samaradorligi">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: ['Video', 'Infografika', 'Maqola', 'Press-reliz', 'Podkast'],
+                        datasets: [
+                            barDs('Qamrov, ming', [412, 286, 198, 164, 72], GC.accent2),
+                            barDs('Reaksiyalar, ming', [38, 29, 14, 9, 6], GC.amber),
+                        ],
+                    }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales() } as any} />
+                </BigChartBox>
+            </Card>
+
+            <Card title="Marketing byudjeti ijrosi">
+                <BigDonutBody
+                    parts={[
+                        { label: 'Raqamli marketing', value: 34, color: GC.accent1 },
+                        { label: 'Tadbirlar', value: 27, color: GC.amber },
+                        { label: 'PR va media', value: 19, color: GC.violet },
+                        { label: 'Brending', value: 12, color: GC.accent2 },
+                        { label: 'Tadqiqotlar', value: 8, color: GC.slate },
+                    ]}
+                    center="72%" centerSub="ijro" formatValue={false}
+                />
+            </Card>
+
+            <Card title="Kampaniyalar samaradorligi (ROI), %">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: ['Investor roadshow', 'Yashil metall', 'Karyera markazi', 'Mahalliy mahsulot', 'Brend yangilanishi'],
+                        datasets: [barDs('ROI', [248, 186, 142, 118, 74], [GC.green, GC.green, GC.accent1, GC.accent1, GC.amber])],
+                    }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true }) } as any} />
+                </BigChartBox>
+            </Card>
+
+            <Card title="Press-relizlar va nashrlar">
+                <BigChartBox>
+                    <Bar data={{
+                        labels: MONTHS,
+                        datasets: [
+                            barDs('Press-relizlar', [6, 8, 7, 9, 11, 12], GC.accent1),
+                            barDs('Nashrlar', [42, 51, 48, 63, 71, 84], GC.accent2),
+                        ],
+                    }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales() } as any} />
+                </BigChartBox>
+            </Card>
+
+            {/* ═══ 4-qator: tadbirlar, inqiroz, AI ═══ */}
+            <Card title="Tadbirlar va forumlar">
+                <BigRowList rows={[
+                    { label: 'TIIF 2026', sub: 'Toshkent · 15–17 iyun', value: 'Ishtirok', color: GC.green },
+                    { label: 'Mining World Asia', sub: 'Toshkent · 9–11 sentabr', value: 'Stend', color: GC.accent1 },
+                    { label: 'PDAC 2026', sub: 'Toronto · 1–4 mart', value: "O'tdi", color: GC.slate },
+                    { label: 'LME Asia Metals Seminar', sub: 'Gonkong · 12 noyabr', value: 'Reja', color: GC.amber },
+                    { label: 'Innoprom Markaziy Osiyo', sub: 'Toshkent · 28–30 aprel', value: "O'tdi", color: GC.slate },
+                ]} />
+            </Card>
+
+            <Card title="Inqiroz kommunikatsiyalari">
+                <BigStatGrid items={[
+                    { label: 'Monitoring', value: '24/7', sub: 'faol', color: GC.green },
+                    { label: 'Reputatsion hodisalar', value: '3', sub: 'shu oyda', color: GC.amber },
+                    { label: 'Media insidentlar', value: '2', sub: 'hal etildi', color: GC.accent1 },
+                    { label: 'Soxta xabarlar', value: '1', sub: 'nazoratda', color: GC.red },
+                ]} />
+            </Card>
+
+            <Card title="Reputatsion xavf">
+                <BigGauge
+                    value={18} display="18" caption="past xavf (0–100)" color={GC.green}
+                    rows={[
+                        { label: 'Past', value: '0–30', color: GC.green },
+                        { label: "O'rta", value: '31–60', color: GC.amber },
+                        { label: 'Yuqori', value: '61+', color: GC.red },
+                    ]}
+                />
+            </Card>
+
+            <Card title="Media so'rovlariga javob vaqti, daqiqa">
+                <BigChartBox>
+                    <Line data={{
+                        labels: MONTHS,
+                        datasets: [
+                            lineDs('Javob vaqti', [34, 31, 27, 24, 21, 18], ORANGE, true),
+                            lineDs('Maqsad', [20, 20, 20, 20, 20, 20], GC.green),
+                        ],
+                    }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales() } as any} />
+                </BigChartBox>
+            </Card>
+
+            <Card title="ESG idroki — jamoatchilik fikri">
+                <BigProgressList items={[
+                    { label: 'Ekologik mas\'uliyat', value: 78, display: '78%', color: GC.green },
+                    { label: 'Ijtimoiy hissa', value: 84, display: '84%', color: GC.accent1 },
+                    { label: 'Korporativ boshqaruv', value: 76, display: '76%', color: GC.violet },
+                    { label: 'Shaffoflik', value: 71, display: '71%', color: GC.amber },
+                ]} />
+            </Card>
+
+            <Card title="Hamkorliklar yo'nalishlari">
+                <BigDonutBody
+                    parts={[
+                        { label: 'Investitsiya', value: 11, color: GC.accent1 },
+                        { label: 'Texnologiya', value: 8, color: GC.violet },
+                        { label: "Ta'lim", value: 6, color: GC.green },
+                        { label: 'Savdo', value: 4, color: GC.amber },
+                        { label: 'Media', value: 2, color: GC.accent2 },
+                    ]}
+                    center="31" centerSub="hamkorlik" formatValue={(v) => String(v)}
+                />
+            </Card>
+
+            <Card title="Sun'iy intellekt prognozlari">
+                <BigForecastList items={AI_FORECASTS} />
+            </Card>
         </div>
-    );
-};
+    </BigDashRoot>
+);
 
 export default MarketingDetail;

@@ -141,11 +141,18 @@ const TopCenter = ({
                 >
                     STRUKTURA 3
                 </button>
+
                 <button
                     className={`top-center-tab${activeTab === 4 ? ' active' : ''}`}
                     onClick={() => setActiveTab(4)}
                 >
                     XARITA
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 3 ? ' active' : ''}`}
+                    onClick={() => navigate("/main/prod/investmap")}
+                >
+                    XARITA 2
                 </button>
                 <button
                     className={`top-center-tab${activeTab === 5 ? ' active' : ''}`}

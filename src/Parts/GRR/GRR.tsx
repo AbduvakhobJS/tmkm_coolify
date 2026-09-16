@@ -430,7 +430,7 @@ const GRR: React.FC = () => {
 
                 {/* Loyihalar bo'yicha xulosa */}
                 <SectionCard title="Loyihalar bo'yicha xulosa" bodyStyle={{ overflowY: 'auto' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 7, flexShrink: 0, marginBottom: 11 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 7, flexShrink: 0, marginBottom: 11 }}>
                         {[
                             { label: 'Jami loyihalar', value: summary.totalProjects },
                             ...summary.byGroup.map((g) => ({ label: g.key, value: g.count })),
@@ -443,7 +443,7 @@ const GRR: React.FC = () => {
                         ))}
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13.5, marginBottom: 11 }}>
+                    <div style={{ display: 'flex',marginTop: 10, flexDirection: 'column', gap: 8, fontSize: 13.5, marginBottom: 11 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span style={{ color: C.sub }}>Portfel byudjeti:</span>
                             <span style={{ color: C.text, fontWeight: 700 }}>{fmt(summary.cost.totalMlnUsd, 2)} mln $</span>
@@ -466,25 +466,25 @@ const GRR: React.FC = () => {
                         </div>
                     </div>
 
-                    <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 9 }}>
-                        Portfelning o'rtacha vaznli tarkibi
-                    </div>
-                    <div style={{ color: C.sub, fontSize: 11.5, lineHeight: 1.45, marginBottom: 13 }}>
-                        Ma'lumot yo'q — element tarkibi (greyd, %) faqat 10/{summary.totalProjects} loyihada, u ham erkin matn ichida (masalan «Vanadiy 81,5 ming t, tarkibi 0,89%») — tuzilgan raqamli maydon sifatida mavjud emas.
-                    </div>
+                    {/*<div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 9 }}>*/}
+                    {/*    Portfelning o'rtacha vaznli tarkibi*/}
+                    {/*</div>*/}
+                    {/*<div style={{ color: C.sub, fontSize: 11.5, lineHeight: 1.45, marginBottom: 13 }}>*/}
+                    {/*    Ma'lumot yo'q — element tarkibi (greyd, %) faqat 10/{summary.totalProjects} loyihada, u ham erkin matn ichida (masalan «Vanadiy 81,5 ming t, tarkibi 0,89%») — tuzilgan raqamli maydon sifatida mavjud emas.*/}
+                    {/*</div>*/}
 
-                    <div style={{ display: 'flex', gap: 9, marginBottom: 13 }}>
-                        <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '9px 4px' }}>
-                            <div style={{ color: C.sub, fontSize: 10.5 }}>Loyihalar bahosi (NPV10%, mln dollar)</div>
-                            <div style={{ color: C.sub, fontSize: 17, fontWeight: 700, marginTop: 4 }}>Ma'lumot yo'q</div>
-                        </div>
-                        <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '9px 4px' }}>
-                            <div style={{ color: C.sub, fontSize: 10.5 }}>Portfel IRR</div>
-                            <div style={{ color: C.sub, fontSize: 17, fontWeight: 700, marginTop: 4 }}>Ma'lumot yo'q</div>
-                        </div>
-                    </div>
+                    {/*<div style={{ display: 'flex', gap: 9, marginBottom: 13 }}>*/}
+                    {/*    <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '9px 4px' }}>*/}
+                    {/*        <div style={{ color: C.sub, fontSize: 10.5 }}>Loyihalar bahosi (NPV10%, mln dollar)</div>*/}
+                    {/*        <div style={{ color: C.sub, fontSize: 17, fontWeight: 700, marginTop: 4 }}>Ma'lumot yo'q</div>*/}
+                    {/*    </div>*/}
+                    {/*    <div style={{ flex: 1, textAlign: 'center', background: C.cardAlt, border: `1px solid ${C.border}`, borderRadius: 8, padding: '9px 4px' }}>*/}
+                    {/*        <div style={{ color: C.sub, fontSize: 10.5 }}>Portfel IRR</div>*/}
+                    {/*        <div style={{ color: C.sub, fontSize: 17, fontWeight: 700, marginTop: 4 }}>Ma'lumot yo'q</div>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
 
-                    <div style={{ color: GC.cyan, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 7 }}>
+                    <div style={{ color: GC.text, fontSize: 11.5, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 7 }}>
                         Loyiha guruhlari
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minHeight: 0 }}>
@@ -498,7 +498,7 @@ const GRR: React.FC = () => {
                                 </div>
                             ))}
                         </div>
-                        <div style={{ flex: 1, minWidth: 0, minHeight: 100, position: 'relative' }}>
+                        <div style={{ flex: 1, minWidth: 0, minHeight: 100,marginTop: "-10px", position: 'relative' }}>
                             <Doughnut data={stagesDonut} options={{ ...chartBase, cutout: '65%', ...noLegend } as any} plugins={[bigCenterText(`${summary.totalProjects}`, 'loyiha')]} />
                         </div>
                     </div>
@@ -529,7 +529,7 @@ const GRR: React.FC = () => {
                 {/*    <EmptyNote text="Tarkib (greyd, %) manbada faqat 10/46 loyihada, erkin matn ichida — tuzilgan raqamli maydon sifatida yo'q, diagramma qurib bo'lmaydi." />*/}
                 {/*</SectionCard>*/}
 
-                <SectionCard title="2026 yil byudjeti — loyihalar kesimida, mln $" hint={`${projectsWithBudget2026.length}/${summary.totalProjects} loyihada`}>
+                <SectionCard title="2026 yil byudjeti (mln $)" hint={`${projectsWithBudget2026.length}/${summary.totalProjects} loyihada`}>
                     {projectsWithBudget2026.length ? (
                         <div style={{ flex: 1, minHeight: 0 }}>
                             <Bar data={budget2026Data} options={{
@@ -563,19 +563,19 @@ const GRR: React.FC = () => {
             </div>
 
             {/* Asosiy xulosalar */}
-            <SectionCard title="" style={{ padding: '13px 15px', flexShrink: 0 }} bodyStyle={{ flexDirection: 'row', gap: 0 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, width: '100%' }}>
-                    {findings.map((f) => (
-                        <div key={f.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, minWidth: 0 }}>
-                            <NeonIcon color={f.color} size={32}>{ICON_MAP[f.icon]}</NeonIcon>
-                            <div style={{ minWidth: 0 }}>
-                                <div style={{ color: C.text, fontSize: 13.5, fontWeight: 700 }}>{f.title}</div>
-                                <div style={{ color: C.sub, fontSize: 12.5, marginTop: 4, lineHeight: 1.4 }}>{f.text}</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </SectionCard>
+            {/*<SectionCard title="" style={{ padding: '13px 15px', flexShrink: 0 }} bodyStyle={{ flexDirection: 'row', gap: 0 }}>*/}
+            {/*    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, width: '100%' }}>*/}
+            {/*        {findings.map((f) => (*/}
+            {/*            <div key={f.title} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, minWidth: 0 }}>*/}
+            {/*                <NeonIcon color={f.color} size={32}>{ICON_MAP[f.icon]}</NeonIcon>*/}
+            {/*                <div style={{ minWidth: 0 }}>*/}
+            {/*                    <div style={{ color: C.text, fontSize: 13.5, fontWeight: 700 }}>{f.title}</div>*/}
+            {/*                    <div style={{ color: C.sub, fontSize: 12.5, marginTop: 4, lineHeight: 1.4 }}>{f.text}</div>*/}
+            {/*                </div>*/}
+            {/*            </div>*/}
+            {/*        ))}*/}
+            {/*    </div>*/}
+            {/*</SectionCard>*/}
         </div>
     );
 };

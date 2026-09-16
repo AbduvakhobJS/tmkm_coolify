@@ -32,6 +32,11 @@ export type AlarmEvent = {
     archived?: boolean;
     /** Modalda ko'rsatiladigan toifaga xos qo'shimcha maydonlar. */
     details: { label: string; value: string }[];
+    /** `public/alarm/` ichidagi rasm; berilmasa toifaga mos rasm olinadi. */
+    image?: string;
+    /** Jonli kelgan alarm vaqti (ms) — faqat real vaqtda kelgan hodisalarda
+        bo'ladi; "Yangi birinchi" saralashda ular doim tepada turadi. */
+    receivedAt?: number;
 };
 
 /* ── Holat (severity) uslublari ───────────────────────────────────────────
@@ -88,6 +93,47 @@ export const FILTERS: { key: FilterKey; label: string }[] = [
     { key: 'ogohlantirish', label: 'Ogohlantirish' },
     { key: 'axborot', label: 'Axborot' },
     { key: 'arxiv', label: 'Arxiv' },
+];
+
+/* ── Jonli (avariya) alarmlar shablonlari ─────────────────────────────────
+   API ulanmaguncha har `ALARM_INTERVAL_MS` da navbatdagi shablondan yangi
+   alarm yaratiladi. Har biri o'z rasmiga mos: `gaz.png` — pechda harorat
+   oshishi, `odam.png` — taqiqlangan hududga odam kirishi, `pj.png` — yong'in. */
+export const ALARM_INTERVAL_MS = 5 * 60 * 1000;
+
+export type AlarmTemplate = Omit<AlarmEvent, 'id' | 'time' | 'receivedAt'>;
+
+export const INCOMING_ALARMS: AlarmTemplate[] = [
+    {
+        type: 'SCADA', location: '3-pech · Eritish sexi', severity: 'kritik',
+        description: 'Pechda harorat oshishi kuzatildi', image: 'gaz.png',
+        details: [
+            { label: 'Datchik', value: 'TE-3 · 3-pech termoparasi' },
+            { label: 'Joriy harorat', value: '1187 °C (▲ +67 °C)' },
+            { label: "Me'yoriy diapazon", value: '900 – 1100 °C' },
+            { label: 'Javobgar', value: "Navbatchi texnolog — mas'ul xodimlarni ogohlantiring" },
+        ],
+    },
+    {
+        type: 'Videotahlil', location: 'Sanoat zonasi / 3-uchastka', severity: 'kritik',
+        description: 'Taqiqlangan hududga odam kirdi', image: 'odam.png',
+        details: [
+            { label: 'Kamera', value: '10.50.10.102' },
+            { label: 'Aniqlangan obyekt', value: 'Odam — taqiqlangan hududda harakatlanmoqda' },
+            { label: 'Hudud', value: 'Sanoat zonasi / 3-uchastka' },
+            { label: 'Javobgar', value: 'Xavfsizlik xizmati — darhol javob choralarini ko‘ring' },
+        ],
+    },
+    {
+        type: "Yong'in", location: 'Energetika bloki', severity: 'kritik',
+        description: "Yong'in signali", image: 'pj.png',
+        details: [
+            { label: 'Datchik', value: 'Tutun datchigi DS-07' },
+            { label: 'Holat', value: "Yong'in o'chirish tizimi ishga tushdi" },
+            { label: 'Kamera', value: 'CAM-21 · Energetika bloki' },
+            { label: 'Javobgar', value: "Favqulodda vaziyatlar xizmati chaqirildi" },
+        ],
+    },
 ];
 
 /* ── Namunaviy hodisalar ──

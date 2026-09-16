@@ -229,7 +229,39 @@ export interface InvestProjectListItem {
     product: string | null;
     commissioningText: string | null;
     fsState: string | null;
+    /* INVEST_PROJECTS_API.md dagi qolgan maydonlar. Muhim qoidalar:
+       • `progressShare`, `irrShare` — ULUSH (0…1), foiz emas;
+       • `*Text` juftlari — son YOKI matn («TIA da aniqlanadi»), birga to'lmaydi;
+       • `annualOutputQty` — aralash o'lchov (tonna/dona), hech qachon yig'ilmaydi. */
+    sortOrder?: number | null;
+    lat?: number | null;
+    lon?: number | null;
+    coordsAccuracy?: 'exact' | 'region' | null;
+    paybackYears?: number | null;
+    paybackText?: string | null;
+    irrShare?: number | null;
+    irrText?: string | null;
+    npvMlnUsd?: number | null;
+    npvText?: string | null;
+    annualOutputMlnUsd?: number | null;
+    annualOutputQty?: number | null;
+    annualOutputQtyText?: string | null;
+    buildStartText?: string | null;
+    docState?: string | null;
+    areaHa?: number | null;
+    equipment?: string | null;
+    objectKind?: string | null;
+    funding?: string | null;
+    risks?: string | null;
     [key: string]: any;
+}
+
+/** Parametrsiz — reestrdagi BARCHA loyihalar (hujjat: filtr berilmasa hammasi). */
+export const getAllInvestProjects = async (lang: string = "uz"): Promise<InvestProjectListItem[]> => {
+    const response = await factoryClient.get("/invest-projects", {
+        params: { lang },
+    });
+    return response.data?.data ?? response.data ?? [];
 }
 
 export const getInvestProjectsList = async (type: InvestProjectType, lang: string = "uz"): Promise<InvestProjectListItem[]> => {

@@ -90,15 +90,40 @@ const NewNavbar: React.FC<NewNavbarProps> = ({
                 </div>
 
                 {/* markaz — bo'sh hex qismi (fon rasmda), dinamik cho'ziladi */}
-                <div className="nnav-center" >
-                    <h1>TMK SITUATSION MARKAZI</h1>
-                    <div className="top-right">
-                        <div className="clock-block">
-                            <div className="live-time">{time}</div>
-                            <div className="live-date">{date}</div>
+                <div className="nnav-center" style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
+                    {/* Ichki qator KONTENT bo'yicha o'lchanadi: `.nnav-center` butun
+                        navbar balandligini egallagani uchun logotipga to'g'ridan-to'g'ri
+                        `height:100%` berilsa, u haddan tashqari kattalashib ketardi.
+                        Endi qator balandligini o'ngdagi matn bloki belgilaydi, logotip
+                        esa `align-self: stretch` bilan aynan shunga tenglashadi. */}
+                    <div style={{display: "flex", flexDirection: "row", alignItems: "stretch", gap: 16}}>
+                        {/* `minHeight: 0` SHART: flex elementining standart
+                            `min-height: auto` qiymati rasmning tabiiy balandligini
+                            qatorga "surib" kiritib, uni matndan balandroq qilib
+                            yuborardi. `padding: 12px 0` — tepa-pastdan 12px siqilish. */}
+                        <div style={{
+                            alignSelf: "stretch", minHeight: 0, overflow: "hidden",
+                            display: "flex", alignItems: "center",
+                            padding: "12px 0", boxSizing: "border-box",
+                        }}>
+                            <img
+                                src="/imgs/logouz2.svg"
+                                alt=""
+                                style={{height: "50px",marginLeft: "-6px", width: "auto", minHeight: 0, objectFit: "contain", display: "block"}}
+                            />
                         </div>
-                        <br/>
-                        {/*<div className="status-pill pulse-green">● SYSTEM LIVE</div>*/}
+                        <div style={{display: "flex", alignItems: "center", marginLeft: "10px"}}>
+                           <div>
+                               {/*<h1 style={{marginLeft: 10}}>SITUATSION MARKAZI</h1>*/}
+                               <div className="top-right">
+                                   <div className="clock-block" style={{display: "flex"}}>
+                                       <div className="live-time">{date}</div>
+                                       <div className="live-time" style={{marginLeft: "30px", width: 110}}>{time}</div>
+                                   </div>
+                                   {/*<div className="status-pill pulse-green">● SYSTEM LIVE</div>*/}
+                               </div>
+                           </div>
+                        </div>
                     </div>
                 </div>
 

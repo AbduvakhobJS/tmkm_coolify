@@ -636,23 +636,23 @@ export default function EnterExitMain() {
                                 </Panel>
 
                                 {/* Qurilma turlari */}
-                                <Panel style={{flexShrink:0}} autoHeight title="Qurilma turlari">
-                                    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,padding:'9px 11px'}}>
-                                        {devItems.map(({label,count,color,icon})=>(
-                                            <div key={label} style={{
-                                                display:'flex',flexDirection:'column',alignItems:'center',gap:6,
-                                                padding:'9px 4px',background:'rgba(255,255,255,0.03)',
-                                                border:`1px solid ${color}20`,borderRadius:9,
-                                            }}>
-                                                <div style={{color,opacity:.8}}>{icon}</div>
-                                                <div style={{fontSize:19,fontWeight:700,color,lineHeight:1}}>
-                                                    <Counter to={count}/>
-                                                </div>
-                                                <div style={{fontSize:10.5,color:T.text,textAlign:'center'}}>{label}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </Panel>
+                                {/*<Panel style={{flexShrink:0}} autoHeight title="Qurilma turlari">*/}
+                                {/*    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,padding:'9px 11px'}}>*/}
+                                {/*        {devItems.map(({label,count,color,icon})=>(*/}
+                                {/*            <div key={label} style={{*/}
+                                {/*                display:'flex',flexDirection:'column',alignItems:'center',gap:6,*/}
+                                {/*                padding:'9px 4px',background:'rgba(255,255,255,0.03)',*/}
+                                {/*                border:`1px solid ${color}20`,borderRadius:9,*/}
+                                {/*            }}>*/}
+                                {/*                <div style={{color,opacity:.8}}>{icon}</div>*/}
+                                {/*                <div style={{fontSize:19,fontWeight:700,color,lineHeight:1}}>*/}
+                                {/*                    <Counter to={count}/>*/}
+                                {/*                </div>*/}
+                                {/*                <div style={{fontSize:10.5,color:T.text,textAlign:'center'}}>{label}</div>*/}
+                                {/*            </div>*/}
+                                {/*        ))}*/}
+                                {/*    </div>*/}
+                                {/*</Panel>*/}
                             </div>
                         </div>
 

@@ -99,7 +99,7 @@ root.render(
           <Route path="/main/esg-detail" element={<PrivateRoute><NavbarOverlay><EsgDetail /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/finance" element={<PrivateRoute><Finance /></PrivateRoute>} />
           <Route path="/main/finance-new" element={<PrivateRoute><NavbarOverlay><FinanceNew /></NavbarOverlay></PrivateRoute>} />
-          <Route path="/main/finance-new-main" element={<PrivateRoute><FinanceNewMain /></PrivateRoute>} />
+          <Route path="/main/finance-new-main" element={<PrivateRoute><NavbarOverlay><FinanceNewMain /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/birja" element={<PrivateRoute><Birja /></PrivateRoute>} />
           <Route path="/main/investing" element={<PrivateRoute><NavbarOverlay><Investing /></NavbarOverlay></PrivateRoute>} />
           <Route path="/main/single-treasury" element={<PrivateRoute><NavbarOverlay><SingleTreasury /></NavbarOverlay></PrivateRoute>} />

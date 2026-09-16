@@ -1,7 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { GC } from '../../theme/palette';
-import { ALARM_EVENTS, AlarmEvent, FILTERS, FilterKey, SEVERITY, Severity, barColor } from './data';
-import EventModal, { TypeIcon } from './EventModal';
+import {
+    ALARM_EVENTS, ALARM_INTERVAL_MS, INCOMING_ALARMS, AlarmEvent, FILTERS, FilterKey, SEVERITY, Severity, barColor,
+} from './data';
+import EventModal, { TypeIcon, playAlarmSound } from './EventModal';
 
 /* ══════════════════════════════════════════════════════════════════════════
    ALARMLAR VA HODISALAR — chapdan ochiluvchi bildirishnoma paneli.
@@ -42,6 +44,20 @@ const SORTS: { key: SortKey; label: string }[] = [
     { key: 'old', label: 'Eski birinchi' },
     { key: 'severity', label: 'Muhimligi bo\'yicha' },
 ];
+
+/* ── Avariya animatsiyalari ──
+   CSS animatsiyasi inline `style` dagi `background`/`color` ni ham ustidan
+   yozadi, shuning uchun tugma va qator o'z uslubini o'zgartirmasdan "yonib
+   o'chadi". */
+const ALARM_KEYFRAMES = `
+@keyframes nsb-bell-alarm {
+    0%, 100% { background: ${GC.bg800}; color: ${GC.danger}; box-shadow: 0 0 0 rgba(229,72,77,0); }
+    50%      { background: ${GC.danger}; color: #FFFFFF; box-shadow: 0 0 22px 4px rgba(229,72,77,.75); }
+}
+@keyframes nsb-row-alarm {
+    0%, 100% { background: rgba(229,72,77,.08); box-shadow: inset 0 0 0 1px rgba(229,72,77,.25); }
+    50%      { background: rgba(229,72,77,.42); box-shadow: inset 0 0 0 1px ${GC.danger}, 0 0 18px rgba(229,72,77,.5); }
+}`;
 
 /** Og'ish darajasi bo'yicha tartib (kichik raqam — muhimroq). */
 const SEV_RANK: Record<Severity, number> = { kritik: 0, ogohlantirish: 1, axborot: 2, normal: 3 };
@@ -118,7 +134,7 @@ const FilterTab: React.FC<{
 );
 
 /* ── Hodisa qatori ── */
-const EventRow: React.FC<{ event: AlarmEvent; striped: boolean; onOpen: () => void }> = ({ event, striped, onOpen }) => {
+const EventRow: React.FC<{ event: AlarmEvent; striped: boolean; alarm?: boolean; onOpen: () => void }> = ({ event, striped, alarm, onOpen }) => {
     const sev = SEVERITY[event.severity];
     const [hover, setHover] = useState(false);
 
@@ -139,6 +155,8 @@ const EventRow: React.FC<{ event: AlarmEvent; striped: boolean; onOpen: () => vo
                 borderLeft: `4px solid ${barColor(event)}`,
                 background: hover ? 'rgba(255,255,255,0.045)' : striped ? 'rgba(255,255,255,0.018)' : 'transparent',
                 cursor: 'pointer', transition: 'background .12s',
+                /* Ko'rib chiqilmagan avariya — bosilguncha qizil yonib o'chadi. */
+                animation: alarm ? 'nsb-row-alarm 1s ease-in-out infinite' : undefined,
             }}
         >
             {/* Toifa ikonkasi — rangi chap chetidagi chiziq bilan bir xil
@@ -173,7 +191,9 @@ const EventRow: React.FC<{ event: AlarmEvent; striped: boolean; onOpen: () => vo
 };
 
 /* ── "Barchasini ko'rish" modali — toifalarga ajratilgan to'liq ro'yxat ── */
-const AllEventsModal: React.FC<{ events: AlarmEvent[]; onPick: (e: AlarmEvent) => void; onClose: () => void }> = ({ events, onPick, onClose }) => {
+const AllEventsModal: React.FC<{
+    events: AlarmEvent[]; alarmIds: Set<string>; onPick: (e: AlarmEvent) => void; onClose: () => void;
+}> = ({ events, alarmIds, onPick, onClose }) => {
     /* Toifa bo'yicha guruhlash — foydalanuvchi so'raganidek, alarmlar
        videotahlil / yong'in / ESG / SCADA / SKUD / ishlab chiqarish
        kesimida ko'rinadi. */
@@ -235,7 +255,7 @@ const AllEventsModal: React.FC<{ events: AlarmEvent[]; onPick: (e: AlarmEvent) =
                                 <span style={{ color: GC.textDisabled, fontWeight: 400 }}>· {list.length}</span>
                             </div>
                             {list.map((e, i) => (
-                                <EventRow key={e.id} event={e} striped={i % 2 === 1} onOpen={() => onPick(e)} />
+                                <EventRow key={e.id} event={e} striped={i % 2 === 1} alarm={alarmIds.has(e.id)} onOpen={() => onPick(e)} />
                             ))}
                         </div>
                     ))}
@@ -253,26 +273,86 @@ const NotificationSideBar: React.FC = () => {
     const [sort, setSort] = useState<SortKey>('new');
     const [selected, setSelected] = useState<AlarmEvent | null>(null);
     const [showAll, setShowAll] = useState(false);
+    /* Jonli kelgan alarmlar (eng yangisi boshida) va hali ochib ko'rilmaganlari. */
+    const [incoming, setIncoming] = useState<AlarmEvent[]>([]);
+    const [alarmIds, setAlarmIds] = useState<Set<string>>(() => new Set());
+    const events = useMemo(() => [...incoming, ...ALARM_EVENTS], [incoming]);
+    const hasAlarm = alarmIds.size > 0;
+
+    /* Avariya kelishi: API ulanmaguncha har `ALARM_INTERVAL_MS` (5 daqiqa)
+       da navbatdagi shablondan yangi kritik alarm yaratiladi — signal
+       chalinadi, qo'ng'iroqcha va ro'yxatdagi qator yonib o'chadi. */
+    const raiseAlarm = useCallback((index: number) => {
+        const tpl = INCOMING_ALARMS[index % INCOMING_ALARMS.length];
+        const now = new Date();
+        const event: AlarmEvent = {
+            ...tpl,
+            id: `live-${now.getTime()}`,
+            time: now.toTimeString().slice(0, 5),
+            receivedAt: now.getTime(),
+        };
+        setIncoming((list) => [event, ...list].slice(0, 30));
+        setAlarmIds((ids) => new Set(ids).add(event.id));
+        playAlarmSound();
+    }, []);
+
+    useEffect(() => {
+        let index = 0;
+        const timer = window.setInterval(() => raiseAlarm(index++), ALARM_INTERVAL_MS);
+        /* Faqat ishlab chiqish rejimida: 5 daqiqa kutmasdan tekshirish uchun
+           brauzer konsolidan `__raiseAlarm()` chaqiriladi. */
+        if (process.env.NODE_ENV === 'development') {
+            (window as any).__raiseAlarm = () => raiseAlarm(index++);
+        }
+        return () => {
+            window.clearInterval(timer);
+            if (process.env.NODE_ENV === 'development') delete (window as any).__raiseAlarm;
+        };
+    }, [raiseAlarm]);
+
+    /* Hodisani ochish — avariya bo'lsa "ko'rib chiqildi" hisoblanadi va
+       yonib o'chishi to'xtaydi (signal modal ochilganda chalinadi). */
+    const openEvent = (e: AlarmEvent) => {
+        setAlarmIds((ids) => {
+            if (!ids.has(e.id)) return ids;
+            const next = new Set(ids);
+            next.delete(e.id);
+            return next;
+        });
+        setSelected(e);
+    };
+
+    /* Avariya paytida qo'ng'iroqcha bosilsa — yangi alarm ro'yxatning
+       birinchi qatorida ko'rinishi uchun filtr, qidiruv va saralash
+       boshlang'ich holatga qaytariladi. */
+    const toggleSidebar = () => {
+        if (!open && hasAlarm) {
+            setFilter('all');
+            setQuery('');
+            setSort('new');
+        }
+        setOpen((v) => !v);
+    };
 
     /* Yorliqlardagi sonlar ma'lumotdan hisoblanadi — qo'lda yozilmaydi.
        Daraja bo'yicha sonlar faqat FAOL hodisalarni sanaydi, chunki
        arxivlanganlari o'sha yorliqlarda ko'rsatilmaydi — aks holda son
        ro'yxatdagi qatorlar soniga to'g'ri kelmay qolardi. */
     const counts: Record<FilterKey, number> = useMemo(() => {
-        const live = ALARM_EVENTS.filter((e) => !e.archived);
+        const live = events.filter((e) => !e.archived);
         return {
             all: live.length,
             kritik: live.filter((e) => e.severity === 'kritik').length,
             ogohlantirish: live.filter((e) => e.severity === 'ogohlantirish').length,
             axborot: live.filter((e) => e.severity === 'axborot').length,
             normal: live.filter((e) => e.severity === 'normal').length,
-            arxiv: ALARM_EVENTS.filter((e) => e.archived).length,
+            arxiv: events.filter((e) => e.archived).length,
         };
-    }, []);
+    }, [events]);
 
     const visible = useMemo(() => {
         const q = query.trim().toLowerCase();
-        const list = ALARM_EVENTS.filter((e) => {
+        const list = events.filter((e) => {
             /* Arxiv — darajadan mustaqil o'q: arxivlangan hodisa FAQAT "Arxiv"
                yorlig'ida, qolgan yorliqlarda faqat faol hodisalar ko'rinadi. */
             if (filter === 'arxiv' ? !e.archived : e.archived) return false;
@@ -280,11 +360,15 @@ const NotificationSideBar: React.FC = () => {
             if (!q) return true;
             return [e.type, e.location, e.description, e.time].some((v) => v.toLowerCase().includes(q));
         });
+        /* Jonli alarmlar `receivedAt` bo'yicha — `HH:MM` matni yarim tundan
+           keyin namunaviy hodisalardan "kichik" chiqib qolmasligi uchun. */
+        const newer = (a: AlarmEvent, b: AlarmEvent) =>
+            (b.receivedAt ?? 0) - (a.receivedAt ?? 0) || b.time.localeCompare(a.time);
         return [...list].sort((a, b) => {
-            if (sort === 'severity') return SEV_RANK[a.severity] - SEV_RANK[b.severity] || b.time.localeCompare(a.time);
-            return sort === 'old' ? a.time.localeCompare(b.time) : b.time.localeCompare(a.time);
+            if (sort === 'severity') return SEV_RANK[a.severity] - SEV_RANK[b.severity] || newer(a, b);
+            return sort === 'old' ? newer(b, a) : newer(a, b);
         });
-    }, [filter, query, sort]);
+    }, [events, filter, query, sort]);
 
     /* Ikonka ustidagi belgi — ko'rib chiqilmagan kritik/ogohlantirishlar soni. */
     const badge = counts.kritik + counts.ogohlantirish;
@@ -298,9 +382,11 @@ const NotificationSideBar: React.FC = () => {
 
     return (
         <>
+            <style>{ALARM_KEYFRAMES}</style>
+
             {/* ── Ochish/yopish tugmasi ── */}
             <button
-                onClick={() => setOpen((v) => !v)}
+                onClick={toggleSidebar}
                 aria-label={open ? 'Bildirishnomalarni yopish' : 'Bildirishnomalarni ochish'}
                 title="Hodisalar"
                 style={{
@@ -311,6 +397,8 @@ const NotificationSideBar: React.FC = () => {
                     color: badge > 0 ? GC.danger : GC.textSecondary,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'left .28s cubic-bezier(.4,0,.2,1)',
+                    /* Avariya bo'lsa — ko'rib chiqilguncha qizil yonib o'chadi. */
+                    animation: hasAlarm ? 'nsb-bell-alarm 1s ease-in-out infinite' : undefined,
                 }}
             >
                 {
@@ -439,7 +527,7 @@ const NotificationSideBar: React.FC = () => {
                         </div>
                     ) : (
                         visible.map((e, i) => (
-                            <EventRow key={e.id} event={e} striped={i % 2 === 1} onOpen={() => setSelected(e)} />
+                            <EventRow key={e.id} event={e} striped={i % 2 === 1} alarm={alarmIds.has(e.id)} onOpen={() => openEvent(e)} />
                         ))
                     )}
                 </div>
@@ -467,7 +555,8 @@ const NotificationSideBar: React.FC = () => {
             {showAll && (
                 <AllEventsModal
                     events={visible}
-                    onPick={(e) => { setShowAll(false); setSelected(e); }}
+                    alarmIds={alarmIds}
+                    onPick={(e) => { setShowAll(false); openEvent(e); }}
                     onClose={() => setShowAll(false)}
                 />
             )}

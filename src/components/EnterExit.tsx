@@ -1,719 +1,559 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Doughnut, Line } from 'react-chartjs-2';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Bar, Line } from 'react-chartjs-2';
 import {
-    Chart as ChartJS, ArcElement, Tooltip, Legend,
+    Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement,
     CategoryScale, LinearScale, LineElement, PointElement, Filler,
 } from 'chart.js';
-import StreamGrid from "./VideoStream";
-import { GC } from '../theme/palette';
+import StreamGrid from './VideoStream';
+import { GC, alpha } from '../theme/palette';
+import { C, chartBase, noLegend } from './dashboardUI';
+import {
+    BigCard, BigKpiCard, BigDashRoot, legendLarge, bigBarLabel, bigHeaderTitle, bigHeaderPill,
+    BigChartBox, BigDonutBody, BigForecastList, bigScales, bigDemoCardStyle, fmtGrouped,
+    BigProgressList, BigStatGrid, BigRowList, BigGauge,
+    type BigForecast, type BigRow,
+} from './dashboardUILarge';
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, LineElement, PointElement, Filler);
+ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale, LineElement, PointElement, Filler);
 
-/* ─────────────────────────────────────────────────────────
-   API  (TMK_API_Docs.pdf)
-───────────────────────────────────────────────────────── */
-const BASE    = 'https://citynet.synterra.uz';
-const PHONE   = '998901234568';
+/* ══════════════════════════════════════════════════════════════════════════
+   KIRISH-CHIQISH NAZORATI VA VIDEOKUZATUV — TO'LIQ EKRAN (33 ta karta)
+
+   Uslub FinanceNewMain / SingleTreasury bilan bir xil: `BigDashRoot` +
+   sarlavha + 10 ta `BigKpiCard` + 7 ustun × 4 qatorli `BigCard` to'ri.
+
+   MA'LUMOT — AVVAL HAQIQIY API (EnterExitMain bilan bir xil, TMK_API_Docs):
+     • `/api/reports/tmk`        — holat kartalari, xodimlar, aniqlanmagan shaxslar;
+     • `/api/reports/today-tmk`  — bugun kelgan / ketganlar (obyekt bilan);
+     • WebSocket                 — yangi hodisada qayta yuklash;
+     • Videokuzatuv              — jonli oqim (`StreamGrid`).
+   Haqiqiy kartalar 1–3-qatorda. API javob bermasa, ular xuddi shu shakldagi
+   namuna ma'lumot bilan to'ladi va SARIQ ramka oladi.
+
+   DEMO (SARIQ ramka) — 4-qator: API'da tarix (hafta/oy), kamera va turniket
+   holati yo'q; sun'iy intellekt prognozlari.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── API ── */
+const BASE = 'https://citynet.synterra.uz';
+const PHONE = '998901234568';
 const REFRESH = 20_000;
 
-interface CardStat  { count: number; change_percent: number; percent_of_total: number; }
-interface Cards     { arrived: CardStat; not_arrived: CardStat; late: CardStat; early_left: CardStat; currently_in: CardStat; left: CardStat; not_found: CardStat; }
+interface CardStat { count: number; change_percent: number; percent_of_total: number; }
+interface Cards { arrived: CardStat; not_arrived: CardStat; late: CardStat; early_left: CardStat; currently_in: CardStat; left: CardStat; not_found: CardStat; }
 interface NotFoundP { id: number; photo: string; formatted_date: string; turniket_name: string; door: string; door_label: string; full_name?: string; tab_number?: string; department?: string; position?: string; }
-interface Employee  { id: number; full_name: string; department: string; position: string; image: string; status: string; is_late: boolean; is_early_left: boolean; entry_time: string|null; exit_time: string|null; last_log?: { door_label: string; time: string }; }
-interface Dash      { date: string; total_users: number; cards: Cards; not_found_persons: NotFoundP[]; employees: Employee[]; }
+interface Employee { id: number; full_name: string; department: string; position: string; image: string; status: string; is_late: boolean; is_early_left: boolean; entry_time: string | null; exit_time: string | null; last_log?: { door_label: string; time: string }; }
+interface Dash { date: string; total_users: number; cards: Cards; not_found_persons: NotFoundP[]; employees: Employee[]; }
+interface TodayEmp { id: number; full_name: string; department: string; entry_time: string | null; exit_time: string | null; image: string; status: string; is_late: boolean; object_id: number; object_name: string; }
 
-/* today-tmk response (Section 7 of API docs) */
-interface TodayEmp {
-    id: number; full_name: string; department: string;
-    entry_time: string|null; exit_time: string|null;
-    image: string; status: string; is_late: boolean;
-    object_id: number; object_name: string;
-}
-
-const CS0: CardStat = { count:0, change_percent:0, percent_of_total:0 };
+const CS0: CardStat = { count: 0, change_percent: 0, percent_of_total: 0 };
 const D0: Dash = {
-    date:'', total_users:0,
-    cards:{ arrived:CS0,not_arrived:CS0,late:CS0,early_left:CS0,currently_in:CS0,left:CS0,not_found:CS0 },
-    not_found_persons:[], employees:[],
+    date: '', total_users: 0,
+    cards: { arrived: CS0, not_arrived: CS0, late: CS0, early_left: CS0, currently_in: CS0, left: CS0, not_found: CS0 },
+    not_found_persons: [], employees: [],
 };
 
 async function login(): Promise<string> {
-    const r = await fetch(`${BASE}/api/login`,{
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({phone:PHONE}),
+    const r = await fetch(`${BASE}/api/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: PHONE }),
     });
-    if(!r.ok) throw new Error(`Login ${r.status}`);
+    if (!r.ok) throw new Error(`Login ${r.status}`);
     const j = await r.json();
     const t = j?.data?.token;
-    if(!t) throw new Error('Token yo\'q');
+    if (!t) throw new Error("Token yo'q");
     return t;
 }
 
-async function fetchDash(token:string): Promise<Dash> {
-    const r = await fetch(`${BASE}/api/reports/tmk`,{headers:{Authorization:`Bearer ${token}`}});
-    if(!r.ok) throw new Error(`Dash ${r.status}`);
+async function fetchDash(token: string): Promise<Dash> {
+    const r = await fetch(`${BASE}/api/reports/tmk`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) throw new Error(`Dash ${r.status}`);
     const j = await r.json();
     const d = j?.data ?? j ?? {};
     const c = d.cards ?? {};
     return {
-        date: d.date??'', total_users: d.total_users??0,
-        cards:{
-            arrived:     {...CS0,...(c.arrived??{})},
-            not_arrived: {...CS0,...(c.not_arrived??{})},
-            late:        {...CS0,...(c.late??{})},
-            early_left:  {...CS0,...(c.early_left??{})},
-            currently_in:{...CS0,...(c.currently_in??{})},
-            left:        {...CS0,...(c.left??{})},
-            not_found:   {...CS0,...(c.not_found??{})},
+        date: d.date ?? '', total_users: d.total_users ?? 0,
+        cards: {
+            arrived: { ...CS0, ...(c.arrived ?? {}) },
+            not_arrived: { ...CS0, ...(c.not_arrived ?? {}) },
+            late: { ...CS0, ...(c.late ?? {}) },
+            early_left: { ...CS0, ...(c.early_left ?? {}) },
+            currently_in: { ...CS0, ...(c.currently_in ?? {}) },
+            left: { ...CS0, ...(c.left ?? {}) },
+            not_found: { ...CS0, ...(c.not_found ?? {}) },
         },
-        not_found_persons: Array.isArray(d.not_found_persons)?d.not_found_persons:[],
-        employees:         Array.isArray(d.employees)?d.employees:[],
+        not_found_persons: Array.isArray(d.not_found_persons) ? d.not_found_persons : [],
+        employees: Array.isArray(d.employees) ? d.employees : [],
     };
 }
 
-/* today-tmk — Section 7 */
-async function fetchToday(token:string, status:'arrived'|'left'): Promise<TodayEmp[]> {
-    const r = await fetch(`${BASE}/api/reports/today-tmk?status=${status}`,{
-        headers:{Authorization:`Bearer ${token}`},
-    });
-    if(!r.ok) throw new Error(`Today ${r.status}`);
+async function fetchToday(token: string, status: 'arrived' | 'left'): Promise<TodayEmp[]> {
+    const r = await fetch(`${BASE}/api/reports/today-tmk?status=${status}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) throw new Error(`Today ${r.status}`);
     const j = await r.json();
     const d = j?.data ?? [];
     return Array.isArray(d) ? d : [];
 }
 
-/* ─────────────────────────────────────────────────────────
-   THEME  — rasmga mos ranglar
-───────────────────────────────────────────────────────── */
-const T = {
-    bg:     'var(--gc-panel-bg)',  // gc-panel-bg (faqat to'g'ridan-to'g'ri property)
-    card:   'var(--gc-card-bg)',   // gc-card-bg
-    border: 'rgba(255,255,255,0.09)',
-    cyan:   GC.cyan,  // = var(--gc-title) — template literal uchun hex kerak
-    cyan2:  GC.cyan,
-    green:  GC.green,
-    red:    GC.red,  // = var(--gc-red) — template literal uchun hex kerak
-    amber:  GC.amber,  blue:  GC.blue,
-    purple: GC.violet,  muted: '#6b7a99',
-    text:   'var(--gc-white)',
-    text2:   '#f1f2f6',
-    dim:    GC.slate,
-    b0:     GC.slate,
+/* ── Vaqt yordamchilari ──
+   API vaqti "08:12", "08:12:30" yoki "2026-06-05 08:12:30" bo'lishi mumkin —
+   birinchi "HH:MM" bo'lagi olinadi. */
+const minutesOf = (t: string | null | undefined): number | null => {
+    const m = /(\d{1,2}):(\d{2})/.exec(t ?? '');
+    return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+};
+const hhmm = (t: string | null | undefined) => {
+    const m = minutesOf(t);
+    return m === null ? '—' : `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 };
 
-/* ─────────────────────────────────────────────────────────
-   ANIMATED COUNTER
-───────────────────────────────────────────────────────── */
-function Counter({to,dur=900}:{to:number;dur?:number}) {
-    const [v,setV]=useState(0);
-    useEffect(()=>{
-        const s=performance.now();
-        const tick=(now:number)=>{
-            const p=Math.min((now-s)/dur,1);
-            setV(Math.round((1-Math.pow(1-p,3))*to));
-            if(p<1) requestAnimationFrame(tick);
+/* ── Namuna ma'lumot (API shaklida) — API javob bermaganda ── */
+const DEMO = (() => {
+    let seed = 20260605;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    const pick = <T,>(arr: T[]) => arr[Math.floor(rnd() * arr.length)];
+    const time = (min: number) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+
+    const first = ['Aziz', 'Dilshod', 'Nodira', 'Jasur', 'Malika', 'Otabek', 'Gulnora', 'Sardor', 'Zarina', 'Bekzod', 'Shahlo', 'Rustam', 'Kamola', 'Ulugʻbek', 'Feruza', 'Sherzod'];
+    const last = ['Karimov', 'Rahimova', 'Tursunov', 'Yusupova', 'Aliyev', 'Saidova', 'Ergashev', 'Qodirova', 'Nazarov', 'Xolmatova', 'Abdullayev', 'Mirzayeva'];
+    const depts = ['Ishlab chiqarish', 'Boshqaruv apparati', 'Moliya bo\'limi', 'IT bo\'limi', 'Xavfsizlik xizmati', 'Logistika', 'Kadrlar bo\'limi', 'Yuridik bo\'lim'];
+    const deptW = [30, 14, 10, 9, 12, 11, 7, 7];
+    const positions = ['Mutaxassis', 'Bosh mutaxassis', 'Muhandis', 'Operator', "Bo'lim boshlig'i", 'Haydovchi'];
+    const doors = ['Asosiy kirish', 'Shimoliy turniket', 'Avtoturargoh', 'Xizmat eshigi'];
+    const weighted = () => { let r = rnd() * 100; for (let i = 0; i < depts.length; i++) { r -= deptW[i]; if (r <= 0) return depts[i]; } return depts[0]; };
+
+    const employees: Employee[] = Array.from({ length: 160 }, (_, i) => {
+        const came = rnd() > 0.12;
+        const entry = came ? Math.round(450 + rnd() * 60 + rnd() * 60 + (rnd() > 0.88 ? 45 + rnd() * 40 : 0)) : null;
+        const leftAt = came && rnd() > 0.72 ? Math.round(960 + rnd() * 180) : null;
+        return {
+            id: i + 1,
+            full_name: `${pick(last)} ${pick(first)}`,
+            department: weighted(),
+            position: pick(positions),
+            image: '',
+            status: !came ? 'not_arrived' : leftAt ? 'left' : 'in',
+            is_late: entry !== null && entry > 540,
+            is_early_left: leftAt !== null && leftAt < 1080,
+            entry_time: entry === null ? null : time(entry),
+            exit_time: leftAt === null ? null : time(leftAt),
+            last_log: came ? { door_label: pick(doors), time: time(leftAt ?? entry!) } : undefined,
         };
-        requestAnimationFrame(tick);
-    },[to,dur]);
-    return <>{v.toLocaleString('ru-RU')}</>;
-}
+    });
+    const objects = ['Bosh ofis', 'Chirchiq zavodi', 'Olmaliq filiali', 'Angren filiali'];
+    const today = (status: 'arrived' | 'left'): TodayEmp[] => employees
+        .filter((e) => (status === 'arrived' ? e.entry_time : e.exit_time))
+        .map((e) => ({ id: e.id, full_name: e.full_name, department: e.department, entry_time: e.entry_time, exit_time: e.exit_time, image: '', status: e.status, is_late: e.is_late, object_id: 1, object_name: pick(objects) }));
 
-/* ─────────────────────────────────────────────────────────
-   CAMERA INFO CARDS  — rasmdagidek
-───────────────────────────────────────────────────────── */
-const MOCK = { online:132, total:156, recording:true, alerts:3, storage:68 };
-
-const IconCamera = ({color}:{color:string}) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M23 7l-7 5 7 5V7z" stroke={color} strokeWidth="1.8" strokeLinejoin="round"/>
-        <rect x="1" y="5" width="15" height="14" rx="2" stroke={color} strokeWidth="1.8"/>
-    </svg>
-);
-const IconRecord = ({color}:{color:string}) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.8"/>
-        <circle cx="12" cy="12" r="4" fill={color}/>
-    </svg>
-);
-const IconShield = ({color}:{color:string}) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={color} strokeWidth="1.8" strokeLinejoin="round"/>
-        <path d="M9 12l2 2 4-4" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-const IconCloud = ({color}:{color:string}) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" stroke={color} strokeWidth="1.8" strokeLinejoin="round"/>
-    </svg>
-);
-
-function CameraInfoCards() {
-    const items = [
-        {
-            label: 'Kameralar onlayn',
-            value: `${MOCK.online} / ${MOCK.total}`,
-            color: T.green,
-            icon: <IconCamera color={T.green}/>,
-            extra: null,
+    const dash: Dash = {
+        date: '2026-06-05', total_users: 945,
+        cards: {
+            arrived: { count: 812, change_percent: 2.4, percent_of_total: 85.9 },
+            not_arrived: { count: 133, change_percent: -6.1, percent_of_total: 14.1 },
+            late: { count: 64, change_percent: -9.8, percent_of_total: 6.8 },
+            early_left: { count: 18, change_percent: 12.5, percent_of_total: 1.9 },
+            currently_in: { count: 701, change_percent: 1.7, percent_of_total: 74.2 },
+            left: { count: 111, change_percent: 4.3, percent_of_total: 11.7 },
+            not_found: { count: 5, change_percent: -28.6, percent_of_total: 0.5 },
         },
-        {
-            label: 'Yozuv',
-            value: 'Faol',
-            color: GC.blue,
-            icon: <IconRecord color={T.red}/>,
-            extra: null,
-            // extra: <span style={{width:7,height:7,borderRadius:'50%',background:T.red,display:'inline-block',marginRight:5,boxShadow:`0 0 6px ${T.red}`,animation:'blink .9s infinite',flexShrink:0}} />,
-        },
-        {
-            label: 'Xavfli hodisalar',
-            value: String(MOCK.alerts),
-            color: MOCK.alerts > 0 ? T.red : T.green,
-            icon: <IconShield color={MOCK.alerts>0 ? T.red : T.green}/>,
-            extra: null,
-        },
-        {
-            label: 'Xotira',
-            value: `${MOCK.storage}%`,
-            color: T.blue,
-            icon: <IconCloud color={T.blue}/>,
-            extra: null,
-            bar: null,
-        },
-    ] as const;
+        not_found_persons: [
+            { id: 1, photo: '', formatted_date: '05.06.2026 08:14', turniket_name: 'Asosiy kirish', door: 'in', door_label: 'Kirish' },
+            { id: 2, photo: '', formatted_date: '05.06.2026 09:02', turniket_name: 'Avtoturargoh', door: 'in', door_label: 'Kirish' },
+            { id: 3, photo: '', formatted_date: '05.06.2026 11:37', turniket_name: 'Xizmat eshigi', door: 'out', door_label: 'Chiqish' },
+            { id: 4, photo: '', formatted_date: '05.06.2026 13:20', turniket_name: 'Shimoliy turniket', door: 'in', door_label: 'Kirish' },
+            { id: 5, photo: '', formatted_date: '05.06.2026 15:48', turniket_name: 'Asosiy kirish', door: 'out', door_label: 'Chiqish' },
+        ],
+        employees,
+    };
+    return { dash, arrived: today('arrived'), left: today('left') };
+})();
 
-    return (
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,flexShrink:0}}>
-            {items.map((item)=>(
-                <div key={item.label} style={{
-                    background: T.card,
-                    border: `1px solid ${T.border}`,
-                    borderRadius:10, padding:'10px 12px',
-                    display:'flex', alignItems:'center', gap:10,
-                }}>
-                    {/* icon box */}
+const AI_FORECASTS: BigForecast[] = [
+    { text: 'Ertaga kechikishlar 12% ga kamayadi', detail: "Juma kuni odatda kechikish kam bo'ladi", confidence: 71, color: GC.green },
+    { text: '08:40–09:00 da asosiy kirishda navbat yuzaga keladi', detail: "Shu oraliqda o'tishlar 2,3 barobar ko'p", confidence: 78, color: GC.amber },
+    { text: "Ishlab chiqarishda davomat 90% dan oshadi", detail: 'Smena jadvali yangilangani hisobiga', confidence: 64, color: GC.accent1 },
+    { text: 'Aniqlanmagan shaxslar avtoturargohda ko\'payishi mumkin', detail: 'Kamera yoritilishi past — tekshirish tavsiya etiladi', confidence: 59, color: GC.red },
+    { text: "Oy oxirida o'rtacha davomat 88,5% bo'ladi", detail: 'Joriy tendensiya saqlansa', confidence: 67, color: GC.violet },
+];
 
-                    {/* text */}
-                    <div style={{minWidth:0, flex:1}}>
-                        <div style={{fontSize:10,color:T.text2,marginBottom:3,letterSpacing:0.2}}>{item.label}</div>
-                        <div style={{display:'flex',alignItems:'center', justifyContent:'space-between'}}>
-                            {'extra' in item && item.extra}
-                            <span style={{fontSize:16,fontWeight:700,color:'#fff',lineHeight:1}}>{item.value}</span>
-                            <div style={{
-                                width:38, height:38, borderRadius:9, flexShrink:0,
-                                // background:`${item.color}18`,
-                                // border:`1px solid ${item.color}30`,
+const PALETTE = [GC.accent1, GC.accent2, GC.green, GC.amber, GC.violet, GC.accent3, GC.red, GC.slate];
 
-                                display:'flex', alignItems:'center', justifyContent:'center',
-                            }}>
-                                {item.icon}
-                            </div>
-                        </div>
-                        {/*{'bar' in item && item.bar !== undefined && (*/}
-                        {/*    <div style={{height:3,borderRadius:2,background:'rgba(255,255,255,0.08)',marginTop:5}}>*/}
-                        {/*        <div style={{height:'100%',width:`${item.bar}%`,background:`linear-gradient(90deg,${T.blue}88,${T.blue})`,borderRadius:2,transition:'width 1s ease'}}/>*/}
-                        {/*    </div>*/}
-                        {/*)}*/}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
+const card = (demo: boolean, extra?: React.CSSProperties): React.CSSProperties => ({ ...(demo ? bigDemoCardStyle : null), ...extra });
 
-/* ─────────────────────────────────────────────────────────
-   TOP STAT CARD  — 4 ta chap panel yuqorida
-───────────────────────────────────────────────────────── */
-function TopCard({label,count,change,icon,accent}:{
-    label:string; count:number; change:number; icon:React.ReactNode; accent:string;
-}) {
-    const up = change >= 0;
-    const isAlert = accent === T.red;
-    return (
-        <div style={{
-            background: T.card,
-            border:`1px solid ${isAlert?T.red+'44':T.border}`,
-            borderRadius:10, padding:'11px 14px',
-            display:'flex', flexDirection:'column', gap:4,
-            boxShadow: isAlert ? `0 0 18px ${T.red}18` : 'none',
-            animation: isAlert ? 'alertPulse 2s ease-in-out infinite' : 'none',
-        }}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-                <span style={{fontSize:11,color:T.text,letterSpacing:0.2,lineHeight:1.3}}>{label}</span>
-            </div>
-            <div style={{fontSize:24,fontWeight:700,color:'#fff',lineHeight:1.1, display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 5}}>
-                <Counter to={count}/>
-                <div style={{color:accent,opacity:0.7}}>{icon}</div>
+/** Ro'yxatni guruhlab sanaydi va kamayish tartibida qaytaradi. */
+const countBy = <T,>(items: T[], key: (t: T) => string | null | undefined, limit = 8) => {
+    const m = new Map<string, number>();
+    items.forEach((it) => { const k = key(it); if (k) m.set(k, (m.get(k) ?? 0) + 1); });
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]).slice(0, limit);
+};
 
-            </div>
-            <div style={{display:'flex',alignItems:'center',gap:5, justifyContent:'space-between'}}>
-                <span style={{
-                    fontSize:10,fontWeight:600,
-                    color: up ? T.green : T.red,
-                    background: up ? `${T.green}14` : `${T.red}14`,
-                    border:`1px solid ${up?T.green:T.red}30`,
-                    borderRadius:4, padding:'1px 7px',
-                }}>
-                    {up?'↑':'↓'} {Math.abs(change).toFixed(1)}%
-                </span>
-                {/*<span style={{fontSize:10,color:T.muted}}>bugun</span>*/}
-            </div>
-        </div>
-    );
-}
+const barDs = (label: string, data: number[], color: string | string[]) => ({ label, data, backgroundColor: color, borderRadius: 4, barPercentage: 0.78 });
 
-/* ─────────────────────────────────────────────────────────
-   EVENT ROW — faqat kelgan/ketgan
-───────────────────────────────────────────────────────── */
-function EventRow({type,time,person,location,onClick}:{
-    type:'arrived'|'left'; time:string; person:string; location:string; onClick?:()=>void;
-}) {
-    const isArrived = type === 'arrived';
-    const dotColor  = isArrived ? T.green : T.muted;
-    const ArrowIcon = isArrived
-        ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="5 12 19 12" stroke={dotColor} strokeWidth="2" strokeLinecap="round"/><polyline points="13 6 19 12 13 18" stroke={dotColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        : <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="19 12 5 12" stroke={dotColor} strokeWidth="2" strokeLinecap="round"/><polyline points="11 6 5 12 11 18" stroke={dotColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-    return (
-        <div onClick={onClick} style={{
-            display:'grid', gridTemplateColumns:'28px 50px 1fr auto',
-            alignItems:'center', gap:8, padding:'7px 12px',
-            borderBottom:`1px solid rgba(255,255,255,0.05)`,
-            cursor: onClick?'pointer':'default', transition:'background .12s',
-        }}
-        onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.04)'}
-        onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-            <div style={{
-                width:26, height:26, borderRadius:'50%',
-                background:`${dotColor}15`, border:`1.5px solid ${dotColor}44`,
-                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-            }}>
-                {ArrowIcon}
-            </div>
-            <span style={{fontSize:10,color:T.muted,fontVariantNumeric:'tabular-nums'}}>{time??'—'}</span>
-            <div style={{minWidth:0}}>
-                <div style={{fontSize:11,fontWeight:600,color:T.text,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{person}</div>
-                <div style={{fontSize:9,color:T.muted,marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{location||'—'}</div>
-            </div>
-            <span style={{
-                fontSize:9, fontWeight:600,
-                color: isArrived ? T.green : T.muted,
-                background: isArrived ? `${T.green}14` : `${T.muted}14`,
-                border:`1px solid ${isArrived?T.green:T.muted}28`,
-                borderRadius:5, padding:'2px 8px', whiteSpace:'nowrap', flexShrink:0,
-            }}>
-                {isArrived ? 'Keldi' : 'Ketdi'}
-            </span>
-        </div>
-    );
-}
-
-/* ─────────────────────────────────────────────────────────
-   PANEL WRAPPERS
-───────────────────────────────────────────────────────── */
-function Panel({children,style}:{children:React.ReactNode;style?:React.CSSProperties}) {
-    return (
-        <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,display:'flex',flexDirection:'column',overflow:'hidden',...style}}>
-            {children}
-        </div>
-    );
-}
-function PanelHead({title,icon,right}:{title:string;icon?:React.ReactNode;right?:React.ReactNode}) {
-    return (
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',borderBottom:`1px solid rgba(255,255,255,0.07)`,flexShrink:0}}>
-            <div style={{display:'flex',alignItems:'center',gap:7}}>
-                {icon&&<span style={{color:T.cyan,opacity:.7,display:'flex'}}>{icon}</span>}
-                <span style={{fontSize:10,fontWeight:700, letterSpacing:1.2,textTransform:'uppercase'}} className="kpi-card-my-main-title">{title}</span>
-            </div>
-            {right&&<div style={{display:'flex',alignItems:'center',gap:6}}>{right}</div>}
-        </div>
-    );
-}
-
-/* ─────────────────────────────────────────────────────────
-   MAIN COMPONENT
-───────────────────────────────────────────────────────── */
 export default function EnterExit() {
-    const [data,        setData]        = useState<Dash>(D0);
-    const [loading,     setLoading]     = useState(true);
-    const [wsOk,        setWsOk]        = useState(false);
+    const [data, setData] = useState<Dash>(D0);
+    const [wsOk, setWsOk] = useState(false);
     const [arrivedList, setArrivedList] = useState<TodayEmp[]>([]);
-    const [leftList,    setLeftList]    = useState<TodayEmp[]>([]);
+    const [leftList, setLeftList] = useState<TodayEmp[]>([]);
     const tokenRef = useRef('');
-    const wsRef    = useRef<WebSocket|null>(null);
+    const wsRef = useRef<WebSocket | null>(null);
 
-    const applyDash = useCallback((d:Dash)=>{ setData(d); },[]);
-
-    const load = useCallback(async()=>{
+    const load = useCallback(async () => {
         try {
-            if(!tokenRef.current) tokenRef.current = await login();
+            if (!tokenRef.current) tokenRef.current = await login();
             const [dash, arr, lft] = await Promise.all([
                 fetchDash(tokenRef.current),
-                fetchToday(tokenRef.current,'arrived'),
-                fetchToday(tokenRef.current,'left'),
+                fetchToday(tokenRef.current, 'arrived'),
+                fetchToday(tokenRef.current, 'left'),
             ]);
-            applyDash(dash);
+            setData(dash);
             setArrivedList(arr);
             setLeftList(lft);
-        } catch(e:any) {
-            if(String(e?.message).includes('401')||String(e?.message).includes('403')) tokenRef.current='';
-        } finally { setLoading(false); }
-    },[applyDash]);
+        } catch (e: any) {
+            if (String(e?.message).includes('401') || String(e?.message).includes('403')) tokenRef.current = '';
+        }
+    }, []);
 
-    useEffect(()=>{
-        let alive=true;
-        const connect=async()=>{
-            if(!alive) return;
+    useEffect(() => {
+        let alive = true;
+        const connect = async () => {
+            if (!alive) return;
             try {
-                if(!tokenRef.current) tokenRef.current=await login();
-                const ws=new WebSocket(`wss://citynet.synterra.uz/ws?token=${tokenRef.current}`);
-                wsRef.current=ws;
-                ws.onopen   =()=>setWsOk(true);
-                ws.onclose  =()=>{ setWsOk(false); if(alive) setTimeout(connect,5000); };
-                ws.onerror  =()=>ws.close();
-                ws.onmessage=()=>{ load(); };
-            } catch { if(alive) setTimeout(connect,8000); }
+                if (!tokenRef.current) tokenRef.current = await login();
+                const ws = new WebSocket(`wss://citynet.synterra.uz/ws?token=${tokenRef.current}`);
+                wsRef.current = ws;
+                ws.onopen = () => setWsOk(true);
+                ws.onclose = () => { setWsOk(false); if (alive) setTimeout(connect, 5000); };
+                ws.onerror = () => ws.close();
+                ws.onmessage = () => { load(); };
+            } catch { if (alive) setTimeout(connect, 8000); }
         };
         connect();
-        return()=>{ alive=false; wsRef.current?.close(); };
-    },[load]);
+        return () => { alive = false; wsRef.current?.close(); };
+    }, [load]);
 
-    useEffect(()=>{
+    useEffect(() => {
         load();
-        const id=setInterval(()=>{ if(!wsRef.current||wsRef.current.readyState!==WebSocket.OPEN) load(); },REFRESH);
-        return()=>clearInterval(id);
-    },[load]);
+        const id = setInterval(() => { if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) load(); }, REFRESH);
+        return () => clearInterval(id);
+    }, [load]);
 
-    const cards = data.cards;
+    const v = useMemo(() => {
+        /* Haqiqiy ma'lumot bor-yo'qligi har bir manba uchun alohida:
+           umumiy hisobot kelib, xodimlar ro'yxati bo'sh bo'lishi mumkin. */
+        const realDash = data.total_users > 0;
+        const realEmp = realDash && data.employees.length > 0;
+        const realToday = realDash && arrivedList.length + leftList.length > 0;
 
-    /* ── Events: faqat kelgan + ketgan (today-tmk dan) ── */
-    const EVENTS = [
-        ...arrivedList.slice(0,8).map(e=>({ type:'arrived' as const, time:e.entry_time??'—', person:e.full_name, location:e.object_name||e.department })),
-        ...leftList.slice(0,6).map(e=>({ type:'left' as const, time:e.exit_time??'—', person:e.full_name, location:e.object_name||e.department })),
-    ].sort((a,b)=>{ const ta=a.time.replace(':',''),tb=b.time.replace(':',''); return tb.localeCompare(ta); });
+        const dash = realDash ? data : DEMO.dash;
+        const emps = realEmp ? data.employees : DEMO.dash.employees;
+        const arrived = realToday ? arrivedList : DEMO.arrived;
+        const left = realToday ? leftList : DEMO.left;
+        const c = dash.cards;
+        const total = dash.total_users || 1;
 
-    /* ── Donut ── */
-    const donutTotal = (cards.arrived.count + cards.late.count + cards.not_arrived.count + cards.left.count + cards.not_found.count) || 1;
-    const donutData = {
-        labels:['Keldi','Kech keldi','Kelmadi','Ketdi','Aniqlanmagan'],
-        datasets:[{
-            data:[cards.arrived.count,cards.late.count,cards.not_arrived.count,cards.left.count,cards.not_found.count],
-            backgroundColor:[`${T.green}cc`,`${T.amber}cc`,`${T.blue}cc`,`${T.muted}cc`,`${T.red}cc`],
-            borderColor:'#0d1117', borderWidth:2,
-        }],
-    };
+        const hourlyIn = new Array(24).fill(0);
+        const hourlyOut = new Array(24).fill(0);
+        emps.forEach((e) => {
+            const a = minutesOf(e.entry_time); if (a !== null) hourlyIn[Math.floor(a / 60) % 24]++;
+            const b = minutesOf(e.exit_time); if (b !== null) hourlyOut[Math.floor(b / 60) % 24]++;
+        });
 
-    /* ── Hourly line chart ── */
-    const hourly=new Array(24).fill(0);
-    data.employees.forEach(e=>{ if(e.entry_time){ const h=parseInt(e.entry_time.split(':')[0],10); if(!isNaN(h)&&h<24) hourly[h]++; } });
-    const lineData={
-        labels: Array.from({length:24},(_,i)=>i%4===0?String(i).padStart(2,'0')+':00':''),
-        datasets:[{ data:hourly, borderColor:T.cyan2, backgroundColor:`${T.cyan2}12`, borderWidth:1.5, pointRadius:0, fill:true, tension:0.4 }],
-    };
+        const durations = [0, 0, 0, 0, 0];
+        emps.forEach((e) => {
+            const a = minutesOf(e.entry_time), b = minutesOf(e.exit_time);
+            if (a === null || b === null || b <= a) return;
+            const h = (b - a) / 60;
+            durations[h < 4 ? 0 : h < 6 ? 1 : h < 8 ? 2 : h < 10 ? 3 : 4]++;
+        });
 
-    /* ── Zone bars ── */
-    const deptMap:Record<string,number>={};
-    data.employees.forEach(e=>{ const k=e.department||'Boshqa'; deptMap[k]=(deptMap[k]||0)+1; });
-    const zones=Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const zoneMax=zones[0]?.[1]||1;
-    const ZONE_COLS=[T.blue,T.cyan2,GC.green,T.amber,T.muted];
+        const byDept = countBy(emps, (e) => e.department || 'Boshqa', 7);
+        const lateByDept = countBy(emps.filter((e) => e.is_late), (e) => e.department || 'Boshqa', 6);
 
-    /* ── Device type cards ── */
-    const devItems=[
-        {label:'Keldi',     count:cards.arrived.count,     color:T.green,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
-        {label:'Kech keldi',count:cards.late.count,        color:T.amber,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>},
-        {label:'Ketdi',     count:cards.left.count,        color:T.muted,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M10 17l5-5-5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 12H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>},
-        {label:'Topilmagan',count:cards.not_found.count,   color:T.red,
-         icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.8"/><path d="M12 9v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>},
-    ];
+        return {
+            realDash, realEmp, realToday, dash, emps, c, total,
+            attendancePct: (c.arrived.count / total) * 100,
+            latePct: c.arrived.count ? (c.late.count / c.arrived.count) * 100 : 0,
+            hourlyIn, hourlyOut, durations, byDept, lateByDept,
+            byDoor: countBy(emps, (e) => e.last_log?.door_label, 6),
+            byPosition: countBy(emps, (e) => e.position, 5),
+            byObject: countBy(arrived, (e) => e.object_name || e.department, 5),
+            events: [
+                ...arrived.map((e) => ({ type: 'in' as const, t: minutesOf(e.entry_time), e })),
+                ...left.map((e) => ({ type: 'out' as const, t: minutesOf(e.exit_time), e })),
+            ].sort((a, b) => (b.t ?? 0) - (a.t ?? 0)).slice(0, 8),
+            firstIn: emps.filter((e) => minutesOf(e.entry_time) !== null)
+                .sort((a, b) => minutesOf(a.entry_time)! - minutesOf(b.entry_time)!).slice(0, 6),
+            lateList: emps.filter((e) => e.is_late)
+                .sort((a, b) => minutesOf(b.entry_time)! - minutesOf(a.entry_time)!).slice(0, 6),
+            earlyList: emps.filter((e) => e.is_early_left)
+                .sort((a, b) => (minutesOf(a.exit_time) ?? 0) - (minutesOf(b.exit_time) ?? 0)).slice(0, 6),
+        };
+    }, [data, arrivedList, leftList]);
+
+    const { c } = v;
+    const kpiDemo = !v.realDash;
+    const empDemo = !v.realEmp;
+
+    const emptyRow = (text: string): BigRow[] => [{ label: text, value: '0', color: GC.green }];
 
     return (
-        <div style={{
-            width:'100%', height:'100%',
-            fontFamily:"'Exo 2','Inter','Segoe UI',system-ui,sans-serif",
-            display:'grid',
-            gridTemplateColumns:'1.35fr 1fr',
-            gridTemplateRows:'100%',
-            gap:6,
-            padding:'6px 8px',
-            overflow:'hidden',
-            position:'relative',
-            color:T.text,
-            fontSize:13,
-            boxSizing:'border-box',
-        }}>
-            <style>{`
-                @keyframes alertPulse{0%,100%{box-shadow:0 0 8px ${T.red}22}50%{box-shadow:0 0 20px ${T.red}55}}
-                @keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
-                ::-webkit-scrollbar{width:3px}
-                ::-webkit-scrollbar-track{background:transparent}
-                ::-webkit-scrollbar-thumb{background:${T.b0};border-radius:2px}
-            `}</style>
+        <BigDashRoot>
+            <style>{'@keyframes eeBlink{0%,100%{opacity:1}50%{opacity:.2}}'}</style>
 
-            {/* ══ CHAP: KIRISH-CHIQISH NAZORAT TIZIMI ══ */}
-            <div style={{
-                display:'grid',
-                gridTemplateRows:'auto auto 1fr auto',
-                gap:6,
-                minHeight:0,
-                overflow:'hidden',
-            }}>
-
-                {/* Sarlavha */}
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
-                    <div style={{display:'flex',alignItems:'center',gap:9}}>
-                        <div style={{width:30,height:30,background:`${T.cyan}15`,border:`1px solid ${T.cyan}35`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                                <rect x="3" y="11" width="18" height="11" rx="2" stroke={T.cyan} strokeWidth="1.8"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke={T.cyan} strokeWidth="1.8" strokeLinecap="round"/>
-                                <circle cx="12" cy="16.5" r="1.5" fill={T.cyan}/>
-                            </svg>
-                        </div>
-                        <span style={{fontSize:11,fontWeight:700, letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
-                            XAVFSIZLIK NAZORAT MARKAZI
-                        </span>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',gap:8}}>
-                        <div style={{display:'flex',alignItems:'center',gap:5,background:'rgba(255,255,255,0.05)',border:`1px solid ${T.border}`,borderRadius:7,padding:'4px 10px'}}>
-                            <div style={{width:6,height:6,borderRadius:'50%',background:wsOk?T.green:T.amber,boxShadow:`0 0 6px ${wsOk?T.green:T.amber}`,animation:'blink 1.2s infinite'}}/>
-                            <span style={{fontSize:10,color:T.muted,letterSpacing:.5}}>{wsOk?'Jonli':'Ulanmoqda'}</span>
-                        </div>
-                        {cards.not_found.count>0&&(
-                            <div style={{display:'flex',alignItems:'center',gap:5,background:`${T.red}14`,border:`1px solid ${T.red}40`,borderRadius:7,padding:'4px 10px',animation:'alertPulse 2s ease-in-out infinite'}}>
-                                <div style={{width:6,height:6,borderRadius:'50%',background:T.red,animation:'blink .7s infinite'}}/>
-                                <span style={{fontSize:10,color:T.red,fontWeight:600}}>⚠ {cards.not_found.count} hodisa</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* 4 ta yuqori kartochkalar */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,flexShrink:0}}>
-                    <TopCard label="Jami xodimlar"       count={data.total_users}          change={0}                               accent={T.cyan2}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.7"/><path d="M2 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="18" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.6"/><path d="M20 20c0-2.5-1.8-4.5-4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>}
-                    />
-                    <TopCard label="Hozir ofisda" count={cards.currently_in.count}  change={cards.currently_in.change_percent}  accent={T.blue}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.7"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="16.5" r="1.5" fill="currentColor"/></svg>}
-                    />
-                    <TopCard label="Bugun kelganlar"     count={cards.arrived.count}        change={cards.arrived.change_percent}       accent={T.green}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>}
-                    />
-                    <TopCard label="Aniqlanmagan"        count={cards.not_found.count}      change={cards.not_found.change_percent}     accent={cards.not_found.count>0?T.red:T.amber}
-                        icon={<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="1.7"/><path d="M12 9v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>}
-                    />
-                </div>
-
-                {/* O'rta: 2 ustun */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,minHeight:0,overflow:'hidden'}}>
-
-                    {/* So'nggi kirish hodisalari — faqat kelgan + ketgan */}
-                    <Panel style={{minHeight:0,overflow:'hidden'}}>
-                        <PanelHead
-                            title="So'nggi kirish hodisalari"
-                            icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="1.8"/><polyline points="14 2 14 8 20 8" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/></svg>}
-                            right={<span style={{fontSize:9,color:T.muted}}>{EVENTS.length} ta yozuv</span>}
-                        />
-                        <div style={{display:'grid',gridTemplateColumns:'28px 50px 1fr auto',gap:8,padding:'4px 12px',borderBottom:`1px solid rgba(255,255,255,0.05)`,flexShrink:0}}>
-                            {['','Vaqt','Xodim / Ob\'yekt','Holat'].map((h,i)=>(
-                                <span key={i} style={{fontSize:9,color:T.dim,textTransform:'uppercase',letterSpacing:.7}}>{h}</span>
-                            ))}
-                        </div>
-                        <div style={{flex:1,overflowY:'auto'}}>
-                            {loading&&EVENTS.length===0?(
-                                <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                    <span style={{fontSize:10,color:T.muted}}>Yuklanmoqda…</span>
-                                </div>
-                            ):EVENTS.length===0?(
-                                <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                    <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
-                                </div>
-                            ):EVENTS.map((ev,i)=>(
-                                <EventRow key={i} type={ev.type} time={ev.time} person={ev.person} location={ev.location}/>
-                            ))}
-                        </div>
-                    </Panel>
-
-                    {/* O'ng: Donut + Qurilmalar */}
-                    <div style={{display:'flex',flexDirection:'column',gap:6,minHeight:0,overflow:'auto'}}>
-
-                        {/* Donut — chap: pie chart, o'ng: labellar column */}
-                        <Panel style={{flex:1,minHeight:140,display:'flex',flexDirection:'column'}}>
-                            <PanelHead
-                                title="Kirish nuqtalari holati"
-                                right={<span style={{fontSize:10,color:T.muted}}>Jami: <span style={{color:'#fff',fontWeight:600}}><Counter to={data.total_users}/></span></span>}
-                            />
-
-                            {/* Body: chap — donut, o'ng — labellar */}
-                            <div style={{flex:1,display:'flex',flexDirection:'row',minHeight:0,padding:'6px 8px 8px',gap:8}}>
-
-                                {/* CHAP: Donut canvas — square */}
-                                <div style={{position:'relative',flexShrink:0,width:'55%',minHeight:0}}>
-                                    <Doughnut data={donutData} options={{
-                                        responsive:true, maintainAspectRatio:false, cutout:'62%',
-                                        animation:{duration:800},
-                                        plugins:{
-                                            legend:{ display:false },
-                                            tooltip:{
-                                                enabled:true,
-                                                backgroundColor:'rgba(13,17,23,0.96)',
-                                                borderColor:T.b0,borderWidth:1,
-                                                titleColor:T.text,bodyColor:T.muted,padding:9,
-                                                callbacks:{label:(c:any)=>` ${c.label}: ${(c.parsed as number).toLocaleString('ru-RU')} nafar`},
-                                            },
-                                        },
-                                    } as any}/>
-                                    {/* Jami son — donut o'rtasida */}
-                                    <div style={{
-                                        position:'absolute',top:'50%',left:'50%',
-                                        transform:'translate(-50%,-50%)',
-                                        textAlign:'center',pointerEvents:'none',
-                                    }}>
-                                        <div style={{fontSize:8,color:GC.slate,letterSpacing:.5,marginBottom:2}}>JAMI</div>
-                                        <div style={{fontSize:16,fontWeight:700,color:'#ffffff',lineHeight:1}}>
-                                            <Counter to={data.total_users}/>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* O'NG: labellar — column */}
-                                <div style={{
-                                    flex:1,display:'flex',flexDirection:'column',
-                                    justifyContent:'center',gap:7,minWidth:0,
-                                }}>
-                                    {donutData.labels.map((lbl,i)=>{
-                                        const cnt  = donutData.datasets[0].data[i];
-                                        const bg   = (donutData.datasets[0].backgroundColor as string[])[i];
-                                        const tot  = (donutData.datasets[0].data as number[]).reduce((a,b)=>a+b,0)||1;
-                                        const pct  = Math.round(cnt/tot*100);
-                                        return (
-                                            <div key={lbl as string} style={{display:'flex',alignItems:'center',gap:7,minWidth:0}}>
-                                                {/* rang belgisi */}
-                                                <div style={{width:8,height:8,borderRadius:2,background:bg,flexShrink:0}}/>
-                                                {/* label + son */}
-                                                <div style={{flex:1,minWidth:0}}>
-                                                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',gap:4}}>
-                                                        <span style={{fontSize:9,color:GC.slate,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                                                            {lbl as string}
-                                                        </span>
-                                                        <span style={{fontSize:9,color:GC.slate,flexShrink:0,fontVariantNumeric:'tabular-nums'}}>
-                                                            {cnt.toLocaleString('ru-RU')}
-                                                        </span>
-                                                    </div>
-                                                    {/* mini progress bar */}
-                                                    <div style={{height:2,borderRadius:2,background:'rgba(255,255,255,0.07)',marginTop:2}}>
-                                                        <div style={{height:'100%',width:`${pct}%`,borderRadius:2,background:bg,transition:'width 1s ease'}}/>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </Panel>
-
-                        {/* Qurilma turlari */}
-                        <Panel style={{flexShrink:0}}>
-                            <PanelHead title="Qurilma turlari"/>
-                            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,padding:'8px 10px'}}>
-                                {devItems.map(({label,count,color,icon})=>(
-                                    <div key={label} style={{
-                                        display:'flex',flexDirection:'column',alignItems:'center',gap:5,
-                                        padding:'8px 4px',background:'rgba(255,255,255,0.03)',
-                                        border:`1px solid ${color}20`,borderRadius:9,
-                                    }}>
-                                        <div style={{color,opacity:.8}}>{icon}</div>
-                                        <div style={{fontSize:16,fontWeight:700,color,lineHeight:1}}>
-                                            <Counter to={count}/>
-                                        </div>
-                                        <div style={{fontSize:9,color:T.muted,textAlign:'center'}}>{label}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </Panel>
-                    </div>
-                </div>
-
-                {/* Pastki: 2 grafik */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,minHeight:120,maxHeight:160,overflow:'hidden'}}>
-
-                    {/* Chiziqli grafik */}
-                    <Panel>
-                        <PanelHead title="Kirish faolligi (bugun)"
-                            right={<span style={{fontSize:9,color:T.muted}}>soat bo'yicha</span>}
-                        />
-                        <div style={{flex:1,padding:'4px 10px 8px',minHeight:0}}>
-                            <Line data={lineData} options={{
-                                responsive:true,maintainAspectRatio:false,animation:{duration:700},
-                                plugins:{legend:{display:false},tooltip:{
-                                    enabled:true,
-                                    backgroundColor:'rgba(13,17,23,0.96)',
-                                    borderColor:T.b0,borderWidth:1,
-                                    titleColor:T.text,bodyColor:T.muted,padding:9,
-                                    callbacks:{label:(c:any)=>` Kirish: ${c.parsed.y} ta`},
-                                }},
-                                scales:{
-                                    x:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"}},border:{color:T.b0}},
-                                    y:{grid:{color:'rgba(255,255,255,0.04)',lineWidth:.5},ticks:{color:T.muted,font:{size:9,family:"'Exo 2',system-ui,sans-serif"},stepSize:1},border:{color:T.b0},min:0},
-                                },
-                            } as any}/>
-                        </div>
-                    </Panel>
-
-                    {/* Zonalar */}
-                    <Panel>
-                        <PanelHead title="Zonalar bo'yicha taqsimot"
-                            right={<span style={{fontSize:9,color:T.muted}}>bo'limlar</span>}
-                        />
-                        <div style={{flex:1,overflowY:'auto',padding:'7px 14px 10px',display:'flex',flexDirection:'column',gap:6}}>
-                            {zones.length===0?(
-                                <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.3}}>
-                                    <span style={{fontSize:10,color:T.muted}}>Ma'lumot yo'q</span>
-                                </div>
-                            ):zones.map(([dept,cnt],i)=>{
-                                const col=ZONE_COLS[i%ZONE_COLS.length];
-                                const pct=Math.round(cnt/(data.employees.length||1)*100);
-                                return (
-                                    <div key={dept}>
-                                        <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
-                                            <span style={{fontSize:10,color:T.text,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{dept}</span>
-                                            <span style={{fontSize:10,color:col,fontWeight:600,flexShrink:0}}>{cnt.toLocaleString('ru-RU')} <span style={{color:T.muted,fontWeight:400}}>({pct}%)</span></span>
-                                        </div>
-                                        <div style={{height:4,borderRadius:3,background:'rgba(255,255,255,0.07)'}}>
-                                            <div style={{height:'100%',width:`${(cnt/zoneMax)*100}%`,background:`linear-gradient(90deg,${col}77,${col})`,borderRadius:3,transition:'width 1s ease'}}/>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </Panel>
-                </div>
-            </div>
-
-            {/* ══ O'NG: VIDEOKUZATUV ══ */}
-            <div style={{display:'grid',gridTemplateRows:'auto auto 1fr',gap:6,minHeight:0,overflow:'hidden'}}>
-
-                {/* Sarlavha */}
-                <div style={{display:'flex',alignItems:'center',gap:9,flexShrink:0}}>
-                    <div style={{width:30,height:30,background:`${T.cyan}15`,border:`1px solid ${T.cyan}35`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                            <path d="M23 7l-7 5 7 5V7z" stroke={T.cyan} strokeWidth="1.8" strokeLinejoin="round"/>
-                            <rect x="1" y="5" width="15" height="14" rx="2" stroke={T.cyan} strokeWidth="1.8"/>
-                        </svg>
-                    </div>
-                    <span style={{fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase'}} className="kpi-card-my-main-title">
-                        VIDEOKUZATUV
+            {/* ── Sarlavha ── */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 'clamp(5px, 1.2cqmin, 10px)', flexShrink: 0 }}>
+                <div style={bigHeaderTitle}>Kirish-chiqish nazorati va videokuzatuv</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span style={{ ...bigHeaderPill, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{
+                            width: 9, height: 9, borderRadius: '50%',
+                            background: wsOk ? GC.green : v.realDash ? GC.accent1 : GC.amber,
+                            animation: 'eeBlink 1.2s infinite',
+                        }} />
+                        {wsOk ? 'Jonli' : v.realDash ? 'Yangilanmoqda' : 'Ulanmoqda'}
                     </span>
-                </div>
-
-                {/* Kamera ma'lumotlari (mock) */}
-                <CameraInfoCards/>
-
-                {/* Video stream */}
-                <div style={{minHeight:0,background:'var(--gc-panel-bg)',borderRadius:12,overflow:'hidden',border:'1px solid rgba(14,168,199,0.13)',position:'relative'}}>
-                    <StreamGrid/>
+                    {c.not_found.count > 0 && (
+                        <span style={{ ...bigHeaderPill, color: GC.red, borderColor: alpha(GC.red, 0.5) }}>
+                            ⚠ {c.not_found.count} ta aniqlanmagan shaxs
+                        </span>
+                    )}
+                    <span style={bigHeaderPill}>{v.dash.date || new Date().toLocaleDateString('ru-RU')}</span>
                 </div>
             </div>
-        </div>
+
+            {/* ── KPI qatori: 10 ta karta (API holat kartalari) ── */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexShrink: 0 }}>
+                <BigKpiCard demo={kpiDemo} title="Jami xodimlar" value={fmtGrouped(v.dash.total_users, 0)} iconColor={GC.accent2} />
+                <BigKpiCard demo={kpiDemo} title="Hozir ichkarida" value={fmtGrouped(c.currently_in.count, 0)} delta={c.currently_in.change_percent} iconColor={GC.accent1} />
+                <BigKpiCard demo={kpiDemo} title="Bugun kelganlar" value={fmtGrouped(c.arrived.count, 0)} delta={c.arrived.change_percent} iconColor={GC.green} />
+                <BigKpiCard demo={kpiDemo} title="Kelmaganlar" value={fmtGrouped(c.not_arrived.count, 0)} delta={c.not_arrived.change_percent} iconColor={GC.slate} />
+                <BigKpiCard demo={kpiDemo} title="Kech qolganlar" value={fmtGrouped(c.late.count, 0)} delta={c.late.change_percent} iconColor={GC.amber} />
+                <BigKpiCard demo={kpiDemo} title="Erta ketganlar" value={fmtGrouped(c.early_left.count, 0)} delta={c.early_left.change_percent} iconColor={GC.violet} />
+                <BigKpiCard demo={kpiDemo} title="Ketganlar" value={fmtGrouped(c.left.count, 0)} delta={c.left.change_percent} iconColor={GC.accent3} />
+                <BigKpiCard demo={kpiDemo} title="Aniqlanmagan shaxslar" value={fmtGrouped(c.not_found.count, 0)} delta={c.not_found.change_percent} iconColor={GC.red} />
+                <BigKpiCard demo={kpiDemo} title="Davomat" value={`${fmtGrouped(v.attendancePct, 1)}%`} iconColor={GC.green} />
+                <BigKpiCard demo={kpiDemo} title="Kechikish ulushi" value={`${fmtGrouped(v.latePct, 1)}%`} iconColor={GC.amber} />
+            </div>
+
+            <div style={{
+                flex: 1, minHeight: 0, display: 'grid',
+                gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+                gridTemplateRows: 'repeat(4, minmax(0, 1fr))', gap: 10,
+            }}>
+                {/* ═══ 1-qator ═══ */}
+                <BigCard title="Davomat holati" style={card(kpiDemo)}>
+                    <BigDonutBody
+                        parts={[
+                            { label: "O'z vaqtida", value: Math.max(0, c.arrived.count - c.late.count), color: GC.green },
+                            { label: 'Kech keldi', value: c.late.count, color: GC.amber },
+                            { label: 'Kelmadi', value: c.not_arrived.count, color: GC.slate },
+                            { label: 'Aniqlanmagan', value: c.not_found.count, color: GC.red },
+                        ]}
+                        center={fmtGrouped(v.dash.total_users, 0)} centerSub="xodim" formatValue={(x) => fmtGrouped(x, 0)}
+                    />
+                </BigCard>
+
+                <BigCard title="Kirish va chiqish — soatlar bo'yicha" style={card(empDemo, { gridColumn: 'span 2' })}>
+                    <BigChartBox>
+                        <Line data={{
+                            labels: Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`),
+                            datasets: [
+                                { label: 'Kirish', data: v.hourlyIn, borderColor: GC.accent1, backgroundColor: alpha(GC.accent1, 0.2), borderWidth: 2, tension: 0.35, pointRadius: 0, fill: true },
+                                { label: 'Chiqish', data: v.hourlyOut, borderColor: GC.amber, backgroundColor: alpha(GC.amber, 0.12), borderWidth: 2, tension: 0.35, pointRadius: 0, fill: true },
+                            ],
+                        }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales() } as any} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="Kunlik o'zgarish, %" style={card(kpiDemo)}>
+                    <BigChartBox>
+                        <Bar data={{
+                            labels: ['Kelganlar', 'Ichkarida', 'Kech qolgan', 'Kelmagan', 'Erta ketgan', 'Aniqlanmagan'],
+                            datasets: [{
+                                data: [c.arrived, c.currently_in, c.late, c.not_arrived, c.early_left, c.not_found].map((s) => s.change_percent),
+                                /* Kelganlar/ichkaridagilar o'sishi — yaxshi; qolganlari o'sishi — yomon. */
+                                backgroundColor: [c.arrived, c.currently_in, c.late, c.not_arrived, c.early_left, c.not_found]
+                                    .map((s, i) => ((i < 2 ? s.change_percent >= 0 : s.change_percent <= 0) ? GC.green : GC.red)),
+                                borderRadius: 4, barPercentage: 0.75,
+                            }],
+                        }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true, beginAtZero: true }) } as any} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="Bo'limlar bo'yicha xodimlar" style={card(empDemo)}>
+                    <BigChartBox>
+                        <Bar data={{
+                            labels: v.byDept.map(([k]) => k),
+                            datasets: [barDs('Xodimlar', v.byDept.map(([, n]) => n), GC.accent1)],
+                        }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true }) } as any} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="Videokuzatuv — jonli" style={{ gridColumn: 'span 2', gridRow: 'span 2', padding: 'clamp(8px, 1.2cqmin, 12px)' }}>
+                    <div style={{ flex: 1, minHeight: 0, borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.border}`, background: 'var(--gc-panel-bg)' }}>
+                        <StreamGrid />
+                    </div>
+                </BigCard>
+
+                {/* ═══ 2-qator ═══ */}
+                <BigCard title="Kechikishlar — bo'limlar bo'yicha" style={card(empDemo)}>
+                    <BigChartBox>
+                        <Bar data={{
+                            labels: v.lateByDept.map(([k]) => k),
+                            datasets: [barDs('Kech qolgan', v.lateByDept.map(([, n]) => n), GC.amber)],
+                        }} options={{ ...chartBase, indexAxis: 'y', ...noLegend, scales: bigScales({ horizontal: true }) } as any} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="So'nggi kirish-chiqish hodisalari" style={card(!v.realToday, { gridColumn: 'span 2' })}>
+                    <BigRowList rows={v.events.length ? v.events.map(({ type, t, e }) => ({
+                        label: e.full_name,
+                        sub: `${hhmm(type === 'in' ? e.entry_time : e.exit_time)} · ${e.object_name || e.department || '—'}`,
+                        value: type === 'in' ? (e.is_late ? 'Kech keldi' : 'Keldi') : 'Ketdi',
+                        color: type === 'in' ? (e.is_late ? GC.amber : GC.green) : GC.accent1,
+                    })) : emptyRow("Bugun hodisa qayd etilmagan")} />
+                </BigCard>
+
+                <BigCard title="Aniqlanmagan shaxslar" style={card(kpiDemo)}>
+                    <BigRowList rows={v.dash.not_found_persons.length
+                        ? v.dash.not_found_persons.slice(0, 6).map((p) => ({
+                            label: p.turniket_name || p.door_label || 'Turniket',
+                            sub: p.formatted_date,
+                            value: p.door_label || 'Kirish',
+                            color: GC.red,
+                        }))
+                        : emptyRow('Aniqlanmagan shaxs yo\'q')} />
+                </BigCard>
+
+                <BigCard title="Obyektlar bo'yicha kelganlar" style={card(!v.realToday)}>
+                    <BigDonutBody
+                        parts={v.byObject.map(([k, n], i) => ({ label: k, value: n, color: PALETTE[i % PALETTE.length] }))}
+                        center={fmtGrouped(v.byObject.reduce((s, [, n]) => s + n, 0), 0)} centerSub="kelgan" formatValue={(x) => fmtGrouped(x, 0)}
+                    />
+                </BigCard>
+
+                {/* ═══ 3-qator ═══ */}
+                <BigCard title="Binoda hozir" style={card(kpiDemo)}>
+                    <BigGauge
+                        value={c.currently_in.count} max={v.total}
+                        display={fmtGrouped(c.currently_in.count, 0)} caption={`${fmtGrouped((c.currently_in.count / v.total) * 100, 1)}% xodim ichkarida`}
+                        color={GC.accent1}
+                        rows={[
+                            { label: 'Kelgan', value: fmtGrouped(c.arrived.count, 0), color: GC.green },
+                            { label: 'Ketgan', value: fmtGrouped(c.left.count, 0), color: GC.amber },
+                        ]}
+                    />
+                </BigCard>
+
+                <BigCard title="Turniketlar bo'yicha o'tishlar" style={card(empDemo)}>
+                    <BigChartBox>
+                        <Bar data={{
+                            labels: v.byDoor.map(([k]) => k),
+                            datasets: [barDs("O'tishlar", v.byDoor.map(([, n]) => n), PALETTE)],
+                        }} options={{ ...chartBase, ...noLegend, scales: bigScales() } as any} plugins={[bigBarLabel(0)]} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="Lavozimlar bo'yicha" style={card(empDemo)}>
+                    <BigDonutBody
+                        parts={v.byPosition.map(([k, n], i) => ({ label: k, value: n, color: PALETTE[i % PALETTE.length] }))}
+                        center={fmtGrouped(v.emps.length, 0)} centerSub="xodim" formatValue={false}
+                    />
+                </BigCard>
+
+                <BigCard title="Birinchi kelganlar" style={card(empDemo)}>
+                    <BigRowList rows={v.firstIn.map((e) => ({ label: e.full_name, sub: e.department, value: hhmm(e.entry_time), color: GC.green }))} />
+                </BigCard>
+
+                <BigCard title="Kech qolganlar" style={card(empDemo)}>
+                    <BigRowList rows={v.lateList.length
+                        ? v.lateList.map((e) => ({ label: e.full_name, sub: e.department, value: hhmm(e.entry_time), color: GC.amber }))
+                        : emptyRow("Bugun kech qolgan yo'q")} />
+                </BigCard>
+
+                <BigCard title="Erta ketganlar" style={card(empDemo)}>
+                    <BigRowList rows={v.earlyList.length
+                        ? v.earlyList.map((e) => ({ label: e.full_name, sub: e.department, value: hhmm(e.exit_time), color: GC.violet }))
+                        : emptyRow("Bugun erta ketgan yo'q")} />
+                </BigCard>
+
+                <BigCard title="Ish vaqti davomiyligi" style={card(empDemo)}>
+                    <BigChartBox>
+                        <Bar data={{
+                            labels: ['< 4 soat', '4–6', '6–8', '8–10', '> 10 soat'],
+                            datasets: [barDs('Xodimlar', v.durations, [GC.red, GC.amber, GC.accent1, GC.green, GC.violet])],
+                        }} options={{ ...chartBase, ...noLegend, scales: bigScales() } as any} plugins={[bigBarLabel(0)]} />
+                    </BigChartBox>
+                </BigCard>
+
+                {/* ═══ 4-qator: demo (API'da yo'q) ═══ */}
+                <BigCard title="Haftalik davomat" style={bigDemoCardStyle}>
+                    <BigChartBox>
+                        <Bar data={{
+                            labels: ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha'],
+                            datasets: [
+                                barDs("O'z vaqtida", [742, 761, 755, 748, 736, 402], GC.green),
+                                barDs('Kech keldi', [81, 66, 70, 64, 58, 31], GC.amber),
+                            ],
+                        }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales({ stacked: true }) } as any} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="Oylik davomat, %" style={bigDemoCardStyle}>
+                    <BigChartBox>
+                        <Line data={{
+                            labels: ['Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn'],
+                            datasets: [
+                                { label: 'Davomat', data: [83.2, 84.6, 85.1, 86.4, 87.2, 85.9], borderColor: GC.green, backgroundColor: alpha(GC.green, 0.18), borderWidth: 2, tension: 0.35, pointRadius: 3, fill: true },
+                                { label: 'Maqsad', data: [90, 90, 90, 90, 90, 90], borderColor: GC.slate, borderDash: [6, 4], borderWidth: 2, pointRadius: 0, fill: false },
+                            ],
+                        }} options={{ ...chartBase, plugins: legendLarge('top'), scales: bigScales({ beginAtZero: false }) } as any} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="Kameralar holati" style={bigDemoCardStyle}>
+                    <BigStatGrid items={[
+                        { label: 'Onlayn kameralar', value: '132 / 156', color: GC.green },
+                        { label: 'Yozuv', value: 'Faol', color: GC.accent1 },
+                        { label: 'Xavfli hodisalar', value: '3', color: GC.red },
+                        { label: 'Xotira band', value: '68%', color: GC.amber },
+                    ]} />
+                </BigCard>
+
+                <BigCard title="Xavfsizlik hodisalari turlari" style={bigDemoCardStyle}>
+                    <BigDonutBody
+                        parts={[
+                            { label: 'Ruxsatsiz kirish', value: 9, color: GC.red },
+                            { label: 'Turniketdan sakrash', value: 6, color: '#f97316' },
+                            { label: 'Begona shaxs', value: 5, color: GC.amber },
+                            { label: 'Eshik ochiq qoldi', value: 4, color: GC.accent1 },
+                        ]}
+                        center="24" centerSub="hodisa" formatValue={(x) => String(x)}
+                    />
+                </BigCard>
+
+                <BigCard title="Turniketlar ishlashi" style={bigDemoCardStyle}>
+                    <BigProgressList items={[
+                        { label: 'Asosiy kirish', value: 99.8, display: '99,8%', color: GC.green },
+                        { label: 'Shimoliy turniket', value: 98.9, display: '98,9%', color: GC.green },
+                        { label: 'Avtoturargoh', value: 94.2, display: '94,2%', color: GC.amber },
+                        { label: 'Xizmat eshigi', value: 97.1, display: '97,1%', color: GC.accent1 },
+                    ]} />
+                </BigCard>
+
+                <BigCard title="Kechikishlar — hafta kunlari" style={bigDemoCardStyle}>
+                    <BigChartBox>
+                        <Bar data={{
+                            labels: ['Du', 'Se', 'Cho', 'Pa', 'Ju', 'Sha'],
+                            datasets: [barDs('Kechikish, %', [9.8, 8.0, 8.5, 7.9, 7.3, 7.2], [GC.red, GC.amber, GC.amber, GC.amber, GC.green, GC.green])],
+                        }} options={{ ...chartBase, ...noLegend, scales: bigScales({ decimals: 0 }) } as any} plugins={[bigBarLabel(1)]} />
+                    </BigChartBox>
+                </BigCard>
+
+                <BigCard title="Sun'iy intellekt prognozlari" style={bigDemoCardStyle}>
+                    <BigForecastList items={AI_FORECASTS} />
+                </BigCard>
+            </div>
+        </BigDashRoot>
     );
 }
