@@ -251,10 +251,12 @@ const ESG: React.FC = () => {
                             <NeonIcon color={kpiColor[k.key] ?? GC.cyan} size={26}>{ICONS[k.icon]}</NeonIcon>
                             <span style={{ color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)', textTransform: 'uppercase', letterSpacing: 0.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.label}</span>
                         </div>
-                        <div style={{ color: C.text, fontSize: 'clamp(20px, 4cqmin, 27px)', fontWeight: 700, lineHeight: 1 }}>{k.value}<span style={{ color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)', fontWeight: 400, marginLeft: 3 }}>{k.unit}</span></div>
-                        <div style={{ color: k.delta >= 0 ? GC.green : C.down, fontSize: 'clamp(10px, 1.8cqmin, 13px)' }}>
-                            {k.delta >= 0 ? '▲' : '▼'} {Math.abs(k.delta)}% oldingi davrga nisbatan
-                        </div>
+                       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'end'}}>
+                           <div style={{ color: C.text, fontSize: 'clamp(20px, 4cqmin, 27px)', fontWeight: 700, lineHeight: 1 }}>{k.value}<span style={{ color: C.sub, fontSize: 'clamp(11px, 2cqmin, 14px)', fontWeight: 400, marginLeft: 3 }}>{k.unit}</span></div>
+                           <div style={{ color: k.delta >= 0 ? GC.green : C.down, fontSize: 'clamp(10px, 1.8cqmin, 13px)' }}>
+                               {k.delta >= 0 ? '▲' : '▼'} {Math.abs(k.delta)}%
+                           </div>
+                       </div>
                     </div>
                 ))}
             </div>

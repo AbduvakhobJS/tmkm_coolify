@@ -3490,10 +3490,10 @@ const Map3D = ({
                                 onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0,245,255,0.1)'; }}
                                 onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                             >
-                                <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <span style={{ fontSize: '15px', fontWeight: 'bold', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {obj.name || '—'}
                                 </span>
-                                <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.55)' }}>
+                                <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)' }}>
                                     {obj.region || SOURCE_LABELS[obj.type] || ''}
                                     {!hasCoords ? ' · koordinatasiz' : obj.coordsSource === 'linked' ? ' · taxminiy' : ''}
                                 </span>

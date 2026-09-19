@@ -106,7 +106,7 @@ export type AlarmTemplate = Omit<AlarmEvent, 'id' | 'time' | 'receivedAt'>;
 export const INCOMING_ALARMS: AlarmTemplate[] = [
     {
         type: 'SCADA', location: '3-pech · Eritish sexi', severity: 'kritik',
-        description: 'Pechda harorat oshishi kuzatildi', image: 'gaz.png',
+        description: 'Pechda harorat oshishi kuzatildi', image: 'pech.png',
         details: [
             { label: 'Datchik', value: 'TE-3 · 3-pech termoparasi' },
             { label: 'Joriy harorat', value: '1187 °C (▲ +67 °C)' },

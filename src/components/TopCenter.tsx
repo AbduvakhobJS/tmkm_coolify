@@ -63,6 +63,13 @@ const defaultItems: TopCenterItem[] = [
     { title: "Biznes", description: "Moliya • HR • Analitika", icon: "/imgs/icon3.png" },
 ];
 
+/* ── Modal ichida ochiladigan iframe linklari ── */
+const iframeLinks = [
+    { label: 'Iframe 1', url: 'https://network.uzkmt.uz/situation-center-wallboard-v2544?build=2544' },
+    // { label: 'Iframe 2', url: 'https://tmk.bgs.uz/excel/investmap' },
+    // { label: 'Iframe 3', url: 'https://tmk.bgs.uz/excel/investmap' },
+];
+
 
 const TopCenter = ({
                        highlightIndex,
@@ -72,6 +79,7 @@ const TopCenter = ({
     setHighlightIndex: React.Dispatch<React.SetStateAction<number>>;
 }) => {
     const [activeTab, setActiveTab] = useState(4);
+    const [iframeUrl, setIframeUrl] = useState<string | null>(null);
     const navigate = useNavigate();
 
     // Har bir qavat uchun widgetlar (piramida ko'rinishida)
@@ -150,7 +158,7 @@ const TopCenter = ({
                 </button>
                 <button
                     className={`top-center-tab${activeTab === 3 ? ' active' : ''}`}
-                    onClick={() => navigate("/main/prod/investmap")}
+                    onClick={() => navigate("/main/iframe-map/investmap")}
                 >
                     XARITA 2
                 </button>
@@ -196,6 +204,15 @@ const TopCenter = ({
                 >
                     GS 7
                 </button>
+                {iframeLinks.map((link) => (
+                    <button
+                        key={link.label}
+                        className={`top-center-tab${iframeUrl === link.url ? ' active' : ''}`}
+                        onClick={() => setIframeUrl(link.url)}
+                    >
+                        {link.label}
+                    </button>
+                ))}
             </div>
 
             {activeTab === 1 && (
@@ -511,6 +528,25 @@ const TopCenter = ({
             )}
             {activeTab === 11 && (
                 <img src="/imgs/GS7.png" style={{width:'100%',marginTop: "4%", height:'100%'}} alt=""/>
+            )}
+
+            {iframeUrl && (
+                <div className="iframe-modal-overlay" onClick={() => setIframeUrl(null)}>
+                    <div className="iframe-modal" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="iframe-modal-close"
+                            onClick={() => setIframeUrl(null)}
+                            aria-label="Yopish"
+                        >
+                            ×
+                        </button>
+                        <iframe
+                            src={iframeUrl}
+                            title="Iframe modal"
+                            className="iframe-modal-frame"
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );

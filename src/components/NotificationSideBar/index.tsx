@@ -293,7 +293,7 @@ const NotificationSideBar: React.FC = () => {
         };
         setIncoming((list) => [event, ...list].slice(0, 30));
         setAlarmIds((ids) => new Set(ids).add(event.id));
-        playAlarmSound();
+        playAlarmSound(event.type);
     }, []);
 
     useEffect(() => {
