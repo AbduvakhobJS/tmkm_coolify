@@ -6,7 +6,7 @@ import { OrbitControls, useGLTF, Environment, ContactShadows, Html } from '@reac
 import * as THREE from 'three';
 import { io, Socket } from 'socket.io-client';
 import { uzbekistanBorder, loadUzbekistanBorder } from '../../components/uzbekistanBorder';
-import {useGetMapObjects, useGetGeologyProjectDetail, useGetInvestProjectDetail, useGetFactoryDetail} from "../../hooks/map";
+import {useGetMapObjects, useGetGeologyProjectDetail, useGetProjectRegistryDetail, useGetFactoryDetail} from "../../hooks/map";
 import type { MapItem, MapLinkRef, MapFactoryDetail, MapGeologyDetail, MapInvestDetail } from "../../services/map";
 import { GC, alpha } from '../../theme/palette';
 import { DRACO_DECODER_PATH } from '../FactoryModel/constants';
@@ -1150,12 +1150,19 @@ const pickField = (obj: any, keys: string[]): any => {
 /* `xl` — pasport kartasi o'z katagining butun balandligini egallaganda
    ishlatiladi: qatorlar teng taqsimlanadi (`space-between` ota elementda) va
    shrift kattaroq bo'lib, pastda bo'sh joy qolmaydi. */
-const PassportRow: React.FC<{ label: string; value?: React.ReactNode; large?: boolean; xl?: boolean }> = ({ label, value, large, xl }) => {
+/* `demo` — qiymat bo'sh bo'lsa uning o'rniga chiziladigan namuna; bunday qator
+   sariq ramka bilan ajratiladi. `clamp`/`demo` bo'lsa uzun qiymat 2 qatorga qirqiladi (to'liq matn — title'da). */
+const PassportRow: React.FC<{ label: string; value?: React.ReactNode; large?: boolean; xl?: boolean; demo?: string; clamp?: boolean }> = ({ label, value, large, xl, demo, clamp }) => {
     const fontSize = xl ? '22px' : large ? '20px' : '17px';
+    const isDemo = demo !== undefined && (value === undefined || value === null || value === '');
+    const shown = isDemo ? demo : value;
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', padding: xl ? '7px 0' : large ? '8px 0' : '6px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{
+            display: 'flex', justifyContent: 'space-between', gap: '10px', padding: xl ? '7px 0' : large ? '8px 0' : '6px 0', borderBottom: '1px solid rgba(255,255,255,0.06)',
+            ...(isDemo ? { border: `1px solid ${alpha(GC.amber, 0.45)}`, borderRadius: '6px', paddingLeft: '8px', paddingRight: '8px' } : {}),
+        }}>
             <span style={{ color: GC.slate, fontSize, flexShrink: 0 }}>{label}</span>
-            <span style={{ color: '#e7f1ff', fontSize, fontWeight: 600, textAlign: 'right' }}>{value ?? '—'}</span>
+            <span title={typeof shown === 'string' ? shown : undefined} style={{ color: '#e7f1ff', fontSize, fontWeight: 600, textAlign: 'right', ...(demo !== undefined || clamp ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' } : {}) }}>{shown ?? '—'}</span>
         </div>
     );
 };
@@ -1955,33 +1962,6 @@ const DEMO_INVEST_WORK_PACKAGES = [
 
 const DEMO_CAPEX_MONTHLY = [12, 18, 22, 20, 28, 32, 35, 38, 42, 45, 40, 44];
 
-/* "2. Moliyaviy o'zlashtirish va qurilish holati" kartasiga qo'shilgan
-   ikkita yangi panel uchun — moliyalashtirish manbalari va qurilish
-   bosqichlari jadvali. */
-const DEMO_FUNDING_SOURCES = [
-    { label: "O'z mablag'lari", pct: 38, color: GC.accent1 },
-    { label: "O'zTTJ mablag'lari", pct: 27, color: GC.accent3 },
-    { label: 'Bank krediti', pct: 21, color: GC.amber },
-    { label: 'Xorijiy investitsiya', pct: 14, color: GC.violet },
-];
-
-const DEMO_INVEST_MILESTONES: { label: string; date: string; status: 'done' | 'active' | 'plan' | 'late' }[] = [
-    { label: 'TIA va loyiha hujjatlari', date: 'IV.2025', status: 'done' },
-    { label: 'Yer ajratish va ruxsatnomalar', date: 'I.2026', status: 'done' },
-    { label: 'Nol bosqich (yer ishlari)', date: 'II.2026', status: 'active' },
-    { label: 'Asosiy korpus qurilishi', date: 'IV.2026', status: 'active' },
-    { label: 'Uskunalar yetkazib berish', date: 'I.2027', status: 'late' },
-    { label: 'Montaj va ishga tushirish', date: 'III.2027', status: 'plan' },
-    { label: 'Sinov ishlab chiqarish', date: 'IV.2027', status: 'plan' },
-];
-
-const MILESTONE_META: Record<string, { label: string; color: string }> = {
-    done: { label: 'Bajarildi', color: GC.green },
-    active: { label: 'Jarayonda', color: GC.accent1 },
-    late: { label: 'Kechikmoqda', color: GC.amber },
-    plan: { label: 'Rejada', color: GC.slate },
-};
-
 const DEMO_CONTRACT_PACKAGES = [
     { no: 1, name: 'Yer ishlari', fact: 48, status: 'ok' },
     { no: 2, name: 'Asosiy bino (beton)', fact: 82, status: 'warn' },
@@ -2116,21 +2096,82 @@ const PassportPhotoQR: React.FC<{ src: string; accent: string; caption: string }
     );
 };
 
+/* ── INVEST modali ma'lumoti `GET /project-registry/:id` dan (marker
+   `detail.registryId` orqali). Reestrdagi maydon to'ldirilgan bo'lsa qiymati, null bo'lsa
+   "—" ko'rsatiladi. Reestrda umuman yo'q ko'rsatkichlar (SMR, montaj, kameralar va h.k.)
+   namuna bilan chiziladi va sariq ramka bilan ajratiladi. ── */
+const hasVal = (v: any) => v !== undefined && v !== null && v !== '';
+
+// ru-RU: minglik ajratuvchi — bo'shliq, kasr — vergul.
+const fmtNum = (n: number, digits = 1) => n.toLocaleString('ru-RU', { maximumFractionDigits: digits });
+
+// "2026-10-01" → "01.10.2026"; "2026 yil avgust" kabi matn o'zgarmaydi.
+const fmtDateText = (s?: string | null) => {
+    if (!s) return s;
+    const m = /^(d{4})-(d{2})-(d{2})/.exec(s);
+    return m ? `${m[3]}.${m[2]}.${m[1]}` : s;
+};
+
+// "20-38 (baho, aniqlashtirilishi kerak)" → plitka uchun "20-38".
+const shortText = (s?: string | null) => (s ? s.split('(')[0].trim() : s);
+
+// Reestrda qiymat kiritilmagan donut uchun: xira bo'sh halqa va izoh.
+const EMPTY_RING = [{ label: '', pct: 100, color: 'rgba(255,255,255,0.08)' }];
+const EmptyNote: React.FC<{ text: string }> = ({ text }) => (
+    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', fontSize: '14px', color: GC.slate, lineHeight: 1.4 }}>{text}</div>
+);
+
+const INVEST_FUNDING_META: { key: string; label: string; color: string }[] = [
+    { key: 'finTmkMlnUsd', label: "TMK mablag'lari", color: GC.accent1 },
+    { key: 'finUzttjMlnUsd', label: "O'zTTJ mablag'lari", color: GC.accent3 },
+    { key: 'finCreditMlnUsd', label: 'Bank krediti', color: GC.amber },
+    { key: 'finPartnerMlnUsd', label: "Hamkor mablag'lari", color: GC.violet },
+    { key: 'finOfftakeMlnUsd', label: 'Offteyk', color: GC.magenta },
+    { key: 'finEurobondMlnUsd', label: 'Yevroobligatsiyalar', color: GC.green },
+];
+
 const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> = ({ object, onClose }) => {
     const accent = SOURCE_COLORS.invest;
     const staticDetail = (object.detail || {}) as MapInvestDetail;
-    // `/map/objects` dagi `id` — "invest-ingichka" ko'rinishida; `/invest-projects/:id`
-    // `detail.key` (backend `invest_projects.key`) yoki xom id'ni kutishi mumkin.
-    const rawId = (staticDetail as any).key ?? String(object.id).replace(/^invest-/, '');
-    const { data: fullDetailRaw, isLoading: detailLoading, isError: detailIsError } = useGetInvestProjectDetail(rawId, 'uz');
-    const detail: any = { ...staticDetail, ...(fullDetailRaw || {}) };
+    // `/map/objects`dagi invest markerining `detail.registryId` — `/project-registry/:id`dagi `id`.
+    // Reestr javobi kelguncha modal marker ichidagi qisqa `detail` bilan chiziladi.
+    const registryId = (staticDetail as any).registryId ?? null;
+    const { data: registry } = useGetProjectRegistryDetail(registryId, 'uz');
+    const detail: any = { ...staticDetail, ...(registry || {}) };
 
-    const projectCode = pickField(detail, ['projectCode', 'code']) || detail.key || object.id;
-    const progressPct = typeof object.progress === 'number' ? Math.round(object.progress * 100) : null;
-    const remainingMlnUsd = (object.costMlnUsd != null && detail.disbursedMlnUsd != null) ? Math.max(object.costMlnUsd - detail.disbursedMlnUsd, 0) : null;
-    const budgetPctReal = (object.costMlnUsd != null && detail.disbursedMlnUsd != null && object.costMlnUsd > 0)
-        ? Math.round((detail.disbursedMlnUsd / object.costMlnUsd) * 100) : null;
-    const budgetPct = budgetPctReal ?? 42;
+    const totalCost: number | null = detail.totalCostMlnUsd ?? object.costMlnUsd ?? null;
+    const projectCode = detail.id != null ? `Reestr № ${detail.ordinal ?? detail.id}` : (pickField(detail, ['projectCode', 'code']) || object.id);
+    const progressPct: number | null = detail.progressPercent ?? (typeof object.progress === 'number' ? Math.round(object.progress * 100) : null);
+    const endText = detail.endDateText || detail.deadlineText;
+    const irrValue = detail.irrPercent != null ? fmtNum(detail.irrPercent) : shortText(detail.irrText);
+    const npvValue = detail.npvMlnUsd != null ? fmtNum(detail.npvMlnUsd) : shortText(detail.npvText);
+
+    // Moliyalashtirish manbalari — reestrdagi fin* maydonlaridan; tanqislik bo'lsa alohida segment.
+    const fundingRows = INVEST_FUNDING_META
+        .map((m) => ({ ...m, value: Number(detail[m.key]) || 0 }))
+        .filter((m) => m.value > 0);
+    if ((detail.financeGapMlnUsd ?? 0) > 0) fundingRows.push({ key: 'gap', label: 'Moliya tanqisligi', color: GC.red, value: detail.financeGapMlnUsd });
+    const fundingSum = fundingRows.reduce((s, m) => s + m.value, 0);
+    const fundingReal = fundingSum > 0;
+    const fundingSegments = fundingReal
+        ? fundingRows.map((m) => ({ label: m.label, pct: Math.round((m.value / fundingSum) * 100), color: m.color }))
+        : [];
+    const fundingText = fundingReal ? fundingRows.map((m) => `${m.label}: ${fmtNum(m.value, 2)} mln $`).join('; ') : null;
+
+    // Qurilish bosqichlari — reestrdagi sana/holat maydonlaridan.
+    const timeline = [
+        { label: 'Loyiha boshlanishi', date: fmtDateText(detail.startDateText) },
+        { label: 'TIA / loyiha hujjatlari', date: detail.fsState },
+        { label: 'Qurilish boshlanishi', date: fmtDateText(detail.buildStartText) },
+        { label: 'Montaj', date: detail.assemblyText },
+        { label: 'Ishga tushirish', date: fmtDateText(detail.commissioningText) },
+        { label: 'Yakunlash muddati', date: endText && endText !== detail.commissioningText ? fmtDateText(endText) : null },
+    ].filter((s) => hasVal(s.date));
+    const timelineReal = timeline.length > 0;
+    const remainingMlnUsd = (totalCost != null && detail.disbursedMlnUsd != null) ? Math.max(totalCost - detail.disbursedMlnUsd, 0) : null;
+    const budgetPctReal = (totalCost != null && detail.disbursedMlnUsd != null && totalCost > 0)
+        ? Math.round((detail.disbursedMlnUsd / totalCost) * 100) : null;
+    const budgetPct = budgetPctReal ?? 0;
     const budgetSegments = [
         { label: "O'zlashtirilgan", pct: budgetPct, color: accent },
         { label: 'Qolgan', pct: 100 - budgetPct, color: GC.slate },
@@ -2192,27 +2233,32 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                             <div style={{ flex: '1 1 200px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
                                 <div>
-                                    <PassportRow large label="Loyiha nomi" value={object.name} />
-                                    <PassportRow large label="Loyiha kodi" value={projectCode} />
-                                    <PassportRow large label="Joylashuv" value={object.region} />
-                                    <PassportRow large label="Obyekt turi" value={detail.objectKind} />
-                                    <PassportRow large label="Buyurtmachi" value={pickField(detail, ['customer', 'buyurtmachi']) || detail.enterprise} />
-                                    <PassportRow large label="Bosh pudratchi" value={pickField(detail, ['contractor', 'mainContractor'])} />
-                                    <PassportRow large label="Loyiha quvvati" value={detail.capacity} />
-                                    <PassportRow large label="Ishga tushgach xodimlar" value={detail.jobs} />
-                                    <PassportRow large label="Asosiy risklar" value={detail.risks} />
-                                    <PassportRow large label="Ruxsatnomalar holati" value={detail.docState} />
+                                    <PassportRow large clamp label="Loyiha nomi" value={detail.name || object.name} />
+                                    <PassportRow large clamp label="Loyiha kodi" value={projectCode} />
+                                    <PassportRow large clamp label="Klaster" value={detail.clusterName ? `${detail.clusterNo ? detail.clusterNo + '. ' : ''}${detail.clusterName}` : null} />
+                                    <PassportRow large clamp label="Yo'nalish" value={detail.directionName ? `${detail.directionNo ? detail.directionNo + ' ' : ''}${detail.directionName}` : null} />
+                                    <PassportRow large clamp label="Joylashuv" value={detail.region || object.region} />
+                                    <PassportRow large clamp label="Mas'ul" value={detail.responsible} />
+                                    <PassportRow large clamp label="Loyiha turi" value={detail.kind} />
+                                    <PassportRow large clamp label="Obyekt turi" value={detail.objectKind} />
+                                    <PassportRow large clamp label="Hamkor kompaniya" value={detail.partnerCompany} />
+                                    <PassportRow large clamp label="Loyihachi" value={detail.designer} />
+                                    <PassportRow large clamp label="Bosh pudratchi" value={detail.contractor} />
+                                    <PassportRow large clamp label="Ruxsatnomalar holati" value={detail.docState} />
                                 </div>
                                 <div>
-                                    <PassportRow large label="Amaldagi bosqich" value={detail.fsState || object.status} />
-                                    <PassportRow large label="Yer maydoni" value={detail.areaHa != null ? `${detail.areaHa} ga` : undefined} />
-                                    <PassportRow large label="Maqsadli mahsulot" value={detail.product} />
-                                    <PassportRow large label="Umumiy qiymati" value={object.costMlnUsd != null ? `${object.costMlnUsd} mln $` : undefined} />
-                                    <PassportRow large label="Moliyalashtirish manbai" value={detail.funding} />
-                                    <PassportRow large label="Qurilish boshlangan sana" value={detail.buildStartText || detail.startDateText} />
-                                    <PassportRow large label="Reja yakuni" value={detail.commissioningText || detail.endDateText} />
-                                    <PassportRow large label="Viloyat kesimi" value={object.regionGroup} />
-                                    <PassportRow large label="Maqsad" value={detail.goal} />
+                                    <PassportRow large clamp label="Amaldagi bosqich" value={detail.state || detail.fsState} />
+                                    <PassportRow large clamp label="Loyiha quvvati" value={detail.capacity || detail.processingCapacity} />
+                                    <PassportRow large clamp label="Ruda zaxirasi" value={detail.oreReserveText} />
+                                    <PassportRow large clamp label="Maqsadli mahsulot" value={detail.product} />
+                                    <PassportRow large clamp label="Yer maydoni" value={detail.areaText ? `${detail.areaText} ga` : detail.areaHa != null ? `${fmtNum(detail.areaHa, 2)} ga` : null} />
+                                    <PassportRow large clamp label="Umumiy qiymati" value={totalCost != null ? `${fmtNum(totalCost, 2)} mln $` : null} />
+                                    <PassportRow large clamp label="Moliyalashtirish manbai" value={fundingText} />
+                                    <PassportRow large clamp label="Boshlanish" value={fmtDateText(detail.startDateText)} />
+                                    <PassportRow large clamp label="Ishga tushirish" value={fmtDateText(detail.commissioningText || endText)} />
+                                    <PassportRow large clamp label="Ish o'rinlari" value={detail.jobs} />
+                                    <PassportRow large clamp label="Maqsad" value={detail.goal} />
+                                    <PassportRow large label="Asosiy risklar" value={detail.risks} demo="Uskunalar yetkazib berishda kechikish" />
                                 </div>
                             </div>
                             {/*<PassportPhotoQR src={`/imgs/invest/${object.id}.jpg`} accent={accent} caption="Loyiha pasporti QR-kod" />*/}
@@ -2230,9 +2276,9 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                             10 ta plitka roppa-rosa 3 qatorga joylashadi va
                             `large` bilan shrift kattaroq chiziladi. */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '12px', flexShrink: 0 }}>
-                            <KpiTile large label="Umumiy budjet" value={object.costMlnUsd != null ? String(object.costMlnUsd) : '—'} unit="mln $" />
-                            <KpiTile large label="O'zlashtirilgan" value={detail.disbursedMlnUsd != null ? String(detail.disbursedMlnUsd) : '—'} unit="mln $" />
-                            <KpiTile large label="Qolgan" value={remainingMlnUsd != null ? String(remainingMlnUsd) : '—'} unit="mln $" />
+                            <KpiTile large label="Umumiy budjet" value={totalCost != null ? fmtNum(totalCost, 2) : '—'} unit="mln $" />
+                            <KpiTile large label="O'zlashtirilgan" value={detail.disbursedMlnUsd != null ? fmtNum(detail.disbursedMlnUsd, 2) : '—'} unit="mln $" />
+                            <KpiTile large label="Qolgan" value={remainingMlnUsd != null ? fmtNum(remainingMlnUsd, 2) : '—'} unit="mln $" />
                             <KpiTile large label="Qurilish bajarilishi" value={progressPct != null ? String(progressPct) : '—'} unit="%" />
                             <KpiTile large label="SMR" value="38" unit="%" demo />
                             <KpiTile large label="Uskunalar yetkazilishi" value="56" unit="%" demo />
@@ -2240,6 +2286,8 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                             <KpiTile large label="Tayyorgarlik" value="12" unit="%" demo />
                             <KpiTile large label="Pudratchilar soni" value={object.links?.length ? String(object.links.length) : '7'} demo={!object.links?.length} />
                             <KpiTile large label="Ochiq masalalar" value="5" demo />
+                            <KpiTile large label="IRR" value={irrValue || '—'} unit="%" />
+                            <KpiTile large label="NPV" value={npvValue || '—'} unit="mln $" />
                         </div>
                         {/* 6 ta panel — 3 ustun × 2 qator (avval 4 ta edi:
                             moliyalashtirish manbalari va qurilish bosqichlari
@@ -2253,26 +2301,26 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                                     {DEMO_INVEST_WORK_PACKAGES.slice(0, 6).map((w, i) => <CategoryBarRow key={i} label={w.label} pct={w.pct} color={w.color} />)}
                                 </div>
                             </SubPanel>
-                            <SubPanel title="Budjet o'zlashtirish" demo={budgetPctReal == null}>
+                            <SubPanel title="Budjet o'zlashtirish">
                                 {/* Kichkina aylana o'rniga: katta donut + bar-legend, pastda
                                     esa aniq summalar (o'zlashtirilgan / qolgan / umumiy). */}
                                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, justifyContent: 'space-between' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-                                        <div style={{ flexShrink: 0 }}><DonutChart segments={budgetSegments} centerValue={`${budgetPct}%`} centerLabel="o'zlashtirildi" size={112} /></div>
-                                        <DonutLegendBars segments={budgetSegments} />
+                                        <div style={{ flexShrink: 0 }}><DonutChart segments={budgetPctReal != null ? budgetSegments : EMPTY_RING} centerValue={budgetPctReal != null ? `${budgetPct}%` : '—'} centerLabel="o'zlashtirildi" size={112} /></div>
+                                        {budgetPctReal != null ? <DonutLegendBars segments={budgetSegments} /> : <EmptyNote text="Reestrda o'zlashtirilgan summa kiritilmagan" />}
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', flexShrink: 0, marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                                         <div>
                                             <div style={{ fontSize: '13px', color: GC.slate }}>O'zlashtirilgan</div>
-                                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>{detail.disbursedMlnUsd != null ? detail.disbursedMlnUsd : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
+                                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>{detail.disbursedMlnUsd != null ? fmtNum(detail.disbursedMlnUsd, 2) : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
                                         </div>
                                         <div style={{ textAlign: 'center' }}>
                                             <div style={{ fontSize: '13px', color: GC.slate }}>Qolgan</div>
-                                            <div style={{ fontSize: '17px', fontWeight: 700, color: GC.amber }}>{remainingMlnUsd != null ? remainingMlnUsd : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
+                                            <div style={{ fontSize: '17px', fontWeight: 700, color: GC.amber }}>{remainingMlnUsd != null ? fmtNum(remainingMlnUsd, 2) : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
                                             <div style={{ fontSize: '13px', color: GC.slate }}>Umumiy budjet</div>
-                                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>{object.costMlnUsd != null ? object.costMlnUsd : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
+                                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff' }}>{totalCost != null ? fmtNum(totalCost, 2) : '—'}<span style={{ fontSize: '13px', color: GC.slate, marginLeft: '3px' }}>mln $</span></div>
                                         </div>
                                     </div>
                                 </div>
@@ -2313,35 +2361,31 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                                     </div>
                                 </div>
                             </SubPanel>
-                            <SubPanel title="Moliyalashtirish manbalari" demo>
+                            <SubPanel title="Moliyalashtirish manbalari">
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-                                    <div style={{ flexShrink: 0 }}><DonutChart segments={DEMO_FUNDING_SOURCES} centerValue={object.costMlnUsd != null ? String(object.costMlnUsd) : '—'} centerLabel="mln $" size={112} /></div>
-                                    <DonutLegendBars segments={DEMO_FUNDING_SOURCES} />
+                                    <div style={{ flexShrink: 0 }}><DonutChart segments={fundingReal ? fundingSegments : EMPTY_RING} centerValue={fundingReal ? fmtNum(fundingSum, 1) : '—'} centerLabel="mln $" size={112} /></div>
+                                    {fundingReal ? <DonutLegendBars segments={fundingSegments} /> : <EmptyNote text="Reestrda moliyalashtirish manbalari kiritilmagan" />}
                                 </div>
-                                <div style={{ flexShrink: 0, marginTop: '8px' }}>
+                                {fundingReal && <div style={{ flexShrink: 0, marginTop: '8px' }}>
                                     <div style={{ fontSize: '13px', color: GC.slate, marginBottom: '5px' }}>Umumiy taqsimot</div>
                                     <div style={{ display: 'flex', height: '14px', borderRadius: '8px', overflow: 'hidden' }}>
-                                        {DEMO_FUNDING_SOURCES.map((s, i) => (
+                                        {fundingSegments.map((s, i) => (
                                             <div key={i} title={`${s.label} — ${s.pct}%`} style={{ width: `${s.pct}%`, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                                 {s.pct >= 12 && <span style={{ fontSize: '12px', fontWeight: 700, color: '#04101f' }}>{s.pct}%</span>}
                                             </div>
                                         ))}
                                     </div>
-                                </div>
+                                </div>}
                             </SubPanel>
-                            <SubPanel title="Qurilish bosqichlari — jadval" demo>
+                            <SubPanel title="Qurilish bosqichlari — jadval">
                                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, justifyContent: 'space-evenly', overflowY: 'auto' }}>
-                                    {DEMO_INVEST_MILESTONES.slice(0, 5).map((m, i) => {
-                                        const meta = MILESTONE_META[m.status];
-                                        return (
-                                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '9px', fontSize: '15px', padding: '4px 0' }}>
-                                                <StatusDot color={meta.color} />
-                                                <span style={{ flex: 1, minWidth: 0, color: '#dfe9f5', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.label}</span>
-                                                <span style={{ color: GC.slate, flexShrink: 0, fontSize: '14px' }}>{m.date}</span>
-                                                <span style={{ flexShrink: 0, fontSize: '13px', fontWeight: 600, color: meta.color, background: alpha(meta.color, 0.12), border: `1px solid ${alpha(meta.color, 0.35)}`, borderRadius: '6px', padding: '2px 7px' }}>{meta.label}</span>
-                                            </div>
-                                        );
-                                    })}
+                                    {timelineReal ? timeline.map((m, i) => (
+                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '9px', fontSize: '15px', padding: '4px 0' }}>
+                                            <StatusDot color={accent} />
+                                            <span style={{ flexShrink: 0, color: '#dfe9f5' }}>{m.label}</span>
+                                            <span title={String(m.date)} style={{ flex: 1, minWidth: 0, textAlign: 'right', color: GC.slate, fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.date}</span>
+                                        </div>
+                                    )) : <EmptyNote text="Reestrda bosqich sanalari kiritilmagan" />}
                                 </div>
                             </SubPanel>
                         </div>

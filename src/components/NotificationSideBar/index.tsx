@@ -287,13 +287,13 @@ const NotificationSideBar: React.FC = () => {
         const now = new Date();
         const event: AlarmEvent = {
             ...tpl,
-            id: `live-${now.getTime()}`,
+            id: `live-${now.getTime()}-${index}`,
             time: now.toTimeString().slice(0, 5),
             receivedAt: now.getTime(),
         };
         setIncoming((list) => [event, ...list].slice(0, 30));
         setAlarmIds((ids) => new Set(ids).add(event.id));
-        playAlarmSound(event.type);
+        playAlarmSound(event.type, event.id);
     }, []);
 
     useEffect(() => {

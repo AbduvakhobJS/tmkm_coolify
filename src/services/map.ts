@@ -199,6 +199,98 @@ export const getInvestProjectDetail = async (id: number | string, lang: string =
     return response.data?.data ?? response.data;
 }
 
+/* ── /project-registry/:id — loyihalar reestri (Excel'dan import qilingan 144 ta
+   loyiha) bo'yicha to'liq kartochka. `/map/objects`dagi invest markerlarining
+   `detail.registryId` shu endpointning `id`siga mos keladi. Qoidalar:
+   • `progressPercent` — FOIZ (0…100), `irrPercent` — ham foiz;
+   • `*Text` juftlari — son YOKI izohli matn («baho, aniqlashtirilishi kerak»);
+   • `fin*MlnUsd` — moliyalashtirish manbalari, yig'indisi `financeSourcesSumMlnUsd`. */
+export interface ProjectRegistryDetail {
+    id: number;
+    key: string;
+    clusterNo: string | null;
+    clusterName: string | null;
+    directionNo: string | null;
+    directionName: string | null;
+    responsible: string | null;
+    name: string;
+    region: string | null;
+    coordsPlace: string | null;
+    goal: string | null;
+    kind: string | null;
+    deadlineText: string | null;
+    progressPercent: number | null;
+    state: string | null;
+    priority: number | null;
+    processingCapacity: string | null;
+    capacity: string | null;
+    oreReserveText: string | null;
+    durationMonths: number | null;
+    durationText: string | null;
+    startDateText: string | null;
+    endDateText: string | null;
+    totalCostMlnUsd: number | null;
+    finTmkMlnUsd: number | null;
+    finUzttjMlnUsd: number | null;
+    finCreditMlnUsd: number | null;
+    finPartnerMlnUsd: number | null;
+    finOfftakeMlnUsd: number | null;
+    finEurobondMlnUsd: number | null;
+    financeSourcesSumMlnUsd: number | null;
+    financeGapMlnUsd: number | null;
+    disbursedMlnUsd: number | null;
+    paybackYears: number | null;
+    paybackText: string | null;
+    irrPercent: number | null;
+    irrText: string | null;
+    npvMlnUsd: number | null;
+    npvText: string | null;
+    jobs: number | null;
+    product: string | null;
+    annualOutputMlnUsd: number | null;
+    annualOutputText: string | null;
+    annualOutputQty: number | null;
+    annualOutputQtyText: string | null;
+    fsState: string | null;
+    designer: string | null;
+    contractor: string | null;
+    epcContractMlnUsd: number | null;
+    epcContractText: string | null;
+    buildStartText: string | null;
+    assemblyText: string | null;
+    commissioningText: string | null;
+    docState: string | null;
+    areaHa: number | null;
+    areaText: string | null;
+    equipment: string | null;
+    objectKind: string | null;
+    proposalsOpen: string | null;
+    costBreakdown: string | null;
+    powerGrid: string | null;
+    powerDemandText: string | null;
+    gasGrid: string | null;
+    gasDemandText: string | null;
+    drinkWaterGrid: string | null;
+    techWaterGrid: string | null;
+    railway: string | null;
+    railwayDistanceKm: number | null;
+    railwayDistanceText: string | null;
+    road: string | null;
+    settlementDistanceKm: number | null;
+    settlementDistanceText: string | null;
+    expectedResults: string | null;
+    partnerCompany: string | null;
+    importedAt: string | null;
+    [key: string]: any;
+}
+
+export const getProjectRegistryDetail = async (id: number | string, lang: string = "uz"): Promise<ProjectRegistryDetail> => {
+    const response = await factoryClient.get(`/project-registry/${id}`, {
+        params: { lang },
+    });
+    return response.data?.data ?? response.data;
+}
+
 /* ── /invest-projects?type= — MINE / METALL / MARKET investitsiya loyihalari ro'yxati ──
    Backendning o'z nomlashi: `type` qiymatlari aynan "mine" | "metall" | "market"
    (METAL emas — "L" ikkita). Har biri hali qurilayotgan yoki reja bosqichidagi

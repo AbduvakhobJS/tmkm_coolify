@@ -66,8 +66,8 @@ const defaultItems: TopCenterItem[] = [
 /* ── Modal ichida ochiladigan iframe linklari ── */
 const iframeLinks = [
     { label: 'Iframe 1', url: 'https://network.uzkmt.uz/situation-center-wallboard-v2544?build=2544' },
-    // { label: 'Iframe 2', url: 'https://tmk.bgs.uz/excel/investmap' },
-    // { label: 'Iframe 3', url: 'https://tmk.bgs.uz/excel/investmap' },
+    { label: 'Iframe 2', url: 'https://build.uzkmt.uz/construction-wallboard/BVSC_s95zWxRa47s-omqhN7kr0n8Km8HIz2-KfJKLnBc_E3aYBR8LSA70RSo9rpke/' },
+    { label: 'Iframe 3', url: 'https://situation-agent.uzkmt.uz/wallboard/8LfAZz2AFFVPx_nAjYoYLJnGZ9X5tY_91L5vQGSnHu0xEm8qfotNkXHQZQvrcf2f' },
 ];
 
 

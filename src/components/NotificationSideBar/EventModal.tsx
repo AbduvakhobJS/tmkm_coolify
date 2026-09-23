@@ -129,14 +129,51 @@ const assetsFor = (event: AlarmEvent): KindAsset => KIND_ASSETS[kindOf(event.typ
 const imageFor = (event: AlarmEvent) => `${ALARM_ASSETS}/${event.image ?? assetsFor(event).image}`;
 const mapFor = (event: AlarmEvent) => `${ALARM_ASSETS}/${assetsFor(event).map}`;
 
-/** Alarm signali — hodisa turiga mos mp3. Brauzer sahifada hali hech qanday
- *  bosish bo'lmagan bo'lsa ovozni bloklashi mumkin — u holda jim o'tadi.
- *  Qaytgan `Audio` orqali chaqiruvchi ovozni to'xtata oladi. */
-export const playAlarmSound = (type?: AlarmType): HTMLAudioElement => {
+/* ── Alarm ovozlari navbati ───────────────────────────────────────────────
+   Bir vaqtda faqat bitta signal chalinadi; qolganlari navbatda oldingisi
+   tugashini kutadi. Brauzer ovozni bloklasa yoki fayl yuklanmasa — navbat
+   keyingisiga o'tadi. */
+type QueuedSound = { key: string; src: string; audio?: HTMLAudioElement };
+
+const soundQueue: QueuedSound[] = [];
+let currentSound: QueuedSound | null = null;
+
+const playNextSound = () => {
+    currentSound = soundQueue.shift() ?? null;
+    const item = currentSound;
+    if (!item) return;
+    const audio = new Audio(item.src);
+    item.audio = audio;
+    const done = () => { if (currentSound === item) playNextSound(); };
+    audio.addEventListener('ended', done);
+    audio.addEventListener('error', done);
+    audio.play().catch(done);
+};
+
+let soundSeq = 0;
+
+/** Alarm signalini navbatga qo'yadi. `key` (hodisa ID) bo'yicha bitta hodisa
+ *  signali navbatda ikki marta turmaydi. Qaytgan funksiya signalni bekor
+ *  qiladi: navbatda bo'lsa olib tashlaydi, chalinayotgan bo'lsa to'xtatib
+ *  keyingisiga o'tadi. */
+export const playAlarmSound = (type?: AlarmType, key?: string): (() => void) => {
+    if (key && (currentSound?.key === key || soundQueue.some((s) => s.key === key))) {
+        return () => {};
+    }
     const file = KIND_ASSETS[type ? kindOf(type) : 'kirish'].sound;
-    const audio = new Audio(`${ALARM_ASSETS}/${file}`);
-    audio.play().catch(() => { /* brauzer ruxsat bermasa — jim qoladi */ });
-    return audio;
+    const item: QueuedSound = { key: key ?? `sound-${++soundSeq}`, src: `${ALARM_ASSETS}/${file}` };
+    soundQueue.push(item);
+    if (!currentSound) playNextSound();
+
+    return () => {
+        const i = soundQueue.indexOf(item);
+        if (i !== -1) {
+            soundQueue.splice(i, 1);
+        } else if (currentSound === item) {
+            item.audio?.pause();
+            playNextSound();
+        }
+    };
 };
 
 /* ── Kichik interaktiv xarita — "Joylashuv" blokining ikkinchi kartasi.
@@ -213,8 +250,7 @@ export const EventModal: React.FC<{ event: AlarmEvent; onClose: () => void }> = 
     useEffect(() => {
         setImgFailed(false);
         setMapFailed(false);
-        const audio = playAlarmSound(event.type);
-        return () => { audio.pause(); audio.currentTime = 0; };
+        return playAlarmSound(event.type, event.id);
     }, [event.id, event.type]);
 
     useEffect(() => {

@@ -1,5 +1,5 @@
 import {useQuery} from "@tanstack/react-query";
-import {getTypeObject, getFactoryMarkers, getFactoryDetail, getMapObjects, getGeologyProjectDetail, getInvestProjectDetail, getInvestProjectsList, getAllInvestProjects, InvestProjectType, FactoryMarkerParams} from "../services/map";
+import {getTypeObject, getFactoryMarkers, getFactoryDetail, getMapObjects, getGeologyProjectDetail, getInvestProjectDetail, getInvestProjectsList, getAllInvestProjects, getProjectRegistryDetail, InvestProjectType, FactoryMarkerParams} from "../services/map";
 
 export const useGetTypeObjectAll = () => {
     return useQuery({
@@ -72,6 +72,19 @@ export const useGetInvestProjectDetail = (id: number | string | null | undefined
     return useQuery({
         queryKey: ["invest-project-detail", id, lang],
         queryFn: () => getInvestProjectDetail(id as number | string, lang),
+        enabled: id !== null && id !== undefined && id !== '',
+        retry: false,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+    });
+}
+
+// Loyihalar reestridagi bitta loyihaning to'liq kartochkasi (GET /project-registry/:id).
+export const useGetProjectRegistryDetail = (id: number | string | null | undefined, lang: string = "uz") => {
+    return useQuery({
+        queryKey: ["project-registry-detail", id, lang],
+        queryFn: () => getProjectRegistryDetail(id as number | string, lang),
         enabled: id !== null && id !== undefined && id !== '',
         retry: false,
         staleTime: 5 * 60 * 1000,
