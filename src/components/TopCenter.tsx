@@ -204,6 +204,18 @@ const TopCenter = ({
                 >
                     GS 7
                 </button>
+                <button
+                    className={`top-center-tab${activeTab === 10 ? ' active' : ''}`}
+                    onClick={() => navigate("/main/shopping")}
+                >
+                    XARIDLAR
+                </button>
+                <button
+                    className={`top-center-tab${activeTab === 11 ? ' active' : ''}`}
+                    onClick={() => navigate("/main/yur-main")}
+                >
+                    YURIDIK MASALALAR
+                </button>
                 {iframeLinks.map((link) => (
                     <button
                         key={link.label}

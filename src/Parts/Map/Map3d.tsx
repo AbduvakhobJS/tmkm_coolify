@@ -1,4 +1,5 @@
 import React, { Suspense, useRef, useEffect, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Canvas } from '@react-three/fiber';
@@ -2121,6 +2122,75 @@ const EmptyNote: React.FC<{ text: string }> = ({ text }) => (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', fontSize: '14px', color: GC.slate, lineHeight: 1.4 }}>{text}</div>
 );
 
+const PROJECT_REGISTRY_IMAGE_BASE = 'https://tmk.bgs.uz/upload/mnt/tmkupload/project-registry/';
+
+// Loyiha rasmi kartani to'liq to'ldiradi; pastda xira gradient ustida nom va hudud.
+// O'ng yuqori burchakdagi tugma rasmni to'liq ekranli oynada kattalashtirib ochadi
+// (Esc, fon yoki ✕ bilan yopiladi). Yuklanmasa (404) — ikonkali zaxira holat.
+const IconExpand = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+const ProjectImage: React.FC<{ src: string; title: string; caption?: string | null; accent: string }> = ({ src, title, caption, accent }) => {
+    const [errored, setErrored] = React.useState(false);
+    const [zoomed, setZoomed] = React.useState(false);
+
+    React.useEffect(() => {
+        if (!zoomed) return;
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setZoomed(false); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [zoomed]);
+
+    return (
+        <div style={{ position: 'relative', flex: 1, minHeight: '220px', borderRadius: '8px', overflow: 'hidden', border: `1px solid ${alpha(accent, 0.25)}`, background: `linear-gradient(145deg, ${alpha(accent, 0.12)}, #04101f)` }}>
+            {!errored ? (
+                <img src={src} alt={title} onError={() => setErrored(true)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            ) : (
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', color: alpha(accent, 0.6) }}>
+                    <Icon3DCube />
+                    <span style={{ fontSize: '15px', color: GC.slate }}>Loyiha rasmi yuklanmadi</span>
+                </div>
+            )}
+            {!errored && (
+                <>
+                    <button type="button" onClick={() => setZoomed(true)} title="To'liq ekranda ko'rish" aria-label="Rasmni to'liq ekranda ko'rish" style={{
+                        position: 'absolute', top: 10, right: 10, width: 40, height: 40, borderRadius: 8, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff',
+                        background: 'rgba(2,11,24,0.6)', border: `1px solid ${alpha(accent, 0.5)}`, backdropFilter: 'blur(4px)',
+                    }}>
+                        <IconExpand />
+                    </button>
+                    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '40px 20px 16px', background: 'linear-gradient(180deg, rgba(2,11,24,0) 0%, rgba(2,11,24,0.88) 70%)', pointerEvents: 'none' }}>
+                        <div style={{ fontSize: '19px', fontWeight: 700, color: '#fff', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', maxWidth: '70ch' }}>{title}</div>
+                        {caption && <div style={{ fontSize: '15px', color: 'rgba(255,255,255,0.7)', marginTop: '4px' }}>{caption}</div>}
+                    </div>
+                </>
+            )}
+            {zoomed && createPortal(
+                <div role="dialog" aria-label={title} onClick={() => setZoomed(false)} style={{
+                    position: 'fixed', inset: 0, zIndex: 900000010, background: 'rgba(2,11,24,0.94)',
+                    display: 'flex', flexDirection: 'column', padding: '24px 32px', gap: '14px',
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
+                        <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '22px', fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</div>
+                            {caption && <div style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', marginTop: 4 }}>{caption}</div>}
+                        </div>
+                        <button type="button" onClick={() => setZoomed(false)} aria-label="Yopish" style={{ ...closeBtnStyle, width: 40, height: 40 }}>✕</button>
+                    </div>
+                    <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img src={src} alt={title} onClick={(e) => e.stopPropagation()} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                </div>,
+                document.body,
+            )}
+        </div>
+    );
+};
+
 const INVEST_FUNDING_META: { key: string; label: string; color: string }[] = [
     { key: 'finTmkMlnUsd', label: "TMK mablag'lari", color: GC.accent1 },
     { key: 'finUzttjMlnUsd', label: "O'zTTJ mablag'lari", color: GC.accent3 },
@@ -2143,6 +2213,7 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
     const projectCode = detail.id != null ? `Reestr № ${detail.ordinal ?? detail.id}` : (pickField(detail, ['projectCode', 'code']) || object.id);
     const progressPct: number | null = detail.progressPercent ?? (typeof object.progress === 'number' ? Math.round(object.progress * 100) : null);
     const endText = detail.endDateText || detail.deadlineText;
+    const projectImageUrl = detail.image ? `${PROJECT_REGISTRY_IMAGE_BASE}${detail.image}` : null;
     const irrValue = detail.irrPercent != null ? fmtNum(detail.irrPercent) : shortText(detail.irrText);
     const npvValue = detail.npvMlnUsd != null ? fmtNum(detail.npvMlnUsd) : shortText(detail.npvText);
 
@@ -2392,18 +2463,20 @@ const InvestFullScreenModal: React.FC<{ object: MapItem; onClose: () => void }> 
                     </Card>
                 </div>
 
-                {/* 3. Loyiha 3D modeli */}
+                {/* 3. Loyiha rasmi — reestrdagi `image`; rasm bo'lmasa yoki yuklanmasa avvalgi "3D model mavjud emas" holati */}
                 <div style={{ gridColumn: '1', gridRow: '2', minHeight: 0 }}>
-                    <Card title="3. Loyiha 3D modeli" titleColor="#ffffff" borderColor={alpha(GC.amber, 0.4)}>
-                        {/* Bu loyiha uchun 3D model hali yuklanmagan — soxta maket
-                            o'rniga ochiq-oydin "mavjud emas" holati ko'rsatiladi. */}
-                        <div style={{ flex: 1, minHeight: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.14)', background: `linear-gradient(145deg, ${alpha(accent, 0.07)}, #04101f)`, color: alpha(accent, 0.45) }}>
-                            <Icon3DCube />
-                            <div style={{ fontSize: '20px', fontWeight: 700, color: 'rgba(255,255,255,0.75)' }}>3D model mavjud emas</div>
-                            <div style={{ fontSize: '14px', color: GC.slate, textAlign: 'center', maxWidth: '360px' }}>
-                                Ushbu loyiha uchun 3D model hali tizimga yuklanmagan.
+                    <Card title="3. Loyiha rasmi va 3D modeli" titleColor="#ffffff" borderColor={projectImageUrl ? alpha(accent, 0.3) : alpha(GC.amber, 0.4)}>
+                        {projectImageUrl ? (
+                            <ProjectImage src={projectImageUrl} title={detail.name || object.name || ''} caption={detail.region || object.region} accent={accent} />
+                        ) : (
+                            <div style={{ flex: 1, minHeight: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.14)', background: `linear-gradient(145deg, ${alpha(accent, 0.07)}, #04101f)`, color: alpha(accent, 0.45) }}>
+                                <Icon3DCube />
+                                <div style={{ fontSize: '20px', fontWeight: 700, color: 'rgba(255,255,255,0.75)' }}>3D model mavjud emas</div>
+                                <div style={{ fontSize: '14px', color: GC.slate, textAlign: 'center', maxWidth: '360px' }}>
+                                    Ushbu loyiha uchun 3D model hali tizimga yuklanmagan.
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </Card>
                 </div>
 

@@ -82,7 +82,7 @@ const IframeDashboard: React.FC = () => {
                         )}
                         <iframe
                             title={`monitor-${key}`}
-                            src={src}
+                            src={src + "#token=" + (localStorage.getItem('tmk-token-bgs') || '')}
                             className="ifd-frame"
                             onLoad={() => setLoaded(true)}
                             allow="fullscreen"

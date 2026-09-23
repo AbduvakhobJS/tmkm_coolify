@@ -29,7 +29,7 @@ const IframeWrapper = () => {
     return (
         <iframe
             ref={iframeRef}
-            src={"https://tmk.bgs.uz/excel/investmap"}
+            src={"https://tmk.bgs.uz/excel/investmap" + "#token=" + (localStorage.getItem('tmk-token-bgs') || '')}
             title="Dal"
             onLoad={handleLoad}
             style={{

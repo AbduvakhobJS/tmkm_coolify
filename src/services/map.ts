@@ -280,6 +280,8 @@ export interface ProjectRegistryDetail {
     settlementDistanceText: string | null;
     expectedResults: string | null;
     partnerCompany: string | null;
+    /** Fayl nomi — to'liq URL: `https://tmk.bgs.uz/upload/mnt/tmkupload/project-registry/` + image. */
+    image: string | null;
     importedAt: string | null;
     [key: string]: any;
 }
